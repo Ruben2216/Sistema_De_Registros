@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificación Reunión Inicio Jornada</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 10px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .formulario-verificacion {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+        }
+        .formulario-verificacion__titulo-principal {
+            font-size: 1.5em;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .seccion {
+            margin-bottom: 20px;
+        }
+        .seccion__titulo {
+            color: #333;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        .seccion__divisor {
+            border: 0;
+            height: 1px;
+            background: #ddd;
+            margin: 20px 0;
+        }
+        .campo {
+            margin-bottom: 15px;
+        }
+        .campo__etiqueta {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        .campo__control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            background-color: #fff;
+            color: #333;
+        }
+        .campo__control--area-texto {
+            min-height: 80px;
+            resize: vertical;
+        }
+        .grupo-opciones {
+            margin-bottom: 10px;
+            margin-top: 5px;
+        }
+        .grupo-opciones__opcion {
+            font-weight: normal;
+            display: inline-block;
+            margin-right: 15px;
+            cursor: pointer;
+            color: #333;
+        }
+        .grupo-opciones__control {
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+        .boton {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+            width: 100%;
+            text-align: center;
+            font-weight: bold;
+        }
+        .boton--primario {
+            background-color: #28a745;
+            color: white;
+        }
+        .boton--secundario {
+            background-color: #ffc107;
+            color: #333;
+        }
+        .seccion--desplegable .seccion__resumen {
+            font-weight: bold;
+            cursor: pointer;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            color: #333;
+        }
+       
+        .campo-firma {
+            border: 1px dashed #ccc;
+            height: 100px;
+            background-color: #fdfdfd;
+            margin-bottom:10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #777;
+            font-size: 0.9em;
+            margin-top:5px;
+            text-align: center;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="formulario-verificacion">
+        
+
+        <form class="formulario-verificacion__formulario">
+            <h1 class="formulario-verificacion__titulo-principal">LISTA DE VERIFICACIÓN DE LA REUNIÓN DE INICIO DE JORNADA</h1>
+            <div class="campo">
+                <label class="campo__etiqueta">División</label>
+            <select  class="campo__control">
+                <option value="">Selecciona una división</option>
+                <option value="Baja_California">División Bajacalifornia</option>
+                <option value="Noroeste">División Noroeste</option>
+                <option value="Norte">División Norte</option>
+                <option value="Golfo_Norte">División Golfo norte</option>
+                <option value="Golfo_Centro">División Golfo Centro</option>
+                <option value="Bajio">División Bajio</option>
+                <option value="Jalisco">División Jalisco</option>
+                <option value="Centro_Occidente">División Centro Occidente</option>
+                <option value="Centro_Sur">División Centro Sur</option>
+                <option value="Centro_Oriente">Division Centro Oriente</option>
+                <option value="Oriente">División Oriente</option>
+                <option value="Sureste">División Sureste</option>
+                <option value="Peninsular">División Peninsular</option>
+                <option value="Valle_Norte">División Valle de México Norte</option>
+                <option value="Valle_Centro">División Valle de México Centro</option>
+                <option value="Valle_Sur">División Valle de México Sur</option>
+            </select>
+            </div>
+            <div class="seccion">
+                <div class="campo">
+                <label class="campo__etiqueta">Zonas</label>
+                <select class="campo__control">
+                    <option value="Seleccionar_Zona">Selecciona una zona</option>
+                </select>
+                </div>
+            </div>
+            
+            <div class="seccion">
+                <div class="campo">
+                    <label class="campo__etiqueta">DEPARTAMENTO Y/O COMPAÑÍA:</label>
+                    <select class="campo__control">
+                        <option value="">Seleccione una opción</option>
+                        <option value="T.I">Departamento de T.I</option>
+                        <option value="Capacitacion">Capacitación</option>
+                        <option value="Seguridad">Seguridad</option>
+                        <option value="Administracion">Administración</option>
+                        <option value="Otro">Otro</option>
+                    </select>
+                </div>
+                <div class="campo">
+                    <label class="campo__etiqueta">FECHA:</label>
+                    <input type="date" class="campo__control">
+                </div>
+                <div class="campo">
+                    <label class="campo__etiqueta">CATEGORÍA MÁXIMA PRESENTE EN LA REUNIÓN:</label>
+                    <select class="campo__control">
+                        <option value="">Seleccione una opción</option>
+                        <option value="Superintendente">Superintendente</option>
+                        <option value="JefeDepto">Jfe. Departamento</option>
+                        <option value="C">C</option>
+                        <option value="D">D</option>
+                        <option value="E">E</option>
+                        <option value="Otro">Otro</option>
+                    </select>
+                </div>
+                <div class="campo">
+                    <label class="campo__etiqueta">NOMBRE:</label>
+                    <input type="text" class="campo__control">
+                </div>
+                <div class="campo">
+                    <label class="campo__etiqueta">R.P.E.:</label>
+                    <input type="text" class="campo__control">
+                </div>
+                <div class="campo">
+                    <label class="campo__etiqueta">FIRMA:</label>
+                    <div class="campo-firma">[Área para firma del responsable]<br>Hacer click aqui</div>
+                    <input type="hidden">
+                </div>
+                <div class="campo">
+                    <label class="campo__etiqueta">HR. INICIO:</label>
+                    <input type="time" class="campo__control">
+                </div>
+                <div class="campo">
+                    <label class="campo__etiqueta">TÉRMINO:</label>
+                    <input type="time" class="campo__control">
+                </div>
+            </div>
+            <hr class="seccion__divisor">
+            <div class="seccion">
+                <h3 class="seccion__titulo">Inicio</h3>
+                <div class="campo">
+                    <p class="campo__etiqueta">1. ¿Se realizó el saludo de inicio de jornada?</p>
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" type="radio" value="no"> No</label>
+                    </div>
+                </div>
+                <div class="campo">
+                     <p class="campo__etiqueta">2. ¿Se enumeró el personal participante?</p>
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" type="radio" value="no"> No</label>
+                    </div>
+                </div>
+                <div class="campo">
+                    <label class="campo__etiqueta">No. Participantes:</label>
+                    <input type="number" min="0" class="campo__control">
+                </div>
+                <div class="campo">
+                    <p class="campo__etiqueta">3. ¿Se preguntó el estado de salud a los participantes?</p>
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" type="radio" value="no"> No</label>
+                    </div>
+                </div>
+                <div class="campo">
+                    <p class="campo__etiqueta">4. ¿Se realizaron los ejercicios?</p>
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" type="radio" value="no"> No</label>
+                    </div>
+                </div>
+                <div class="campo">
+                    <p class="campo__etiqueta">4.1. ¿Se detectaron anomalías en el estado de salud?</p>
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" type="radio" value="no"> No</label>
+                    </div>
+                </div>
+            </div>
+            <div class="seccion seccion--desplegable">
+                <div class="seccion__resumen">5. Información</div>
+                <div class="campo">
+                    <p class="campo__etiqueta">5.1. ¿Se comentaron trabajos de mantenimiento relevantes?</p>
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" type="radio" value="no"> No</label>
+                    </div>
+                </div>
+                <div class="campo">
+                    <p class="campo__etiqueta">5.2. ¿Se comentaron trabajos de operación relevantes?</p>
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" type="radio" value="no"> No</label>
+                    </div>
+                </div>
+                <div class="campo">
+                    <p class="campo__etiqueta">5.3. ¿Se comentaron trabajos con potencial de alto riesgo?</p>
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" type="radio" value="no"> No</label>
+                    </div>
+                </div>
+                 <div class="campo">
+                    <p class="campo__etiqueta">5.4. ¿Se comentaron incidentes y/o accidentes ocurridos?</p>
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" type="radio" value="no"> No</label>
+                    </div>
+                </div>
+                <div class="campo">
+                    <p class="campo__etiqueta">5.5. Otra información</p>
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" type="radio" value="no"> No</label>
+                    </div>
+                </div>
+                <div class="campo">
+                    <label class="campo__etiqueta">Información (Especificar el nombre de los temas del cual se dio información):</label>
+                    <textarea class="campo__control campo__control--area-texto"></textarea>
+                </div>
+            </div>
+            <div class="seccion seccion--desplegable">
+                <div class="seccion__resumen">6. Actividades de Seguridad</div>
+                <div class="campo">
+                    <p class="campo__etiqueta">6.1. ¿Se realizó la revisión espejo?</p>
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" type="radio" value="no"> No</label>
+                    </div>
+                </div>
+                <div class="campo">
+                    <p class="campo__etiqueta">6.2. ¿Se realizó Actividad de Predicción de Peligro (APP)?</p>
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" type="radio" value="no"> No</label>
+                    </div>
+                </div>
+                <div class="campo">
+                     <p class="campo__etiqueta">6.3. ¿Se dio lectura a un artículo del Reglamento de Seguridad e Higiene o ficha tecnica de una regla de vida?</p>
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" type="radio" value="no"> No</label>
+                    </div>
+                </div>
+                <div class="campo">
+                    <p class="campo__etiqueta">6.4. ¿Se relató una Experiencia de Sentir el Peligro (Susto)?</p>
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" type="radio" value="no"> No</label>
+                    </div>
+                </div>
+                <div class="campo">
+                    <p class="campo__etiqueta">6.5. Actividades relevantes posteriores (Inspecciones, Campañas, etc.)</p>
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" type="radio" value="no"> No</label>
+                    </div>
+                </div>
+                <div class="campo">
+                    <p class="campo__etiqueta">6.6. Lectura de las Reglas de Vida</p>
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" type="radio" value="no"> No</label>
+                    </div>
+                </div>
+                <div class="campo">
+                    <p class="campo__etiqueta">6.7. Lectura de las políticas.</p>
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" type="radio" value="no"> No</label>
+                    </div>
+                </div>
+                <div class="campo">
+                    <p class="campo__etiqueta">6.8. Solicitar que un colaborador de un mensaje en materia de Seguridad</p>
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" type="radio" value="no"> No</label>
+                    </div>
+                </div>
+                <div class="campo">
+                    <label class="campo__etiqueta">Actividad: (Especificar el nombre de las actividades de Seguridad que se realizaron)</label>
+                    <textarea class="campo__control campo__control--area-texto"></textarea>
+                </div>
+            </div>
+            <div class="seccion">
+                <div class="campo">
+                    <label class="campo__etiqueta">7. Meta o propósito de la jornada: (Anotar el compromiso de seguridad que los miembros del grupo se proponen cumplir ese día)</label>
+                    <textarea class="campo__control campo__control--area-texto"></textarea>
+                </div>
+            </div>
+            <div class="seccion">
+                <div class="campo"> 
+                    <label class="campo__etiqueta">OBSERVACIONES: (Anotar las preguntas, inquietudes, sugerencias y/o acciones tomadas en caso de que las condiciones de salud del personal no sean adecuadas)</label>
+                    <textarea class="campo__control campo__control--area-texto"></textarea>
+                </div>
+            </div>
+            <hr class="seccion__divisor">
+            <div class="seccion">
+                <h3 class="seccion__titulo">Conductor de la Reunión</h3>
+                <div class="campo">
+                    <label class="campo__etiqueta">CONDUCTOR DE LA REUNIÓN:</label>
+                    <input type="text" class="campo__control">
+                </div>
+                <div class="campo">
+                    <label class="campo__etiqueta">R.P.E.:</label>
+                    <input type="text" class="campo__control">
+                </div>
+                <div class="campo">
+                    <label class="campo__etiqueta">FIRMA:</label>
+                    <div class="campo-firma">[Área para firma del conductor]</div>
+                    <input type="hidden">
+                </div>
+            </div>
+            <button type="submit" class="boton boton--primario">Pasar siguiente</button>
+            <button type="button" class="boton boton--secundario">Guardar Borrador</button>
+            <button  type="button" class="boton boton--secundario">Cancelar</button>
+        </form>
+    </div>
+</body>
+</html>
