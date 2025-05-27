@@ -1,5 +1,6 @@
 const divisionSelect = document.getElementById("division");
 const zonaSelect = document.getElementById("zona");
+navigator.mediaDevices.getUserMedia();
   
   const datos = {
       Baja_California: {
