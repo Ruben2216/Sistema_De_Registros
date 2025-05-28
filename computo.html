@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mantenimiento de Computo</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <div class="formulario-verificacion">
+        <form class = "formulario-verificacion__formulario"">
+            <h1 class="formulario-verificacion__titulo-principal">Formato de mantenimiento de computo</h1>
+            <div class="seccion">
+                <div class="campo">
+                <label class="campo__etiqueta">ZONAS</label>
+                <select class="campo__control">
+                    <option value="Seleccionar_Zona">Selecciona una zona</option>
+                </select>
+                </div>
+            </div>
+            <div class="seccion">
+                <div class="campo">
+                <label class="campo__etiqueta">CENTRO DE TRABAJO</label>
+                <select class="campo__control">
+                    <option value="Seleccionar_Zona">Seleccione una centro</option>
+                </select>
+                </div>
+            </div>
+            <div class="campo">
+                    <label class="campo__etiqueta">FOLIO</label>
+                    <input type="text" class="campo__control">
+            </div>
+            <div class="campo">
+                    <label class="campo__etiqueta">FECHA</label>
+                    <input type="date" class="campo__control">
+                </div>
+            <div class="campo">
+                    <label class="campo__etiqueta">NOMBRE DEL USUARIO</label>
+                    <input type="text" class="campo__control">
+            </div>
+            <div class="seccion">
+                <div class="campo">
+                <label class="campo__etiqueta">TIPO DE EQUIPO</label>
+                <select class="campo__control">
+                    <option value="Seleccionar_Zona">Seleccione el tipo de equipo</option>
+                    <option value="PC">PC</option>
+                    <option value="Laptop">Laptop</option>
+                </select>
+                </div>
+            </div>
+            <div class="campo">
+                    <label class="campo__etiqueta">USO QUE SE LE DA AL EQUIPO</label>
+                    <input type="text" class="campo__control">
+            </div>
+            <div class="campo">
+                    <label class="campo__etiqueta">MARCA</label>
+                    <input type="text" class="campo__control">
+            </div>
+            <div class="campo">
+                    <label class="campo__etiqueta">MODELO</label>
+                    <input type="text" class="campo__control">
+            </div>
+            <div class="campo">
+                    <label class="campo__etiqueta">NUMERO DE SERIE</label>
+                    <input type="text" class="campo__control">
+            </div>
+            <div class="seccion">
+                <div class="campo">
+                <label class="campo__etiqueta">SERVICIO</label>
+                <select class="campo__control">
+                    <option value="Seleccionar_Zona">Seleccione el tipo de servicio</option>
+                    <option value="Preventivo">Preventivo</option>
+                    <option value="Mantenimiento">Mantenimiento</option>
+                </select>
+                </div>
+            </div>
+            <div class="campo">
+                <label class="campo__etiqueta">HR. INICIO</label>
+                <input type="time" class="campo__control">
+            </div>
+            <div class="campo">
+                <label class="campo__etiqueta">HR. TÉRMINO</label>
+                <input type="time" class="campo__control">
+            </div>
+            <hr class="seccion__divisor">
+            <div class="seccion">
+                <h3 class="seccion__titulo">Elemento</h3>
+                <div class="campo">
+                    <p class="campo__etiqueta">1. Limpieza externa del equipo</p>
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="limpieza_externa" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="limpieza_externa" type="radio" value="no"> No</label>
+                    </div>
+                </div>
+                <div class="campo">2. Limpieza externa de pantalla</p>
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="pantalla" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="pantalla" type="radio" value="no"> No</label>
+                    </div>
+                </div>
+                <div class="campo">3. Limpieza externa de teclado</p>
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="teclado" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="teclado" type="radio" value="no"> No</label>
+                    </div>
+                </div>
+                <div class="campo">4. Verificar conexiones eléctricas en buen estado</p>
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="conexiones" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="conexiones" type="radio" value="no"> No</label>
+                    </div>
+                </div>
+                <div class="campo">5. Verificar que funcione correctamente después del servicio</p>
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="despues_servicio" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="despues_servicio" type="radio" value="no"> No</label>
+                    </div>
+                </div>
+                <div class="campo">6. Antivirus instituional actualizado</p>
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="Antivirus" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="Antivirus" type="radio" value="no"> No</label>
+                    </div>
+                </div>
+                <div class="campo">7. Ejecución de Defrag</p>
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="Defrag" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="Defrag" type="radio" value="no"> No</label>
+                    </div>
+                </div>
+                <div class="campo">8. Equipo dentro del dominio</p>
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="dominio" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="dominio" type="radio" value="no"> No</label>
+                    </div>
+                </div>
+                <div class="campo">9. Sistema operativo actualizado (Windows update)</p>
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="Windows_update" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="Windows_update" type="radio" value="no"> No</label>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</body>
+</html>
