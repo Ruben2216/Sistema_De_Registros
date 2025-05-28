@@ -8,8 +8,6 @@ html, body{
     align-items: center;
     min-height: 100vh;
 }
-
-
 .contenedor {
     display: flex;
     flex-direction: column;
@@ -35,14 +33,22 @@ html, body{
 
 .img-encabezado__logo {
     width: 20%;
-    
-    
 }
 .contenedor__item--img{
         width: 60px;
     height: 60px;
     object-fit: cover;
         border-radius: 50%;
+}
+
+.links a{
+    text-decoration: none;
+    color: black;
+    display: block;
+    padding: 13px;
+}
+.links{
+    background-color: #da1212 !important;
 }
 
 a{
