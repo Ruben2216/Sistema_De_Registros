@@ -8,10 +8,22 @@
 </head>
 <body>
     <div class="formulario-verificacion">
+        <div class="fecha-reloj">
+            <div>
+    <span id="reloj" class="reloj">00:00:00</span> 
+    </div>
+    <div>
+    <span id="aviso"></span>
+    </div>
+    </div>
+
         
 
         <form class="formulario-verificacion__formulario">
             <h1 class="formulario-verificacion__titulo-principal">LISTA DE VERIFICACIÓN DE LA REUNIÓN DE INICIO DE JORNADA</h1>
+            <p id="fecha_p" class="fecha_p"></p>
+
+
             <div class="campo">
                 <label class="campo__etiqueta">División</label>
             <select  class="campo__control" id="division">
@@ -56,8 +68,6 @@
                     </select>
                 </div>
                 <div class="campo">
-                    <label class="campo__etiqueta">FECHA:</label>
-                    <input type="date" class="campo__control" id="fecha" disabled>
                 </div>
                 <div class="campo">
                     <label class="campo__etiqueta">CATEGORÍA MÁXIMA PRESENTE EN LA REUNIÓN:</label>

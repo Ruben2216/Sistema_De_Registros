@@ -5,6 +5,26 @@ body {
     background-color: #f4f4f4;
     color: #333;
 }
+.fecha_p{
+    text-align: right;
+    margin:0 0 0.7rem 0;   
+    
+}
+.reloj{
+    margin: 0 0 0.4rem 0;
+    position: absolute;
+}
+h1{
+    margin-top:0;
+}
+.fecha-reloj{
+    display:flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+
+
+}
+
 .formulario-verificacion {
     background-color: #fff;
     padding: 15px;

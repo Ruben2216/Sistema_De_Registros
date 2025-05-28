@@ -228,6 +228,37 @@ divisionSelect.addEventListener("change", function() {
     llenarSelect(zonaSelect, Object.keys(zonas));
 });
 
-const hoy = new Date();
-const fechaFormateada = hoy.getFullYear() + '-' + (hoy.getMonth() + 1).toString().padStart(2, '0') + '-' + hoy.getDate().toString().padStart(2, '0');
-document.getElementById('fecha').value = fechaFormateada;
+// ------------FECHA ACTUAL-----------------
+const fecha = new Date();
+const fechaActual = document.getElementById("fecha_p");
+//obtener la fecha actual en dias, meses y años por letras
+const dias = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+const diaActual = dias[fecha.getDay()];
+const mesActual = meses[fecha.getMonth()];
+
+fechaActual.textContent = diaActual + ", " + fecha.getDate() + " de " + mesActual + " de " + fecha.getFullYear();
+
+// -------------RELOJ-----------------
+  function myFunc()  {
+        var now = new Date();
+        var time = now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds();
+        var aviso =  " Se enviara con retraso"
+        document.getElementById('reloj').innerHTML = time;
+        document.getElementById('aviso').innerHTML = aviso;
+            //si es mayor a 08:20 de la mañara se muestra en color rojo
+        if (now.getHours() >=8 && now.getMinutes() >= 20) {
+
+            document.getElementById('reloj').style.color = "green";
+            document.getElementById('reloj').style.fontWeight = "bold";
+            document.getElementById('reloj').innerHTML = time;
+            document.getElementById('aviso').style.color = "red";
+
+        } else {
+            document.getElementById('reloj').style.color = "red";
+            document.getElementById('reloj').style.fontWeight = "bold";
+        }
+
+    }
+    setInterval(myFunc, 1000);
+
