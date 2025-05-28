@@ -46,9 +46,21 @@ html, body{
     color: black;
     display: block;
     padding: 13px;
+    width: 100%; /*CON ESTE VALOR SE MODIFICA EL ANCHO DE LOS a CONTENEDORES*/
 }
 .links{
-    background-color: #faf8f8;
+    background-color: #f9f9f9;
+    width: 100%; /*CON ESTE VALOR SE MODIFICA EL ANCHO DE LOS a CONTENEDORES*/
+    display: none;
+}
+.links a:hover {
+    background-color: #e0e0e0;
+    color: #005f3e;
+    font-weight: bold;
+}
+.desplegable:hover .links{
+    display: block;
+
 }
 
 .contenedor__item{
