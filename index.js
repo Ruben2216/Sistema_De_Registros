@@ -1,6 +1,6 @@
 const divisionSelect = document.getElementById("division");
 const zonaSelect = document.getElementById("zona");
-navigator.mediaDevices.getUserMedia();
+
   
   const datos = {
       Baja_California: {
@@ -227,3 +227,7 @@ divisionSelect.addEventListener("change", function() {
     // Llena el select de zonas 
     llenarSelect(zonaSelect, Object.keys(zonas));
 });
+
+const hoy = new Date();
+const fechaFormateada = hoy.getFullYear() + '-' + (hoy.getMonth() + 1).toString().padStart(2, '0') + '-' + hoy.getDate().toString().padStart(2, '0');
+document.getElementById('fecha').value = fechaFormateada;
