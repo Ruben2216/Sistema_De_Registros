@@ -1,0 +1,4 @@
+# el proposito de este archivo es ignorar archivos que no deben ser subidos al repositorio
+
+# Ignorar la carpeta env
+env/
