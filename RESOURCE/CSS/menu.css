@@ -107,3 +107,22 @@ html, body{
         height: 4rem;
     }
 }
+
+/*select de mantenimeinto*/
+.opciones_mantenimiento {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+    background-color: #fff;
+    color: #333;
+    font-size: 16px;
+}
+select {
+    border: none;
+}
+select option{
+    text-align: left;
+    font-size: 16px;
+}
