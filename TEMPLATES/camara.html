@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CÁMARA</title>
+    <link rel="stylesheet" href="/RESOURCE/CSS/camara.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Cámara Móvil</h1>
+        
+        <div class="video-container">
+            <video id="video" autoplay playsinline></video>
+        </div>
+
+        <div class="controls">
+            <button id="startButton">Iniciar Cámara</button>
+            <button id="snapButton" disabled>Tomar Foto</button>
+            <button id="stopButton" disabled>Detener Cámara</button>
+        </div>
+
+        <div class="output">
+            <h2>Foto Capturada:</h2>
+            <canvas id="canvas" style="display:none;"></canvas>
+            <img id="photo" src="#" alt="Foto Capturada">
+        </div>
+
+        <p id="status"></p>
+    </div>
+    <a href="index2.html">IR A OPCION 2 DE CAMARAS</a>
+
+    <script src="/RESOURCE/JS/index.js"></script>
+    
+</body>
+</html>

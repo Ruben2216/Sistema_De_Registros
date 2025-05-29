@@ -1,0 +1,89 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* justify-content: center; /* Permitir scroll si el contenido es alto */
+    min-height: 100vh;
+    margin: 0;
+    background-color: #f0f0f0;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    text-align: center;
+    width: 100%;
+    max-width: 380px; /* Ancho típico de móvil para la demo */
+}
+
+h1 {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.video-container {
+    width: 300px;
+    height: 533px;
+    position: relative;
+    background-color: #000;
+    overflow: hidden;
+    border-radius: 8px;
+    margin: 0 auto 20px auto;
+}
+
+#video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: auto;
+    height: 100%;
+    transform: translate(-50%, -50%); 
+    object-fit: contain; 
+    transform-origin: center center;
+}
+
+.controls button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    margin: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.controls button:hover {
+    background-color: #0056b3;
+}
+
+.controls button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.output {
+    margin-top: 20px;
+}
+
+#photo {
+    display: block;
+    margin: 10px auto;
+    max-width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    /* Si la imagen capturada también debe mostrarse verticalmente: */
+    /* width: auto; */
+    /* height: 250px; /* O un max-height */
+}
+
+#status {
+    margin-top: 15px;
+    font-size: 0.9em;
+    color: #555;
+}

@@ -113,6 +113,7 @@ select {
     width: 100%;
 }
 select option{
+    
     text-align: left;
     font-size: 16px;
     background-color: #fff;
