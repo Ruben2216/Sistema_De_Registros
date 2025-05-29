@@ -12,7 +12,6 @@ body {
 }
 .reloj{
     margin: 0 0 0.4rem 0;
-    position: absolute;
 }
 h1{
     margin-top:0;
@@ -135,4 +134,95 @@ h1{
     text-align: center;
     border-radius: 4px;
     cursor: pointer;
+}
+.firma-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999; /*posicionar siempre hasta enfrente*/
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    justify-content: center;
+    align-items: center;
+}
+.firma-modal--visible { /*clase modificable y usada en el js*/
+    display: flex;
+}
+.firma-modal__contenido {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px #0008;
+    display: flex;
+    flex-direction: column; /*para que se muestren en columba en lugar de row*/
+    align-items: center;
+}
+.firma-modal__titulo {
+    margin-bottom: 10px;
+    font-size: 1.2em;
+    color: #222;
+}
+.firma-canvas {
+    border: 1px solid #ccc;
+    background: #fafafa;
+    border-radius: 4px;
+    touch-action: none;
+    margin-bottom: 10px;
+}
+.firma-modal__botones {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+}
+.firma-imagen {
+    display: none;
+    max-width: 100%;
+    max-height: 100px;
+    margin-top: 5px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+}
+.firma-area {
+    border: 1px dashed #ccc; /*dashed es para bordes punteados*/
+    height: 100px;
+    background-color: #fdfdfd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #777;
+    font-size: 0.9em;
+    margin-top: 5px;
+    text-align: center;
+    border-radius: 4px;
+    cursor: pointer;
+}
+canvas{
+    width:400px;
+    height:300px;
+
+}
+
+/* Acordeón para secciones desplegables */
+.seccion--desplegable .campo,
+.seccion--desplegable textarea,
+.seccion--desplegable .campo__etiqueta,
+.seccion--desplegable .campo__control,
+.seccion--desplegable .campo__control--area-texto {
+    display: none;
+}
+.seccion--desplegable.abierta .campo,
+.seccion--desplegable.abierta textarea,
+.seccion--desplegable.abierta .campo__etiqueta,
+.seccion--desplegable.abierta .campo__control,
+.seccion--desplegable.abierta .campo__control--area-texto {
+    display: block;
+}
+/* Mejora para pantallas pequeñas: el resumen siempre visible */
+@media (max-width: 600px) {
+    .seccion--desplegable .seccion__resumen {
+        font-size: 1.1em;
+        padding: 12px;
+    }
 }
