@@ -48,7 +48,18 @@ html, body{
     padding: 13px;
 }
 .links{
-    background-color: #faf8f8;
+    background-color: #f9f9f9;
+    display: none;
+    width: 100%;
+}
+.links a:hover {
+    background-color: #e0e0e0;
+    color: #005f3e;
+    font-weight: bold;
+    width: 100%;
+}
+.desplegable:hover .links{
+    display: block;
 }
 
 .contenedor__item{
