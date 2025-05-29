@@ -1,7 +1,4 @@
 // Lógica para la fecha y el reloj
-// ------------------------------
-// Este archivo contiene la lógica para mostrar la fecha actual y el reloj en tiempo real.
-
 const fecha = new Date();
 const fechaActual = document.getElementById("fecha_p");
 const dias = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
@@ -13,7 +10,34 @@ fechaActual.textContent = diaActual + ", " + fecha.getDate() + " de " + mesActua
 
 function myFunc() {
     var now = new Date();
-    var time = now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds();
+    var hora;
+    if (now.getHours < 10){
+        hora= "0" + now.getHours();
+    } else {
+        hora = now.getHours();
+
+    }
+    var minutos;
+    if ( now.getMinutes() < 10){
+        minutos = "0" + now.getMinutes();
+    } else {
+        minutos = now.getMinutes();
+    }
+    var segundos;
+    if (now.getSeconds() < 10){
+        segundos = "0" + now.getSeconds();
+    } else {
+        segundos = now.getSeconds()
+    }
+
+    var time = hora + ":" + minutos + ":" + segundos;
+
+
+
+
+
+
+
     var aviso =  " Se enviara con retraso";
     document.getElementById('reloj').innerHTML = time;
     if (now.getHours() >=8 && now.getMinutes() >= 20) {

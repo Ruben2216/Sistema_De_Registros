@@ -1,6 +1,5 @@
 // Lógica para el acordeón de secciones desplegables
 // -----------------------------------------------
-// Este archivo contiene la lógica para el acordeón y el comportamiento de las secciones desplegables.
 
 var seccionesDesplegables = document.querySelectorAll('.seccion--desplegable');
 
