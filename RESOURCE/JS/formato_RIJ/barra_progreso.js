@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         //------------------------------------------------------------------------
         // Selecciona todos los campos excepto¿ los radio porque serán contados aparte más adelante
-        var campos = formulario.querySelectorAll('input:not([type="radio"]), textarea, select');
+        var campos = formulario.querySelectorAll('input:not([type="radio"]), textarea, select, hidden');
         totalCampos += campos.length;
 
         // Cuenta los campos llenados (excepto radios)
