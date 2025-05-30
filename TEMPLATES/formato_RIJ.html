@@ -7,6 +7,12 @@
     <link rel="stylesheet" href="/RESOURCE\CSS\index.css">
 </head>
 <body>
+    <div class="contenedor-barra">
+        <div class="progreso">
+            <div class="progreso-barra" id="progreso-barra" style="width: 0%;"></div>
+        </div>
+    </div>
+
     <div class="formulario-verificacion">
         <div class="fecha-reloj">
             <div>
@@ -110,8 +116,10 @@
                 <div class="campo">
                     <p class="campo__etiqueta">1. ¿Se realizó el saludo de inicio de jornada?</p>
                     <div class="grupo-opciones">
-                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" type="radio" value="si"> Sí</label>
-                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" type="radio" value="no"> No</label>
+                        <label class="grupo-opciones__opcion">
+                            <input class="grupo-opciones__control" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion">
+                            <input class="grupo-opciones__control" type="radio" value="no"> No</label>
                     </div>
                 </div>
                 <div class="campo">
@@ -306,5 +314,6 @@
         <script src="/RESOURCE/JS/formato_RIJ/firma.js"></script>
         <script src="/RESOURCE/JS/formato_RIJ/acordeon.js"></script>
         <script src="/RESOURCE/JS/formato_RIJ/desplegables.js"></script>
+        <script src="/RESOURCE/JS/formato_RIJ/barra_progreso.js"></script>
 </body>
 </html>

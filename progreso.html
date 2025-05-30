@@ -1,0 +1,47 @@
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <title>Progreso del Formulario</title>
+        <style>
+            .barra-progreso {
+                width: 100%;
+                background-color: #e0e0e0;
+                border-radius: 5px;
+                margin-bottom: 20px;
+                height: 30px;
+                position: relative;
+            }
+        </style>
+  </div>
+  <button type="submit">Enviar</button>
+</form>
+
+<div class="barra-progreso">
+  <div class="barra-progreso-interior" style="width: 0%;"></div>
+</div>
+
+<script>
+  const barraProgresoInterior = document.querySelector('.barra-progreso-interior');
+  let progreso = 0;
+  const formulario = document.getElementById('miFormulario');
+
+  function actualizarBarra() {
+    progreso += 20;
+    barraProgresoInterior.style.width = progreso + '%';
+  }
+
+  formulario.addEventListener('submit', function(event) {
+      // Prevent Default Submission
+      event.preventDefault();
+      actualizarBarra();
+      // Actual Submission
+      formulario.submit();
+  });
+    // Ejemplo: Actualizar el progreso en un 20%
+    function actualizarProgreso() {
+        let valorActual = progreso.value;
+        valorActual += 20;
+        progreso.value = valorActual;
+    }
+</script>
