@@ -45,8 +45,14 @@ function myFunc() {
         document.getElementById('reloj').style.fontWeight = "bold";
         document.getElementById('aviso').style.color = "red";
         document.getElementById('aviso').innerHTML = aviso;
-    } else {
+    } else if (now.getHours() >=8 && now.getMinutes() < 20 ) {
         document.getElementById('reloj').style.color = "green";
+        document.getElementById('reloj').style.fontWeight = "bold";
+
+    }
+    
+    else {
+        document.getElementById('reloj').style.color = "black";
         document.getElementById('reloj').style.fontWeight = "bold";
     }
 }
