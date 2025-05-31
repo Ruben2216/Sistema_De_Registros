@@ -3,5 +3,31 @@ pip freeze > requirements.txt
 ----------Instalacion de requirements.txt-----------
 pip install -r .\requirements.txt 
 
+<<<<<<< HEAD 
+-------------------------------------------------------
+-----------Ejecucion de Ngrok para simulacion de despliegue real -----------
+1. DESCARGAR Ngrok e instalar
+https://ngrok.com/downloads/windows
+
+2. Descomprimir el .zip que se descarga, moverlo a escritorio el ejecutable para mas facill acceso, el ejecutable se llama Ngrok.exe
+
+3. Obtener el token para poder hacer uso del servicio, deben crear una cuenta, es gratis (de momento)
+https://dashboard.ngrok.com/get-started/setup/windows
+
+3.1 Ya que tengan el token, ejecuten esa linea que les da que empieza como por ejemplo (en mi caso)
+ngrok config add-authtoken 2xq5IPw4GdbJcARQ0t3s0Rhl8ky_39x8UWngSUDBq3ABoxxCj
+
+4. Ejecutar ejecutable.py con 
+python ejecutable.py
+
+5. (Debe estar habierto el servidor flask) Ir al ejecutable Ngrok y poner  
+ngrok http 5000
+
+6. Copiar la direccion https:// que les da Ngrok y probar en la laptop y en celular
+
+----------------------------------------------------------------------
+
+
+>>>>>>> 671c9fd4fb4cdaa547cdbc649bd1341750ac051c
 
 

@@ -4,11 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mantenimiento de Computo</title>
-    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="/RESOURCE/CSS/index.css">
 </head>
 <body>
+        <div class="contenedor-barra">
+        <div class="progreso">
+            <div class="progreso-barra" id="progreso-barra" style="width: 0%;"></div>
+        </div>
+    </div>
     <div class="formulario-verificacion">
-        <form class = "formulario-verificacion__formulario"">
+        <form class = "formulario-verificacion__formulario">
             <h1 class="formulario-verificacion__titulo-principal">Formato de mantenimiento de computo</h1>
             <div class="seccion">
                 <div class="campo">
@@ -141,8 +146,27 @@
                     </div>
                 </div>
             </div>
+            <hr class="seccion__divisor">
+            <div class="campo">
+                    <label class="campo__etiqueta">REALIZÓ SERVICIO:</label>
+                    <input type="text" class="campo__control">
+            </div>
+            <div class="campo">
+                    <label class="campo__etiqueta">RESPONSABLE DEL EQUIPO:</label>
+                    <input type="text" class="campo__control">
+            </div>
+            <div class="campo">
+                    <label class="campo__etiqueta">VISTO BUENO:</label>
+                    <input type="text" class="campo__control">
+            </div>
+            <button type="submit" class="boton boton--primario">Pasar siguiente</button>
+            <button type="button" class="boton boton--secundario">Guardar Borrador</button>
+            <div class="boton boton--secundario boton--cancelar">
+            <a href="/TEMPLATES/menu.html" class="boton--cancelar ">Cancelar</a>
+            </div>
 
         </form>
     </div>
+        <script src="/RESOURCE/JS/formato_RIJ/barra_progreso.js"></script>
 </body>
 </html>

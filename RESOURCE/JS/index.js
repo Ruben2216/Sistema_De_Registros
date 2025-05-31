@@ -1,264 +1,165 @@
-const divisionSelect = document.getElementById("division");
-const zonaSelect = document.getElementById("zona");
+document.addEventListener('DOMContentLoaded', () => {
+    const videoElement = document.getElementById('video');
+    const canvasElement = document.getElementById('canvas');
+    const photoElement = document.getElementById('photo');
+    const startButton = document.getElementById('startButton');
+    const snapButton = document.getElementById('snapButton');
+    const stopButton = document.getElementById('stopButton');
+    const statusElement = document.getElementById('status');
+    const videoContainer = document.querySelector('.video-container'); 
+    const context = canvasElement.getContext('2d');
 
-  
-  const datos = {
-      Baja_California: {
-          "Tijuana" : [],
-          "Los Cabos" : [],
-          "La Paz" : [],
-          "Ensenada" : [],
-          "Constitución" : [],
-          "Mexicali" : [],
-          "San Luis":[]
-      },
-      Noroeste:{
-      "Nogales": [],
-      "Caborca": [],
-      "Hermosillo": [],
-      "Guaymas": [],
-      "Obregón": [],
-      "Navojoa": [],
-      "Los Mochis": [],
-      "Guasave": [],
-      "Culiacán": [],
-      "Mazatlán": [],
-      },
-      Norte:{
-          "Chihuahua": [],
-          "Cuauhtémoc": [],
-          "Delicias": [],
-          "Casas Grandes": [],
-          "Juárez": [],
-          "Parral": [],
-          "Durango": []
+    let stream = null;
+    let frontCamera = false; 
 
-      },
-      Golfo_Norte:{
-          "Cerralvo": [],
-          "Montemorelos": [],
-          "Metropolitana Norte": [],
-          "Metropolitana Oriente": [],
-          "Metropolitana Poniente": [],
-          "Piedras Negras": [],
-          "Sabinas": [],
-          "Monclova": [],
-          "Saltillo": [],
-          "Nuevo Laredo": [],
-          "Reynosa": [],
-          "Matamoros": [],
+    // Preferencias iniciales
+    let currentFacingMode = "environment"; // "environment" para trasera SIEMPRE
 
+    const constraints = {
+        audio: false,
+        video: {
+            facingMode: currentFacingMode, // Siempre trasera
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+        }
+    };
 
-
-      },
-      Golfo_Centro:{
-          "Tampico": [],
-          "Mante": [],
-          "Victoria": [],
-          "Matehuala": [],
-          "San Luis Potosí": [],
-          "Río Verde": [],
-          "Valles": [],
-          "Huejutla": []
-
-      },
-      Bajio:{
-          "San Juan del Río": [],
-          "Irapuato": [],
-          "León": [],
-          "Celaya": [],
-          "Querétaro": [],
-          "Salvatierra": [],
-          "Ixmiquilpan": [],
-          "Aguascalientes": [],
-          "Fresnillo": [],
-          "Zacatecas": []
-      },
-
-
-      jalisco: {
-        "Metropolitana Hidalgo": [],
-      "Metropolitana Juárez": [],
-      "Metropolitana Libertad": [],
-      "Metropolitana Reforma": [],
-      "Los Altos": [],
-      "Ciénega": [],
-      "Zapotlán": [],
-      "Costa": [],
-      "Minas": [],
-      "Chapala": [],
-      "Santiago": [],
-      "Tepic": [],
-      "Vallarta": []
-      },
-      Centro_Occidente:{
-      "Morelia": [],
-      "Uruapan": [],
-      "Zamora": [],
-      "Colima": [],
-      "Zitácuaro": [],
-      "Lázaro Cárdenas": [],
-      "La Piedad": [],
-      "Pátzcuaro": [],
-      "Apatzingán": [],
-      "Manzanillo": [],
-      "Jiquilpan": [],
-      "Zacapu": []
-  },
-  Centro_Sur:{
-      "Acapulco": [],
-      "Altamirano": [],
-      "Chilpancingo": [],
-      "Iguala": [],
-      "Zihuatanejo": [],
-      "Morelos": [],
-      "Cuautla": [],
-      "Atlacomulco": [],
-      "Valle de Bravo": [],
-      "Cuernavaca": []
-  },
-  Centro_Oriente:{
-      "Tlaxcala": [],
-      "Tehuacán": [],
-      "Matamoros": [],
-      "San Martín": [],
-      "Tecamachalco": [],
-      "Puebla Poniente": [],
-      "Puebla Oriente": [],
-      "Pachuca": [],
-      "Tulancingo": [],
-      "Tula": []
-
-  },
-      oriente: {
-      "Poza Rica": [],
-      "Xalapa": [],
-      "Teziutlán": [],
-      "Veracruz": [],
-      "Papaloapan": [],
-      "Los Tuxtlas": [],
-      "Coatzacoalcos": [],
-      "Orizaba": [],
-      "Córdoba": []
-      },
-    Sureste:{
-    "San Cristóbal": [],
-  "Tuxtla": [],
-  "Oaxaca": [],
-  "Huatulco": [],
-  "Huajuapan": [],
-  "Tapachula": [],
-  "Tehuantepec": [],
-  "Villahermosa": [],
-  "Chontalpa": [],
-  "Los Ríos": []
-    },
-    Peninsula:{
-      "Campeche": [],
-      "Carmen": [],
-      "Cancún": [],
-      "Riviera Maya": [],
-      "Chetumal": [],
-      "Mérida": [],
-      "Tizimín": [],
-      "Motul": [],
-      "Ticul": []
-    },
-    Valle_Norte:{
-      "Atizapán": [],
-      "Azteca": [],
-      "Basílica": [],
-          "Cuautitlán": [],
-      "Ecatepec": [],
-      "Naucalpan": [],
-      "Tlalnepantla": []
-    },
-    Valle_Centro:{
-      "Zócalo": [],
-      "Aeropuerto": [],
-      "Benito Juárez": [],
-      "Polanco": [],
-      "Nezahualcóyotl": [],
-      "Chapingo": [],
-      "Tacuba": []
-    },
-    Valle_Sur:{
-      "Volcanes": [],
-      "Ermita": [],
-      "Coapa": [],
-      "Universidad": [],
-      "Lomas": [],
-      "Tenango": [],
-      "Toluca": []
+function updateVideoMirroring() {
+    if (frontCamera) {
+        videoElement.style.transform = 'translate(-50%, -50%) scaleX(-1)';
+    } else {
+        videoElement.style.transform = 'translate(-50%, -50%)';
     }
-  }
-
-
-// Limpia el contenido de un elemento <select>
-function limpiarSelect(select) {
-    // Establece una opción predeterminada
-    select.innerHTML = '<option value="">Seleccione una opción</option>';
-    
-    
 }
 
-// Llena un elemento <select> con opciones dadas 
-function llenarSelect(select, opciones) {
+    async function startCamera() {
+        constraints.video.facingMode = currentFacingMode; // Actualizar por si cambió
+        startButton.disabled = true;
+        snapButton.disabled = true; // Deshabilitar hasta que el video esté listo
+        stopButton.disabled = true;
 
-    // Agrega cada opción al <select>
-    opciones.forEach(function(opcion) {
-        var nuevaOpcion = document.createElement("option");
-        nuevaOpcion.value = opcion;
-        nuevaOpcion.textContent = opcion;
-        select.appendChild(nuevaOpcion); //por lo que lei el appendChild es mas eficiente que innerHTML ya que permite agregar nodos directamente en lygar de hacerlo con un for iterativo
-        
-    });
-    
-}
+        try {
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                stream = await navigator.mediaDevices.getUserMedia(constraints);
+                videoElement.srcObject = stream;
 
-// Evento para cuando cambia la selección de división
-divisionSelect.addEventListener("change", function() {
-    // Obtiene las zonas correspondientes a la división seleccionada del arreglo de datos definidos más arriba
-    var zonas = datos[divisionSelect.value];
+                videoElement.onloadedmetadata = () => {
+                    videoElement.play().catch(function(err) {
+                        console.error("Error al reproducir video:", err);
+                        statusElement.textContent = "Error al reproducir video.";
+                    });
 
-    // Limpia el select de zonas
-    limpiarSelect(zonaSelect);
+                    // Determinar si la cámara activa es trasera desde el stream real
+                    const settings = stream.getVideoTracks()[0].getSettings();
+                    frontCamera = settings.facingMode === "user" ? true : false;
+                    currentFacingMode = settings.facingMode; // Guardar el modo actual
 
-    // Llena el select de zonas 
-    llenarSelect(zonaSelect, Object.keys(zonas));
-});
+                    // Forzar trasera si el navegador lo permite
+                    if (currentFacingMode !== "environment") {
+                        statusElement.textContent = "No se pudo acceder a la cámara trasera. Se usó: " + currentFacingMode;
+                    }
 
-// ------------FECHA ACTUAL-----------------
-const fecha = new Date();
-const fechaActual = document.getElementById("fecha_p");
-//obtener la fecha actual en dias, meses y años por letras
-const dias = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
-const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-const diaActual = dias[fecha.getDay()];
-const mesActual = meses[fecha.getMonth()];
+                    console.log("Stream settings:", settings);
+                    console.log("Video dimensions (onloadedmetadata):", videoElement.videoWidth, videoElement.videoHeight);
+                    console.log("Actual facingMode:", currentFacingMode, "Is frontCamera:", frontCamera);
 
-fechaActual.textContent = diaActual + ", " + fecha.getDate() + " de " + mesActual + " de " + fecha.getFullYear();
+                    updateVideoMirroring(); // Aplicar espejo CSS según la cámara
 
-// -------------RELOJ-----------------
-  function myFunc()  {
-        var now = new Date();
-        var time = now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds();
-        var aviso =  " Se enviara con retraso"
-        document.getElementById('reloj').innerHTML = time;
-        document.getElementById('aviso').innerHTML = aviso;
-            //si es mayor a 08:20 de la mañara se muestra en color rojo
-        if (now.getHours() >=8 && now.getMinutes() >= 20) {
+                    statusElement.textContent = "Cámara lista.  cc";
+                    snapButton.disabled = false; // Habilitar botón de captura AHORA
+                    stopButton.disabled = false;
+                    photoElement.src = "#";
+                    photoElement.style.display = 'none';
+                };
 
-            document.getElementById('reloj').style.color = "green";
-            document.getElementById('reloj').style.fontWeight = "bold";
-            document.getElementById('reloj').innerHTML = time;
-            document.getElementById('aviso').style.color = "red";
+                videoElement.onerror = (e) => {
+                    console.error("Error en el elemento de video:", e);
+                    statusElement.textContent = "Error con el elemento de video.";
+                    stopCamera(); // Intentar limpiar
+                };
 
-        } else {
-            document.getElementById('reloj').style.color = "red";
-            document.getElementById('reloj').style.fontWeight = "bold";
+            } else {
+                statusElement.textContent = "Error: getUserMedia no es soportado.";
+                console.error("getUserMedia not supported");
+                startButton.disabled = false;
+            }
+        } catch (err) {
+            statusElement.textContent = `Error al acceder a la cámara: ${err.name}`;
+            console.error("Error accessing camera: ", err);
+            if (err.name === "NotAllowedError") {
+                statusElement.textContent = "Permiso denegado.";
+            } else if (err.name === "NotFoundError" || err.name === "DevicesNotFoundError") {
+                statusElement.textContent = "No se encontró cámara compatible.";
+            } else if (err.name === "OverconstrainedError" || err.name === "ConstraintNotSatisfiedError") {
+                 statusElement.textContent = `Restricciones no satisfechas: ${err.constraint}. Intenta con otra cámara o resolución.`;
+            }
+            startButton.disabled = false;
+        }
+    }
+
+    function stopCamera() {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            videoElement.srcObject = null;
+            stream = null;
+            statusElement.textContent = "Cámara detenida.";
+            startButton.disabled = false;
+            snapButton.disabled = true;
+            stopButton.disabled = true;
+            photoElement.src = "#";
+            photoElement.style.display = 'none';
+            videoElement.style.transform = 'translate(-50%, -50%) rotate(90deg)';
+        }
+    }
+
+    function snapPhoto() {
+        if (!stream || videoElement.paused || videoElement.ended || videoElement.videoWidth === 0) {
+            statusElement.textContent = "La cámara no está activa o lista.";
+            console.warn("Snap attempt when video not ready. Video state:", {
+                paused: videoElement.paused,
+                ended: videoElement.ended,
+                videoWidth: videoElement.videoWidth,
+                readyState: videoElement.readyState
+            });
+            return;
         }
 
-    }
-    setInterval(myFunc, 1000);
+        console.log("Snapping photo. Video dimensions:", videoElement.videoWidth, videoElement.videoHeight);
+        console.log("Is front camera for snap:", frontCamera);
 
+        // Configurar el canvas al mismo tamaño que el video original
+        canvasElement.width = videoElement.videoWidth;
+        canvasElement.height = videoElement.videoHeight;
+
+        context.save(); // Guardar estado actual del contexto (limpio)
+
+        // Si es cámara frontal, aplicar espejo horizontal
+        if (frontCamera) {
+            context.translate(canvasElement.width, 0);
+            context.scale(-1, 1); // Espejar horizontalmente
+        }
+
+        // Dibujar el video exactamente igual, sin escalado ni recorte
+        context.drawImage(
+            videoElement,
+            0, 0, videoElement.videoWidth, videoElement.videoHeight, // Fuente: todo el video
+            0, 0, videoElement.videoWidth, videoElement.videoHeight  // Destino: todo el canvas
+        );
+
+        context.restore(); // Restaurar el contexto a su estado original (sin transformaciones)
+
+        const dataUrl = canvasElement.toDataURL('image/png');
+        photoElement.src = dataUrl;
+        photoElement.style.display = 'block'; 
+        statusElement.textContent = "¡Foto tomada!";
+        return; // Terminar aquí para evitar código anterior innecesario
+    }
+
+    startButton.addEventListener('click', startCamera);
+    stopButton.addEventListener('click', stopCamera);
+    snapButton.addEventListener('click', snapPhoto);
+
+    window.addEventListener('beforeunload', () => {
+        stopCamera();
+    });
+});
