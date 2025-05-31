@@ -80,6 +80,7 @@ function updateVideoMirroring() {
                     console.log("Actual facingMode:", currentFacingMode, "Is frontCamera:", frontCamera);
 
                     updateVideoMirroring(); // Aplicar espejo CSS según la cámara
+                     statusElement.textContent = "Toma la primera foto."; 
 
                     snapButton.disabled = false; // Habilitar botón de captura AHORA
                     stopButton.disabled = false;
