@@ -69,29 +69,10 @@ h1 {
 }
 
 .output {
-    margin-top: 20px;
+    margin-top: 10px;
 }
-
-#photo1 {
-    display: block;
-    margin: 10px auto;
-    max-width: 100%;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    /* Si la imagen capturada también debe mostrarse verticalmente: */
-    /* width: auto; */
-    /* height: 250px; /* O un max-height */
-}
-#photo1 {
-    display: block;
-    margin: 10px auto;
-    max-width: 100%;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    /* Si la imagen capturada también debe mostrarse verticalmente: */
-    /* width: auto; */
-    /* height: 250px; /* O un max-height */
-}#photo2 { 
+ 
+#photosContainer img{   
     display: block;
     margin: 10px auto;
     max-width: 100%;

@@ -2,8 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const videoElement = document.getElementById('video');
     const canvasElement = document.getElementById('canvas'); 
     //Referencias a los dos elementos de imagen 
-    const photoElement1 = document.getElementById('photo1');
-    const photoElement2 = document.getElementById('photo2'); 
+    const photosContainer = document.getElementById('photosContainer');
     const startButton = document.getElementById('startButton');
     const snapButton = document.getElementById('snapButton');
     const stopButton = document.getElementById('stopButton');
@@ -43,10 +42,7 @@ function updateVideoMirroring() {
         photosTakenCount = 0; // Reiniciar contador al inciiar
 
         //Limpia imagenes anteriores
-        photoElement1.src = "#";
-        photoElement1.style.display = 'none';
-        photoElement2.src = "#";
-        photoElement2.style.display = 'none'; 
+        photosContainer.innerHTML = '';  
 
         try {
             if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
@@ -88,7 +84,6 @@ function updateVideoMirroring() {
 
             } else {
                 statusElement.textContent = "Error: getUserMedia no es soportado.";
-                console.error("getUserMedia not supported");
                 startButton.disabled = false;
             }
         } catch (err) {
@@ -110,16 +105,13 @@ function updateVideoMirroring() {
             stream.getTracks().forEach(track => track.stop());
             videoElement.srcObject = null;
             stream = null;
-            statusElement.textContent = "Cámara detenida.";
+            statusElement.textContent = "Imagenes nuevas";
             startButton.disabled = false;
             snapButton.disabled = true;
             stopButton.disabled = true;
 
             //limpiar imagenes y contador
-            photoElement1.src = "#";
-            photoElement1.style.display = 'none';
-            photoElement2.src = "#";
-            photoElement2.style.display = 'none';
+            photosContainer.innerHTML = ''; 
             photosTakenCount = 0; 
             videoElement.style.transform = 'translate(-50%, -50%) rotate(90deg)'; //al parecer, rota el video al detener
         }
@@ -128,12 +120,6 @@ function updateVideoMirroring() {
     function snapPhoto() {
         if (!stream || videoElement.paused || videoElement.ended || videoElement.videoWidth === 0) {
             statusElement.textContent = "La cámara no está activa o lista.";
-            console.warn("Snap attempt when video not ready. Video state:", {
-                paused: videoElement.paused,
-                ended: videoElement.ended,
-                videoWidth: videoElement.videoWidth,
-                readyState: videoElement.readyState
-            });
             return;
         }
 
@@ -163,17 +149,16 @@ function updateVideoMirroring() {
 
         const dataUrl = canvasElement.toDataURL('image/png');
         photosTakenCount++; // Incrementar contador de fotos
-        if (photosTakenCount === 1) {
-            // Mostrar la primera foto en el primer elemento de imagen
-            photoElement1.src = dataUrl;
-            photoElement1.style.display = 'block'; //o 'inline-block'; para el acomodo de imagen
-            statusElement.textContent = "Foto 1 tomada";
-        } else if (photosTakenCount === 2) { // Mostrar la segunda foto en el segundo elemento de imagen
-            photoElement2.src = dataUrl;
-            photoElement2.style.display = 'block';
-            statusElement.textContent = "Ambas fotos tomadas con éxito.";  
-            snapButton.disabled = true; // Deshabilitar botón de captura después de 2 fotos
-        }
+        // Crear y añadir nuevo elemento img
+        const newImgElement = document.createElement('img');
+        newImgElement.src = dataUrl;
+        newImgElement.alt = `Foto Capturada ${photosTakenCount}`;
+
+        //añade imagen al contenedor
+        photosContainer.appendChild(newImgElement);
+        statusElement.textContent = `¡Foto ${photosTakenCount} tomada! Puedes tomar otra.`;
+        // El botón snapButton permanece habilitado
+
         //Mostrar fotos al final, sin esto no se visualiza 
         photoElement.src = dataUrl;
         photoElement.style.display = 'block';  
@@ -184,6 +169,6 @@ function updateVideoMirroring() {
     snapButton.addEventListener('click', snapPhoto);
 
     window.addEventListener('beforeunload', () => {
-        stopCamera();
+        stopCamera(); 
     });
 });

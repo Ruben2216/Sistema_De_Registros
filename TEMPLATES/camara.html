@@ -17,14 +17,15 @@
         <div class="controls">
             <button id="startButton">Iniciar Cámara</button>
             <button id="snapButton" disabled>Tomar Foto</button>
-            <button id="stopButton" disabled>Detener Cámara</button>
+            <button id="stopButton" disabled>Volver a capturar</button> 
         </div>
 
         <div class="output">
             <h2>Fotos Capturadas</h2> 
             <canvas id="canvas" style="display:none;"></canvas>
-            <img id="photo1" src="#" alt="Plan de Trabajo" style="display:none;">
-            <img id="photo2" src="#" alt="Formulario RIM" style="display:none;">
+            <div id="photosContainer">
+                <!--  imagenes capturadas -->
+            </div>
         </div>
  
         <p id="status"></p>
