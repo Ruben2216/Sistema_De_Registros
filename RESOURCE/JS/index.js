@@ -1,16 +1,19 @@
 document.addEventListener('DOMContentLoaded', () => {
     const videoElement = document.getElementById('video');
-    const canvasElement = document.getElementById('canvas');
-    const photoElement = document.getElementById('photo');
+    const canvasElement = document.getElementById('canvas'); 
+    //Referencias a los dos elementos de imagen 
+    const photoElement1 = document.getElementById('photo1');
+    const photoElement2 = document.getElementById('photo2'); 
     const startButton = document.getElementById('startButton');
     const snapButton = document.getElementById('snapButton');
     const stopButton = document.getElementById('stopButton');
     const statusElement = document.getElementById('status');
-    const videoContainer = document.querySelector('.video-container'); 
+    //const videoContainer = document.querySelector('.video-container'); 
     const context = canvasElement.getContext('2d');
 
     let stream = null;
     let frontCamera = false; 
+    let photosTakenCount = 0; // Contador de fotos tomadas 
 
     // Preferencias iniciales
     let currentFacingMode = "environment"; // "environment" para trasera SIEMPRE
@@ -37,6 +40,13 @@ function updateVideoMirroring() {
         startButton.disabled = true;
         snapButton.disabled = true; // Deshabilitar hasta que el video esté listo
         stopButton.disabled = true;
+        photosTakenCount = 0; // Reiniciar contador al inciiar
+
+        //Limpia imagenes anteriores
+        photoElement1.src = "#";
+        photoElement1.style.display = 'none';
+        photoElement2.src = "#";
+        photoElement2.style.display = 'none'; 
 
         try {
             if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
@@ -65,11 +75,9 @@ function updateVideoMirroring() {
 
                     updateVideoMirroring(); // Aplicar espejo CSS según la cámara
 
-                    statusElement.textContent = "Cámara lista.  cc";
+                    statusElement.textContent = "Toma la primera foto."; 
                     snapButton.disabled = false; // Habilitar botón de captura AHORA
                     stopButton.disabled = false;
-                    photoElement.src = "#";
-                    photoElement.style.display = 'none';
                 };
 
                 videoElement.onerror = (e) => {
@@ -106,9 +114,14 @@ function updateVideoMirroring() {
             startButton.disabled = false;
             snapButton.disabled = true;
             stopButton.disabled = true;
-            photoElement.src = "#";
-            photoElement.style.display = 'none';
-            videoElement.style.transform = 'translate(-50%, -50%) rotate(90deg)';
+
+            //limpiar imagenes y contador
+            photoElement1.src = "#";
+            photoElement1.style.display = 'none';
+            photoElement2.src = "#";
+            photoElement2.style.display = 'none';
+            photosTakenCount = 0; 
+            videoElement.style.transform = 'translate(-50%, -50%) rotate(90deg)'; //al parecer, rota el video al detener
         }
     }
 
@@ -149,12 +162,23 @@ function updateVideoMirroring() {
         context.restore(); // Restaurar el contexto a su estado original (sin transformaciones)
 
         const dataUrl = canvasElement.toDataURL('image/png');
+        photosTakenCount++; // Incrementar contador de fotos
+        if (photosTakenCount === 1) {
+            // Mostrar la primera foto en el primer elemento de imagen
+            photoElement1.src = dataUrl;
+            photoElement1.style.display = 'block'; //o 'inline-block'; para el acomodo de imagen
+            statusElement.textContent = "Foto 1 tomada";
+        } else if (photosTakenCount === 2) { // Mostrar la segunda foto en el segundo elemento de imagen
+            photoElement2.src = dataUrl;
+            photoElement2.style.display = 'block';
+            statusElement.textContent = "Ambas fotos tomadas con éxito.";  
+            snapButton.disabled = true; // Deshabilitar botón de captura después de 2 fotos
+        }
+        //Mostrar fotos al final, sin esto no se visualiza 
         photoElement.src = dataUrl;
-        photoElement.style.display = 'block'; 
-        statusElement.textContent = "¡Foto tomada!";
+        photoElement.style.display = 'block';  
         return; // Terminar aquí para evitar código anterior innecesario
     }
-
     startButton.addEventListener('click', startCamera);
     stopButton.addEventListener('click', stopCamera);
     snapButton.addEventListener('click', snapPhoto);
