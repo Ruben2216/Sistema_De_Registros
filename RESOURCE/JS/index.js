@@ -17,12 +17,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Preferencias iniciales
     let currentFacingMode = "environment"; // "environment" para trasera SIEMPRE
 
+    // Solicitar la máxima calidad posible, con fallback a 1280x720 si no se puede
     const constraints = {
         audio: false,
         video: {
-            facingMode: currentFacingMode, // Siempre trasera
-            width: { ideal: 1280 },
-            height: { ideal: 720 }
+            facingMode: currentFacingMode, 
+            width: { max: 4096, ideal: 3840, min: 1280 }, 
+            height: { max: 2160, ideal: 2160, min: 720 }  
         }
     };
 
@@ -42,14 +43,14 @@ function updateVideoMirroring() {
         photosTakenCount = 0; // Reiniciar contador al inciiar
 
         //Limpia imagenes anteriores
-        photosContainer.innerHTML = '';  
+        photosContainer.innerHTML = '';
 
         try {
             if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                 stream = await navigator.mediaDevices.getUserMedia(constraints);
                 videoElement.srcObject = stream;
 
-                videoElement.onloadedmetadata = () => {
+                videoElement.onloadedmetadata =() => {
                     videoElement.play().catch(function(err) {
                         console.error("Error al reproducir video:", err);
                         statusElement.textContent = "Error al reproducir video.";
@@ -60,18 +61,27 @@ function updateVideoMirroring() {
                     frontCamera = settings.facingMode === "user" ? true : false;
                     currentFacingMode = settings.facingMode; // Guardar el modo actual
 
+                    //------------------------------------------------
+                    // Mostrar la resolución obtenida del navegador
+
+                    const realWidth = videoElement.videoWidth;
+                    const realHeight = videoElement.videoHeight;
+                    console.log("Resolución otbenida:", realWidth, "x", realHeight);
+                    //------------------------------------------------
+
                     // Forzar trasera si el navegador lo permite
                     if (currentFacingMode !== "environment") {
-                        statusElement.textContent = "No se pudo acceder a la cámara trasera. Se usó: " + currentFacingMode;
+                        statusElement.textContent = " No se pudo acceder a la cámara trasera. Se usó: " + currentFacingMode ;
                     }
 
+                    // Mostrar en consola detalles de la resolución
                     console.log("Stream settings:", settings);
-                    console.log("Video dimensions (onloadedmetadata):", videoElement.videoWidth, videoElement.videoHeight);
+                    console.log("Video dimensions (onloadedmetadata):", realWidth, realHeight);
                     console.log("Actual facingMode:", currentFacingMode, "Is frontCamera:", frontCamera);
 
                     updateVideoMirroring(); // Aplicar espejo CSS según la cámara
+                     statusElement.textContent = "Toma la primera foto."; 
 
-                    statusElement.textContent = "Toma la primera foto."; 
                     snapButton.disabled = false; // Habilitar botón de captura AHORA
                     stopButton.disabled = false;
                 };
