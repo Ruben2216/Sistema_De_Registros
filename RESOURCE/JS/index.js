@@ -23,8 +23,8 @@ document.addEventListener('DOMContentLoaded', () => {
         audio: false,
         video: {
             facingMode: currentFacingMode, 
-            width: { max: 4096, ideal: 3840, min: 1280 }, 
-            height: { max: 2160, ideal: 2160, min: 720 }  
+            width: { max: 9999, ideal: 3840, min: 1280 }, 
+            height: { max: 9999, ideal: 2160, min: 720 }  
         }
     };
 
