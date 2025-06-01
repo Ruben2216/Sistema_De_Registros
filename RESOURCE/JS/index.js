@@ -222,8 +222,8 @@ function updateVideoMirroring() {
             // El botón snapButton permanece habilitado
 
              //Mostrar fotos al final, sin esto no se visualiza 
-        photoElement.src = dataUrl;
-        photoElement.style.display = 'block';  
+        // photoElement.src = dataUrl; //CAUSABA ERROR
+        // photoElement.style.display = 'block';  
         return; // Terminar aquí para evitar código anterior innecesario
 
         } catch (error) {
