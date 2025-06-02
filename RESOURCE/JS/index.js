@@ -1,5 +1,3 @@
-
-
 document.addEventListener('DOMContentLoaded', () => {
     const videoElement = document.getElementById('video');
     const canvasElement = document.getElementById('canvas'); 
@@ -11,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const statusElement = document.getElementById('status');
     //const videoContainer = document.querySelector('.video-container'); 
     const context = canvasElement.getContext('2d');
+    const clearButton = document.getElementById('clearButton');
 
     let stream = null;
     let frontCamera = false; 
@@ -22,11 +21,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Solicitar la máxima calidad posible, 
     const constraints = {
-        audio: false,
+        audio: false,   
         video: {
             facingMode: currentFacingMode, 
             width: { max: 9999, ideal: 3840, min: 1280 }, 
-            height: { max: 9999, ideal: 2160, min: 720 }  
+            height: { max: 9999, ideal: 2160, min: 720 },
+            advanced: [{ zoom: 1}]
         }
     };
 
@@ -43,10 +43,10 @@ function updateVideoMirroring() {
         startButton.disabled = true;
         snapButton.disabled = true; // Deshabilitar hasta que el video esté listo
         stopButton.disabled = true;
+        clearButton.disabled = true; 
+        statusElement.textContent = "Iniciando cámara... Espere.";
         photosTakenCount = 0; // Reiniciar contador al inciiar
 
-        //Limpia imagenes anteriores
-        photosContainer.innerHTML = '';
 
         try {
             if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
@@ -95,6 +95,7 @@ function updateVideoMirroring() {
 
                     snapButton.disabled = false; // Habilitar botón de captura AHORA
                     stopButton.disabled = false;
+                    clearButton.disabled = false; 
                 };
 
                 videoElement.onerror = (e) => {
@@ -124,20 +125,20 @@ function updateVideoMirroring() {
     function stopCamera() {
         if (stream) {
             stream.getTracks().forEach(track => track.stop());
-            videoElement.srcObject = null;
-            stream = null;
-            imageCapture = null; // Limpiar la instancia de ImageCapture 
+            // videoElement.srcObject = null;
+            // stream = null;
+            // imageCapture = null; // Limpiar la instancia de ImageCapture 
             statusElement.textContent = "Imagenes nuevas";
             startButton.disabled = false;
             snapButton.disabled = true;
             stopButton.disabled = true;
 
             //limpiar imagenes y contador
-            photosContainer.innerHTML = ''; 
             photosTakenCount = 0; 
             videoElement.style.transform = 'translate(-50%, -50%) rotate(90deg)'; //al parecer, rota el video al detener
         }
     }
+
 
     async function snapPhoto() { 
         if (!stream || videoElement.paused || videoElement.ended || videoElement.videoWidth === 0) {
@@ -200,15 +201,28 @@ function updateVideoMirroring() {
             photosContainer.appendChild(newImgElement);
             statusElement.textContent = `¡Foto ${photosTakenCount} tomada! Puedes tomar otra.`;
 
+
+
         } catch (error) {
             console.error("Error al tomar la foto:", error);
             statusElement.textContent = `Error al tomar la foto: ${error.name}`;
         }
+        
+    }
+        function clearimage(){
+        photosContainer.innerHTML = '';
+                photosTakenCount = 0; // Reiniciar contador al limpiar
+
+        statusElement.innerHTML="Espacio en blanco...";
+
+
     }
 
     startButton.addEventListener('click', startCamera);
     stopButton.addEventListener('click', stopCamera);
     snapButton.addEventListener('click', snapPhoto);
+    clearButton.addEventListener('click', clearimage);
+
 
     window.addEventListener('beforeunload', () => {
         stopCamera(); 

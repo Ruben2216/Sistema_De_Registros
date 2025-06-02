@@ -7,8 +7,8 @@ body {
     min-height: 100vh;
     margin: 0;
     background-color: #f0f0f0;
-    padding: 10px;
     box-sizing: border-box;
+
 }
 
 .container {
@@ -33,7 +33,7 @@ h1 {
     background-color: #000;
     overflow: hidden;
     border-radius: 8px;
-    margin: 0 auto 20px auto;
+    margin: 0 auto 0.5rem auto;
 }
 
 #video {
@@ -57,6 +57,7 @@ h1 {
     border-radius: 5px;
     cursor: pointer;
     font-size: 18px;
+    width: 10rem;
 
 }
 
