@@ -228,7 +228,7 @@ function updateVideoMirroring() {
 
         } catch (error) {
             console.error("Error al tomar la foto:", error);
-            statusElement.textContent = `Error al tomar la foto: ${error.name}`; // Mostrar el nombre del error
+            statusElement.textContent = `Error al tomar la foto: ${error.name}`; // Mostrar el nombre del error 
         }
     }
 
