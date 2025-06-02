@@ -13,17 +13,17 @@ document.addEventListener('DOMContentLoaded', () => {
     let stream = null;
     let frontCamera = false; 
     let photosTakenCount = 0; // Contador de fotos tomadas 
+    let imageCapture = null; // Instancia para la API ImageCapture
 
     // Preferencias iniciales
     let currentFacingMode = "environment"; // "environment" para trasera SIEMPRE
 
-    // Solicitar la máxima calidad posible, con fallback a 1280x720 si no se puede
     const constraints = {
         audio: false,
         video: {
-            facingMode: currentFacingMode, 
-            width: { max: 4096, ideal: 3840, min: 1280 }, 
-            height: { max: 2160, ideal: 2160, min: 720 }  
+            facingMode: currentFacingMode, // Siempre trasera
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
         }
     };
 
@@ -35,7 +35,7 @@ function updateVideoMirroring() {
     }
 }
 
-    async function startCamera() {
+    async function startCamera() { // Función asíncrona para permitir await
         constraints.video.facingMode = currentFacingMode; // Actualizar por si cambió
         startButton.disabled = true;
         snapButton.disabled = true; // Deshabilitar hasta que el video esté listo
@@ -56,10 +56,26 @@ function updateVideoMirroring() {
                         statusElement.textContent = "Error al reproducir video.";
                     });
 
-                    // Determinar si la cámara activa es trasera desde el stream real
-                    const settings = stream.getVideoTracks()[0].getSettings();
+                    const videoTrack = stream.getVideoTracks()[0]; // Necesario para ImageCapture
+                    const settings = videoTrack.getSettings();
                     frontCamera = settings.facingMode === "user" ? true : false;
                     currentFacingMode = settings.facingMode; // Guardar el modo actual
+
+                    //------------------------------------------------
+                    // Mostrar la resolución obtenida del navegador
+
+                    const realWidth = videoElement.videoWidth;
+                    const realHeight = videoElement.videoHeight;
+                    console.log("Resolución otbenida:", realWidth, "x", realHeight);
+                    //------------------------------------------------
+
+
+                    if (window.ImageCapture) {
+                        imageCapture = new ImageCapture(videoTrack);
+                    } else {
+                        // ImageCapture no disponible, se usará el método de canvas como reservaa
+                        imageCapture = null; 
+                    }
 
                     //------------------------------------------------
                     // Mostrar la resolución obtenida del navegador
@@ -115,6 +131,7 @@ function updateVideoMirroring() {
             stream.getTracks().forEach(track => track.stop());
             videoElement.srcObject = null;
             stream = null;
+            imageCapture = null; // Limpiar la instancia de ImageCapture 
             statusElement.textContent = "Imagenes nuevas";
             startButton.disabled = false;
             snapButton.disabled = true;
@@ -127,7 +144,7 @@ function updateVideoMirroring() {
         }
     }
 
-    function snapPhoto() {
+    async function snapPhoto() { 
         if (!stream || videoElement.paused || videoElement.ended || videoElement.videoWidth === 0) {
             statusElement.textContent = "La cámara no está activa o lista.";
             return;
@@ -136,44 +153,92 @@ function updateVideoMirroring() {
         console.log("Snapping photo. Video dimensions:", videoElement.videoWidth, videoElement.videoHeight);
         console.log("Is front camera for snap:", frontCamera);
 
-        // Configurar el canvas al mismo tamaño que el video original
-        canvasElement.width = videoElement.videoWidth;
-        canvasElement.height = videoElement.videoHeight;
+        let dataUrl;
+        let photoWidth, photoHeight; // Variables para almacenar las dimensiones de la foto tomada en el canvas
 
-        context.save(); // Guardar estado actual del contexto (limpio)
+        try {
+            // Intentar usar ImageCapture primero para la máxima resolución, si no está disponible, usara canvas como plan B de respaldo
+            if (imageCapture) {
+                const photoBlob = await imageCapture.takePhoto();
+                let originalBlobUrl = URL.createObjectURL(photoBlob); // Guardar el URL del Blob para poder usarlo
 
-        // Si es cámara frontal, aplicar espejo horizontal
-        if (frontCamera) {
-            context.translate(canvasElement.width, 0);
-            context.scale(-1, 1); // Espejar horizontalmente
-        }
+                // Cargar en un objeto Image temporal para obtener dimensiones y dibujar
+                const img = new Image();
+                img.src = originalBlobUrl;
+                await new Promise(resolve => img.onload = resolve); // Esperar a que la imagen se cargue
 
-        // Dibujar el video exactamente igual, sin escalado ni recorte
-        context.drawImage(
-            videoElement,
-            0, 0, videoElement.videoWidth, videoElement.videoHeight, // Fuente: todo el video
-            0, 0, videoElement.videoWidth, videoElement.videoHeight  // Destino: todo el canvas
-        );
+                photoWidth = img.width; // Obtener el ancho de la imagen capturada
+                photoHeight = img.height; // Obtener el alto de la imagen capturada
 
-        context.restore(); // Restaurar el contexto a su estado original (sin transformaciones)
+                // Si es cámara frontal, necesitamos aplicar el espejo en un canvas temporal
+                if (frontCamera) {
+                    const tempCanvas = document.createElement('canvas'); // Crear un canvas temporal
+                    const tempContext = tempCanvas.getContext('2d');
+                    tempCanvas.width = photoWidth;
+                    tempCanvas.height = photoHeight;
 
-        const dataUrl = canvasElement.toDataURL('image/png');
-        photosTakenCount++; // Incrementar contador de fotos
-        // Crear y añadir nuevo elemento img
-        const newImgElement = document.createElement('img');
-        newImgElement.src = dataUrl;
-        newImgElement.alt = `Foto Capturada ${photosTakenCount}`;
+                    tempContext.save(); // Guardar estado del contexto del canvas temporal
+                    tempContext.translate(tempCanvas.width, 0);
+                    tempContext.scale(-1, 1); // Espejar horizontalmente
+                    tempContext.drawImage(img, 0, 0, photoWidth, photoHeight); // Dibujar la imagen
+                    tempContext.restore(); // Restaurar estado del contexto
 
-        //añade imagen al contenedor
-        photosContainer.appendChild(newImgElement);
-        statusElement.textContent = `¡Foto ${photosTakenCount} tomada! Puedes tomar otra.`;
-        // El botón snapButton permanece habilitado
+                    dataUrl = tempCanvas.toDataURL('image/png'); // Obtener la imagen ya espejada
+                    URL.revokeObjectURL(originalBlobUrl); // Revocar el URL original para liberar memoria
+                } else {
+                    dataUrl = originalBlobUrl; // Si no es cámara frontal, usar el blob original directamente
+                }
 
-        //Mostrar fotos al final, sin esto no se visualiza 
-        photoElement.src = dataUrl;
-        photoElement.style.display = 'block';  
+            } else {
+                // Fallback al método de canvas si ImageCapture no está disponible o falla
+                // Configurar el canvas al mismo tamaño que el video original
+                canvasElement.width = videoElement.videoWidth;
+                canvasElement.height = videoElement.videoHeight;
+
+                context.save(); // Guardar estado actual del contexto (limpio)
+
+                // Si es cámara frontal, aplicar espejo horizontal
+                if (frontCamera) {
+                    context.translate(canvasElement.width, 0);
+                    context.scale(-1, 1); // Espejar horizontalmente
+                }
+
+                // Dibujar el video exactamente igual, sin escalado ni recorte
+                context.drawImage(
+                    videoElement,
+                    0, 0, videoElement.videoWidth, videoElement.videoHeight, // Fuente: todo el video
+                    0, 0, videoElement.videoWidth, videoElement.videoHeight  // Destino: todo el canvas
+                );
+
+                context.restore(); // Restaurar el contexto a su estado original (sin transformaciones)
+
+                dataUrl = canvasElement.toDataURL('image/png');
+                photoWidth = canvasElement.width; // Obtener ancho del canvas
+                photoHeight = canvasElement.height; // Obtener alto del canvas
+            }
+
+            photosTakenCount++; // Incrementar contador de fotos
+            // Crear y añadir nuevo elemento img
+            const newImgElement = document.createElement('img');
+            newImgElement.src = dataUrl;
+            newImgElement.alt = `Foto Capturada ${photosTakenCount}`;
+
+            //añade imagen al contenedor
+            photosContainer.appendChild(newImgElement);
+            statusElement.textContent = `¡Foto ${photosTakenCount} tomada! Puedes tomar otra.`;
+            // El botón snapButton permanece habilitado
+
+             //Mostrar fotos al final, sin esto no se visualiza 
+        // photoElement.src = dataUrl; //CAUSABA ERROR
+        // photoElement.style.display = 'block';  
         return; // Terminar aquí para evitar código anterior innecesario
+
+        } catch (error) {
+            console.error("Error al tomar la foto:", error);
+            statusElement.textContent = `Error al tomar la foto: ${error.name}`; // Mostrar el nombre del error
+        }
     }
+
     startButton.addEventListener('click', startCamera);
     stopButton.addEventListener('click', stopCamera);
     snapButton.addEventListener('click', snapPhoto);
