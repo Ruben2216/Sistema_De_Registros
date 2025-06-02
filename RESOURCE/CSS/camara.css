@@ -18,17 +18,17 @@ body {
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
     text-align: center;
     width: 100%;
-    max-width: 380px; /* Ancho típico de móvil para la demo */
+    max-width: 380px; /* Ancho típico de móvil para la demo */  
 }
 
 h1 {
     color: #333;
-    margin-bottom: 20px;
+    margin: 0 0 0.5rem 0;
 }
 
 .video-container {
-    width: 300px;
-    height: 533px;
+    width: 100%;
+    height: 75vh;
     position: relative;
     background-color: #000;
     overflow: hidden;
@@ -40,10 +40,11 @@ h1 {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: auto;
+    right: 50%;
+    width: 100%;  /* Cambiado de auto a 100% */
     height: 100%;
     transform: translate(-50%, -50%); 
-    object-fit: contain; 
+    object-fit: cover;  /* Cambiado de contain a cover para llenar el contenedor */
     transform-origin: center center;
 }
 
@@ -87,4 +88,12 @@ h1 {
     margin-top: 15px;
     font-size: 0.9em;
     color: #555;
+}
+@media screen and (max-width: 600px) {
+    html, body{
+        overflow-x: hidden;
+        
+    }
+
+
 }

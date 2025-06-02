@@ -1,3 +1,5 @@
+
+
 document.addEventListener('DOMContentLoaded', () => {
     const videoElement = document.getElementById('video');
     const canvasElement = document.getElementById('canvas'); 
@@ -147,88 +149,60 @@ function updateVideoMirroring() {
         console.log("Is front camera for snap:", frontCamera);
 
         let dataUrl;
-        let photoWidth, photoHeight; // Variables para almacenar las dimensiones de la foto tomada en el canvas
 
         try {
-            // Intentar usar ImageCapture primero para la máxima resolución, si no está disponible, usara canvas como plan B de respaldo
-            if (imageCapture) {
-                const photoBlob = await imageCapture.takePhoto();
-                let originalBlobUrl = URL.createObjectURL(photoBlob); // Guardar el URL del Blob para poder usarlo
+            // Configurar el canvas para que coincida con las dimensiones del contenedor de video
+            const videoContainer = videoElement.parentElement;
+            canvasElement.width = videoContainer.clientWidth;
+            canvasElement.height = videoContainer.clientHeight;
 
-                // Cargar en un objeto Image temporal para obtener dimensiones y dibujar
-                const img = new Image();
-                img.src = originalBlobUrl;
-                await new Promise(resolve => img.onload = resolve); // Esperar a que la imagen se cargue
-
-                photoWidth = img.width; // Obtener el ancho de la imagen capturada
-                photoHeight = img.height; // Obtener el alto de la imagen capturada
-
-                // Si es cámara frontal, necesitamos aplicar el espejo en un canvas temporal
-                if (frontCamera) {
-                    const tempCanvas = document.createElement('canvas'); // Crear un canvas temporal
-                    const tempContext = tempCanvas.getContext('2d');
-                    tempCanvas.width = photoWidth;
-                    tempCanvas.height = photoHeight;
-
-                    tempContext.save(); // Guardar estado del contexto del canvas temporal
-                    tempContext.translate(tempCanvas.width, 0);
-                    tempContext.scale(-1, 1); // Espejar horizontalmente
-                    tempContext.drawImage(img, 0, 0, photoWidth, photoHeight); // Dibujar la imagen
-                    tempContext.restore(); // Restaurar estado del contexto
-
-                    dataUrl = tempCanvas.toDataURL('image/png'); // Obtener la imagen ya espejada
-                    URL.revokeObjectURL(originalBlobUrl); // Revocar el URL original para liberar memoria
-                } else {
-                    dataUrl = originalBlobUrl; // Si no es cámara frontal, usar el blob original directamente
-                }
-
+            // Calcular las dimensiones para mantener la proporción y centrar la imagen
+            const videoAspect = videoElement.videoWidth / videoElement.videoHeight;
+            const containerAspect = canvasElement.width / canvasElement.height;
+            
+            let drawWidth, drawHeight, offsetX = 0, offsetY = 0;
+            
+            if (videoAspect > containerAspect) {
+                // El video es más ancho que el contenedor
+                drawHeight = canvasElement.height;
+                drawWidth = drawHeight * videoAspect;
+                offsetX = -(drawWidth - canvasElement.width) / 2;
             } else {
-                // Fallback al método de canvas si ImageCapture no está disponible o falla
-                // Configurar el canvas al mismo tamaño que el video original
-                canvasElement.width = videoElement.videoWidth;
-                canvasElement.height = videoElement.videoHeight;
-
-                context.save(); // Guardar estado actual del contexto (limpio)
-
-                // Si es cámara frontal, aplicar espejo horizontal
-                if (frontCamera) {
-                    context.translate(canvasElement.width, 0);
-                    context.scale(-1, 1); // Espejar horizontalmente
-                }
-
-                // Dibujar el video exactamente igual, sin escalado ni recorte
-                context.drawImage(
-                    videoElement,
-                    0, 0, videoElement.videoWidth, videoElement.videoHeight, // Fuente: todo el video
-                    0, 0, videoElement.videoWidth, videoElement.videoHeight  // Destino: todo el canvas
-                );
-
-                context.restore(); // Restaurar el contexto a su estado original (sin transformaciones)
-
-                dataUrl = canvasElement.toDataURL('image/png');
-                photoWidth = canvasElement.width; // Obtener ancho del canvas
-                photoHeight = canvasElement.height; // Obtener alto del canvas
+                // El video es más alto que el contenedor
+                drawWidth = canvasElement.width;
+                drawHeight = drawWidth / videoAspect;
+                offsetY = -(drawHeight - canvasElement.height) / 2;
             }
 
-            photosTakenCount++; // Incrementar contador de fotos
-            // Crear y añadir nuevo elemento img
+            context.save();
+
+            // Limpiar el canvas antes de dibujar
+            context.clearRect(0, 0, canvasElement.width, canvasElement.height);
+
+            // Si es cámara frontal, aplicar espejo horizontal
+            if (frontCamera) {
+                context.translate(canvasElement.width, 0);
+                context.scale(-1, 1);
+            }
+
+            // Dibujar el video en el canvas manteniendo la proporción y centrándolo
+            context.drawImage(videoElement,offsetX, offsetY, drawWidth, drawHeight);
+
+            context.restore();
+            
+            dataUrl = canvasElement.toDataURL('image/png');
+
+            photosTakenCount++;
             const newImgElement = document.createElement('img');
             newImgElement.src = dataUrl;
             newImgElement.alt = `Foto Capturada ${photosTakenCount}`;
 
-            //añade imagen al contenedor
             photosContainer.appendChild(newImgElement);
             statusElement.textContent = `¡Foto ${photosTakenCount} tomada! Puedes tomar otra.`;
-            // El botón snapButton permanece habilitado
-
-             //Mostrar fotos al final, sin esto no se visualiza 
-        // photoElement.src = dataUrl; //CAUSABA ERROR
-        // photoElement.style.display = 'block';  
-        return; // Terminar aquí para evitar código anterior innecesario
 
         } catch (error) {
             console.error("Error al tomar la foto:", error);
-            statusElement.textContent = `Error al tomar la foto: ${error.name}`; // Mostrar el nombre del error 
+            statusElement.textContent = `Error al tomar la foto: ${error.name}`;
         }
     }
 
@@ -239,4 +213,6 @@ function updateVideoMirroring() {
     window.addEventListener('beforeunload', () => {
         stopCamera(); 
     });
-});
+}
+);
+
