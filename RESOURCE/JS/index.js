@@ -77,13 +77,7 @@ function updateVideoMirroring() {
                         imageCapture = null; 
                     }
 
-                    //------------------------------------------------
-                    // Mostrar la resolución obtenida del navegador
 
-                    const realWidth = videoElement.videoWidth;
-                    const realHeight = videoElement.videoHeight;
-                    console.log("Resolución otbenida:", realWidth, "x", realHeight);
-                    //------------------------------------------------
 
                     // Forzar trasera si el navegador lo permite
                     if (currentFacingMode !== "environment") {
