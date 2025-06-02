@@ -1,0 +1,140 @@
+body {
+    background-image: url("../IMG/fondo-cfe.png");
+    background-size: cover;
+    background-position: center center;
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow-y: hidden; /*no se quiere scroll*/
+    margin: 0;
+    padding: 20px;
+    color: #333;
+}
+
+.login {
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    max-width: 400px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.login__titulo-sistema {
+    font-size: 1.8rem;
+}
+
+.login__logo {
+    margin-bottom: 20px;
+}
+
+.login__logo-img {
+    width: 100px;
+    height: auto;
+}
+
+.login__titulo {
+    color: #00724e;
+    margin-bottom: 20px;
+    font-size: 1.8em;
+    line-height: 1.3;
+} 
+
+.login__subtitulo {
+    font-size: 1.5em;
+    margin-top: 30px;
+}
+
+.login__campo {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.login__label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: normal;
+    color: #00724e;
+    font-size: 1em;
+}
+
+.login__input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-size: 1em;
+}
+
+.login__boton {
+    background-color: #00724e;
+    color: #FFFFFF;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.1em;
+    transition: background-color 0.3s ease;
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 10px;
+}
+
+.login__boton:hover {
+    background-color: #005a3d;
+}
+
+.login__mensaje-registro {
+    margin-top: 20px;
+    font-size: 0.9em;
+    color: #555;
+}
+
+.login__link-registro {
+    color: #00724e;
+    text-decoration: none;
+    font-weight: normal;
+}
+
+.login__link-registro:hover {
+    text-decoration: underline;
+}
+
+.login__formulario--oculto {
+    display: none;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    .login {
+        padding: 20px;
+    }
+
+    .login__logo-img {
+        width: 80px;
+    }
+
+    .login__titulo {
+        font-size: 1.5em; /* Adjust font size for mobile */
+        line-height: 1.2; /* Adjust line height for better spacing */
+        margin-bottom: 15px; /* Adjust margin */
+    }
+
+    .login__label,
+    .login__input,
+    .login__boton {
+        font-size: 0.95em;
+    }
+    .login__titulo-sistema {
+        font-size: 1.5rem;
+    }
+}

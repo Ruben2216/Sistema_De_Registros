@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inicio de Sesión CFE</title>
+    <link rel="stylesheet" href="/RESOURCE/CSS/login.css" />
+</head>
+
+<body>
+    <div class="login">
+        <div class="login__logo">
+            <img class="login__logo-img"
+                src="https://upload.wikimedia.org/wikipedia/commons/8/8c/Logo_neutral_de_la_Comisi%C3%B3n_Federal_de_Electricidad.svg"
+                alt="Logo CFE" />
+        </div>
+        <h1 class="login__titulo-sistema">
+            Sistema de Evidencias RIM/RIJ/Mantenimiento
+        </h1>
+        <h2 class="login__titulo">Iniciar Sesión</h2>
+
+        <form id="formulario-login" class="login__formulario">
+            <div class="login__campo">
+                <label class="login__label" for="rpe_rtt">RPE/RTT:</label>
+                <input class="login__input" type="text" id="rpe_rtt" name="rpe_rtt" required />
+            </div>
+            <div class="login__campo">
+                <label class="login__label" for="contrasena">Contraseña:</label>
+                <input class="login__input" type="password" id="contrasena" name="contrasena" required />
+            </div>
+            <button class="login__boton" type="submit">Ingresar</button>
+        </form>
+        <p class="login__mensaje-registro">
+            ¿No tienes contraseña?
+            <a class="login__link-registro" href="#" id="link-registro">Crea una aquí</a>
+        </p>
+        <form id="formulario-registro" class="login__formulario login__formulario--oculto">
+            <h3 class="login__subtitulo">Crear Contraseña</h3>
+            <div class="login__campo">
+                <label class="login__label" for="rpe_rtt_registro">RPE/RTT:</label>
+                <input class="login__input" type="text" id="rpe_rtt_registro" name="rpe_rtt_registro" required />
+            </div>
+            <div class="login__campo">
+                <label class="login__label" for="nueva_contrasena">Nueva Contraseña:</label>
+                <input class="login__input" type="password" id="nueva_contrasena" name="nueva_contrasena" required />
+            </div>
+            <div class="login__campo">
+                <label class="login__label" for="confirmar_contrasena">Confirmar Contraseña:</label>
+                <input class="login__input" type="password" id="confirmar_contrasena" name="confirmar_contrasena"
+                    required />
+            </div>
+            <button class="login__boton" type="submit">Crear Contraseña</button>
+        </form>
+    </div>
+    <script src="/RESOURCE/JS/login.js"></script>
+</body>
+
+</html>
