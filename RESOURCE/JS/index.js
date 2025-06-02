@@ -18,12 +18,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Preferencias iniciales
     let currentFacingMode = "environment"; // "environment" para trasera SIEMPRE
 
+    // Solicitar la máxima calidad posible, 
     const constraints = {
         audio: false,
         video: {
-            facingMode: currentFacingMode, // Siempre trasera
-            width: { ideal: 1280 },
-            height: { ideal: 720 }
+            facingMode: currentFacingMode, 
+            width: { max: 9999, ideal: 3840, min: 1280 }, 
+            height: { max: 9999, ideal: 2160, min: 720 }  
         }
     };
 
@@ -61,14 +62,6 @@ function updateVideoMirroring() {
                     frontCamera = settings.facingMode === "user" ? true : false;
                     currentFacingMode = settings.facingMode; // Guardar el modo actual
 
-                    //------------------------------------------------
-                    // Mostrar la resolución obtenida del navegador
-
-                    const realWidth = videoElement.videoWidth;
-                    const realHeight = videoElement.videoHeight;
-                    console.log("Resolución otbenida:", realWidth, "x", realHeight);
-                    //------------------------------------------------
-
 
                     if (window.ImageCapture) {
                         imageCapture = new ImageCapture(videoTrack);
@@ -77,7 +70,13 @@ function updateVideoMirroring() {
                         imageCapture = null; 
                     }
 
+                    //------------------------------------------------
+                    // Mostrar la resolución obtenida del navegador
 
+                    const realWidth = videoElement.videoWidth;
+                    const realHeight = videoElement.videoHeight;
+                    console.log("Resolución otbenida:", realWidth, "x", realHeight);
+                    //------------------------------------------------
 
                     // Forzar trasera si el navegador lo permite
                     if (currentFacingMode !== "environment") {
