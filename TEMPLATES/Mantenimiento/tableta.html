@@ -83,36 +83,40 @@
             <hr class="seccion__divisor">
             <div class="seccion">
                 <h3 class="seccion__titulo">ACTIVIDADES</h3>
-                <div class="campo">
-                    <p class="campo__etiqueta">1. Realizar inspección inicial en equipo</p>
+                <div class="campo">1. Realizar inspección inicial en equipo
                     <div class="grupo-opciones">
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="inspeccion" type="radio" value="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="inspeccion" type="radio" value="no"> No</label>
                     </div>
+                    <input type="text" id="input_inspeccion" style="display: none;" class="campo__control"  placeholder="Especifique motivo">
                 </div>
                 <div class="campo">2. Limpieza externa usando cepillo de cerdas suevaes antiestáticas</p>
                     <div class="grupo-opciones">
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="limpieza_cepillo" type="radio" value="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="limpieza_cepillo" type="radio" value="no"> No</label>
                     </div>
+                    <input type="text" id="input_limpieza_cepillo" style="display: none;" class="campo__control"  placeholder="Especifique motivo">
                 </div>
                 <div class="campo">3. Limpieza de touch con paño suave, sin detergentes o abrasivos</p>
                     <div class="grupo-opciones">
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="limpieza_paño" type="radio" value="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="limpieza_paño" type="radio" value="no"> No</label>
                     </div>
+                    <input type="text" id="input_limpieza_paño" style="display: none;" class="campo__control"  placeholder="Especifique motivo">
                 </div>
                 <div class="campo">4. La cubierta con una franela o tela microfibra limpia y humedecida con líquido para limpieza de equipo de cómputo</p>
                     <div class="grupo-opciones">
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="limpieza_cubierta" type="radio" value="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="limpieza_cubierta" type="radio" value="no"> No</label>
                     </div>
+                    <input type="text" id="input_limpieza_cubierta" style="display: none;" class="campo__control"  placeholder="Especifique motivo">
                 </div>
                 <div class="campo">5. Sopleteado externo del equipo</p>
                     <div class="grupo-opciones">
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="sopleteado" type="radio" value="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="sopleteado" type="radio" value="no"> No</label>
                     </div>
+                    <input type="text" id="input_sopleteado" style="display: none;" class="campo__control"  placeholder="Especifique motivo">
                 </div>
                 <div class="campo">6. Calibración de touch patalla</p>
                     <div class="grupo-opciones">
@@ -205,5 +209,6 @@
     </div>
 </div>
     <script src="/RESOURCE/JS/formato_RIJ/firma.js"></script>
+    <script src="/RESOURCE/JS/campo_desplegable.js"></script>
 </body>
 </html>
