@@ -220,6 +220,9 @@ function updateVideoMirroring() {
                     return; // Si selecciona que no, no hacer nada, solo retornar nada
                 }
                 photoWrapper.remove();
+                photosTakenCount--; //Reiniciar contador de las  n imagenes
+                
+
                 statusElement.textContent = `Foto ${photosTakenCount} eliminada.`;
             });
 
