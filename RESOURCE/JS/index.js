@@ -194,11 +194,39 @@ function updateVideoMirroring() {
             dataUrl = canvasElement.toDataURL('image/png');
 
             photosTakenCount++;
+            const photoWrapper = document.createElement('div');
+            photoWrapper.classList.add('photo-wrapper');
+
             const newImgElement = document.createElement('img');
             newImgElement.src = dataUrl;
             newImgElement.alt = `Foto Capturada ${photosTakenCount}`;
 
-            photosContainer.appendChild(newImgElement);
+            const deleteButton = document.createElement('button');
+            //estilos para el boton de eliminar
+            deleteButton.style.backgroundColor = '#00724e';
+            deleteButton.style.border = 'none';
+            deleteButton.style.borderRadius = '40px';
+            deleteButton.style.width = '1.8rem';
+            deleteButton.style.height = '1.8rem';
+            deleteButton.style.position = 'absolute'; 
+            photoWrapper.style.position = 'relative'; // Asegurar que el contenedor tenga posición relativa para posicionar el botón independientemente del tamañño del dispositivo
+            deleteButton.style.top = '5px'; 
+            deleteButton.style.right = '5px'; 
+
+            deleteButton.textContent = 'X';
+            deleteButton.addEventListener('click', () => {
+                //preguntar antes de eliminar de que si si se va a borrar la foto o no
+                if (!confirm("¿Estás seguro de que quieres eliminar esta foto?")) {
+                    return; // Si selecciona que no, no hacer nada, solo retornar nada
+                }
+                photoWrapper.remove();
+                statusElement.textContent = `Foto ${photosTakenCount} eliminada.`;
+            });
+
+            photoWrapper.appendChild(newImgElement);
+            photoWrapper.appendChild(deleteButton);
+            photosContainer.appendChild(photoWrapper);
+
             statusElement.textContent = `¡Foto ${photosTakenCount} tomada! Puedes tomar otra.`;
 
 
