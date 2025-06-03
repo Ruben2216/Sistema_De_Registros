@@ -211,6 +211,7 @@ function updateVideoMirroring() {
     }
         function clearimage(){
         photosContainer.innerHTML = '';
+        
                 photosTakenCount = 0; // Reiniciar contador al limpiar
 
         statusElement.innerHTML="Espacio en blanco...";
@@ -223,6 +224,26 @@ function updateVideoMirroring() {
     snapButton.addEventListener('click', snapPhoto);
     clearButton.addEventListener('click', clearimage);
 
+
+    document.querySelector('.video-container').addEventListener('dblclick', async function() {
+        // Cambiar el modo de cámara de environment a user y al contrarioe
+        if (currentFacingMode === 'environment') {
+            currentFacingMode = 'user';
+            statusElement.textContent = "Cambiando a cámara frontal...";
+        } else {
+            currentFacingMode = 'environment';
+            statusElement.textContent = "Cambiando a cámara trasera...";
+        }
+
+        // Detener la cámara actual si está activa, para que se reinicie con el nuevo modo
+        if (stream) {
+            const tracks = stream.getTracks();
+            tracks.forEach(track => track.stop());
+        }
+
+        // Reiniciar la cámara para aplicar el nuevo modo de user o viceversa
+        await startCamera();
+    });
 
     window.addEventListener('beforeunload', () => {
         stopCamera(); 
