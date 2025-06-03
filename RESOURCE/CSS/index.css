@@ -45,8 +45,6 @@ h1{
     display:flex;
     justify-content: space-between;
     margin-bottom: 0.5rem;
-
-
 }
 
 .formulario-verificacion {
@@ -258,3 +256,4 @@ canvas{
         padding: 12px;
     }
 }
+
