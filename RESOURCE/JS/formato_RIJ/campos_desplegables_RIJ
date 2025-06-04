@@ -1,4 +1,5 @@
 function mostrarInput(nombre) {
+        document.querySelectorAll('[id^="input_"]').forEach(el => el.style.display = 'none');
     // Oculta el input correspondiente
     const input = document.getElementById("input_" + nombre);
     if (!input) return;
