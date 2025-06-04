@@ -11,15 +11,39 @@
         <form class = "formulario-verificacion__formulario"">
             <h1 class="formulario-verificacion__titulo-principal">Formato de mantenimiento preventivo de tabletas</h1>
             <div class="campo">
-                    <label class="campo__etiqueta">FECHA</label>
-                    <input type="date" class="campo__control">
+                <label class="campo__etiqueta">FECHA</label>
+                <input type="date" class="campo__control">
             </div>
             <div class="seccion">
                 <div class="campo">
-                <label class="campo__etiqueta">ZONAS</label>
-                <select class="campo__control">
-                    <option value="Seleccionar_Zona">Selecciona una zona</option>
-                </select>
+                    <label class="campo__etiqueta">División</label>
+                    <select  class="campo__control" id="division">
+                        <option value="">Selecciona una división</option>
+                        <option value="Baja_California">División Bajacalifornia</option>
+                        <option value="Noroeste">División Noroeste</option>
+                        <option value="Norte">División Norte</option>
+                        <option value="Golfo_Norte">División Golfo norte</option>
+                        <option value="Golfo_Centro">División Golfo Centro</option>
+                        <option value="Bajio">División Bajio</option>
+                        <option value="Jalisco">División Jalisco</option>
+                        <option value="Centro_Occidente">División Centro Occidente</option>
+                        <option value="Centro_Sur">División Centro Sur</option>
+                        <option value="Centro_Oriente">Division Centro Oriente</option>
+                        <option value="Oriente">División Oriente</option>
+                        <option value="Sureste">División Sureste</option>
+                        <option value="Peninsular">División Peninsular</option>
+                        <option value="Valle_Norte">División Valle de México Norte</option>
+                        <option value="Valle_Centro">División Valle de México Centro</option>
+                        <option value="Valle_Sur">División Valle de México Sur</option>
+                    </select>
+                </div>
+                <div class="seccion">
+                    <div class="campo">
+                        <label class="campo__etiqueta">Zonas</label>
+                        <select class="campo__control" id="zona">
+                            <option value="Seleccionar_Zona" >Selecciona una zona</option>
+                        </select>
+                    </div>
                 </div>
             </div>
             <div class="seccion">
@@ -208,7 +232,9 @@
         </div>
     </div>
 </div>
-    <script src="/RESOURCE/JS/formato_RIJ/firma.js"></script>
+    <script src="/RESOURCE/JS/firma.js"></script>
+    <script src="/RESOURCE/JS/barra_progreso.js"></script>
+    <script src="/RESOURCE/JS/selects.js"></script>
     <script src="/RESOURCE/JS/campo_desplegable.js"></script>
 </body>
 </html>
