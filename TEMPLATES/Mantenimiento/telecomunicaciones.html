@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formato Inspección de salas de Telecomunicación</title>
+    <link rel="stylesheet" href="/RESOURCE/CSS/index.css">
+</head>
+<body>
+        <div class="contenedor-barra">
+        <div class="progreso">
+            <div class="progreso-barra" id="progreso-barra" style="width: 0%;"></div>
+        </div>
+    </div>
+    <div class="formulario-verificacion">
+        <form class = "formulario-verificacion__formulario">
+            <h1 class="formulario-verificacion__titulo-principal">Formato de mantenimiento de computo</h1>
+            <div class="seccion">
+                <div class="campo">
+                    <label class="campo__etiqueta">CLAVE DE DOCUMENTO</label>
+                    <input type="text" class="campo__control">
+                </div>
+                <div class="campo">
+                    <label class="campo__etiqueta">NÚMERO DE VERSIÓN</label>
+                    <input type="text" class="campo__control">
+                </div>
+                <div class="campo">
+                    <label class="campo__etiqueta">FECHA DE PUBLICACIÓN</label>
+                    <input type="date" class="campo__control">
+                </div>
+                <div class="campo">
+                    <label class="campo__etiqueta">División</label>
+                    <select  class="campo__control" id="division">
+                        <option value="">Selecciona una división</option>
+                        <option value="Baja_California">División Bajacalifornia</option>
+                        <option value="Noroeste">División Noroeste</option>
+                        <option value="Norte">División Norte</option>
+                        <option value="Golfo_Norte">División Golfo norte</option>
+                        <option value="Golfo_Centro">División Golfo Centro</option>
+                        <option value="Bajio">División Bajio</option>
+                        <option value="Jalisco">División Jalisco</option>
+                        <option value="Centro_Occidente">División Centro Occidente</option>
+                        <option value="Centro_Sur">División Centro Sur</option>
+                        <option value="Centro_Oriente">Division Centro Oriente</option>
+                        <option value="Oriente">División Oriente</option>
+                        <option value="Sureste">División Sureste</option>
+                        <option value="Peninsular">División Peninsular</option>
+                        <option value="Valle_Norte">División Valle de México Norte</option>
+                        <option value="Valle_Centro">División Valle de México Centro</option>
+                        <option value="Valle_Sur">División Valle de México Sur</option>
+                    </select>
+                </div>
+                <div class="seccion">
+                    <div class="campo">
+                        <label class="campo__etiqueta">Zonas</label>
+                        <select class="campo__control" id="zona">
+                            <option value="Seleccionar_Zona" >Selecciona una zona</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="campo">
+                    <label class="campo__etiqueta">UBICACIÓN DEL SITE</label>
+                    <input type="text" class="campo__control">
+                </div>
+            </div>
+            <div class="seccion">
+                <div class="campo">
+                <label class="campo__etiqueta">SERVICIO</label>
+                <select class="campo__control">
+                    <option value="Seleccionar_Zona">Seleccione el tipo de servicio</option>
+                    <option value="Preventivo">Preventivo</option>
+                    <option value="Mantenimiento">Mantenimiento</option>
+                </select>
+                </div>
+            </div>
+            <hr class="seccion__divisor">
+            <div class="seccion">
+                <h3 class="seccion__titulo">ELEMENTO</h3>
+                <div class="campo">
+                    <p class="campo__etiqueta">1. ¿Cuenta con tierra física?</p>
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="limpieza_externa" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="limpieza_externa" type="radio" value="no" onchange="mostrarInput('limpieza_externa')"> No</label>
+                    </div>
+                    <input type="text" id="input_limpieza_externa" class="campo__control" style="display: none;" placeholder="Especifique motivo">
+                </div>
+                <div class="campo">2. ¿Cuenta con equipos UPS?</p>
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="pantalla" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="pantalla" type="radio" value="no" onchange="mostrarInput('pantalla')"> No</label>
+                    </div>
+                    <input type="text" id="input_pantalla" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                </div>
+                <div class="campo">3. ¿El tiempo de respaldo de la UPS es de al menos 30 minutos?</p>
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="teclado" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="teclado" type="radio" value="no" onchange="modtrarInput('teclado')"> No</label>
+                    </div>
+                    <input type="text" id="input_teclado" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                </div>
+                <div class="campo">4. ¿El estado de las baterías es correcto?</p>
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="conexiones" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="conexiones" type="radio" value="no" onchange="mostrarInput('conexiones')"> No</label>
+                    </div>
+                    <input type="text" id="input_conexiones" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                </div>
+                <div class="campo">5. ¿El voltaje es correcto? (±10% permitido)</p>
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="despues_servicio" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="despues_servicio" type="radio" value="no" onchange="mostrarInput('despues_servicio')"> No</label>
+                    </div>
+                    <input type="text" id="input_despues_servicio" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                </div>
+                <div class="campo">6. ¿Cuenta con control de acceso?</p>
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="Antivirus" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="Antivirus" type="radio" value="no" onchange="mostrarInput('Antivirus')"> No</label>
+                    </div>
+                    <input type="text" id="input_Antivirus" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                </div>
+                <div class="campo">7. ¿El edificio cuenta con seguridad física?</p>
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="Defrag" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="Defrag" type="radio" value="no" onchange="mostrarInput('Defrag')"> No</label>
+                    </div>
+                    <input type="text" id="input_Defrag" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                </div>
+                <div class="campo">8. ¿Se cuenta con aire acondicionado?</p>
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="dominio" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="dominio" type="radio" value="no" onchange="mostrarInput('doominio')"> No</label>
+                    </div>
+                    <input type="text" id="input_dominio" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                </div>
+                <div class="campo">9. ¿Se encuantra operando normal el aire acondicionado?
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="Windows_update" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="Windows_update" type="radio" value="no" onchange="mostrarInput('Windows_update')"> No</label>
+                    </div>
+                    <input type="text" id="input_Windows_update" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                </div>
+                <div class="campo">10. ¿Se cuenta con bitácora de registro?
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input type="radio" class="grupo-opciones__control" name="bitacora" value="si">Sí</label>
+                        <label class="grupo-opciones__opcion"><input type="radio" class="grupo-opciones__control" name="bitacora" value="no" onchange="mostrarInput('bitacora')">No</label>
+                    </div>
+                    <input type="text" id="input_bitacora" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                </div>
+                <div class="campo">11. ¿Existe orden y limpieza en sala de Telecomunicaciones (5s)?
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input type="radio" class="grupo-opciones__control" name="orden_impieza" value="si">Sí</label>
+                        <label class="grupo-opciones__opcion"><input type="radio" class="grupo-opciones__control" name="orden_impieza" value="no" onchange="mostrarInput('limpieza_externa')">No</label>
+                    </div>
+                    <input type="text" id="input_orden_impieza" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                </div>
+                <div class="campo">12. ¿Se cuenta con cableado de red estructurado etiquetado?
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input type="radio" class="grupo-opciones__control" name="orden_impieza" value="si">Sí</label>
+                        <label class="grupo-opciones__opcion"><input type="radio" class="grupo-opciones__control" name="orden_impieza" value="no" onchange="mostrarInput('limpieza_externa')">No</label>
+                    </div>
+                    <input type="text" id="input_orden_impieza" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                </div>
+                <div class="campo">13. ¿Switch se encuentra libre de polvo?
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input type="radio" class="grupo-opciones__control" name="orden_impieza" value="si">Sí</label>
+                        <label class="grupo-opciones__opcion"><input type="radio" class="grupo-opciones__control" name="orden_impieza" value="no" onchange="mostrarInput('limpieza_externa')">No</label>
+                    </div>
+                    <input type="text" id="input_orden_impieza" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                </div>
+                <div class="campo">14. ¿Los puntos de acceso que se conectan al switch de sala inspecciona, se encuentra correctamente instalados en plafón, pared o reck?
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input type="radio" class="grupo-opciones__control" name="orden_impieza" value="si">Sí</label>
+                        <label class="grupo-opciones__opcion"><input type="radio" class="grupo-opciones__control" name="orden_impieza" value="no" onchange="mostrarInput('limpieza_externa')">No</label>
+                    </div>
+                    <input type="text" id="input_orden_impieza" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                </div>
+                <div class="campo">15. ¿Se encuentra operando el o los puntos de acceso (AP's)?
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input type="radio" class="grupo-opciones__control" name="orden_impieza" value="si">Sí</label>
+                        <label class="grupo-opciones__opcion"><input type="radio" class="grupo-opciones__control" name="orden_impieza" value="no" onchange="mostrarInput('limpieza_externa')">No</label>
+                    </div>
+                    <input type="text" id="input_orden_impieza" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                </div>
+
+                
+
+            </div>
+            <hr class="seccion__divisor">
+            <div class="campo">
+                    <label class="campo__etiqueta">REALIZÓ SERVICIO:</label>
+                    <input type="text" class="campo__control">
+            </div>
+            <div class="campo">
+                    <label class="campo__etiqueta">RESPONSABLE DEL EQUIPO:</label>
+                    <input type="text" class="campo__control">
+            </div>
+            <div class="campo">
+                    <label class="campo__etiqueta">VISTO BUENO:</label>
+                    <input type="text" class="campo__control">
+            </div>
+            <button type="submit" class="boton boton--primario">Pasar siguiente</button>
+            <button type="button" class="boton boton--secundario">Guardar Borrador</button>
+            <div class="boton boton--secundario boton--cancelar">
+            <a href="/TEMPLATES/menu.html" class="boton--cancelar ">Cancelar</a>
+            </div>
+
+        </form>
+    </div>
+    <script src="/RESOURCE/JS/barra_progreso.js"></script>
+    <script src="/RESOURCE/JS/campo_desplegable.js"></script>
+    <script src="/RESOURCE/JS/selects.js"></script>
+
+</body>
+</html>
