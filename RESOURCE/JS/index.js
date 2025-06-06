@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const snapButton = document.getElementById('snapButton');
     const stopButton = document.getElementById('stopButton');
     const statusElement = document.getElementById('status');
-    //const videoContainer = document.querySelector('.video-container'); 
+    //const videoContainer = document.querySelector('.video-container'); // Comentado originalmente
     const context = canvasElement.getContext('2d');
     const clearButton = document.getElementById('clearButton');
 
@@ -21,22 +21,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Solicitar la máxima calidad posible, 
     const constraints = {
-        audio: false,   
+        audio: false,  
         video: {
             facingMode: currentFacingMode, 
-            width: { max: 9999, ideal: 3840, min: 1280 }, 
-            height: { max: 9999, ideal: 2160, min: 720 },
+            width: {  ideal: 1920, min: 1280 }, 
+            height: {  ideal: 1080, min: 720 },
             advanced: [{ zoom: 1}]
         }
     };
 
-function updateVideoMirroring() {
-    if (frontCamera) {
-        videoElement.style.transform = 'translate(-50%, -50%) scaleX(-1)';
-    } else {
-        videoElement.style.transform = 'translate(-50%, -50%)';
+    function updateVideoMirroring() {
+        if (frontCamera) {
+            videoElement.style.transform = 'translate(-50%, -50%) scaleX(-1)';
+        } else {
+            videoElement.style.transform = 'translate(-50%, -50%)';
+        }
     }
-}
 
     async function startCamera() { // Función asíncrona para permitir await
         constraints.video.facingMode = currentFacingMode; // Actualizar por si cambió
@@ -47,13 +47,12 @@ function updateVideoMirroring() {
         statusElement.textContent = "Iniciando cámara... Espere.";
         photosTakenCount = 0; // Reiniciar contador al inciiar
 
-
         try {
             if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                 stream = await navigator.mediaDevices.getUserMedia(constraints);
                 videoElement.srcObject = stream;
 
-                videoElement.onloadedmetadata =() => {
+                videoElement.onloadedmetadata = () => {
                     videoElement.play().catch(function(err) {
                         console.error("Error al reproducir video:", err);
                         statusElement.textContent = "Error al reproducir video.";
@@ -64,23 +63,21 @@ function updateVideoMirroring() {
                     frontCamera = settings.facingMode === "user" ? true : false;
                     currentFacingMode = settings.facingMode; // Guardar el modo actual
 
-
                     if (window.ImageCapture) {
                         imageCapture = new ImageCapture(videoTrack);
                     } else {
-                        // ImageCapture no disponible, se usará el método de canvas como reservaa
+                        // ImageCapture no disponible, se usará el método de canvas como reserva
                         imageCapture = null; 
                     }
 
                     //------------------------------------------------
                     // Mostrar la resolución obtenida del navegador
-
                     const realWidth = videoElement.videoWidth;
                     const realHeight = videoElement.videoHeight;
-                    console.log("Resolución otbenida:", realWidth, "x", realHeight);
+                    console.log("Resolución obtenida:", realWidth, "x", realHeight);
                     //------------------------------------------------
 
-                    // Forzar trasera si el navegador lo permite
+                    // Forzar trasera si el navegador lo permite (Nota: esto es un chequeo, no una "fuerza" de cambio si no se obtuvo inicialmente)
                     if (currentFacingMode !== "environment") {
                         statusElement.textContent = " No se pudo acceder a la cámara trasera. Se usó: " + currentFacingMode ;
                     }
@@ -91,7 +88,7 @@ function updateVideoMirroring() {
                     console.log("Actual facingMode:", currentFacingMode, "Is frontCamera:", frontCamera);
 
                     updateVideoMirroring(); // Aplicar espejo CSS según la cámara
-                     statusElement.textContent = "Toma la primera foto."; 
+                    statusElement.textContent = "Toma la primera foto."; 
 
                     snapButton.disabled = false; // Habilitar botón de captura AHORA
                     stopButton.disabled = false;
@@ -116,7 +113,7 @@ function updateVideoMirroring() {
             } else if (err.name === "NotFoundError" || err.name === "DevicesNotFoundError") {
                 statusElement.textContent = "No se encontró cámara compatible.";
             } else if (err.name === "OverconstrainedError" || err.name === "ConstraintNotSatisfiedError") {
-                 statusElement.textContent = `Restricciones no satisfechas: ${err.constraint}. Intenta con otra cámara o resolución.`;
+                   statusElement.textContent = `Restricciones no satisfechas: ${err.constraint}. Intenta con otra cámara o resolución.`;
             }
             startButton.disabled = false;
         }
@@ -125,20 +122,20 @@ function updateVideoMirroring() {
     function stopCamera() {
         if (stream) {
             stream.getTracks().forEach(track => track.stop());
-            // videoElement.srcObject = null;
-            // stream = null;
-            // imageCapture = null; // Limpiar la instancia de ImageCapture 
-            statusElement.textContent = "Imagenes nuevas";
+            videoElement.srcObject = null;
+            stream = null;
+            imageCapture = null; // Limpiar la instancia de ImageCapture 
+            statusElement.textContent = "Cámara detenida. Presiona 'Iniciar Cámara' para comenzar de nuevo."; // Modificado para ser más claro
             startButton.disabled = false;
             snapButton.disabled = true;
             stopButton.disabled = true;
+            clearButton.disabled = true; 
 
             //limpiar imagenes y contador
             photosTakenCount = 0; 
-            videoElement.style.transform = 'translate(-50%, -50%) rotate(90deg)'; //al parecer, rota el video al detener
+            videoElement.style.transform = 'translate(-50%, -50%)'; //al parecer, rota el video al detener - Corregido para resetear la rotación
         }
     }
-
 
     async function snapPhoto() { 
         if (!stream || videoElement.paused || videoElement.ended || videoElement.videoWidth === 0) {
@@ -152,52 +149,86 @@ function updateVideoMirroring() {
         let dataUrl;
 
         try {
-            // Configurar el canvas para que coincida con las dimensiones del contenedor de video
-            const videoContainer = videoElement.parentElement;
-            canvasElement.width = videoContainer.clientWidth;
-            canvasElement.height = videoContainer.clientHeight;
+            const videoSourceWidth = videoElement.videoWidth;
+            const videoSourceHeight = videoElement.videoHeight;
+            const videoAspectRatio = videoSourceWidth / videoSourceHeight;
 
-            // Calcular las dimensiones para mantener la proporción y centrar la imagen
-            const videoAspect = videoElement.videoWidth / videoElement.videoHeight;
-            const containerAspect = canvasElement.width / canvasElement.height;
-            
-            let drawWidth, drawHeight, offsetX = 0, offsetY = 0;
-            
-            if (videoAspect > containerAspect) {
-                // El video es más ancho que el contenedor
-                drawHeight = canvasElement.height;
-                drawWidth = drawHeight * videoAspect;
-                offsetX = -(drawWidth - canvasElement.width) / 2;
-            } else {
-                // El video es más alto que el contenedor
-                drawWidth = canvasElement.width;
-                drawHeight = drawWidth / videoAspect;
-                offsetY = -(drawHeight - canvasElement.height) / 2;
+            const videoContainer = videoElement.parentElement;
+            const containerDisplayWidth = videoContainer.clientWidth;
+            const containerDisplayHeight = videoContainer.clientHeight;
+            const containerAspectRatio = containerDisplayWidth / containerDisplayHeight;
+
+            // Determina las dimensiones de la "ventana" de video que se ve en el contenedor
+            let cropSourceX = 0;
+            let cropSourceY = 0;
+            let cropSourceWidth = videoSourceWidth;
+            let cropSourceHeight = videoSourceHeight;
+
+            if (videoAspectRatio > containerAspectRatio) {
+                // El video es más ancho que el contenedor, se recorta horizontalmente
+                cropSourceWidth = videoSourceHeight * containerAspectRatio;
+                cropSourceX = (videoSourceWidth - cropSourceWidth) / 2;
+            } else if (videoAspectRatio < containerAspectRatio) {
+                // El video es más alto que el contenedor, se recorta verticalmente
+                cropSourceHeight = videoSourceWidth / containerAspectRatio;
+                cropSourceY = (videoSourceHeight - cropSourceHeight) / 2;
             }
+
+            // El canvas tendrá la resolución de la sección visible del video,
+            // manteniendo la máxima resolución para esa porción.
+            canvasElement.width = cropSourceWidth;
+            canvasElement.height = cropSourceHeight;
 
             context.save();
 
             // Limpiar el canvas antes de dibujar
             context.clearRect(0, 0, canvasElement.width, canvasElement.height);
 
-            // Si es cámara frontal, aplicar espejo horizontal
+            // Si es cámara frontal, aplicar espejo horizontal en el canvas
             if (frontCamera) {
                 context.translate(canvasElement.width, 0);
                 context.scale(-1, 1);
             }
 
-            // Dibujar el video en el canvas manteniendo la proporción y centrándolo
-            context.drawImage(videoElement,offsetX, offsetY, drawWidth, drawHeight);
+            // Dibujar la sección recortada del video en el canvas
+            context.drawImage(
+                videoElement,
+                cropSourceX, cropSourceY, cropSourceWidth, cropSourceHeight, // Fuente: sección recortada del video
+                0, 0, canvasElement.width, canvasElement.height              // Destino: todo el canvas
+            );
 
+            // Restaurar el contexto para quitar el espejo antes de dibujar la fecha/hora
             context.restore();
+
+            // ----------------------- Agregar fecha y hora como pie de foto dentro de la imagen (sin espejo) ----------------
             
+            var fecha = new Date();
+
+            var fechaTexto = fecha.toLocaleDateString('es-MX') + ' ' + fecha.getHours() + ':' + fecha.getMinutes() ;
+            var fontSize = 48; //tamaño de fuente
+            var padding = 10;
+            context.save();
+            context.font = fontSize + 'px Arial';
+            context.textBaseline = 'bottom';
+            var textWidth = context.measureText(fechaTexto).width;
+            var x = canvasElement.width - textWidth - padding;
+            var y = canvasElement.height - padding;
+            // Fondo semitransparente para que se vea mejor
+            context.fillStyle = 'rgba(0,0,0,0.48)';
+            context.fillRect(x - padding, y - fontSize - 4, textWidth + 2 * padding, fontSize + 8);
+            // Texto
+            context.fillStyle = 'white';
+            context.fillText(fechaTexto, x, y);
+            context.restore();
+            // ---------------------- Fin pie de foto -------------------------
+
             dataUrl = canvasElement.toDataURL('image/png');
 
             photosTakenCount++;
             const photoWrapper = document.createElement('div');
             photoWrapper.classList.add('photo-wrapper');
 
-            const newImgElement = document.createElement('img');
+            const newImgElement = document.createElement('img'); //ELEMENTO QUE SE VA A CREAR LAS IMG
             newImgElement.src = dataUrl;
             newImgElement.alt = `Foto Capturada ${photosTakenCount}`;
 
@@ -220,11 +251,18 @@ function updateVideoMirroring() {
                     return; // Si selecciona que no, no hacer nada, solo retornar nada
                 }
                 photoWrapper.remove();
-                photosTakenCount--; //Reiniciar contador de las  n imagenes
+                photosTakenCount--; //Reiniciar contador de las n imagenes
                 
-
-                statusElement.textContent = `Foto ${photosTakenCount} eliminada.`;
+                statusElement.textContent = `Foto eliminada. Total: ${photosTakenCount}`;
             });
+         // ---------------- evento de descarga de la img con dblclick ----------------
+            newImgElement.addEventListener('dblclick', () => {
+                const link = document.createElement('a');
+                link.href = newImgElement.src;
+                link.download = `Foto_Capturada_${photosTakenCount}.png`;
+                link.click();
+            });
+            //-------------------------------------------------------------------------------
 
             photoWrapper.appendChild(newImgElement);
             photoWrapper.appendChild(deleteButton);
@@ -232,22 +270,16 @@ function updateVideoMirroring() {
 
             statusElement.textContent = `¡Foto ${photosTakenCount} tomada! Puedes tomar otra.`;
 
-
-
         } catch (error) {
             console.error("Error al tomar la foto:", error);
             statusElement.textContent = `Error al tomar la foto: ${error.name}`;
         }
-        
     }
-        function clearimage(){
+
+    function clearimage(){
         photosContainer.innerHTML = '';
-        
-                photosTakenCount = 0; // Reiniciar contador al limpiar
-
+        photosTakenCount = 0; // Reiniciar contador al limpiar
         statusElement.innerHTML="Espacio en blanco...";
-
-
     }
 
     startButton.addEventListener('click', startCamera);
@@ -255,9 +287,8 @@ function updateVideoMirroring() {
     snapButton.addEventListener('click', snapPhoto);
     clearButton.addEventListener('click', clearimage);
 
-
     document.querySelector('.video-container').addEventListener('dblclick', async function() {
-        // Cambiar el modo de cámara de environment a user y al contrarioe
+        // Cambiar el modo de cámara de environment a user y al contrario
         if (currentFacingMode === 'environment') {
             currentFacingMode = 'user';
             statusElement.textContent = "Cambiando a cámara frontal...";
@@ -270,6 +301,9 @@ function updateVideoMirroring() {
         if (stream) {
             const tracks = stream.getTracks();
             tracks.forEach(track => track.stop());
+            videoElement.srcObject = null;
+            stream = null;
+            imageCapture = null;
         }
 
         // Reiniciar la cámara para aplicar el nuevo modo de user o viceversa
@@ -279,6 +313,4 @@ function updateVideoMirroring() {
     window.addEventListener('beforeunload', () => {
         stopCamera(); 
     });
-}
-);
-
+});

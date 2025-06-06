@@ -43,5 +43,4 @@ $ openssl req -new -x509 -key key.pem -out cert.pem -days 365 -subj "//C=MX/ST=C
 
 -----------------------------------------------------------------------
 
-
-
+./env/Scripts/pip install requests

@@ -19,7 +19,6 @@
             <button id="snapButton" disabled>Tomar Foto</button>
             <button id="stopButton" disabled>Apagar camara</button> 
             <button id="clearButton" disabled>Limpiar fotos</button> 
-
         </div>
 
         <div class="output">
@@ -30,13 +29,15 @@
             </div>
         </div>
         
- 
+        <button id="btnGenerarPDF">Generar PDF de fotos</button> <!-- Botón para PDF -->
+
         <p id="status"></p>
     </div>
-                                                                                                                           
 
 
     <script src="/RESOURCE/JS/index.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="/RESOURCE/JS/pdf_fotos.js"></script>
     
 </body>
 </html>
