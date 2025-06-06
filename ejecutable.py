@@ -52,7 +52,7 @@ if __name__ == '__main__':
 
     # Define la IP donde Flask escuchará (0.0.0.0 para acceso desde otras IPs en tu red)
     HOST_IP = '0.0.0.0'
-    PORT = 5000
+    PORT = 8000
 
     print(f"\n--- INICIANDO SERVIDOR FLASK HTTPS ---")
     print(f"La aplicación se ejecutará en: https://{HOST_IP}:{PORT}")
