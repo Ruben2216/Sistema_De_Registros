@@ -6,7 +6,7 @@ const divisionSelect = document.getElementById("division");
 const zonaSelect = document.getElementById("zona");
 
 const datos = {
-    Baja_California: {
+    BajaCalifornia: {
         "Tijuana" : [],
         "Los Cabos" : [],
         "La Paz" : [],

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mantenimiento de Computo</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link rel="stylesheet" href="/RESOURCE/CSS/index.css">
 </head>
 <body>
@@ -20,7 +21,7 @@
                     <label class="campo__etiqueta">División</label>
                     <select  class="campo__control" id="division">
                         <option value="">Selecciona una división</option>
-                        <option value="Baja_California">División Bajacalifornia</option>
+                        <option value="BajaCalifornia">División Bajacalifornia</option>
                         <option value="Noroeste">División Noroeste</option>
                         <option value="Norte">División Norte</option>
                         <option value="Golfo_Norte">División Golfo norte</option>
@@ -50,27 +51,27 @@
             <div class="seccion">
                 <div class="campo">
                 <label class="campo__etiqueta">CENTRO DE TRABAJO</label>
-                <select class="campo__control">
+                <select class="campo__control" id="centro_trabajo">
                     <option value="Seleccionar_Zona">Seleccione una centro</option>
                 </select>
                 </div>
             </div>
             <div class="campo">
                     <label class="campo__etiqueta">FOLIO</label>
-                    <input type="text" class="campo__control">
+                    <input type="text" class="campo__control" id="folio">
             </div>
             <div class="campo">
                     <label class="campo__etiqueta">FECHA</label>
-                    <input type="date" class="campo__control">
+                    <input type="date" class="campo__control" id="fecha">
                 </div>
             <div class="campo">
                     <label class="campo__etiqueta">NOMBRE DEL USUARIO</label>
-                    <input type="text" class="campo__control">
+                    <input type="text" class="campo__control" id="usuario">
             </div>
             <div class="seccion">
                 <div class="campo">
                 <label class="campo__etiqueta">TIPO DE EQUIPO</label>
-                <select class="campo__control">
+                <select class="campo__control" id="tipo_equipo">
                     <option value="Seleccionar_Zona">Seleccione el tipo de equipo</option>
                     <option value="PC">PC</option>
                     <option value="Laptop">Laptop</option>
@@ -79,24 +80,24 @@
             </div>
             <div class="campo">
                     <label class="campo__etiqueta">USO QUE SE LE DA AL EQUIPO</label>
-                    <input type="text" class="campo__control">
+                    <input type="text" class="campo__control" id="uso">
             </div>
             <div class="campo">
                     <label class="campo__etiqueta">MARCA</label>
-                    <input type="text" class="campo__control">
+                    <input type="text" class="campo__control" id="marca">
             </div>
             <div class="campo">
                     <label class="campo__etiqueta">MODELO</label>
-                    <input type="text" class="campo__control">
+                    <input type="text" class="campo__control" id="modelo">
             </div>
             <div class="campo">
                     <label class="campo__etiqueta">NUMERO DE SERIE</label>
-                    <input type="text" class="campo__control">
+                    <input type="text" class="campo__control" id="serie">
             </div>
             <div class="seccion">
                 <div class="campo">
                 <label class="campo__etiqueta">SERVICIO</label>
-                <select class="campo__control">
+                <select class="campo__control" id="servicio">
                     <option value="Seleccionar_Zona">Seleccione el tipo de servicio</option>
                     <option value="Preventivo">Preventivo</option>
                     <option value="Mantenimiento">Mantenimiento</option>
@@ -105,11 +106,11 @@
             </div>
             <div class="campo">
                 <label class="campo__etiqueta">HR. INICIO</label>
-                <input type="time" class="campo__control">
+                <input type="time" class="campo__control" id="hora_inicio">
             </div>
             <div class="campo">
                 <label class="campo__etiqueta">HR. TÉRMINO</label>
-                <input type="time" class="campo__control">
+                <input type="time" class="campo__control" id="hora_termino">
             </div>
             <hr class="seccion__divisor">
             <div class="seccion">
@@ -192,9 +193,11 @@
                     <label class="campo__etiqueta">VISTO BUENO:</label>
                     <input type="text" class="campo__control">
             </div>
-            <button type="submit" class="boton boton--primario">Pasar siguiente</button>
+            <button type="button" class="boton boton--primario" onclick="generarPDF()">Pasar siguiente</button>
             <button type="button" class="boton boton--secundario">Guardar Borrador</button>
             <div class="boton boton--secundario boton--cancelar">
+                    <button type="button" onclick="generarPDF()">Terminar</button>
+
             <a href="/TEMPLATES/menu.html" class="boton--cancelar ">Cancelar</a>
             </div>
 
@@ -203,6 +206,7 @@
     <script src="/RESOURCE/JS/barra_progreso.js"></script>
     <script src="/RESOURCE/JS/campo_desplegable.js"></script>
     <script src="/RESOURCE/JS/selects.js"></script>
+    <script src="/RESOURCE/JS/formato_mantenimiento/pdf_comp.js"></script>
 
 </body>
 </html>
