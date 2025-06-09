@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mantenimiento de Computo</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/index.css') }}"> 
-    <!-- <link rel="stylesheet" href="/RESOURCE/CSS/index.css"> -->
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='CSS/index.css') }}">  -->
+    <link rel="stylesheet" href="/RESOURCE/CSS/index.css">
 </head>
 <body>
     <div class="contenedor-barra">
@@ -91,8 +91,7 @@
                 <label for="Numero_Serie" class="campo__etiqueta">NÚMERO DE SERIE</label>
                 <div class="search-container">
                     <input type="text" class="campo__control" id="numero_serie" name="numero_serie"> 
-                    <button type="button" id="search-button"
-                    data-url="{{ url_for('buscar_equipo') }}">BUSCAR</button> 
+                    <button type="button" id="search-button" data-url="/buscar_equipo">BUSCAR</button> 
                 </div>
             </div>
             <div class="campo">
@@ -219,7 +218,8 @@
         </form>
     </div>
 
-    <script src="{{ url_for('static', filename='JS/formato_mantenimiento/connection.js') }}"></script>
+    <!-- <script src="{{ url_for('static', filename='JS/formato_mantenimiento/connection.js') }}"></script> -->
+    <script src="/RESOURCE/JS/formato_mantenimiento/connection.js" ></script>
     <script src="/RESOURCE/JS/barra_progreso.js"></script>
     <script src="/RESOURCE/JS/campo_desplegable.js"></script>
     <script src="/RESOURCE/JS/selects.js"></script>
