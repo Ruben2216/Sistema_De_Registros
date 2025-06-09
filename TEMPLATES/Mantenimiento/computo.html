@@ -5,19 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mantenimiento de Computo</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <link rel="stylesheet" href="/RESOURCE/CSS/index.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/index.css') }}"> 
+    <!-- <link rel="stylesheet" href="/RESOURCE/CSS/index.css"> -->
 </head>
 <body>
-        <div class="contenedor-barra">
+    <div class="contenedor-barra">
         <div class="progreso">
             <div class="progreso-barra" id="progreso-barra" style="width: 0%;"></div>
         </div>
     </div>
+    
     <div class="formulario-verificacion">
         <form class = "formulario-verificacion__formulario">
             <h1 class="formulario-verificacion__titulo-principal">Formato de mantenimiento de computo</h1>
             <div class="seccion">
-                <div class="campo">
+               <!-- <div class="campo">
                     <label class="campo__etiqueta">División</label>
                     <select  class="campo__control" id="division">
                         <option value="">Selecciona una división</option>
@@ -38,70 +40,42 @@
                         <option value="Valle_Centro">División Valle de México Centro</option>
                         <option value="Valle_Sur">División Valle de México Sur</option>
                     </select>
-                </div>
+                </div>-->
                 <div class="seccion">
                     <div class="campo">
-                        <label class="campo__etiqueta">Zonas</label>
+                        <label class="campo__etiqueta">ZONAS</label>
                         <select class="campo__control" id="zona">
                             <option value="Seleccionar_Zona" >Selecciona una zona</option>
                         </select>
                     </div>
                 </div>
             </div>
-            <div class="seccion">
-                <div class="campo">
-                <label class="campo__etiqueta">CENTRO DE TRABAJO</label>
-                <select class="campo__control" id="centro_trabajo">
-                    <option value="Seleccionar_Zona">Seleccione una centro</option>
-                </select>
-                </div>
+            <div class="campo">
+                <label class="campo__etiqueta">FOLIO</label>
+                <input type="text" class="campo__control" id="folio">
             </div>
             <div class="campo">
-                    <label class="campo__etiqueta">FOLIO</label>
-                    <input type="text" class="campo__control" id="folio">
-            </div>
-            <div class="campo">
-                    <label class="campo__etiqueta">FECHA</label>
-                    <input type="date" class="campo__control" id="fecha">
-                </div>
-            <div class="campo">
-                    <label class="campo__etiqueta">NOMBRE DEL USUARIO</label>
-                    <input type="text" class="campo__control" id="usuario">
+                <label class="campo__etiqueta">FECHA</label>
+                <input type="date" class="campo__control" id="fecha">
             </div>
             <div class="seccion">
                 <div class="campo">
-                <label class="campo__etiqueta">TIPO DE EQUIPO</label>
-                <select class="campo__control" id="tipo_equipo">
-                    <option value="Seleccionar_Zona">Seleccione el tipo de equipo</option>
-                    <option value="PC">PC</option>
-                    <option value="Laptop">Laptop</option>
-                </select>
+                    <label class="campo__etiqueta">TIPO DE EQUIPO</label>
+                    <select class="campo__control" id="tipo_equipo">
+                        <option value="Seleccionar_Zona">Seleccione el tipo de equipo</option>
+                        <option value="PC">PC</option>
+                        <option value="Laptop">Laptop</option>
+                    </select>
                 </div>
-            </div>
-            <div class="campo">
-                    <label class="campo__etiqueta">USO QUE SE LE DA AL EQUIPO</label>
-                    <input type="text" class="campo__control" id="uso">
-            </div>
-            <div class="campo">
-                    <label class="campo__etiqueta">MARCA</label>
-                    <input type="text" class="campo__control" id="marca">
-            </div>
-            <div class="campo">
-                    <label class="campo__etiqueta">MODELO</label>
-                    <input type="text" class="campo__control" id="modelo">
-            </div>
-            <div class="campo">
-                    <label class="campo__etiqueta">NUMERO DE SERIE</label>
-                    <input type="text" class="campo__control" id="serie">
             </div>
             <div class="seccion">
                 <div class="campo">
-                <label class="campo__etiqueta">SERVICIO</label>
-                <select class="campo__control" id="servicio">
-                    <option value="Seleccionar_Zona">Seleccione el tipo de servicio</option>
-                    <option value="Preventivo">Preventivo</option>
-                    <option value="Mantenimiento">Mantenimiento</option>
-                </select>
+                    <label class="campo__etiqueta">SERVICIO</label>
+                    <select class="campo__control" id="servicio">
+                        <option value="Seleccionar_Zona">Seleccione el tipo de servicio</option>
+                        <option value="Preventivo">Preventivo</option>
+                        <option value="Mantenimiento">Mantenimiento</option>
+                    </select>
                 </div>
             </div>
             <div class="campo">
@@ -112,6 +86,45 @@
                 <label class="campo__etiqueta">HR. TÉRMINO</label>
                 <input type="time" class="campo__control" id="hora_termino">
             </div>
+            
+            <div class="campo">
+                <label for="Numero_Serie" class="campo__etiqueta">NÚMERO DE SERIE</label>
+                <div class="search-container">
+                    <input type="text" class="campo__control" id="numero_serie" name="numero_serie"> 
+                    <button type="button" id="search-button"
+                    data-url="{{ url_for('buscar_equipo') }}">BUSCAR</button> 
+                </div>
+            </div>
+            <div class="campo">
+                <label for="division" class="campo__etiqueta">DIVISIÓN</label>
+                <input type="text" class="campo__control" id="division" name="division" readonly>
+            </div>
+            <div class="campo">
+                <label for="centro_trabajo" class="campo__etiqueta">CENTRO DE TRABAJO</label>
+                <input type="text" class="campo__control" id="centro_trabajo" name="centro_trabajo" readonly>
+            </div>
+            <div class="campo">
+                <label for="numero_inventario" class="campo__etiqueta">NÚMERO INVENTARIO</label>
+                <input type="text" class="campo__control" id="numero_inventario" name="numero_inventario" readonly>
+            </div>
+            <div class="campo">
+                <label for="nombre_usuario" class="campo__etiqueta">NOMBRE DEL USUARIO</label>
+                <input type="text" class="campo__control" id="nombre_usuario" name="nombre_usuario" readonly>
+            </div>
+            <div class="campo">
+                <label for="marca" class="campo__etiqueta">MARCA</label>
+                <input type="text" class="campo__control" id="marca" name="marca" readonly>
+            </div>
+            <div class="campo">
+                <label for="modelo" class="campo__etiqueta">MODELO</label>
+                <input type="text" class="campo__control" id="modelo" name="modelo" readonly>
+            </div>
+            <div class="campo">
+                <label for="tipo_uso" class="campo__etiqueta">USO QUE SE LE DA AL EQUIPO</label>
+                <input type="text" class="campo__control" id="tipo_uso" name="tipo_uso" readonly>
+            </div>
+
+            <!--SECCIÓN DE ELEMENTO-->
             <hr class="seccion__divisor">
             <div class="seccion">
                 <h3 class="seccion__titulo">ELEMENTO</h3>
@@ -180,6 +193,8 @@
                     <input type="text" id="input_Windows_update" class="campo__control" style="display:none;" placeholder="Especifique motivo">
                 </div>
             </div>
+
+
             <hr class="seccion__divisor">
             <div class="campo">
                     <label class="campo__etiqueta">REALIZÓ SERVICIO:</label>
@@ -193,16 +208,18 @@
                     <label class="campo__etiqueta">VISTO BUENO:</label>
                     <input type="text" class="campo__control">
             </div>
+        
             <button type="button" class="boton boton--primario" onclick="generarPDF()">Pasar siguiente</button>
             <button type="button" class="boton boton--secundario">Guardar Borrador</button>
             <div class="boton boton--secundario boton--cancelar">
-                    <button type="button" onclick="generarPDF()">Terminar</button>
-
-            <a href="/TEMPLATES/menu.html" class="boton--cancelar ">Cancelar</a>
+                <button type="button" onclick="generarPDF()">Terminar</button>
+                <a href="/TEMPLATES/menu.html" class="boton--cancelar ">Cancelar</a>
             </div>
 
         </form>
     </div>
+
+    <script src="{{ url_for('static', filename='JS/formato_mantenimiento/connection.js') }}"></script>
     <script src="/RESOURCE/JS/barra_progreso.js"></script>
     <script src="/RESOURCE/JS/campo_desplegable.js"></script>
     <script src="/RESOURCE/JS/selects.js"></script>

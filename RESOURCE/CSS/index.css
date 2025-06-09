@@ -5,7 +5,7 @@ body {
     background-color: #f4f4f4;
     color: #333;
 }
-.contenedor-barra{
+.contenedor-barra{  
     background-color: white;
     height: 1.5rem;
     width: 97.5vw;
@@ -16,62 +16,62 @@ body {
     justify-content: center;
     align-items: center;
 }
-.progreso {
+.progreso { 
   width: 100%;
   height: 10px;
   background-color: white;
   border-radius: 5px;
 }
 
-.progreso-barra {
+.progreso-barra { 
   width: 0%;
   height: 100%;
   background-color: #00724e;
   border-radius: 5px;
   transition: width 0.3s ease; 
 }
-.fecha_p{
+.fecha_p{ 
     text-align: right;
     margin:0 0 0.7rem 0;   
     
 }
-.reloj{
+.reloj{ 
     margin: 0 0 0.4rem 0;
 }
-h1{
-    margin-top:0;
-}
-.fecha-reloj{
+.fecha-reloj{ 
     display:flex;
     justify-content: space-between;
     margin-bottom: 0.5rem;
 }
 
-.formulario-verificacion {
+h1{ 
+    margin-top:0;
+}
+.formulario-verificacion { 
     background-color: #fff;
     padding: 15px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
     margin-bottom: 15px;
-}
-.formulario-verificacion__titulo-principal {
+} 
+.formulario-verificacion__titulo-principal { 
     font-size: 1.5em;
     text-align: center;
     margin-bottom: 20px;
     color: #333;
 }
-.seccion {
+.seccion { 
     margin-bottom: 20px;
 }
 
-.seccion__titulo {
+.seccion__titulo { 
     color: #333;
     border-bottom: 1px solid #eee;
     padding-bottom: 5px;
     margin-top: 20px;
     margin-bottom: 10px;
 }
-.seccion__divisor {
+.seccion__divisor { 
     border: 0;
     height: 1px;
     background: #ddd;
@@ -83,7 +83,7 @@ h1{
 .campo__etiqueta {
     display: block;
     margin-bottom: 5px;
-    font-weight: bold;
+    font-weight: bold; 
     color: #333;
 }
 .campo__control {
@@ -99,6 +99,21 @@ h1{
     min-height: 80px;
     resize: vertical;
 }
+.search-container { 
+    display: flex; 
+    align-items: flex-end; 
+    gap: 10px; 
+}
+.search-container input { 
+    flex-grow: 1; 
+}
+.search-container button { 
+    padding: 8px 15px; 
+    margin-top: 5px; 
+    cursor: pointer; 
+}
+
+/* ESTILOS PARA SECCIÓN DE ELEMENTOS*/
 .grupo-opciones {
     margin-bottom: 10px;
     margin-top: 5px;
