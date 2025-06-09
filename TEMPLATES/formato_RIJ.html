@@ -4,7 +4,7 @@
     <meta charset="UTF-8"> 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verificación Reunión Inicio Jornada</title> 
-    <link rel="stylesheet" href="/RESOURCE\CSS\index.css">
+    <link rel="stylesheet" href="/RESOURCE/CSS/index.css">
 </head>
 <body>
     <div class="contenedor-barra">
@@ -307,7 +307,8 @@
             <button type="submit" class="boton boton--primario">Pasar siguiente</button>
             <button type="button" class="boton boton--secundario">Guardar Borrador</button>
             <div class="boton boton--secundario boton--cancelar">
-                <a href="/TEMPLATES/menu.html" class="boton--cancelar ">Cancelar</a>
+                <a href="/TEMPLATES/menu.html" class="boton--cancelar" id="btn-cancelar-formulario">Cancelar</a>
+                <a href="/TEMPLATES/camara.html" class="boton--secundario" id="link-camara">Ir a cámara</a>
             </div>
         </form>
     </div>
@@ -322,12 +323,26 @@
         </div>
     </div>
 </div>
+        <script src="/RESOURCE/JS/autoguardado_RIJ.js"></script>
         <script src="/RESOURCE/JS/selects.js"></script>
         <script src="/RESOURCE/JS/formato_RIJ/fecha_reloj.js"></script>
         <script src="/RESOURCE/JS/firma.js"></script>
-        <script src="/RESOURCE/JS/formato_RIJ/acordeon.js"></script>
         <script src="/RESOURCE/JS/formato_RIJ/desplegables.js"></script>
         <script src="/RESOURCE/JS/barra_progreso.js"></script>
-        <script src="/RESOURCE/JS/formato_RIJ/campos_desplegables_RIJ"></script>
+        <script src="/RESOURCE/JS/formato_RIJ/campos_desplegables_RIJ.js"></script>
+        <script>
+// Lógica para limpiar datos de sesión al cancelar
+const btnCancelar = document.getElementById('btn-cancelar-formulario');
+if (btnCancelar) {
+    btnCancelar.addEventListener('click', function(e) {
+        // Llamar al endpoint para limpiar sesión
+        fetch('/api/rij/limpiar_sesion', {method: 'POST', credentials: 'include'})
+            .then(function() {
+                // También limpiar localStorage
+                localStorage.removeItem('borrador_RIJ');
+            });
+    });
+}
+</script>
     </body>
 </html>

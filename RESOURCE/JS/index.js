@@ -13,7 +13,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let stream = null;
     let frontCamera = false; 
-    let photosTakenCount = 0; // Contador de fotos tomadas 
     let imageCapture = null; // Instancia para la API ImageCapture
 
     // Preferencias iniciales
@@ -43,9 +42,8 @@ document.addEventListener('DOMContentLoaded', () => {
         startButton.disabled = true;
         snapButton.disabled = true; // Deshabilitar hasta que el video esté listo
         stopButton.disabled = true;
-        clearButton.disabled = true; 
+        // clearButton.disabled = true; // No deshabilitar nunca el botón de limpiar fotos
         statusElement.textContent = "Iniciando cámara... Espere.";
-        photosTakenCount = 0; // Reiniciar contador al inciiar
 
         try {
             if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
@@ -129,12 +127,23 @@ document.addEventListener('DOMContentLoaded', () => {
             startButton.disabled = false;
             snapButton.disabled = true;
             stopButton.disabled = true;
-            clearButton.disabled = true; 
+            // clearButton.disabled = true; // No deshabilitar nunca el botón de limpiar fotos
 
-            //limpiar imagenes y contador
-            photosTakenCount = 0; 
             videoElement.style.transform = 'translate(-50%, -50%)'; //al parecer, rota el video al detener - Corregido para resetear la rotación
         }
+    }
+
+    // Contador global de fotos tomadas. Solo se reinicia al borrar todas las fotos.
+    let photosTakenCount = 0; // Contador de fotos
+
+    // Crear el elemento visual del contador (sin estilos)
+    let photoCounterElement = document.createElement('div');
+    photoCounterElement.id = 'photoCounter';
+    photoCounterElement.textContent = 'Fotos tomadas: 0';
+
+    // Función para actualizar el contador visual
+    function actualizarContadorFotos() {
+        photoCounterElement.textContent = 'Fotos tomadas: ' + photosTakenCount;
     }
 
     async function snapPhoto() { 
@@ -142,11 +151,6 @@ document.addEventListener('DOMContentLoaded', () => {
             statusElement.textContent = "La cámara no está activa o lista.";
             return;
         }
-
-        console.log("Snapping photo. Video dimensions:", videoElement.videoWidth, videoElement.videoHeight);
-        console.log("Is front camera for snap:", frontCamera);
-
-        let dataUrl;
 
         try {
             const videoSourceWidth = videoElement.videoWidth;
@@ -158,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const containerDisplayHeight = videoContainer.clientHeight;
             const containerAspectRatio = containerDisplayWidth / containerDisplayHeight;
 
-            // Determina las dimensiones de la "ventana" de video que se ve en el contenedor
+            // Determinar recorte para mantener la proporción del contenedor
             let cropSourceX = 0;
             let cropSourceY = 0;
             let cropSourceWidth = videoSourceWidth;
@@ -174,38 +178,31 @@ document.addEventListener('DOMContentLoaded', () => {
                 cropSourceY = (videoSourceHeight - cropSourceHeight) / 2;
             }
 
-            // El canvas tendrá la resolución de la sección visible del video,
-            // manteniendo la máxima resolución para esa porción.
+            // Ajustar el canvas al recorte
             canvasElement.width = cropSourceWidth;
             canvasElement.height = cropSourceHeight;
 
             context.save();
-
-            // Limpiar el canvas antes de dibujar
             context.clearRect(0, 0, canvasElement.width, canvasElement.height);
 
-            // Si es cámara frontal, aplicar espejo horizontal en el canvas
+            // Espejo si es cámara frontal
             if (frontCamera) {
                 context.translate(canvasElement.width, 0);
                 context.scale(-1, 1);
             }
 
-            // Dibujar la sección recortada del video en el canvas
             context.drawImage(
                 videoElement,
-                cropSourceX, cropSourceY, cropSourceWidth, cropSourceHeight, // Fuente: sección recortada del video
-                0, 0, canvasElement.width, canvasElement.height              // Destino: todo el canvas
+                cropSourceX, cropSourceY, cropSourceWidth, cropSourceHeight,
+                0, 0, canvasElement.width, canvasElement.height
             );
 
-            // Restaurar el contexto para quitar el espejo antes de dibujar la fecha/hora
             context.restore();
 
-            // ----------------------- Agregar fecha y hora como pie de foto dentro de la imagen (sin espejo) ----------------
-            
+            // Agregar fecha/hora
             var fecha = new Date();
-
-            var fechaTexto = fecha.toLocaleDateString('es-MX') + ' ' + fecha.getHours() + ':' + fecha.getMinutes() ;
-            var fontSize = 48; //tamaño de fuente
+            var fechaTexto = fecha.toLocaleDateString('es-MX') + ' ' + fecha.getHours() + ':' + fecha.getMinutes();
+            var fontSize = 48;
             var padding = 10;
             context.save();
             context.font = fontSize + 'px Arial';
@@ -213,62 +210,29 @@ document.addEventListener('DOMContentLoaded', () => {
             var textWidth = context.measureText(fechaTexto).width;
             var x = canvasElement.width - textWidth - padding;
             var y = canvasElement.height - padding;
-            // Fondo semitransparente para que se vea mejor
             context.fillStyle = 'rgba(0,0,0,0.48)';
             context.fillRect(x - padding, y - fontSize - 4, textWidth + 2 * padding, fontSize + 8);
-            // Texto
             context.fillStyle = 'white';
             context.fillText(fechaTexto, x, y);
             context.restore();
-            // ---------------------- Fin pie de foto -------------------------
 
-            dataUrl = canvasElement.toDataURL('image/png');
+            // Mostrar mensaje de subida
+            statusElement.textContent = "Subiendo foto al servidor...";
 
-            photosTakenCount++;
-            const photoWrapper = document.createElement('div');
-            photoWrapper.classList.add('photo-wrapper');
-
-            const newImgElement = document.createElement('img'); //ELEMENTO QUE SE VA A CREAR LAS IMG
-            newImgElement.src = dataUrl;
-            newImgElement.alt = `Foto Capturada ${photosTakenCount}`;
-
-            const deleteButton = document.createElement('button');
-            //estilos para el boton de eliminar
-            deleteButton.style.backgroundColor = '#00724e';
-            deleteButton.style.border = 'none';
-            deleteButton.style.borderRadius = '40px';
-            deleteButton.style.width = '1.8rem';
-            deleteButton.style.height = '1.8rem';
-            deleteButton.style.position = 'absolute'; 
-            photoWrapper.style.position = 'relative'; // Asegurar que el contenedor tenga posición relativa para posicionar el botón independientemente del tamañño del dispositivo
-            deleteButton.style.top = '5px'; 
-            deleteButton.style.right = '5px'; 
-
-            deleteButton.textContent = 'X';
-            deleteButton.addEventListener('click', () => {
-                //preguntar antes de eliminar de que si si se va a borrar la foto o no
-                if (!confirm("¿Estás seguro de que quieres eliminar esta foto?")) {
-                    return; // Si selecciona que no, no hacer nada, solo retornar nada
+            // Subir la foto al servidor y actualizar galería
+            if (typeof guardarFotoDesdeCanvas === 'function') {
+                guardarFotoDesdeCanvas(canvasElement);
+                // Incrementar el contador de fotos al tomar una nueva
+                photosTakenCount++;
+                statusElement.textContent = "¡Foto tomada y subida! Puedes tomar otra.";
+                // Mostrar el contador justo debajo del mensaje
+                if (statusElement.nextSibling !== photoCounterElement) {
+                    statusElement.parentNode.insertBefore(photoCounterElement, statusElement.nextSibling);
                 }
-                photoWrapper.remove();
-                photosTakenCount--; //Reiniciar contador de las n imagenes
-                
-                statusElement.textContent = `Foto eliminada. Total: ${photosTakenCount}`;
-            });
-         // ---------------- evento de descarga de la img con dblclick ----------------
-            newImgElement.addEventListener('dblclick', () => {
-                const link = document.createElement('a');
-                link.href = newImgElement.src;
-                link.download = `Foto_Capturada_${photosTakenCount}.png`;
-                link.click();
-            });
-            //-------------------------------------------------------------------------------
-
-            photoWrapper.appendChild(newImgElement);
-            photoWrapper.appendChild(deleteButton);
-            photosContainer.appendChild(photoWrapper);
-
-            statusElement.textContent = `¡Foto ${photosTakenCount} tomada! Puedes tomar otra.`;
+                actualizarContadorFotos(); // Actualizar el contador visual
+            } else {
+                statusElement.textContent = "Error: función de guardado no disponible.";
+            }
 
         } catch (error) {
             console.error("Error al tomar la foto:", error);
@@ -276,10 +240,70 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function clearimage(){
-        photosContainer.innerHTML = '';
-        photosTakenCount = 0; // Reiniciar contador al limpiar
-        statusElement.innerHTML="Espacio en blanco...";
+    // Función para limpiar todas las fotos y reiniciar el contador
+    function clearimage() {
+        // Advertencia al usuario antes de limpiar todas las fotos
+        if (confirm("ADVERTENCIA: Si continúas, se borrarán TODAS las fotos s. ¿Deseas continuar?")) {
+       
+            fetch('/api/rij/limpiar_sesion', {
+                method: 'POST',
+                credentials: 'include'
+            })
+            .then(function(res) {
+                if (!res.ok) {
+                    throw new Error('Error al borrar las fotos del servidor');
+                }
+                return res.json();
+            })
+            .then(function(data) {
+                // Limpiar la galería del DOM
+                photosContainer.innerHTML = '';
+                photosTakenCount = 0; // Reiniciar contador solo al borrar todas las fotos
+                actualizarContadorFotos(); // Actualizar el contador visual
+                statusElement.innerHTML = "Espacio en blanco... (Fotos: 0)";
+            })
+            .catch(function(err) {
+                alert('Error al borrar las fotos del servidor: ' + err);
+            });
+        } else {
+            statusElement.innerHTML = "Operación cancelada. Las fotos no se han borrado.";
+        }
+    }
+
+    // Función para borrar una foto del servidor y del DOM (usada en el botón X de cada foto)
+    function borrarFotoDelServidor(url, callback) {
+        fetch('/api/rij/borrar_foto', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ url: url }),
+            credentials: 'include'
+        })
+        .then(function(res) {
+            if (!res.ok) {
+                throw new Error('Error al borrar la foto');
+            }
+            return res.json();
+        })
+        .then(function(data) {
+            if (data.success) {
+                // Eliminar la foto del DOM y actualizar el contador según las fotos reales
+                var contenedor = document.getElementById('photosContainer');
+                // Esperar a que el callback de borrado en el DOM se ejecute antes de contar
+                setTimeout(function() {
+                    photosTakenCount = contenedor.querySelectorAll('.photo-wrapper').length;
+                    actualizarContadorFotos();
+                }, 10);
+                statusElement.textContent = "Foto eliminada correctamente.";
+                callback(null);
+            } else {
+                callback('No se pudo borrar la foto');
+            }
+        })
+        .catch(function(err) {
+            callback(err);
+        });
     }
 
     startButton.addEventListener('click', startCamera);
@@ -310,7 +334,78 @@ document.addEventListener('DOMContentLoaded', () => {
         await startCamera();
     });
 
+    // función agregarFotoAGaleria para añadir botón de borrar y descarga por doble click 
+    window.agregarFotoAGaleria = function(url) {
+        var contenedor = document.getElementById('photosContainer');
+        if (!contenedor) {
+            return;
+        }
+        var photoWrapper = document.createElement('div');
+        photoWrapper.classList.add('photo-wrapper');
+        var img = document.createElement('img');
+        img.src = url;
+        img.alt = 'Foto subida';
+        // Evento para descargar la imagen al hacer doble click 
+        img.addEventListener('dblclick', function() {
+            function descargarBlob(blob, nombre) {
+                var urlBlob = URL.createObjectURL(blob);
+                var link = document.createElement('a');
+                link.href = urlBlob;
+                link.download = 'pilin.png'; // Nombre fijo para descarga
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                setTimeout(function() { URL.revokeObjectURL(urlBlob); }, 1000);
+            }
+            // Descargar usando fetch con credenciales
+            fetch(img.src, { credentials: 'include' })
+                .then(function(response) {
+                    if (!response.ok) {
+                        throw new Error('No se pudo descargar la imagen');
+                    }
+                    return response.blob();
+                })
+                .then(function(blob) { descargarBlob(blob, 'pilin.png'); })
+                .catch(function(err) {
+                    alert('Error al descargar la imagen: ' + err);
+                });
+        });
+        // Botón de borrar SIEMPRE visible
+        var deleteButton = document.createElement('button');
+        deleteButton.textContent = 'X';
+        deleteButton.style.backgroundColor = '#00724e';
+        deleteButton.style.border = 'none';
+        deleteButton.style.borderRadius = '40px';
+        deleteButton.style.width = '1.8rem';
+        deleteButton.style.height = '1.8rem';
+        deleteButton.style.position = 'absolute';
+        photoWrapper.style.position = 'relative';
+        deleteButton.style.top = '5px';
+        deleteButton.style.right = '5px';
+        deleteButton.addEventListener('click', function() {
+            if (!confirm("¿Estás seguro de que quieres eliminar esta foto?")) {
+                return;
+            }
+            borrarFotoDelServidor(url, function(err) {
+                if (!err) {
+                    photoWrapper.remove();
+                    photosTakenCount = contenedor.querySelectorAll('.photo-wrapper').length;
+                    actualizarContadorFotos();
+                    statusElement.textContent = "Foto eliminada correctamente.";
+                } else {
+                    alert('Error al borrar la foto: ' + err);
+                }
+            });
+        });
+        photoWrapper.appendChild(img);
+        photoWrapper.appendChild(deleteButton);
+        contenedor.appendChild(photoWrapper);
+    }
+
     window.addEventListener('beforeunload', () => {
         stopCamera(); 
     });
+
+    // Asegurarse que el botón de limpiar fotos esté habilitado al cargar la página
+    clearButton.disabled = false;
 });
