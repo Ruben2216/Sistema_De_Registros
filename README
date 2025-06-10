@@ -38,7 +38,7 @@ Ruben Clemente@LAPTOP-OVKTU9K0 MINGW64 ~/Desktop/Sistema_Registros (main)
 $ openssl genrsa -out key.pem 2048
 
 Ruben Clemente@LAPTOP-OVKTU9K0 MINGW64 ~/Desktop/Sistema_Registros (main)
-$ openssl req -new -x509 -key key.pem -out cert.pem -days 365 -subj "//C=MX/ST=Chiapas/L=Tuxtla Gutierrez/O=Prueba CFE/CN=192.168.1.82"
+$ openssl req -new -x509 -key key.pem -out cert.pem -days 365 -subj "//C=MX/ST=Chiapas/L=Tuxtla Gutierrez/O=Prueba CFE/CN=192.168.1.74"
 
 
 -----------------------------------------------------------------------

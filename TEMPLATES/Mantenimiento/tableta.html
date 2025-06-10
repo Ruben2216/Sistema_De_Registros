@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mantenimiento Preventivo de Tabletas</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link rel="stylesheet" href="\RESOURCE\CSS\index.css">
 </head>
 <body>
@@ -213,7 +214,7 @@
                 <input type="hidden" id="firma-input-1">
                 <img id="firma-imagen-1" class="firma-imagen"/>
             </div>
-            <button type="submit" class="boton boton--primario">Pasar siguiente</button>
+            <button type="button" class="boton boton--primario" onclick="generarPDF()">Pasar siguiente</button>
             <button type="button" class="boton boton--secundario">Guardar Borrador</button>
             <div class="boton boton--secundario boton--cancelar">
                 <a href="/TEMPLATES/menu.html" class="boton--cancelar ">Cancelar</a>
@@ -236,5 +237,6 @@
     <script src="/RESOURCE/JS/barra_progreso.js"></script>
     <script src="/RESOURCE/JS/selects.js"></script>
     <script src="/RESOURCE/JS/campo_desplegable.js"></script>
+    <script src="/RESOURCE/JS/formato_mantenimiento/pdf_tabletas.js"></script>
 </body>
 </html>

@@ -2,6 +2,7 @@ async function generarPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF(); /*crea pdf vacio*/
 
+
     // DATOS DE FORMULARIO
     const division = document.querySelector('input[id="division"]').value;
     const zona = document.querySelector('select[id="zona"]').value;
@@ -34,51 +35,51 @@ async function generarPDF() {
     // ENCABEZADO
     doc.setFont("helvetica", "bold"); /*tipo de letra y negritas*/
     doc.setFontSize(12);
-    doc.text("Comisión Federal de Electricidad", 10, 10);
+    doc.text("Comisión Federal de Electricidad", 15, 15);
     doc.setFontSize(10);
-    doc.text("Política Transversal de Calidad de CFE", 10, 15);
-    doc.text("Sistema Integral de Gestión (SIG-CFE)", 10, 20);
+    doc.text("Política Transversal de Calidad de CFE", 15, 20);
+    doc.text("Sistema Integral de Gestión (SIG-CFE)", 15, 25);
 
     doc.setFontSize(13);
-    doc.text("FORMATO MANTENIMIENTO PREVENTIVO TABLETAS", 105, 30, null, null, "center");
+    doc.text("FORMATO MANTENIMIENTO PREVENTIVO TABLETAS", 105, 40, null, null, "center");
     /*doc.text(texto, x, y, opciones, transformaciones, alineación);*/
 
     doc.setFontSize(10);
-    doc.text(`Fecha: ${fecha}`, 170, 30);
+    doc.text(`Fecha: ${fecha}`, 170, 40);
 
     // DATOS GENERALES
-    let y = 40;
+    let y = 60;
     doc.setFont("helvetica", "normal");
-    doc.text(`División: ${division}`, 10, y);
-    doc.text(`Servicio: ${servicio}`, 85, y);
+    doc.text(`División: ${division}`, 15, y);
+    doc.text(`Servicio: ${servicio}`, 87, y);
     doc.text(`Serie: ${serie}`, 165, y);
 
     y += 7;
-    doc.text(`Zona: ${zona}`, 10, y);
-    doc.text(`Tipo de equipo: ${tipo_equipo}`, 85, y);
+    doc.text(`Zona: ${zona}`, 15, y);
+    doc.text(`Tipo de equipo: ${tipo_equipo}`, 87, y);
     doc.text(`Marca: ${marca}`, 165, y);
 
     y += 7;
-    doc.text(`Centro de Trabajo: ${centro}`, 10, y);
-    doc.text(`Usuario: ${usuario}`, 85, y);
+    doc.text(`Centro de Trabajo: ${centro}`, 15, y);
+    doc.text(`Usuario: ${usuario}`, 87, y);
     doc.text(`Modelo: ${modelo}`, 165, y);
     
     y+= 7;
-    doc.text(`Hora Inicio: ${hora_inicio}`, 10, y);
-    doc.text(`Folio: ${folio}`, 85, y);
+    doc.text(`Hora Inicio: ${hora_inicio}`, 15, y);
+    doc.text(`Folio: ${folio}`, 87, y);
     doc.text(`Uso: ${uso}`, 165, y);
 
     y += 7;
-    doc.text(`Hora Término: ${hora_termino}`, 10, y);
-    doc.text(`Número de Inventario: ${inventario} `, 85, y);
+    doc.text(`Hora Término: ${hora_termino}`, 15, y);
+    doc.text(`Número de Inventario: ${inventario} `, 87, y);
 
     // TABLA DE ACTIVIDADES
-    y += 15;
+    y += 25;
     doc.setFont("helvetica", "bold");
-    doc.text("ACTIVIDADES", 10, y);
+    doc.text("ACTIVIDADES", 15, y);
     doc.text("SI", 112, y);
     doc.text("NO", 127, y);
-    doc.text("OBSERVACIONES", 152, y);
+    doc.text("OBSERVACIONES", 153, y);
 
     doc.setFont("helvetica", "normal");
 
@@ -177,14 +178,14 @@ async function generarPDF() {
      y += 5;
 
     // FIRMAS
-    y += 10;
-    doc.text(`Realizó servicio: ${realizo_servicio}`, 10, y);
+    y += 35;
+    doc.text(`Realizó servicio: ${realizo_servicio}`, 15, y);
     doc.text(`Responsable del Equipo: ${responsable}`, 80, y);
-    doc.text(`Visto Bueno: ${visto_bueno}`, 150, y);
+    doc.text(`Visto Bueno: ${visto_bueno}`, 145, y);
     y += 20;
-    doc.line(10, y, 60, y);
+    doc.line(15, y, 60, y);
     doc.line(80, y, 130, y);
-    doc.line(150, y, 200, y);
+    doc.line(145, y, 200, y);
     y += 5;
     doc.text("Nombre y firma", 20, y);
     doc.text("Nombre y firma", 95, y);

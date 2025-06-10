@@ -195,17 +195,40 @@
 
             <hr class="seccion__divisor">
             <div class="campo">
-                    <label class="campo__etiqueta">REALIZÓ SERVICIO:</label>
-                    <input type="text" class="campo__control" id="realizo_servicio">
+                <label class="campo__etiqueta">REALIZÓ SERVICIO:</label>
+                <input type="text" class="campo__control" id="realizo_servicio">
+                <div class="firma-area" id="firma-area-1">[Área para firma de quien realizo el servicio]<br>Hacer click aquí</div>
+                <input type="hidden" id="firma-input-1">
+                <img id="firma-imagen-1" class="firma-imagen"/>
             </div>
             <div class="campo">
-                    <label class="campo__etiqueta">RESPONSABLE DEL EQUIPO:</label>
-                    <input type="text" class="campo__control" id="responsable">
+                <label class="campo__etiqueta">Responsable del equipo (nombre y firma):</label>
+                <input type="text" class="campo__control">
+                <div class="firma-area" id="firma-area-2">[Área para firma del responsable]<br>Hacer click aquí</div>
+                <input type="hidden" id="firma-input-2">
+                <img id="firma-imagen-2" class="firma-imagen"/>
             </div>
             <div class="campo">
-                    <label class="campo__etiqueta">VISTO BUENO:</label>
-                    <input type="text" class="campo__control" id="visto_bueno">
+                <label class="campo__etiqueta">VISTO BUENO:</label>
+                <input type="text" class="campo__control" id="visto_bueno">
+                <div class="firma-area" id="firma-area-3">[Área para firma]<br>Hacer click aquí</div>
+                <input type="hidden" id="firma-input-3">
+                <img id="firma-imagen-3" class="firma-imagen"/>
             </div>
+
+                <!-- Modal para la firma digital -->
+            <div id="modal-firma" class="firma-modal">
+                <div class="firma-modal__contenido">
+                    <h3 class="firma-modal__titulo">Firme en el recuadro</h3>
+                    <canvas id="canvas-firma"  class="firma-canvas"></canvas>
+                    <div class="firma-modal__botones">
+                        <button type="button" id="btn-limpiar-firma" class="boton boton--secundario">Limpiar</button>
+                        <button type="button" id="btn-guardar-firma" class="boton boton--primario">Guardar</button>
+                        <button type="button" id="btn-cerrar-firma" class="boton boton--secundario">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+            
         
             <button type="button" class="boton boton--primario" onclick="generarPDF()">Pasar siguiente</button>
             <button type="button" class="boton boton--secundario">Guardar Borrador</button>
@@ -222,6 +245,7 @@
     <script src="/RESOURCE/JS/campo_desplegable.js"></script>
     <script src="/RESOURCE/JS/selects.js"></script>
     <script src="/RESOURCE/JS/formato_mantenimiento/pdf_compus.js"></script>
+    <script src="/RESOURCE/JS/firma.js"></script>
 
 </body>
 </html>
