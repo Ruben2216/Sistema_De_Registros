@@ -5,6 +5,7 @@ import json
 import base64
 from datetime import datetime
 
+
 # Rutas absolutas a las carpetas en el proyecto. Preferentemente, si se mueven los archivos, verificar aquí las rutas para evitar que se rompan
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TEMPLATES_FOLDER = os.path.join(BASE_DIR, 'TEMPLATES')
@@ -181,16 +182,19 @@ def limpiar_sesion():
 from flask_cors import CORS #INSTALAR -- pip install Flask-CORS (dentro de env)
 import mysql.connector #INSTALAR -- pip install mysql-connector-python (dentro de env)
 from mysql.connector import Error
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Habilitar CORS para toda la app (si ya está habilitado, omitir esta línea)
 CORS(app)
 
 # --- configuración a la base de datos ---
 DB_CONFIG = {
-    'host': 'localhost',      
-    'user': 'root',  
-    'password': '1234', 
-    'database': 'sistema_registros' 
+    'host': os.getenv('DB_HOST'),      
+    'user': os.getenv('DB_USER'),  
+    'password': os.getenv('DB_PASSWORD'), 
+    'database': os.getenv('DB_NAME') 
 }
 
 # conectar a la base de datos

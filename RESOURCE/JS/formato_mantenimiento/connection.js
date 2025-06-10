@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const searchButton = document.getElementById('search-button');
     const searchUrl = searchButton.dataset.url;
-    const serialInput = document.getElementById('numero_serie');
+    const serialInput = document.getElementById('serie');
 
 
 
@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('division').value = data.nombre_division || '';
                     document.getElementById('centro_trabajo').value = data.centro_trabajo || '';
                     document.getElementById('numero_inventario').value = data.numero_inventario || '';
-                    document.getElementById('nombre_usuario').value = data.nombre_responsable || ''; // El ID es 'nombre_usuario'
+                    document.getElementById('usuario').value = data.nombre_responsable || ''; // El ID es 'nombre_usuario'
                     document.getElementById('marca').value = data.marca || '';
                     document.getElementById('modelo').value = data.modelo || '';
                     document.getElementById('tipo_uso').value = data.tipo_uso || '';
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('division').value = '';
                     document.getElementById('centro_trabajo').value = '';
                     document.getElementById('numero_inventario').value = '';
-                    document.getElementById('nombre_usuario').value = '';
+                    document.getElementById('usuario').value = '';
                     document.getElementById('marca').value = '';
                     document.getElementById('modelo').value = '';
                     document.getElementById('tipo_uso').value = '';
