@@ -72,7 +72,7 @@
                 <div class="campo">
                     <label class="campo__etiqueta">SERVICIO</label>
                     <select class="campo__control" id="servicio">
-                        <option value="Seleccionar_Zona">Seleccione el tipo de servicio</option>
+                        <option value="Seleccionar_Tipo_servicio">Seleccione el tipo de servicio</option>
                         <option value="Preventivo">Preventivo</option>
                         <option value="Mantenimiento">Mantenimiento</option>
                     </select>
@@ -90,7 +90,7 @@
             <div class="campo">
                 <label for="Numero_Serie" class="campo__etiqueta">NÚMERO DE SERIE</label>
                 <div class="search-container">
-                    <input type="text" class="campo__control" id="numero_serie" name="numero_serie"> 
+                    <input type="text" class="campo__control" id="serie" name="serie"> 
                     <button type="button" id="search-button" data-url="/buscar_equipo">BUSCAR</button> 
                 </div>
             </div>
@@ -107,8 +107,8 @@
                 <input type="text" class="campo__control" id="numero_inventario" name="numero_inventario" readonly>
             </div>
             <div class="campo">
-                <label for="nombre_usuario" class="campo__etiqueta">NOMBRE DEL USUARIO</label>
-                <input type="text" class="campo__control" id="nombre_usuario" name="nombre_usuario" readonly>
+                <label for="usuario" class="campo__etiqueta">NOMBRE DEL USUARIO</label>
+                <input type="text" class="campo__control" id="usuario" name="usuario" readonly>
             </div>
             <div class="campo">
                 <label for="marca" class="campo__etiqueta">MARCA</label>
@@ -119,7 +119,7 @@
                 <input type="text" class="campo__control" id="modelo" name="modelo" readonly>
             </div>
             <div class="campo">
-                <label for="tipo_uso" class="campo__etiqueta">USO QUE SE LE DA AL EQUIPO</label>
+                <label for="uso" class="campo__etiqueta">USO QUE SE LE DA AL EQUIPO</label>
                 <input type="text" class="campo__control" id="tipo_uso" name="tipo_uso" readonly>
             </div>
 
@@ -127,8 +127,7 @@
             <hr class="seccion__divisor">
             <div class="seccion">
                 <h3 class="seccion__titulo">ELEMENTO</h3>
-                <div class="campo">
-                    <p class="campo__etiqueta">1. Limpieza externa del equipo</p>
+                <div class="campo">1. Limpieza externa del equipo
                     <div class="grupo-opciones">
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="limpieza_externa" type="radio" value="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="limpieza_externa" type="radio" value="no" onchange="mostrarInput('limpieza_externa')"> No</label>
@@ -165,22 +164,22 @@
                 </div>
                 <div class="campo">6. Antivirus instituional actualizado</p>
                     <div class="grupo-opciones">
-                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="Antivirus" type="radio" value="si"> Sí</label>
-                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="Antivirus" type="radio" value="no" onchange="mostrarInput('Antivirus')"> No</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="antivirus" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="antivirus" type="radio" value="no" onchange="mostrarInput('antivirus')"> No</label>
                     </div>
-                    <input type="text" id="input_Antivirus" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                    <input type="text" id="input_antivirus" class="campo__control" style="display:none;" placeholder="Especifique motivo">
                 </div>
                 <div class="campo">7. Ejecución de Defrag</p>
                     <div class="grupo-opciones">
-                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="Defrag" type="radio" value="si"> Sí</label>
-                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="Defrag" type="radio" value="no" onchange="mostrarInput('Defrag')"> No</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="defrag" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="defrag" type="radio" value="no" onchange="mostrarInput('defrag')"> No</label>
                     </div>
-                    <input type="text" id="input_Defrag" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                    <input type="text" id="input_defrag" class="campo__control" style="display:none;" placeholder="Especifique motivo">
                 </div>
                 <div class="campo">8. Equipo dentro del dominio</p>
                     <div class="grupo-opciones">
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="dominio" type="radio" value="si"> Sí</label>
-                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="dominio" type="radio" value="no" onchange="mostrarInput('doominio')"> No</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="dominio" type="radio" value="no" onchange="mostrarInput('dominio')"> No</label>
                     </div>
                     <input type="text" id="input_dominio" class="campo__control" style="display:none;" placeholder="Especifique motivo">
                 </div>
@@ -197,22 +196,21 @@
             <hr class="seccion__divisor">
             <div class="campo">
                     <label class="campo__etiqueta">REALIZÓ SERVICIO:</label>
-                    <input type="text" class="campo__control">
+                    <input type="text" class="campo__control" id="realizo_servicio">
             </div>
             <div class="campo">
                     <label class="campo__etiqueta">RESPONSABLE DEL EQUIPO:</label>
-                    <input type="text" class="campo__control">
+                    <input type="text" class="campo__control" id="responsable">
             </div>
             <div class="campo">
                     <label class="campo__etiqueta">VISTO BUENO:</label>
-                    <input type="text" class="campo__control">
+                    <input type="text" class="campo__control" id="visto_bueno">
             </div>
         
             <button type="button" class="boton boton--primario" onclick="generarPDF()">Pasar siguiente</button>
             <button type="button" class="boton boton--secundario">Guardar Borrador</button>
             <div class="boton boton--secundario boton--cancelar">
-                <button type="button" onclick="generarPDF()">Terminar</button>
-                <a href="/TEMPLATES/menu.html" class="boton--cancelar ">Cancelar</a>
+            <a href="/TEMPLATES/menu.html" class="boton--cancelar ">Cancelar</a>
             </div>
 
         </form>
@@ -223,7 +221,7 @@
     <script src="/RESOURCE/JS/barra_progreso.js"></script>
     <script src="/RESOURCE/JS/campo_desplegable.js"></script>
     <script src="/RESOURCE/JS/selects.js"></script>
-    <script src="/RESOURCE/JS/formato_mantenimiento/pdf_comp.js"></script>
+    <script src="/RESOURCE/JS/formato_mantenimiento/pdf_compus.js"></script>
 
 </body>
 </html>
