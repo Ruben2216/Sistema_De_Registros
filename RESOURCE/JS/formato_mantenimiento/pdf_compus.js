@@ -85,13 +85,21 @@ async function generarPDF() {
 
     const actividades = [ /*arreglo de actividades "cadena de texto"*/
         "Limpieza externa del equipo",
+        "", /*espacio para la actividad de limpieza externa de pantalla*/
         "Limpieza externa de pantalla",
+        "",
         "Limpieza externa de teclado",
+        "",
         "Verificar conexiones eléctricas en buen estado",
+        "",
         "Verificar que funcione correctamente después del servicio",
+        "",
         "Antivirus instituional actualizado",
+        "",
         "Ejecución de Defrag",
+        "",
         "Equipo dentro del dominio",
+        "",
         "Sistema operativo actualizado (Windows update)",
     ];
 
@@ -170,9 +178,7 @@ async function generarPDF() {
                 doc.text("x", 129, y)
             }
         }
-
         y += 7; /*Se incrementa y para la siguiente actividad*/
-
     });
 
      y += 5;
