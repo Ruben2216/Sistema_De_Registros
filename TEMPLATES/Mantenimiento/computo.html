@@ -144,7 +144,7 @@
                 <div class="campo">3. Limpieza externa de teclado</p>
                     <div class="grupo-opciones">
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="teclado" type="radio" value="si"> Sí</label>
-                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="teclado" type="radio" value="no" onchange="modtrarInput('teclado')"> No</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="teclado" type="radio" value="no" onchange="mostrarInput('teclado')"> No</label>
                     </div>
                     <input type="text" id="input_teclado" class="campo__control" style="display:none;" placeholder="Especifique motivo">
                 </div>
@@ -203,7 +203,7 @@
             </div>
             <div class="campo">
                 <label class="campo__etiqueta">Responsable del equipo (nombre y firma):</label>
-                <input type="text" class="campo__control">
+                <input type="text" class="campo__control" id="responsable">
                 <div class="firma-area" id="firma-area-2">[Área para firma del responsable]<br>Hacer click aquí</div>
                 <input type="hidden" id="firma-input-2">
                 <img id="firma-imagen-2" class="firma-imagen"/>

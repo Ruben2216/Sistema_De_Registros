@@ -32,6 +32,9 @@ async function generarPDF() {
     const responsable = document.querySelector('input[id="responsable"]').value;
     const visto_bueno = document.querySelector('input[id="visto_bueno"]').value;
 
+    //campos desplegables
+    const NO_limpieza_externa = document.querySelector('input[id="input_limpieza_externa"]').value;
+
     // ENCABEZADO
     doc.setFont("helvetica", "bold"); /*tipo de letra y negritas*/
     doc.setFontSize(12);
@@ -85,29 +88,21 @@ async function generarPDF() {
 
     const actividades = [ /*arreglo de actividades "cadena de texto"*/
         "Limpieza externa del equipo",
-        "", /*espacio para la actividad de limpieza externa de pantalla*/
         "Limpieza externa de pantalla",
-        "",
         "Limpieza externa de teclado",
-        "",
         "Verificar conexiones eléctricas en buen estado",
-        "",
         "Verificar que funcione correctamente después del servicio",
-        "",
         "Antivirus instituional actualizado",
-        "",
         "Ejecución de Defrag",
-        "",
         "Equipo dentro del dominio",
-        "",
         "Sistema operativo actualizado (Windows update)",
     ];
 
-    y += 5;
+    y += 10;
     actividades.forEach((act, index) => { /*Se recorre cada elemento (act) del arreglo actividades, con su índice (index)*/
         if (y > 270) { /*Si la posición y es mayor a 270, se agrega una nueva página*/
             doc.addPage(); /*agrega pagina nueva*/
-            y = 10;
+            y = 15;
         }
         doc.text(`${index + 1}. ${act}`, 10, y); /*Se usa `${index + 1}. ${act}` para que cada actividad esté numerada y se coloque en y*/
         doc.rect(110, y - 4, 10, 6); // Cuadro SI
@@ -178,7 +173,7 @@ async function generarPDF() {
                 doc.text("x", 129, y)
             }
         }
-        y += 7; /*Se incrementa y para la siguiente actividad*/
+        y += 11; /*Se incrementa y para la siguiente actividad*/
     });
 
      y += 5;
@@ -196,6 +191,8 @@ async function generarPDF() {
     doc.text("Nombre y firma", 20, y);
     doc.text("Nombre y firma", 95, y);
     doc.text("Nombre y firma", 165, y);
+
+    doc.text(`observaciones: ${NO_limpieza_externa}`, 15, y + 10);  
 
     doc.save("mantenimiento_preventivo_tableta.pdf");
 }
