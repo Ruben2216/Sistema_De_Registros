@@ -9,3 +9,6 @@ qr_form.html
 
 cert.pem
 key.pem
+=======
+.env
+# Ignorar archivos de configuración 
