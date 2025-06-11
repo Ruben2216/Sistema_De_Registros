@@ -8,3 +8,4 @@ qr_code.png
 qr_form.html
 
 .env
+# Ignorar archivos de configuración 
