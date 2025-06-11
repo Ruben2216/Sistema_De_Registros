@@ -83,7 +83,7 @@ def autoguardado_fotos():
         else:
             return jsonify({'fotos': []}), 404
 
-FOTOS_RIJ_DIR = os.path.join(RESOURCE_FOLDER, 'IMG', 'fotos_rij')
+FOTOS_RIJ_DIR = os.path.join(RESOURCE_FOLDER, 'IMG', 'Evidencias')
 os.makedirs(FOTOS_RIJ_DIR, exist_ok=True)
 
 @app.route('/api/rij/upload_foto', methods=['POST'])
@@ -104,7 +104,7 @@ def upload_foto():
     with open(filepath, 'wb') as f:
         f.write(base64.b64decode(b64data))
     # Construir URL pública
-    url = url_for('resource_files', filename=f'IMG/fotos_rij/{filename}', _external=True)
+    url = url_for('resource_files', filename=f'IMG/Evidencias/{filename}', _external=True)
     # guardar la lista de fotos en la sesión o en un archivo JSON
     fotos = session.get('rij_fotos', [])
     fotos.append(url)
@@ -126,7 +126,7 @@ def borrar_foto():
     # Buscar el nombre de archivo a partir de la URL
     try:
         # Solo permitimos borrar archivos dentro de la carpeta de fotos
-        filename = url.split('/IMG/fotos_rij/')[-1]
+        filename = url.split('/IMG/Evidencias/')[-1]
         filepath = os.path.join(FOTOS_RIJ_DIR, filename)
         if not os.path.isfile(filepath):
             return jsonify({'success': False, 'error': 'Archivo no encontrado'}), 404
@@ -156,7 +156,7 @@ def limpiar_sesion():
                 os.remove(fotos_tmp_path)
         # Borrar fotos físicas listadas en la sesión (por compatibilidad)
         for url in fotos:
-            filename = url.split('/IMG/fotos_rij/')[-1]
+            filename = url.split('/IMG/Evidencias/')[-1]
             filepath = os.path.join(FOTOS_RIJ_DIR, filename)
             if os.path.isfile(filepath):
                 try:
