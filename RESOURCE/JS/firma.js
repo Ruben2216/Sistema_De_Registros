@@ -46,6 +46,12 @@ function guardarFirma() {
         img2.src = dataURL;
         img2.style.display = 'block';
         document.getElementById('firma-area-2').style.display = 'none';
+    } else if (firmaActual === 3){
+        document.getElementById('firma-input-3').value = dataURL;
+        var img3 = document.getElementById('firma-imagen-3');
+        img3.src = dataURL;
+        img3.style.display = 'block';
+        document.getElementById('firma-area-3').style.display = 'none';
     }
     ocultarModalFirma();
 }
@@ -124,15 +130,20 @@ btnCerrarFirma.addEventListener('click', function() {
 
 var areaFirma1 = document.getElementById('firma-area-1');
 var areaFirma2 = document.getElementById('firma-area-2');
+var areaFirma3 = document.getElementById('firma-area-3');
 areaFirma1.addEventListener('click', function() {
     mostrarModalFirma(1);
 });
 areaFirma2.addEventListener('click', function() {
     mostrarModalFirma(2);
 });
+areaFirma3.addEventListener('click', function() {
+    mostrarModalFirma(3);
+});
 
 var imgFirma1 = document.getElementById('firma-imagen-1');
 var imgFirma2 = document.getElementById('firma-imagen-2');
+var imgFirma3 = document.getElementById('firma-imagen-3');
 imgFirma1.addEventListener('click', function() {
     document.getElementById('firma-area-1').style.display = 'flex';
     imgFirma1.style.display = 'none';
@@ -142,4 +153,9 @@ imgFirma2.addEventListener('click', function() {
     document.getElementById('firma-area-2').style.display = 'flex';
     imgFirma2.style.display = 'none';
     mostrarModalFirma(2);
+});
+imgFirma3.addEventListener('click', function() {
+    document.getElementById('firma-area-3').style.display = 'flex';
+    imgFirma3.style.display = 'none';
+    mostrarModalFirma(3);
 });
