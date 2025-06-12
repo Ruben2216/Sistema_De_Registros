@@ -4,6 +4,11 @@ import tempfile
 import json
 import base64
 from datetime import datetime
+# --- INICIO LÓGICA DE backend.py (búsqueda de equipos en MySQL) ---
+from flask_cors import CORS #INSTALAR -- pip install Flask-CORS (dentro de env)
+import mysql.connector #INSTALAR -- pip install mysql-connector-python (dentro de env)
+from mysql.connector import Error
+from dotenv import load_dotenv
 
 
 # Rutas absolutas a las carpetas en el proyecto. Preferentemente, si se mueven los archivos, verificar aquí las rutas para evitar que se rompan
@@ -178,17 +183,10 @@ def limpiar_sesion():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
-# --- INICIO LÓGICA DE backend.py (búsqueda de equipos en MySQL) ---
-from flask_cors import CORS #INSTALAR -- pip install Flask-CORS (dentro de env)
-import mysql.connector #INSTALAR -- pip install mysql-connector-python (dentro de env)
-from mysql.connector import Error
-from dotenv import load_dotenv
 
 load_dotenv()
 
-# Habilitar CORS para toda la app (si ya está habilitado, omitir esta línea)
-CORS(app)
-
+CORS(app) 
 # --- configuración a la base de datos ---
 DB_CONFIG = {
     'host': os.getenv('DB_HOST'),      
@@ -198,7 +196,6 @@ DB_CONFIG = {
 }
 
 # conectar a la base de datos
-
 def get_db_connection():
     """Crea y devuelve una conexión a la base de datos MySQL."""
     try:
@@ -208,19 +205,22 @@ def get_db_connection():
         print(f"Error al conectar a MySQL: {e}")
         return None
 
-# Ruta para servir el formulario de cómputo (puedes ajustar la ruta si ya existe)
 @app.route('/mantenimiento/computo')
 def pagina_computo():
-    # Sirve el formulario de cómputo cuando se visita la ruta
     return send_from_directory(os.path.join(TEMPLATES_FOLDER, 'Mantenimiento'), 'computo.html')
 
-# Ruta de la API para buscar un equipo por número de serie
+# Ruta para un equipo por número de inventario 
 @app.route('/buscar_equipo')
 def buscar_equipo():
-    numero_serie = request.args.get('serie', '')
+    inventario = request.args.get('inventario', '')
 
-    if not numero_serie:
-        return jsonify({'error': 'Número de serie no proporcionado'}), 400
+    if not inventario:
+        return jsonify({'error': 'Número de inventario no proporcionado'}), 400
+
+    try:
+        inventario_int = int(inventario)
+    except ValueError:
+        return jsonify({'error': 'El número de inventario debe ser un entero'}), 400
 
     conn = get_db_connection()
     if conn is None:
@@ -229,8 +229,8 @@ def buscar_equipo():
     equipo = None
     try:
         cursor = conn.cursor(dictionary=True)
-        query = "SELECT * FROM prueba_datos WHERE Numero_Serie = %s"
-        cursor.execute(query, (numero_serie,)) 
+        query = "SELECT * FROM prueba_datos WHERE Numero_Inventario = %s"
+        cursor.execute(query, (inventario_int,)) 
         equipo = cursor.fetchone() # fetchone() obtiene el primer (y único) resultado
     except Error as e:
         print(f"Error en la consulta: {e}")
@@ -245,7 +245,7 @@ def buscar_equipo():
     else:
         # si se encuentra, se devuelve como JSON
         datos_para_frontend = {
-            'numero_inventario': equipo.get('Numero_Inventario'),
+            'numero_serie': equipo.get('Numero_Serie'),
             'nombre_responsable': equipo.get('Nombre_Responsable'),
             'marca': equipo.get('Marca'),
             'modelo': equipo.get('Modelo'),

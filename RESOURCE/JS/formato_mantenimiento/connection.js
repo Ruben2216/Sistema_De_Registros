@@ -2,20 +2,20 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const searchButton = document.getElementById('search-button');
     const searchUrl = searchButton.dataset.url;
-    const serialInput = document.getElementById('serie');
+    const inventarioInput = document.getElementById('inventario');
 
 
 
     // Función para buscar los datos
     const fetchData = () => {
-        const serialNumber = serialInput.value.trim();
-        
-        if (serialNumber === '') {
-            alert('Por favor, ingrese un número de serie.');
+        const inventarioNumber = inventarioInput.value.trim();
+
+        if (inventarioNumber === '') {
+            alert('Por favor, ingrese un número de inventario.');
             return;
         }
-        
-        fetch(`${searchUrl}?serie=${serialNumber}`) 
+
+        fetch(`${searchUrl}?inventario=${inventarioNumber}`)
         .then(response => {
             if (!response.ok) { 
                 throw new Error('Respuesta del servidor no fue OK');
@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (Object.keys(data).length > 0) {
                     document.getElementById('division').value = data.nombre_division || '';
                     document.getElementById('centro_trabajo').value = data.centro_trabajo || '';
-                    document.getElementById('numero_inventario').value = data.numero_inventario || '';
+                    document.getElementById('numero_serie').value = data.numero_serie || '';
                     document.getElementById('usuario').value = data.nombre_responsable || ''; // El ID es 'nombre_usuario'
                     document.getElementById('marca').value = data.marca || '';
                     document.getElementById('modelo').value = data.modelo || '';
@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Limpia los campos si no se encuentra nada
                     document.getElementById('division').value = '';
                     document.getElementById('centro_trabajo').value = '';
-                    document.getElementById('numero_inventario').value = '';
+                    document.getElementById('numero_serie').value = '';
                     document.getElementById('usuario').value = '';
                     document.getElementById('marca').value = '';
                     document.getElementById('modelo').value = '';
@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
     searchButton.addEventListener('click', fetchData);
 
-    serialInput.addEventListener('keypress', function(event) {
+    inventarioInput.addEventListener('keypress', function(event) {
         if (event.key === 'Enter') {
             event.preventDefault();
             fetchData();
