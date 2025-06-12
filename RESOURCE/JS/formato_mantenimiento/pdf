@@ -2,6 +2,7 @@ async function generarPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF(); /*crea pdf vacio*/
 
+
     // DATOS DE FORMULARIO
     const division = document.querySelector('input[id="division"]').value;
     const zona = document.querySelector('select[id="zona"]').value;
@@ -14,7 +15,7 @@ async function generarPDF() {
     const uso = document.querySelector('input[id="tipo_uso"]').value;
     const marca = document.querySelector('input[id="marca"]').value;
     const modelo = document.querySelector('input[id="modelo"]').value;
-    const serie = document.querySelector('input[id="numero_serie"]').value;
+    const serie = document.querySelector('input[id="serie"]').value;
     const servicio = document.querySelector('select[id="servicio"]').value;
     const hora_inicio = document.querySelector('input[id="hora_inicio"]').value;
     const hora_termino = document.querySelector('input[id="hora_termino"]').value;
@@ -125,12 +126,6 @@ async function generarPDF() {
                 doc.text("x", 114, y);
             } else if (pantalla === "no") {
                 doc.text("x", 129, y);
-                const motivo = document.querySelector('input[id="input_pantalla"]').value;
-                if (motivo) {
-                    doc.setFontSize(8); // tamaño más pequeño para caber
-                    doc.text(motivo, 142, y); // dentro del cuadro OBSERVACIONES
-                    doc.setFontSize(10); // regresar a tamaño normal
-                }
             }
         }
         if(index === 2) {
@@ -138,12 +133,6 @@ async function generarPDF() {
                 doc.text("x", 114, y);
             } else if (teclado === "no") {
                 doc.text("x", 129, y);
-                const motivo = document.querySelector('input[id="input_teclado"]').value;
-                if(motivo){
-                    doc.setFontSize(8);
-                    doc.text(motivo, 142, y);
-                    doc.setFontSize(10);
-                }
             }
         }
         if(index === 3){
@@ -151,12 +140,6 @@ async function generarPDF() {
                 doc.text("x", 114, y);
             } else if(conexiones === "no"){
                 doc.text("x", 129, y);
-                const motivo = document.querySelector('input[id="input_conexiones"]').value;
-                if(motivo){
-                    doc.setFontSize(8);
-                    doc.text(motivo, 142, y);
-                    doc.setFontSize(10);
-                }
             }
         }
         if(index === 4) {
@@ -164,12 +147,6 @@ async function generarPDF() {
                 doc.text("x", 114, y);
             } else if (despues_servicio === "no") {
                 doc.text("x", 129, y);
-                const motivo = document.querySelector('input[id="input_despues_servicio"]').value;
-                if(motivo){
-                    doc.setFontSize(8);
-                    doc.text(motivo, 142, y);
-                    doc.setFontSize(10);
-                }
             }
         }
         if(index === 5){
@@ -177,25 +154,13 @@ async function generarPDF() {
                 doc.text("x", 114, y)
             } else if (antivirus === "no"){
                 doc.text("x", 129, y);
-                const motivo = document.querySelector('input[id="input_antivirus"]').value;
-                if(motivo){
-                    doc.setFontSize(8);
-                    doc.text(motivo, 142, y);
-                    doc.setFontSize(10);
-                }
             }
         }
         if(index === 6){
             if(defrag === "si"){
                 doc.text("x", 114, y);
             } else if (defrag === "no"){
-                doc.text("x", 129, y);
-                const motivo = document.querySelector('input[id="input_defrag"]').value;
-                if(motivo){
-                    doc.setFontSize(8);
-                    doc.text(motivo, 142, y);
-                    doc.setFontSize(10);
-                }
+                doc.text("x", 129, y)
             }
         }
         if(index === 7){
@@ -203,12 +168,6 @@ async function generarPDF() {
                 doc.text("x", 114, y);
             } else if(dominio === "no"){
                 doc.text("x", 129, y);
-                const motivo = document.querySelector('input[id="input_dominio"]').value;
-                if(motivo){
-                    doc.setFontSize(8);
-                    doc.text(motivo, 142, y);
-                    doc.setFontSize(10);
-                }
             }
         }
         if(index === 8){
@@ -216,12 +175,6 @@ async function generarPDF() {
                 doc.text("x", 114, y);
             } else if(Windows_update === "no"){
                 doc.text("x", 129, y)
-                const motivo = document.querySelector('input[id="input_Windows_update"]').value;
-                if(motivo){
-                    doc.setFontSize(8);
-                    doc.text(motivo, 142, y);
-                    doc.setFontSize(10);
-                }
             }
         }
         y += 11; /*Se incrementa y para la siguiente actividad*/
