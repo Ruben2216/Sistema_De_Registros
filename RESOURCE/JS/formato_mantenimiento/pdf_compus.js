@@ -32,9 +32,7 @@ async function generarPDF() {
     const responsable = document.querySelector('input[id="responsable"]').value;
     const visto_bueno = document.querySelector('input[id="visto_bueno"]').value;
 
-    //campos desplegables
-    const NO_limpieza_externa = document.querySelector('input[id="input_limpieza_externa"]').value;
-
+    
     // ENCABEZADO
     doc.setFont("helvetica", "bold"); /*tipo de letra y negritas*/
     doc.setFontSize(12);
@@ -179,11 +177,14 @@ async function generarPDF() {
      y += 5;
 
     // FIRMAS
-    y += 35;
-    doc.text(`Realizó servicio: ${realizo_servicio}`, 15, y);
-    doc.text(`Responsable del Equipo: ${responsable}`, 80, y);
-    doc.text(`Visto Bueno: ${visto_bueno}`, 145, y);
-    y += 20;
+    y += 23;
+    doc.text(`Realizó servicio:`, 15, y);
+    doc.text(`${realizo_servicio}`, 15, y + 24);
+    doc.text(`Responsable del Equipo:`, 80, y);
+    doc.text(`${responsable}`, 80, y + 24);
+    doc.text(`Visto Bueno:`, 145, y);
+    doc.text(`${visto_bueno}`, 145, y + 24);
+    y += 25;
     doc.line(15, y, 60, y);
     doc.line(80, y, 130, y);
     doc.line(145, y, 200, y);
@@ -191,8 +192,6 @@ async function generarPDF() {
     doc.text("Nombre y firma", 20, y);
     doc.text("Nombre y firma", 95, y);
     doc.text("Nombre y firma", 165, y);
-
-    doc.text(`observaciones: ${NO_limpieza_externa}`, 15, y + 10);  
 
     doc.save("mantenimiento_preventivo_tableta.pdf");
 }
