@@ -2,7 +2,6 @@ async function generarPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF(); /*crea pdf vacio*/
 
-
     // DATOS DE FORMULARIO
     const division = document.querySelector('input[id="division"]').value;
     const zona = document.querySelector('select[id="zona"]').value;
@@ -15,7 +14,7 @@ async function generarPDF() {
     const uso = document.querySelector('input[id="tipo_uso"]').value;
     const marca = document.querySelector('input[id="marca"]').value;
     const modelo = document.querySelector('input[id="modelo"]').value;
-    const serie = document.querySelector('input[id="serie"]').value;
+    const serie = document.querySelector('input[id="numero_serie"]').value;
     const servicio = document.querySelector('select[id="servicio"]').value;
     const hora_inicio = document.querySelector('input[id="hora_inicio"]').value;
     const hora_termino = document.querySelector('input[id="hora_termino"]').value;
@@ -32,6 +31,7 @@ async function generarPDF() {
     const responsable = document.querySelector('input[id="responsable"]').value;
     const visto_bueno = document.querySelector('input[id="visto_bueno"]').value;
 
+    
     // ENCABEZADO
     doc.setFont("helvetica", "bold"); /*tipo de letra y negritas*/
     doc.setFontSize(12);
@@ -85,29 +85,21 @@ async function generarPDF() {
 
     const actividades = [ /*arreglo de actividades "cadena de texto"*/
         "Limpieza externa del equipo",
-        "", /*espacio para la actividad de limpieza externa de pantalla*/
         "Limpieza externa de pantalla",
-        "",
         "Limpieza externa de teclado",
-        "",
         "Verificar conexiones eléctricas en buen estado",
-        "",
         "Verificar que funcione correctamente después del servicio",
-        "",
         "Antivirus instituional actualizado",
-        "",
         "Ejecución de Defrag",
-        "",
         "Equipo dentro del dominio",
-        "",
         "Sistema operativo actualizado (Windows update)",
     ];
 
-    y += 5;
+    y += 10;
     actividades.forEach((act, index) => { /*Se recorre cada elemento (act) del arreglo actividades, con su índice (index)*/
         if (y > 270) { /*Si la posición y es mayor a 270, se agrega una nueva página*/
             doc.addPage(); /*agrega pagina nueva*/
-            y = 10;
+            y = 15;
         }
         doc.text(`${index + 1}. ${act}`, 10, y); /*Se usa `${index + 1}. ${act}` para que cada actividad esté numerada y se coloque en y*/
         doc.rect(110, y - 4, 10, 6); // Cuadro SI
@@ -120,6 +112,12 @@ async function generarPDF() {
                 doc.text("x", 114, y);
             } else if (limpieza_externa === "no") {
                 doc.text("x", 129, y);
+                const motivo = document.querySelector('input[id="input_limpieza_externa"]').value;
+                if (motivo) {
+                    doc.setFontSize(8); // tamaño más pequeño para caber
+                    doc.text(motivo, 142, y); // dentro del cuadro OBSERVACIONES
+                    doc.setFontSize(10); // regresar a tamaño normal
+                }
             }
         }
         if (index === 1) {
@@ -127,6 +125,12 @@ async function generarPDF() {
                 doc.text("x", 114, y);
             } else if (pantalla === "no") {
                 doc.text("x", 129, y);
+                const motivo = document.querySelector('input[id="input_pantalla"]').value;
+                if (motivo) {
+                    doc.setFontSize(8); // tamaño más pequeño para caber
+                    doc.text(motivo, 142, y); // dentro del cuadro OBSERVACIONES
+                    doc.setFontSize(10); // regresar a tamaño normal
+                }
             }
         }
         if(index === 2) {
@@ -134,6 +138,12 @@ async function generarPDF() {
                 doc.text("x", 114, y);
             } else if (teclado === "no") {
                 doc.text("x", 129, y);
+                const motivo = document.querySelector('input[id="input_teclado"]').value;
+                if(motivo){
+                    doc.setFontSize(8);
+                    doc.text(motivo, 142, y);
+                    doc.setFontSize(10);
+                }
             }
         }
         if(index === 3){
@@ -141,6 +151,12 @@ async function generarPDF() {
                 doc.text("x", 114, y);
             } else if(conexiones === "no"){
                 doc.text("x", 129, y);
+                const motivo = document.querySelector('input[id="input_conexiones"]').value;
+                if(motivo){
+                    doc.setFontSize(8);
+                    doc.text(motivo, 142, y);
+                    doc.setFontSize(10);
+                }
             }
         }
         if(index === 4) {
@@ -148,6 +164,12 @@ async function generarPDF() {
                 doc.text("x", 114, y);
             } else if (despues_servicio === "no") {
                 doc.text("x", 129, y);
+                const motivo = document.querySelector('input[id="input_despues_servicio"]').value;
+                if(motivo){
+                    doc.setFontSize(8);
+                    doc.text(motivo, 142, y);
+                    doc.setFontSize(10);
+                }
             }
         }
         if(index === 5){
@@ -155,13 +177,25 @@ async function generarPDF() {
                 doc.text("x", 114, y)
             } else if (antivirus === "no"){
                 doc.text("x", 129, y);
+                const motivo = document.querySelector('input[id="input_antivirus"]').value;
+                if(motivo){
+                    doc.setFontSize(8);
+                    doc.text(motivo, 142, y);
+                    doc.setFontSize(10);
+                }
             }
         }
         if(index === 6){
             if(defrag === "si"){
                 doc.text("x", 114, y);
             } else if (defrag === "no"){
-                doc.text("x", 129, y)
+                doc.text("x", 129, y);
+                const motivo = document.querySelector('input[id="input_defrag"]').value;
+                if(motivo){
+                    doc.setFontSize(8);
+                    doc.text(motivo, 142, y);
+                    doc.setFontSize(10);
+                }
             }
         }
         if(index === 7){
@@ -169,6 +203,12 @@ async function generarPDF() {
                 doc.text("x", 114, y);
             } else if(dominio === "no"){
                 doc.text("x", 129, y);
+                const motivo = document.querySelector('input[id="input_dominio"]').value;
+                if(motivo){
+                    doc.setFontSize(8);
+                    doc.text(motivo, 142, y);
+                    doc.setFontSize(10);
+                }
             }
         }
         if(index === 8){
@@ -176,19 +216,28 @@ async function generarPDF() {
                 doc.text("x", 114, y);
             } else if(Windows_update === "no"){
                 doc.text("x", 129, y)
+                const motivo = document.querySelector('input[id="input_Windows_update"]').value;
+                if(motivo){
+                    doc.setFontSize(8);
+                    doc.text(motivo, 142, y);
+                    doc.setFontSize(10);
+                }
             }
         }
-        y += 7; /*Se incrementa y para la siguiente actividad*/
+        y += 11; /*Se incrementa y para la siguiente actividad*/
     });
 
      y += 5;
 
     // FIRMAS
-    y += 35;
-    doc.text(`Realizó servicio: ${realizo_servicio}`, 15, y);
-    doc.text(`Responsable del Equipo: ${responsable}`, 80, y);
-    doc.text(`Visto Bueno: ${visto_bueno}`, 145, y);
-    y += 20;
+    y += 23;
+    doc.text(`Realizó servicio:`, 15, y);
+    doc.text(realizo_servicio, 15, y + 24);
+    doc.text(`Responsable del Equipo:`, 80, y);
+    doc.text(responsable, 80, y + 24);
+    doc.text(`Visto Bueno:`, 145, y);
+    doc.text(visto_bueno, 145, y + 24);
+    y += 25;
     doc.line(15, y, 60, y);
     doc.line(80, y, 130, y);
     doc.line(145, y, 200, y);
