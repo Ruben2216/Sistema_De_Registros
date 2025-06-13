@@ -1,10 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CÁMARA</title> 
+    <title>CÁMARA</title>
     <link rel="stylesheet" href="/RESOURCE/CSS/camara.css">
+        <link rel="stylesheet" href="/RESOURCE/CSS/index.css">
+
+
 </head>
 <body>
     <div class="container">
@@ -29,16 +32,110 @@
             </div>
         </div>
         
-        <button id="btnGenerarPDF">Generar PDF de fotos</button> <!-- Botón para PDF -->
+        <!-- El botón de PDF se inicia deshabilitado y se habilita cuando OpenCV.js esté listo -->
+        <button id="btnGenerarPDF"  class= "boton boton--primario" disabled>Generar PDF de fotos</button>
+        <div class="boton boton--secundario boton--cancelar">
+
         <a href="/TEMPLATES/formato_RIJ.html" class="boton--secundario" id="link-formulario">Ir al formulario</a>
+    </div> 
         <p id="status"></p>
     </div>
 
+    <!-- Caja de confirmación personalizada -->
+    <div id="confirmBox" class="confirm-box" style="display:none; /* Ocultar por defecto con CSS */">
+        <p id="confirmText" class="text-gray-800 text-lg mb-4"></p>
+        <div class="confirm-buttons">
+            <button id="confirmNo" class="bg-gray-500 hover:bg-gray-600 text-white">No</button>
+            <button id="confirmYes" class="bg-red-600 hover:bg-red-700 text-white">Sí</button>
+        </div>
+    </div>
 
+    <div id="modal-editar-foto" class="modal-editar-foto" style="display:none;">
+        <div class="modal-editar-foto__contenido">
+            <h3>Editar Foto</h3>
+            <div class="modal-editar-foto__imagenes">
+                <div>
+                    <p>Original</p>
+                    <img id="modal-foto-original" style="max-width: 200px; border: 2px solid #ccc;">
+                </div>
+                <div>
+                    <p>Mejorada</p>
+                    <img id="modal-foto-mejorada" style="max-width: 200px; border: 2px solid #4caf50;">
+                </div>
+            </div>
+            <div class="modal-editar-foto__botones">
+                <button id="btn-usar-original" class="boton boton--secundario">Usar Original</button>
+                <button id="btn-usar-mejorada" class="boton boton--primario">Usar Mejorada</button>
+                <button id="btn-cerrar-modal-editar" class="boton boton--secundario">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentConfirmCallback = null;
+
+        function showConfirm(message, onConfirm, onCancel) {
+            const confirmBox = document.getElementById('confirmBox');
+            const confirmText = document.getElementById('confirmText');
+            confirmText.textContent = message;
+            confirmBox.style.display = 'block';
+            currentConfirmCallback = { onConfirm, onCancel };
+        }
+
+        document.getElementById('confirmYes').addEventListener('click', function() {
+            document.getElementById('confirmBox').style.display = 'none';
+            if (currentConfirmCallback && typeof currentConfirmCallback.onConfirm === 'function') {
+                currentConfirmCallback.onConfirm();
+            }
+            currentConfirmCallback = null;
+        });
+
+        document.getElementById('confirmNo').addEventListener('click', function() {
+            document.getElementById('confirmBox').style.display = 'none';
+            if (currentConfirmCallback && typeof currentConfirmCallback.onCancel === 'function') {
+                currentConfirmCallback.onCancel();
+            }
+            currentConfirmCallback = null;
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('confirmBox').style.display = 'none';
+        });
+    </script>
+
+    <script>
+        // Temporizador para detectar si OpenCV.js tarda demasiado en cargar
+        var opencvTimeout = setTimeout(function() {
+            showMessage('Error: OpenCV.js no se ha cargado después de 30 segundos. Por favor, verifica tu conexión o recarga la página.');
+        }, 30000);
+
+        // Función para cargar pdf_fotos.js dinámicamente
+        function cargarPDFfotosJS() {
+            var script = document.createElement('script');
+            script.src = '/RESOURCE/JS/pdf_fotos.js';
+            script.onload = function() {
+                // Puedes poner aquí un mensaje de éxito si lo deseas
+            };
+            script.onerror = function() {
+                showMessage('Error: No se pudo cargar pdf_fotos.js');
+            };
+            document.body.appendChild(script);
+        }
+    </script>
+
+    <!-- PASO 2: Carga OpenCV.js (local) de forma síncrona y con onload/onerror -->
+    <script src="/RESOURCE/opencv/opencv.js" onload="clearTimeout(opencvTimeout); cargarPDFfotosJS();" onerror="showMessage('Error: No se pudo cargar OpenCV.js');"></script>
+    
+    <!-- PASO 3: Carga jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <!-- PASO 4: pdf_fotos.js se carga dinámicamente después de OpenCV.js -->
+
+    <!-- PASO 5: Carga tus otros scripts de aplicación (en el orden que desees) -->
     <script src="/RESOURCE/JS/fotos_upload.js"></script>
     <script src="/RESOURCE/JS/autoguardado_camara.js"></script>
     <script src="/RESOURCE/JS/index.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="/RESOURCE/JS/pdf_fotos.js"></script>
+    <script src="/RESOURCE/JS/editar_foto.js"></script>
+
 </body>
 </html>

@@ -142,12 +142,13 @@ h1{
     
 }
 .boton--primario {
-    background-color: #28a745;
+    background-color: #00724e;
     color: white;
 }
 .boton--secundario {
     background-color: #ffc107;
     color: #333;
+    text-decoration: none;
 }
 .boton--cancelar{
     width: 100%;
@@ -247,6 +248,17 @@ canvas{
     width:400px;
     height:300px;
 
+}
+.btn-flotante {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+	border-radius: 50%; 
+	background-color: #00724e; 
+	padding: 18px; 
+	position: fixed;
+	bottom: 40px;
+	right: 40px;
 }
 
 /* Acordeón para secciones desplegables */

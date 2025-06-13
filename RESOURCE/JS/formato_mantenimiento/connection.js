@@ -1,59 +1,69 @@
 document.addEventListener('DOMContentLoaded', function() {
     
-    const searchButton = document.getElementById('search-button');
-    const searchUrl = searchButton.dataset.url;
-    const serialInput = document.getElementById('serie');
-
-
-
-    // Función para buscar los datos
-    const fetchData = () => {
-        const serialNumber = serialInput.value.trim();
+    const searchContainers = document.querySelectorAll('.search-container');
+    searchContainers.forEach(container => {
         
-        if (serialNumber === '') {
-            alert('Por favor, ingrese un número de serie.');
+    const paramName = container.dataset.paramName; 
+        
+        const inputField = container.querySelector('input[type="text"]');
+        const searchButton = container.querySelector('.search-button');
+        const searchUrl = searchButton.dataset.url;
+
+        if (!paramName || !inputField || !searchButton) {
+            console.error('Falta configuración en un contenedor de búsqueda.', container);
             return;
         }
-        
-        fetch(`${searchUrl}?serie=${serialNumber}`) 
-        .then(response => {
-            if (!response.ok) { 
-                throw new Error('Respuesta del servidor no fue OK');
-            }
-            return response.json();
-        })
-            .then(data => {
-                if (Object.keys(data).length > 0) {
-                    document.getElementById('division').value = data.nombre_division || '';
-                    document.getElementById('centro_trabajo').value = data.centro_trabajo || '';
-                    document.getElementById('numero_inventario').value = data.numero_inventario || '';
-                    document.getElementById('usuario').value = data.nombre_responsable || ''; // El ID es 'nombre_usuario'
-                    document.getElementById('marca').value = data.marca || '';
-                    document.getElementById('modelo').value = data.modelo || '';
-                    document.getElementById('tipo_uso').value = data.tipo_uso || '';
-                } else {
-                    alert('Equipo no encontrado en la base de datos.');
-                    // Limpia los campos si no se encuentra nada
-                    document.getElementById('division').value = '';
-                    document.getElementById('centro_trabajo').value = '';
-                    document.getElementById('numero_inventario').value = '';
-                    document.getElementById('usuario').value = '';
-                    document.getElementById('marca').value = '';
-                    document.getElementById('modelo').value = '';
-                    document.getElementById('tipo_uso').value = '';
-                }
-            })
-            .catch(error => {
-                console.error('Error al buscar el equipo:', error);
-                alert('Ocurrió un error al conectar con el servidor. Revisa la consola para más detalles.');
-            });
-    };
-    searchButton.addEventListener('click', fetchData);
 
-    serialInput.addEventListener('keypress', function(event) {
-        if (event.key === 'Enter') {
-            event.preventDefault();
-            fetchData();
-        }
+        const fetchData = () => {
+            const searchValue = inputField.value.trim();
+            if (searchValue === '') {
+                alert(`Por favor, ingrese un número de ${paramName}.`);
+                return;
+            }
+
+            const finalUrl = `${searchUrl}?${paramName}=${searchValue}`;
+            
+            console.log('Buscando en:', finalUrl); 
+
+            fetch(finalUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Respuesta del servidor no fue OK');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (Object.keys(data).length > 0) {
+                        document.getElementById('division').value = data.nombre_division || '';
+                        document.getElementById('centro_trabajo').value = data.centro_trabajo || '';
+                        document.getElementById('usuario').value = data.nombre_responsable || '';
+                        document.getElementById('marca').value = data.marca || '';
+                        document.getElementById('modelo').value = data.modelo || '';
+                        document.getElementById('tipo_uso').value = data.tipo_uso || '';
+                        document.getElementById('procesos').value = data.procesos || '';
+
+                        if (document.getElementById('numero_serie')) {
+                            document.getElementById('numero_serie').value = data.numero_serie || '';
+                        }
+                        if (document.getElementById('numero_inventario')) { 
+                            document.getElementById('numero_inventario').value = data.numero_inventario || ''; 
+                        }
+
+                    } else {
+                        alert('Equipo no encontrado en la base de datos.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al buscar el equipo:', error);
+                    alert('Ocurrió un error al conectar con el servidor.');
+                });
+        };
+        searchButton.addEventListener('click', fetchData);
+        inputField.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                fetchData();
+            }
+        });
     });
 });

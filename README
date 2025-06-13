@@ -3,7 +3,6 @@ pip freeze > requirements.txt
 ----------Instalacion de requirements.txt-----------
 pip install -r .\requirements.txt 
 
-<<<<<<< HEAD 
 -------------------------------------------------------
 -----------Ejecucion de Ngrok para simulacion de despliegue real -----------
 1. DESCARGAR Ngrok e instalar
@@ -24,11 +23,6 @@ python ejecutable.py
 ngrok http 5000
 
 6. Copiar la direccion https:// que les da Ngrok y probar en la laptop y en celular
-
-----------------------------------------------------------------------
-
-
->>>>>>> 671c9fd4fb4cdaa547cdbc649bd1341750ac051c
 
 ---------------------------------------------------------------------
 Pasos para certificado SSL

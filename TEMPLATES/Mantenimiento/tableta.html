@@ -9,14 +9,14 @@
 </head>
 <body>
     <div class="formulario-verificacion">
-        <form class = "formulario-verificacion__formulario"">
+        <form class="formulario-verificacion__formulario">
             <h1 class="formulario-verificacion__titulo-principal">Formato de mantenimiento preventivo de tabletas</h1>
             <div class="campo">
                 <label class="campo__etiqueta">FECHA</label>
                 <input type="date" class="campo__control">
             </div>
             <div class="seccion">
-                <div class="campo">
+                <!-- <div class="campo">
                     <label class="campo__etiqueta">División</label>
                     <select  class="campo__control" id="division">
                         <option value="">Selecciona una división</option>
@@ -37,10 +37,10 @@
                         <option value="Valle_Centro">División Valle de México Centro</option>
                         <option value="Valle_Sur">División Valle de México Sur</option>
                     </select>
-                </div>
+                </div> -->
                 <div class="seccion">
                     <div class="campo">
-                        <label class="campo__etiqueta">Zonas</label>
+                        <label class="campo__etiqueta">ZONAS</label>
                         <select class="campo__control" id="zona">
                             <option value="Seleccionar_Zona" >Selecciona una zona</option>
                         </select>
@@ -54,26 +54,6 @@
                     <option value="Seleccionar_Zona">Seleccione una centro</option>
                 </select>
                 </div>
-            </div>
-            <div class="campo">
-                    <label class="campo__etiqueta">PROCESO</label>
-                    <input type="text" class="campo__control">
-            </div>
-            <div class="campo">
-                    <label class="campo__etiqueta">NUMERO DE SERIE</label>
-                    <input type="text" class="campo__control">
-            </div>
-            <div class="campo">
-                    <label class="campo__etiqueta">NUMERO DE INVENTARIO</label>
-                    <input type="text" class="campo__control">
-            </div>
-            <div class="campo">
-                    <label class="campo__etiqueta">MARCA</label>
-                    <input type="text" class="campo__control">
-            </div>
-            <div class="campo">
-                    <label class="campo__etiqueta">MODELO</label>
-                    <input type="text" class="campo__control">
             </div>
             <div class="campo">
                     <label class="campo__etiqueta">FOLIO</label>
@@ -98,13 +78,52 @@
                 <input type="time" class="campo__control">
             </div>
             <div class="campo">
-                    <label class="campo__etiqueta">NOMBRE DEL USUARIO</label>
-                    <input type="text" class="campo__control">
-            </div>
-            <div class="campo">
                     <label class="campo__etiqueta">RPE/RTT</label>
                     <input type="text" class="campo__control">
             </div>
+            
+            <div class="campo">
+                <label for="Numero_Serie" class="campo__etiqueta">NÚMERO DE SERIE</label>
+                <div class="search-container" data-param-name="serie">
+                    <input type="text" class="campo__control" id="serie" name="serie"> 
+                    <button type="button" id="search-button-serie" class="search-button" data-url="/buscar_equipo">BUSCAR</button> 
+                </div>
+            </div>
+            <div class="campo">
+                <label for="division" class="campo__etiqueta">DIVISIÓN</label>
+                <input type="text" class="campo__control" id="division" name="division" readonly>
+            </div>
+            <div class="campo">
+                <label for="numero_inventario" class="campo__etiqueta">NÚMERO INVENTARIO</label>
+                <input type="text" class="campo__control" id="numero_inventario" name="numero_inventario" readonly>
+            </div>
+            <div class="campo">
+                <label for="usuario" class="campo__etiqueta">NOMBRE DEL USUARIO</label>
+                <input type="text" class="campo__control" id="usuario" name="usuario" readonly>
+            </div>
+            <div class="campo">
+                <label for="marca" class="campo__etiqueta">MARCA</label>
+                <input type="text" class="campo__control" id="marca" name="marca" readonly>
+            </div>
+            <div class="campo">
+                <label for="modelo" class="campo__etiqueta">MODELO</label>
+                <input type="text" class="campo__control" id="modelo" name="modelo" readonly>
+            </div>
+            <div class="campo">
+                <label for="centro_trabajo" class="campo__etiqueta">CENTRO DE TRABAJO</label>
+                <input type="text" class="campo__control" id="centro_trabajo" name="centro_trabajo" readonly>
+            </div>
+            <div class="campo">
+                <label for="uso" class="campo__etiqueta">USO QUE SE LE DA AL EQUIPO</label>
+                <input type="text" class="campo__control" id="tipo_uso" name="tipo_uso" readonly>
+            </div>
+            <div class="campo">
+                <label for="procesos" class="campo__etiqueta">PROCESO</label>
+                <input type="text" class="campo__control" id="procesos" name="procesos" readonly>
+            </div>
+
+
+            <!--SECCIÓN DE ELEMENTO-->
             <hr class="seccion__divisor">
             <div class="seccion">
                 <h3 class="seccion__titulo">ACTIVIDADES</h3>
@@ -233,6 +252,7 @@
         </div>
     </div>
 </div>
+    <script src="/RESOURCE/JS/formato_mantenimiento/connection.js" ></script>
     <script src="/RESOURCE/JS/firma.js"></script>
     <script src="/RESOURCE/JS/barra_progreso.js"></script>
     <script src="/RESOURCE/JS/selects.js"></script>

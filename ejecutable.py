@@ -4,6 +4,13 @@ import tempfile
 import json
 import base64
 from datetime import datetime
+import threading
+import time
+# --- INICIO LÓGICA DE backend (búsqueda de equipos en MySQL) ---
+from flask_cors import CORS 
+import mysql.connector 
+from mysql.connector import Error
+from dotenv import load_dotenv
 
 
 # Rutas absolutas a las carpetas en el proyecto. Preferentemente, si se mueven los archivos, verificar aquí las rutas para evitar que se rompan
@@ -178,18 +185,47 @@ def limpiar_sesion():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
-# --- INICIO LÓGICA DE backend.py (búsqueda de equipos en MySQL) ---
-from flask_cors import CORS #INSTALAR -- pip install Flask-CORS (dentro de env)
-import mysql.connector #INSTALAR -- pip install mysql-connector-python (dentro de env)
-from mysql.connector import Error
-from dotenv import load_dotenv
+def limpiar_archivos_viejos():
+    """
+    Elimina imágenes y archivos temporales de sesión con más de n mutos desde que se creo
+    """
+    MINUTOS_EXPIRACION = 1 #minutos para expiración de archivos
+    ahora = time.time()
+    tiempo_expiracion = MINUTOS_EXPIRACION * 60
+    # Limpiar imágenes
+    for nombre_archivo in os.listdir(FOTOS_RIJ_DIR):
+        ruta_archivo = os.path.join(FOTOS_RIJ_DIR, nombre_archivo)
+        if os.path.isfile(ruta_archivo):
+            try:
+                # Obtener tiempo de modificación (o creación en Windows)
+                tiempo_archivo = os.path.getmtime(ruta_archivo)
+                if ahora - tiempo_archivo > tiempo_expiracion:
+                    os.remove(ruta_archivo)
+            except Exception as e:
+                print(f"[LIMPIEZA] Error al eliminar imagen x del servidor: {ruta_archivo} - {e}")
+    # Limpiar archivos temporales de sesión
+    for nombre_archivo in os.listdir(FOTOS_TMP_DIR):
+        ruta_archivo = os.path.join(FOTOS_TMP_DIR, nombre_archivo)
+        if os.path.isfile(ruta_archivo):
+            try:
+                tiempo_archivo = os.path.getmtime(ruta_archivo)
+                if ahora - tiempo_archivo > tiempo_expiracion:
+                    os.remove(ruta_archivo)
+                    print(f"[LIMPIEZA] Archivo temporal eliminado por antigüedad (>{MINUTOS_EXPIRACION} min): {ruta_archivo}")
+            except Exception as e:
+                print(f"[LIMPIEZA] Error al eliminar archivo temporal: {ruta_archivo} - {e}")
+    # Puedes agregar aquí limpieza de otros registros si es necesario
+    # Reprogramar la función para que se ejecute de nuevo en 1 minuto
+    threading.Timer(60, limpiar_archivos_viejos).start()
 
+# Iniciar la limpieza automática al arrancar el servidor
+limpiar_archivos_viejos()
+
+# ---INICIO DE BACKEND ---
 load_dotenv()
 
-# Habilitar CORS para toda la app (si ya está habilitado, omitir esta línea)
-CORS(app)
-
-# --- configuración a la base de datos ---
+CORS(app) 
+# --- configuración a la base de datos (.env) ---
 DB_CONFIG = {
     'host': os.getenv('DB_HOST'),      
     'user': os.getenv('DB_USER'),  
@@ -198,7 +234,6 @@ DB_CONFIG = {
 }
 
 # conectar a la base de datos
-
 def get_db_connection():
     """Crea y devuelve una conexión a la base de datos MySQL."""
     try:
@@ -208,19 +243,18 @@ def get_db_connection():
         print(f"Error al conectar a MySQL: {e}")
         return None
 
-# Ruta para servir el formulario de cómputo (puedes ajustar la ruta si ya existe)
 @app.route('/mantenimiento/computo')
 def pagina_computo():
-    # Sirve el formulario de cómputo cuando se visita la ruta
     return send_from_directory(os.path.join(TEMPLATES_FOLDER, 'Mantenimiento'), 'computo.html')
 
-# Ruta de la API para buscar un equipo por número de serie
+# Ruta para un equipo por número de inventario 
 @app.route('/buscar_equipo')
-def buscar_equipo():
-    numero_serie = request.args.get('serie', '')
+def buscar_equipo(): 
+    inventario = request.args.get('inventario')
+    serie = request.args.get('serie')
 
-    if not numero_serie:
-        return jsonify({'error': 'Número de serie no proporcionado'}), 400
+    if not inventario and not serie:
+        return jsonify({'error': 'Número identificador no proporcionado'}), 400
 
     conn = get_db_connection()
     if conn is None:
@@ -229,9 +263,19 @@ def buscar_equipo():
     equipo = None
     try:
         cursor = conn.cursor(dictionary=True)
-        query = "SELECT * FROM prueba_datos WHERE Numero_Serie = %s"
-        cursor.execute(query, (numero_serie,)) 
-        equipo = cursor.fetchone() # fetchone() obtiene el primer (y único) resultado
+        if inventario:
+            try:
+                search_value = int(inventario) 
+                query = "SELECT * FROM prueba_datos WHERE Numero_Inventario = %s"
+                cursor.execute(query, (search_value,))
+                equipo = cursor.fetchone()
+            except ValueError:
+                return jsonify({'error': 'Número de inventario inválido'}), 400
+        elif serie:
+            search_value = serie
+            query = "SELECT * FROM prueba_datos WHERE Numero_Serie = %s"
+            cursor.execute(query, (search_value,))
+            equipo = cursor.fetchone()
     except Error as e:
         print(f"Error en la consulta: {e}")
     finally:
@@ -240,18 +284,18 @@ def buscar_equipo():
             conn.close()
 
     if equipo is None:
-        # si no se encuentra, devolvemos un JSON vacío
         return jsonify({})
     else:
-        # si se encuentra, se devuelve como JSON
         datos_para_frontend = {
             'numero_inventario': equipo.get('Numero_Inventario'),
+            'numero_serie': equipo.get('Numero_Serie'),
             'nombre_responsable': equipo.get('Nombre_Responsable'),
             'marca': equipo.get('Marca'),
             'modelo': equipo.get('Modelo'),
             'nombre_division': equipo.get('Nombre_Division'),
             'centro_trabajo': equipo.get('Centro_Trabajo'),
-            'tipo_uso': equipo.get('Tipo_Uso')
+            'tipo_uso': equipo.get('Tipo_Uso'),
+            'procesos': equipo.get('procesos')
         }
         return jsonify(datos_para_frontend)
 # --- FIN LÓGICA DE backend.py ---

@@ -18,13 +18,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Preferencias iniciales
     let currentFacingMode = "environment"; // "environment" para trasera SIEMPRE
 
-    // Solicitar la máxima calidad posible, 
     const constraints = {
         audio: false,  
         video: {
             facingMode: currentFacingMode, 
-            width: {  ideal: 1920, min: 1280 }, 
-            height: {  ideal: 1080, min: 720 },
+            width: { max: 4096, ideal: 3840, min: 1280 }, // 4K UHD
+            height: { max: 2160, ideal: 2160, min: 720 }, // 4K UHD
             advanced: [{ zoom: 1}]
         }
     };
@@ -342,10 +341,133 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         var photoWrapper = document.createElement('div');
         photoWrapper.classList.add('photo-wrapper');
+        photoWrapper.style.position = 'relative';
+
+        // Imagen principal mostrada
         var img = document.createElement('img');
         img.src = url;
         img.alt = 'Foto subida';
-        // Evento para descargar la imagen al hacer doble click 
+        img.className = 'foto-principal';
+
+        // Miniaturas y lógica de versiones (solo original por defecto)
+        var miniaturasContainer = document.createElement('div');
+        miniaturasContainer.className = 'miniaturas-container';
+        miniaturasContainer.style.display = 'flex';
+        miniaturasContainer.style.justifyContent = 'center';
+        miniaturasContainer.style.gap = '8px';
+        miniaturasContainer.style.marginTop = '6px';
+        miniaturasContainer.style.marginBottom = '4px';
+
+        // Almacenar las versiones
+        var versiones = {
+            original: url,
+            mejorada: null
+        };
+        var miniaturas = {};
+        var indice = contenedor.querySelectorAll('.photo-wrapper').length;
+        // Inicializar decisión por defecto
+        if (!window.fotosDecisiones) {
+            window.fotosDecisiones = [];
+        }
+        if (!window.fotosMejoradas) {
+            window.fotosMejoradas = [];
+        }
+        window.fotosDecisiones[indice] = 'original';
+        window.fotosMejoradas[indice] = null;
+
+        // Crear miniatura original
+        var miniOriginal = document.createElement('img');
+        miniOriginal.src = url;
+        miniOriginal.alt = 'Original';
+        miniOriginal.className = 'miniatura-foto';
+        miniOriginal.style.border = '2px solid #4caf50'; // Seleccionada por defecto
+        miniOriginal.style.borderRadius = '6px';
+        miniOriginal.style.width = '48px';
+        miniOriginal.style.height = '48px';
+        miniOriginal.style.objectFit = 'cover';
+        miniOriginal.style.cursor = 'pointer';
+        miniaturas.original = miniOriginal;
+        miniaturasContainer.appendChild(miniOriginal);
+
+        // Listener para original (por defecto)
+        miniOriginal.addEventListener('click', function() {
+            seleccionarVersion('original');
+        });
+
+        // Botón editar (lápiz)
+        var btnEditar = document.createElement('button');
+        btnEditar.textContent = '✏️';
+        btnEditar.title = 'Editar foto (comparar y elegir versión mejorada)';
+        btnEditar.className = 'btn-editar-foto';
+        btnEditar.style.position = 'absolute';
+        btnEditar.style.top = '5px';
+        btnEditar.style.right = '40px';
+        btnEditar.style.zIndex = '10';
+        btnEditar.style.background = 'transparent';
+        btnEditar.style.border = 'none';
+        btnEditar.style.fontSize = '1.3rem';
+        btnEditar.style.cursor = 'pointer';
+        btnEditar.addEventListener('click', function(e) {
+            e.preventDefault();
+            // Si ya se generó, solo mostrar
+            if (miniaturas.mejorada) {
+                miniaturas.mejorada.style.display = '';
+                return;
+            }
+            // Generar versión mejorada solo al editar
+            var imgTemp = new window.Image();
+            imgTemp.onload = function() {
+                if (typeof aplicarFiltroDocumento === 'function') {
+                    aplicarFiltroDocumento(imgTemp, 0.7, Math.max(imgTemp.naturalWidth, imgTemp.naturalHeight), function(dataUrlMejorada) {
+                        versiones.mejorada = dataUrlMejorada;
+                        var miniMejorada = document.createElement('img');
+                        miniMejorada.src = dataUrlMejorada;
+                        miniMejorada.alt = 'Mejorada';
+                        miniMejorada.className = 'miniatura-foto';
+                        miniMejorada.style.border = '2px solid #ccc';
+                        miniMejorada.style.borderRadius = '6px';
+                        miniMejorada.style.width = '48px';
+                        miniMejorada.style.height = '48px';
+                        miniMejorada.style.objectFit = 'cover';
+                        miniMejorada.style.cursor = 'pointer';
+                        miniaturas.mejorada = miniMejorada;
+                        miniaturasContainer.appendChild(miniMejorada);
+                        miniMejorada.addEventListener('click', function() {
+                            seleccionarVersion('mejorada');
+                        });
+                    });
+                }
+            };
+            imgTemp.src = url;
+        });
+        photoWrapper.appendChild(btnEditar);
+
+        // Función para seleccionar versión y actualizar lógica
+        function seleccionarVersion(tipo) {
+            img.src = versiones[tipo] || url;
+            for (var key in miniaturas) {
+                if (miniaturas[key]) {
+                    if (key === tipo) {
+                        miniaturas[key].style.border = '2px solid #4caf50';
+                    } else {
+                        miniaturas[key].style.border = '2px solid #ccc';
+                    }
+                }
+            }
+            if (tipo === 'original') {
+                window.fotosDecisiones[indice] = 'original';
+                window.fotosMejoradas[indice] = null;
+            } else {
+                window.fotosDecisiones[indice] = tipo;
+                window.fotosMejoradas[indice] = versiones[tipo];
+            }
+            // Forzar autoguardado si existe
+            if (window.autoguardadoCamara && typeof window.autoguardadoCamara.autoguardarFotos === 'function') {
+                window.autoguardadoCamara.autoguardarFotos();
+            }
+        }
+
+        // Evento para descargar la imagen al hacer doble click (no modificar)
         img.addEventListener('dblclick', function() {
             function descargarBlob(blob, nombre) {
                 var urlBlob = URL.createObjectURL(blob);
@@ -357,7 +479,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.body.removeChild(link);
                 setTimeout(function() { URL.revokeObjectURL(urlBlob); }, 1000);
             }
-            // Descargar usando fetch con credenciales
             fetch(img.src, { credentials: 'include' })
                 .then(function(response) {
                     if (!response.ok) {
@@ -370,6 +491,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     alert('Error al descargar la imagen: ' + err);
                 });
         });
+
         // Botón de borrar SIEMPRE visible
         var deleteButton = document.createElement('button');
         deleteButton.textContent = 'X';
@@ -379,11 +501,10 @@ document.addEventListener('DOMContentLoaded', () => {
         deleteButton.style.width = '1.8rem';
         deleteButton.style.height = '1.8rem';
         deleteButton.style.position = 'absolute';
-        photoWrapper.style.position = 'relative';
         deleteButton.style.top = '5px';
         deleteButton.style.right = '5px';
         deleteButton.addEventListener('click', function() {
-            if (!confirm("¿Estás seguro de que quieres eliminar esta foto?")) {
+            if (!confirm('¿Estás seguro de que quieres eliminar esta foto?')) {
                 return;
             }
             borrarFotoDelServidor(url, function(err) {
@@ -391,13 +512,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     photoWrapper.remove();
                     photosTakenCount = contenedor.querySelectorAll('.photo-wrapper').length;
                     actualizarContadorFotos();
-                    statusElement.textContent = "Foto eliminada correctamente.";
+                    statusElement.textContent = 'Foto eliminada correctamente.';
                 } else {
                     alert('Error al borrar la foto: ' + err);
                 }
             });
         });
+
         photoWrapper.appendChild(img);
+        photoWrapper.appendChild(miniaturasContainer);
         photoWrapper.appendChild(deleteButton);
         contenedor.appendChild(photoWrapper);
     }
