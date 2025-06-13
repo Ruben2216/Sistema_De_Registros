@@ -4,6 +4,7 @@
     <meta charset="UTF-8"> 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verificación Reunión Inicio Jornada</title> 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link rel="stylesheet" href="/RESOURCE/CSS/index.css">
 </head>
 <body>
@@ -62,7 +63,7 @@
             <div class="seccion">
                 <div class="campo">
                     <label class="campo__etiqueta">DEPARTAMENTO Y/O COMPAÑÍA:</label>
-                    <select class="campo__control">
+                    <select class="campo__control" id="departamento">
                         <option value="">Seleccione una opción</option>
                         <option value="T.I">Departamento de T.I</option>
                         <option value="Capacitacion">Capacitación</option>
@@ -75,7 +76,7 @@
                 </div>
                 <div class="campo">
                     <label class="campo__etiqueta">CATEGORÍA MÁXIMA PRESENTE EN LA REUNIÓN:</label>
-                    <select class="campo__control">
+                    <select class="campo__control" id="categoria_max">
                         <option value="">Seleccione una opción</option>
                         <option value="Superintendente">Superintendente</option>
                         <option value="JefeDepto">Jfe. Departamento</option>
@@ -87,11 +88,11 @@
                 </div>
                 <div class="campo">
                     <label class="campo__etiqueta">NOMBRE:</label>
-                    <input type="text" class="campo__control">
+                    <input type="text" class="campo__control" id="nombre">
                 </div>
                 <div class="campo">
                     <label class="campo__etiqueta">R.P.E.:</label>
-                    <input type="text" class="campo__control">
+                    <input type="text" class="campo__control" id="rpe">
                 </div>
                 <div class="campo">
                     <label class="campo__etiqueta">FIRMA:</label>
@@ -101,11 +102,11 @@
                 </div>
                 <div class="campo">
                     <label class="campo__etiqueta">HR. INICIO:</label>
-                    <input type="time" class="campo__control">
+                    <input type="time" class="campo__control" id="hora_inicio">
                 </div>
                 <div class="campo">
                     <label class="campo__etiqueta">TÉRMINO:</label>
-                    <input type="time" class="campo__control">
+                    <input type="time" class="campo__control" id="hora_termino">
                 </div>
             </div>
             <hr class="seccion__divisor">
@@ -115,24 +116,23 @@
                     <p class="campo__etiqueta">1. ¿Se realizó el saludo de inicio de jornada?</p>
                     <div class="grupo-opciones">
                         <label class="grupo-opciones__opcion">
-                            <input class="grupo-opciones__control" type="radio" name="inicio_jornada" value="si"> Sí</label>
-                        <label class="grupo-opciones__opcion">
-                            <input class="grupo-opciones__control" type="radio" name="inicio_jornada" value="no" data-desplegar="no"> No</label>
+                            <input class="grupo-opciones__control" type="radio" id="inicio_jornada" value="si"> Sí</label>
+                            <input class="grupo-opciones__control" type="radio" id="inicio_jornada" value="no" data-desplegar="no"> No</label>
                     </div>
-                    <input type="text" id="input_inicio_jornada" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                    <input type="text" name="input_inicio_jornada" class="campo__control" style="display:none;" placeholder="Especifique motivo">
                 </div>
                 <div class="campo">
                      <p class="campo__etiqueta">2. ¿Se enumeró el personal participante?</p>
                     <div class="grupo-opciones">
-                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="#personal" type="radio" value="si"> Sí</label>
-                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="#personal" type="radio" value="no" data-desplegar="no"> No</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="#personal" type="radio" value="si" data-desplegar="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="#personal" type="radio" value="no"> No</label>
                     </div>
-                    <input type="text" id="input_#personal" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                    <input type="text" id="input_#personal" class="campo__control" style="display:none;" placeholder="No. de participantes">
                 </div>
-                <div class="campo">
+                <!--<div class="campo">
                     <label class="campo__etiqueta">No. Participantes:</label>
                     <input type="number" min="0" class="campo__control">
-                </div>
+                </div>-->
                 <div class="campo">
                     <p class="campo__etiqueta">3. ¿Se preguntó el estado de salud a los participantes?</p>
                     <div class="grupo-opciones">
@@ -304,7 +304,7 @@
                     <img id="firma-imagen-2" class="firma-imagen"/>
                 </div>
             </div>
-            <button type="submit" class="boton boton--primario">Pasar siguiente</button>
+            <button type="submit" class="boton boton--primario" onclick="generarPDF()">Pasar siguiente</button>
             <button type="button" class="boton boton--secundario">Guardar Borrador</button>
             <div class="boton boton--secundario boton--cancelar">
                 <a href="/TEMPLATES/menu.html" class="boton--cancelar" id="btn-cancelar-formulario">Cancelar</a>
@@ -330,6 +330,7 @@
         <script src="/RESOURCE/JS/formato_RIJ/desplegables.js"></script>
         <script src="/RESOURCE/JS/barra_progreso.js"></script>
         <script src="/RESOURCE/JS/formato_RIJ/campos_desplegables_RIJ.js"></script>
+        <script src="/RESOURCE/JS/formato_RIJ/pdf_rij.js"></script>
         <script>
 // Lógica para limpiar datos de sesión al cancelar
 const btnCancelar = document.getElementById('btn-cancelar-formulario');
