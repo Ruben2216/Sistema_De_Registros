@@ -4,9 +4,9 @@ import tempfile
 import json
 import base64
 from datetime import datetime
-# --- INICIO LÓGICA DE backend.py (búsqueda de equipos en MySQL) ---
-from flask_cors import CORS #INSTALAR -- pip install Flask-CORS (dentro de env)
-import mysql.connector #INSTALAR -- pip install mysql-connector-python (dentro de env)
+# --- INICIO LÓGICA DE backend (búsqueda de equipos en MySQL) ---
+from flask_cors import CORS 
+import mysql.connector 
 from mysql.connector import Error
 from dotenv import load_dotenv
 
@@ -184,10 +184,11 @@ def limpiar_sesion():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
+# ---INICIO DE BACKEND ---
 load_dotenv()
 
 CORS(app) 
-# --- configuración a la base de datos ---
+# --- configuración a la base de datos (.env) ---
 DB_CONFIG = {
     'host': os.getenv('DB_HOST'),      
     'user': os.getenv('DB_USER'),  
@@ -211,16 +212,12 @@ def pagina_computo():
 
 # Ruta para un equipo por número de inventario 
 @app.route('/buscar_equipo')
-def buscar_equipo():
-    inventario = request.args.get('inventario', '')
+def buscar_equipo(): 
+    inventario = request.args.get('inventario')
+    serie = request.args.get('serie')
 
-    if not inventario:
-        return jsonify({'error': 'Número de inventario no proporcionado'}), 400
-
-    try:
-        inventario_int = int(inventario)
-    except ValueError:
-        return jsonify({'error': 'El número de inventario debe ser un entero'}), 400
+    if not inventario and not serie:
+        return jsonify({'error': 'Número identificador no proporcionado'}), 400
 
     conn = get_db_connection()
     if conn is None:
@@ -229,9 +226,19 @@ def buscar_equipo():
     equipo = None
     try:
         cursor = conn.cursor(dictionary=True)
-        query = "SELECT * FROM prueba_datos WHERE Numero_Inventario = %s"
-        cursor.execute(query, (inventario_int,)) 
-        equipo = cursor.fetchone() # fetchone() obtiene el primer (y único) resultado
+        if inventario:
+            try:
+                search_value = int(inventario) 
+                query = "SELECT * FROM prueba_datos WHERE Numero_Inventario = %s"
+                cursor.execute(query, (search_value,))
+                equipo = cursor.fetchone()
+            except ValueError:
+                return jsonify({'error': 'Número de inventario inválido'}), 400
+        elif serie:
+            search_value = serie
+            query = "SELECT * FROM prueba_datos WHERE Numero_Serie = %s"
+            cursor.execute(query, (search_value,))
+            equipo = cursor.fetchone()
     except Error as e:
         print(f"Error en la consulta: {e}")
     finally:
@@ -240,18 +247,18 @@ def buscar_equipo():
             conn.close()
 
     if equipo is None:
-        # si no se encuentra, devolvemos un JSON vacío
         return jsonify({})
     else:
-        # si se encuentra, se devuelve como JSON
         datos_para_frontend = {
+            'numero_inventario': equipo.get('Numero_Inventario'),
             'numero_serie': equipo.get('Numero_Serie'),
             'nombre_responsable': equipo.get('Nombre_Responsable'),
             'marca': equipo.get('Marca'),
             'modelo': equipo.get('Modelo'),
             'nombre_division': equipo.get('Nombre_Division'),
             'centro_trabajo': equipo.get('Centro_Trabajo'),
-            'tipo_uso': equipo.get('Tipo_Uso')
+            'tipo_uso': equipo.get('Tipo_Uso'),
+            'procesos': equipo.get('procesos')
         }
         return jsonify(datos_para_frontend)
 # --- FIN LÓGICA DE backend.py ---
