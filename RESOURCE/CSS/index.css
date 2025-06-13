@@ -248,6 +248,17 @@ canvas{
     height:300px;
 
 }
+.btn-flotante {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+	border-radius: 50%; 
+	background-color: #00724e; 
+	padding: 18px; 
+	position: fixed;
+	bottom: 40px;
+	right: 40px;
+}
 
 /* Acordeón para secciones desplegables */
 .seccion--desplegable .campo,
