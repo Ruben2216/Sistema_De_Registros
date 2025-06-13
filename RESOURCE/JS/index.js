@@ -18,13 +18,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Preferencias iniciales
     let currentFacingMode = "environment"; // "environment" para trasera SIEMPRE
 
-    // Solicitar la máxima calidad posible, 
     const constraints = {
         audio: false,  
         video: {
             facingMode: currentFacingMode, 
-            width: {  ideal: 1920, min: 1280 }, 
-            height: {  ideal: 1080, min: 720 },
+            width: { max: 4096, ideal: 3840, min: 1280 }, // 4K UHD
+            height: { max: 2160, ideal: 2160, min: 720 }, // 4K UHD
             advanced: [{ zoom: 1}]
         }
     };
