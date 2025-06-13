@@ -265,7 +265,14 @@ function generarPDFConFotos() {
                     }
                 }
             }
-            pdf.save('fotos_documento_mejoradas.pdf');
+            var hoy = new Date();
+            var año = hoy.getFullYear();
+            var mes = (hoy.getMonth() + 1).toString().padStart(2, '0');
+            var dia = hoy.getDate().toString().padStart(2, '0');
+            var fechaActual=dia + '-' + mes + '-' + año;
+
+            // Guardar el PDF con la fecha en el nombre
+            pdf.save('Formato_Digitalizado_' + fechaActual + '.pdf');
             return;
         }
 

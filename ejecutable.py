@@ -4,6 +4,8 @@ import tempfile
 import json
 import base64
 from datetime import datetime
+import threading
+import time
 # --- INICIO LÓGICA DE backend (búsqueda de equipos en MySQL) ---
 from flask_cors import CORS 
 import mysql.connector 
@@ -183,6 +185,41 @@ def limpiar_sesion():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
+def limpiar_archivos_viejos():
+    """
+    Elimina imágenes y archivos temporales de sesión con más de n mutos desde que se creo
+    """
+    MINUTOS_EXPIRACION = 1 #minutos para expiración de archivos
+    ahora = time.time()
+    tiempo_expiracion = MINUTOS_EXPIRACION * 60
+    # Limpiar imágenes
+    for nombre_archivo in os.listdir(FOTOS_RIJ_DIR):
+        ruta_archivo = os.path.join(FOTOS_RIJ_DIR, nombre_archivo)
+        if os.path.isfile(ruta_archivo):
+            try:
+                # Obtener tiempo de modificación (o creación en Windows)
+                tiempo_archivo = os.path.getmtime(ruta_archivo)
+                if ahora - tiempo_archivo > tiempo_expiracion:
+                    os.remove(ruta_archivo)
+            except Exception as e:
+                print(f"[LIMPIEZA] Error al eliminar imagen x del servidor: {ruta_archivo} - {e}")
+    # Limpiar archivos temporales de sesión
+    for nombre_archivo in os.listdir(FOTOS_TMP_DIR):
+        ruta_archivo = os.path.join(FOTOS_TMP_DIR, nombre_archivo)
+        if os.path.isfile(ruta_archivo):
+            try:
+                tiempo_archivo = os.path.getmtime(ruta_archivo)
+                if ahora - tiempo_archivo > tiempo_expiracion:
+                    os.remove(ruta_archivo)
+                    print(f"[LIMPIEZA] Archivo temporal eliminado por antigüedad (>{MINUTOS_EXPIRACION} min): {ruta_archivo}")
+            except Exception as e:
+                print(f"[LIMPIEZA] Error al eliminar archivo temporal: {ruta_archivo} - {e}")
+    # Puedes agregar aquí limpieza de otros registros si es necesario
+    # Reprogramar la función para que se ejecute de nuevo en 1 minuto
+    threading.Timer(60, limpiar_archivos_viejos).start()
+
+# Iniciar la limpieza automática al arrancar el servidor
+limpiar_archivos_viejos()
 
 # ---INICIO DE BACKEND ---
 load_dotenv()
