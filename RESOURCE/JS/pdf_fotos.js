@@ -246,48 +246,91 @@ function generarPDFConFotos() {
             }
 
             if (fotos.length <= 3) {
+                // Si hay 3 fotos o menos, aplicar filtro OpenCV y ponerlas en pantalla completa
+                let procesadas = 0;
+                let imagenesFiltradas = [];
                 for (let j = 0; j < imagenesWebp.length; j++) {
-                    pdf.addImage(imagenesWebp[j], 'WEBP', 0, 0, anchoHoja, altoHoja);
-                    if (j !== imagenesWebp.length - 1) {
-                        pdf.addPage('letter', 'portrait');
-                    }
+                    // Aplicar filtro OpenCV a cada imagen antes de agregarla al PDF
+                    aplicarFiltroDocumento(fotos[j], 0.7, Math.max(fotos[j].naturalWidth, fotos[j].naturalHeight), function(dataUrlWebp) {
+                        if (dataUrlWebp) {
+                            imagenesFiltradas[j] = dataUrlWebp;
+                        } else {
+                            // Si falla el filtro, usar la imagen original
+                            imagenesFiltradas[j] = imagenesWebp[j];
+                        }
+                        procesadas++;
+                        if (procesadas === imagenesWebp.length) {
+                            // Cuando todas las imágenes estén procesadas, agregarlas al PDF
+                            for (let k = 0; k < imagenesFiltradas.length; k++) {
+                                pdf.addImage(imagenesFiltradas[k], 'WEBP', 0, 0, anchoHoja, altoHoja);
+                                if (k !== imagenesFiltradas.length - 1) {
+                                    pdf.addPage('letter', 'portrait');
+                                }
+                            }
+                            var hoy = new Date();
+                            var año = hoy.getFullYear();
+                            var mes = (hoy.getMonth() + 1).toString().padStart(2, '0');
+                            var dia = hoy.getDate().toString().padStart(2, '0');
+                            var fechaActual = dia + '-' + mes + '-' + año;
+                            pdf.save('Formato_Digitalizado_' + fechaActual + '.pdf');
+                        }
+                    });
                 }
+                return;
             } else {
+                // Si hay más de 3 fotos, NO aplicar filtro, solo agregar las imágenes originales
                 for (let i = 0; i < imagenesWebp.length; i++) {
                     let col = i % columnas;
                     let fila = Math.floor((i % fotosPorHoja) / columnas);
                     let x = col * anchoCelda;
                     let y = fila * altoCelda;
                     pdf.addImage(imagenesWebp[i], 'WEBP', x, y, anchoCelda, altoCelda);
-
                     if ((i + 1) % fotosPorHoja === 0 && i !== imagenesWebp.length - 1) {
                         pdf.addPage('letter', 'portrait');
                     }
                 }
+                var hoy = new Date();
+                var año = hoy.getFullYear();
+                var mes = (hoy.getMonth() + 1).toString().padStart(2, '0');
+                var dia = hoy.getDate().toString().padStart(2, '0');
+                var fechaActual = dia + '-' + mes + '-' + año;
+                pdf.save('Formato_Digitalizado_' + fechaActual + '.pdf');
+                return;
             }
-            var hoy = new Date();
-            var año = hoy.getFullYear();
-            var mes = (hoy.getMonth() + 1).toString().padStart(2, '0');
-            var dia = hoy.getDate().toString().padStart(2, '0');
-            var fechaActual=dia + '-' + mes + '-' + año;
-
-            // Guardar el PDF con la fecha en el nombre
-            pdf.save('Formato_Digitalizado_' + fechaActual + '.pdf');
-            return;
         }
 
-        // Aplica el filtro mejorado con OpenCV.js a todas las fotos sin importar la cantidad.
-        // La calidad de 0.7 es un buen equilibrio para documentos.
-        aplicarFiltroDocumento(fotos[indice], 0.7, Math.max(fotos[indice].naturalWidth, fotos[indice].naturalHeight), function(dataUrlWebp) {
-            if (dataUrlWebp) { // Solo si el procesamiento con OpenCV fue exitoso
-                imagenesWebp.push(dataUrlWebp);
-            } else {
-                // Si hubo un error en OpenCV, se pudo haber devuelto null o la imagen original,
-                // por lo que no se añade o se añade una versión fallback si la función aplicarFiltroDocumento lo maneja.
-                console.warn(`No se pudo procesar la imagen ${indice} con OpenCV. La imagen podría no ser añadida o se usará una versión original.`);
-            }
-            procesarImagenes(indice + 1, imagenesWebp); // Continúa con la siguiente imagen
-        });
+        // Para más de 3 fotos, solo convertir a webp sin filtro
+        if (fotos.length > 3) {
+            // Convertir la imagen a webp sin filtro
+            let tempCanvas = document.createElement('canvas');
+            tempCanvas.width = fotos[indice].naturalWidth;
+            tempCanvas.height = fotos[indice].naturalHeight;
+            let ctx = tempCanvas.getContext('2d');
+            ctx.drawImage(fotos[indice], 0, 0);
+            tempCanvas.toBlob(function(blob) {
+                let reader = new FileReader();
+                reader.onloadend = function() {
+                    imagenesWebp.push(reader.result);
+                    procesarImagenes(indice + 1, imagenesWebp);
+                };
+                reader.readAsDataURL(blob);
+            }, 'image/webp', 0.7);
+        } else {
+            // Para 3 fotos o menos, solo pasar la imagen como está (el filtro se aplica después)
+            let tempCanvas = document.createElement('canvas');
+            tempCanvas.width = fotos[indice].naturalWidth;
+            tempCanvas.height = fotos[indice].naturalHeight;
+            let ctx = tempCanvas.getContext('2d');
+            ctx.drawImage(fotos[indice], 0, 0);
+            tempCanvas.toBlob(function(blob) {
+                let reader = new FileReader();
+                reader.onloadend = function() {
+                    imagenesWebp.push(reader.result);
+                    procesarImagenes(indice + 1, imagenesWebp);
+                };
+                reader.readAsDataURL(blob);
+            }, 'image/webp', 0.7);
+        }
     }
 
     procesarImagenes(0, []);
