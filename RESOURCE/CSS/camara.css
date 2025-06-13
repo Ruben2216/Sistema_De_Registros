@@ -91,11 +91,37 @@ h1 {
     font-size: 0.9em;
     color: #555;
 }
+
+/* Miniaturas de selección de versión de foto */
+.miniaturas-container {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 6px;
+    margin-bottom: 4px;
+}
+.miniatura-foto {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border: 2px solid #ccc;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: border 0.2s;
+}
+.miniatura-foto.selected, .miniatura-foto[style*='4caf50'] {
+    border: 2px solid #4caf50 !important;
+}
 @media screen and (max-width: 600px) {
     html, body{
         overflow-x: hidden;
         
     }
-
-
+    .miniaturas-container {
+        gap: 4px;
+    }
+    .miniatura-foto {
+        width: 36px;
+        height: 36px;
+    }
 }

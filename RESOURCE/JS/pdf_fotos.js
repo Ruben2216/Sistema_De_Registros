@@ -184,24 +184,20 @@ function generarPDFConFotos() {
         btn.textContent = 'Procesando imágenes...';
     }
 
-
     if (!opencvReady) {
-        // Esta condición debería ser manejada por cv.onRuntimeInitialized, pero se mantiene como un
-        // doble chequeo por si acaso y para el mensaje al usuario.
         showMessage('OpenCV.js aún no está cargado. Por favor, espera y vuelve a intentarlo. El botón se habilitará automáticamente.');
-        if (btn) { // Si el botón está deshabilitado por nosotros, lo volvemos a habilitar para que no se quede atascado
-             btn.disabled = false;
-             btn.textContent = 'Generar PDF de fotos';
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = 'Generar PDF de fotos';
         }
         return;
     }
 
-    // Verificar si jsPDF está cargado
     if (typeof window.jspdf === 'undefined') {
         showMessage('jsPDF no está cargado. Asegúrate de incluir la librería jsPDF en tu HTML.');
         if (btn) {
-             btn.disabled = false;
-             btn.textContent = 'Generar PDF de fotos';
+            btn.disabled = false;
+            btn.textContent = 'Generar PDF de fotos';
         }
         return;
     }
@@ -232,108 +228,67 @@ function generarPDFConFotos() {
         altoCelda = anchoCelda / aspectoFoto;
     }
 
-    /**
-     * Es una función recursiva para manejar la asincronía de la conversión de imágenes.
-     * @param {number} indice - El índice de la foto actual a procesar.
-     * @param {Array<string>} imagenesWebp - Array que almacena las imágenes procesadas como Data URLs.
-     */
-    function procesarImagenes(indice, imagenesWebp) {
-        if (indice >= fotos.length) {
-            // Re-habilitar el botón una vez que el PDF se ha generado
-            if (btn) {
-                btn.disabled = false;
-                btn.textContent = 'Generar PDF de fotos';
-            }
+    // Usar la decisión del usuario para cada foto (window.fotosDecisiones y window.fotosMejoradas)
+    var imagenesParaPDF = [];
+    var totalFotos = fotos.length;
+    var procesadas = 0;
 
-            if (fotos.length <= 3) {
-                // Si hay 3 fotos o menos, aplicar filtro OpenCV y ponerlas en pantalla completa
-                let procesadas = 0;
-                let imagenesFiltradas = [];
-                for (let j = 0; j < imagenesWebp.length; j++) {
-                    // Aplicar filtro OpenCV a cada imagen antes de agregarla al PDF
-                    aplicarFiltroDocumento(fotos[j], 0.7, Math.max(fotos[j].naturalWidth, fotos[j].naturalHeight), function(dataUrlWebp) {
-                        if (dataUrlWebp) {
-                            imagenesFiltradas[j] = dataUrlWebp;
-                        } else {
-                            // Si falla el filtro, usar la imagen original
-                            imagenesFiltradas[j] = imagenesWebp[j];
-                        }
-                        procesadas++;
-                        if (procesadas === imagenesWebp.length) {
-                            // Cuando todas las imágenes estén procesadas, agregarlas al PDF
-                            for (let k = 0; k < imagenesFiltradas.length; k++) {
-                                pdf.addImage(imagenesFiltradas[k], 'WEBP', 0, 0, anchoHoja, altoHoja);
-                                if (k !== imagenesFiltradas.length - 1) {
-                                    pdf.addPage('letter', 'portrait');
-                                }
-                            }
-                            var hoy = new Date();
-                            var año = hoy.getFullYear();
-                            var mes = (hoy.getMonth() + 1).toString().padStart(2, '0');
-                            var dia = hoy.getDate().toString().padStart(2, '0');
-                            var fechaActual = dia + '-' + mes + '-' + año;
-                            pdf.save('Formato_Digitalizado_' + fechaActual + '.pdf');
-                        }
-                    });
-                }
-                return;
-            } else {
-                // Si hay más de 3 fotos, NO aplicar filtro, solo agregar las imágenes originales
-                for (let i = 0; i < imagenesWebp.length; i++) {
-                    let col = i % columnas;
-                    let fila = Math.floor((i % fotosPorHoja) / columnas);
-                    let x = col * anchoCelda;
-                    let y = fila * altoCelda;
-                    pdf.addImage(imagenesWebp[i], 'WEBP', x, y, anchoCelda, altoCelda);
-                    if ((i + 1) % fotosPorHoja === 0 && i !== imagenesWebp.length - 1) {
-                        pdf.addPage('letter', 'portrait');
-                    }
-                }
-                var hoy = new Date();
-                var año = hoy.getFullYear();
-                var mes = (hoy.getMonth() + 1).toString().padStart(2, '0');
-                var dia = hoy.getDate().toString().padStart(2, '0');
-                var fechaActual = dia + '-' + mes + '-' + año;
-                pdf.save('Formato_Digitalizado_' + fechaActual + '.pdf');
-                return;
+    function procesarFotoParaPDF(i) {
+        var img = fotos[i];
+        // Si el usuario eligió la mejorada y existe, usarla
+        if (window.fotosDecisiones && window.fotosDecisiones[i] === 'mejorada' && window.fotosMejoradas && window.fotosMejoradas[i]) {
+            imagenesParaPDF[i] = window.fotosMejoradas[i];
+            procesadas++;
+            if (procesadas === totalFotos) {
+                agregarImagenesAlPDF();
             }
-        }
-
-        // Para más de 3 fotos, solo convertir a webp sin filtro
-        if (fotos.length > 3) {
-            // Convertir la imagen a webp sin filtro
-            let tempCanvas = document.createElement('canvas');
-            tempCanvas.width = fotos[indice].naturalWidth;
-            tempCanvas.height = fotos[indice].naturalHeight;
-            let ctx = tempCanvas.getContext('2d');
-            ctx.drawImage(fotos[indice], 0, 0);
-            tempCanvas.toBlob(function(blob) {
-                let reader = new FileReader();
-                reader.onloadend = function() {
-                    imagenesWebp.push(reader.result);
-                    procesarImagenes(indice + 1, imagenesWebp);
-                };
-                reader.readAsDataURL(blob);
-            }, 'image/webp', 0.7);
         } else {
-            // Para 3 fotos o menos, solo pasar la imagen como está (el filtro se aplica después)
-            let tempCanvas = document.createElement('canvas');
-            tempCanvas.width = fotos[indice].naturalWidth;
-            tempCanvas.height = fotos[indice].naturalHeight;
-            let ctx = tempCanvas.getContext('2d');
-            ctx.drawImage(fotos[indice], 0, 0);
+            // Si no, usar la original (convertir a dataURL webp)
+            var tempCanvas = document.createElement('canvas');
+            tempCanvas.width = img.naturalWidth;
+            tempCanvas.height = img.naturalHeight;
+            var ctx = tempCanvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
             tempCanvas.toBlob(function(blob) {
-                let reader = new FileReader();
+                var reader = new FileReader();
                 reader.onloadend = function() {
-                    imagenesWebp.push(reader.result);
-                    procesarImagenes(indice + 1, imagenesWebp);
+                    imagenesParaPDF[i] = reader.result;
+                    procesadas++;
+                    if (procesadas === totalFotos) {
+                        agregarImagenesAlPDF();
+                    }
                 };
                 reader.readAsDataURL(blob);
             }, 'image/webp', 0.7);
         }
     }
 
-    procesarImagenes(0, []);
+    function agregarImagenesAlPDF() {
+        for (let i = 0; i < imagenesParaPDF.length; i++) {
+            let col = i % columnas;
+            let fila = Math.floor((i % fotosPorHoja) / columnas);
+            let x = col * anchoCelda;
+            let y = fila * altoCelda;
+            pdf.addImage(imagenesParaPDF[i], 'WEBP', x, y, anchoCelda, altoCelda);
+            if ((i + 1) % fotosPorHoja === 0 && i !== imagenesParaPDF.length - 1) {
+                pdf.addPage('letter', 'portrait');
+            }
+        }
+        var hoy = new Date();
+        var año = hoy.getFullYear();
+        var mes = (hoy.getMonth() + 1).toString().padStart(2, '0');
+        var dia = hoy.getDate().toString().padStart(2, '0');
+        var fechaActual = dia + '-' + mes + '-' + año;
+        pdf.save('Formato_Digitalizado_' + fechaActual + '.pdf');
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = 'Generar PDF de fotos';
+        }
+    }
+
+    for (let i = 0; i < totalFotos; i++) {
+        procesarFotoParaPDF(i);
+    }
 }
 
 function asignarEventoPDF() {
