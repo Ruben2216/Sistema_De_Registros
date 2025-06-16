@@ -7,22 +7,40 @@ document.addEventListener('DOMContentLoaded', function() {
         var totalCampos = 0;
 
         //------------------------------------------------------------------------
-        // Selecciona todos los campos excepto¿ los radio porque serán contados aparte más adelante
-        var campos = formulario.querySelectorAll('input:not([type="radio"]), textarea, select, hidden');
-        totalCampos += campos.length;
+        // Selecciona todos los campos no radio y selects visibles (excluye display:none)
+        var todosCampos = Array.prototype.slice.call(
+            formulario.querySelectorAll('input:not([type="radio"]):not([type="hidden"]), textarea, select')
+        ).filter(function(campo) {
+            return campo.offsetParent !== null;
+        });
+        totalCampos += todosCampos.length;
 
-        // Cuenta los campos llenados (excepto radios)
-        for (var i = 0; i < campos.length; i++) {
-            if (campos[i].value.trim() !== "") {
+        // Cuenta los campos llenados 
+        for (var i = 0; i < todosCampos.length; i++) {
+            if (todosCampos[i].value.trim() !== "") {
                 camposLlenos++;
             }
         }
         //------------------------------------------------------------------------
-        // aqui se Selecciona los campos de tipo radio en total
-        var radios = formulario.querySelectorAll('input[type="radio"]');
-        totalCampos += radios.length;
-        for (var i = 0; i < radios.length; i++) {
-            if (radios[i].checked) {
+        // Contar grupos de radios visibles
+        var radiosVisibles = Array.prototype.slice.call(
+            formulario.querySelectorAll('input[type="radio"]')
+        ).filter(function(radio) {
+            return radio.offsetParent !== null;
+        });
+        var gruposRadio = {};
+        for (var j = 0; j < radiosVisibles.length; j++) {
+            var nombre = radiosVisibles[j].name;
+            if (nombre) {
+                gruposRadio[nombre] = true;
+            }
+        }
+        var totalGrupos = Object.keys(gruposRadio).length;
+        totalCampos += totalGrupos;
+        // Contar cada grupo si tiene al menos una opción marcada
+        for (var nombreGrupo in gruposRadio) {
+            var checkedRadio = formulario.querySelector('input[name="' + nombreGrupo + '"]:checked');
+            if (checkedRadio) {
                 camposLlenos++;
             }
         }
@@ -36,5 +54,9 @@ document.addEventListener('DOMContentLoaded', function() {
         //------------------------------------------------------------------------
         // Actualiza el ancho de la barra de progreso del CSS 
         barraProgreso.style.width = progreso + '%';
+    });
+
+    formulario.addEventListener('change', function() {
+        formulario.dispatchEvent(new Event('input'));
     });
 });

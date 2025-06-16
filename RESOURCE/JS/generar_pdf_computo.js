@@ -508,22 +508,44 @@ setInterval(function() {
 }, 2000); // 2 segundos
 
 // Al cargar formato.html, insertar los valores en los ids correspondientes
-if (document.getElementById('limpieza-externa-equipo--si') || document.getElementById('limpieza-externa-equipo--no') || document.getElementById('limpieza-externa-equipo--texto') ||
-    document.getElementById('limpieza-externa-pantalla--si') || document.getElementById('limpieza-externa-pantalla--no') || document.getElementById('limpieza-externa-pantalla--texto') ||
-    document.getElementById('limpieza-teclado--si') || document.getElementById('limpieza-teclado--no') || document.getElementById('limpieza-teclado--texto') ||
-    document.getElementById('verificar-conexiones--si') || document.getElementById('verificar-conexiones--no') || document.getElementById('verificar-conexiones--texto') ||
-    document.getElementById('funciona-despues--si') || document.getElementById('funciona-despues--no') || document.getElementById('funciona-despues--texto') ||
-    document.getElementById('antivirus-funciona-si') || document.getElementById('antivirus-funciona-no') || document.getElementById('antivirus-funciona-texto') ||
-    document.getElementById('ejecucion-defrag--si') || document.getElementById('ejecucion-defrag--no') || document.getElementById('ejecucion-defrag--texto') ||
-    document.getElementById('dentro-dominio--si') || document.getElementById('dentro-dominio--no') || document.getElementById('dentro-dominio--texto') ||
-    document.getElementById('windows-actualizado--si') || document.getElementById('windows-actualizado--no') || document.getElementById('windows-actualizado--texto')) {
+if (
+    document.getElementById('limpieza-externa-equipo--si') ||
+    document.getElementById('limpieza-externa-equipo--no') ||
+    document.getElementById('limpieza-externa-equipo--texto') ||
+    document.getElementById('limpieza-externa-pantalla--si') ||
+    document.getElementById('limpieza-externa-pantalla--no') ||
+    document.getElementById('limpieza-externa-pantalla--texto') ||
+    document.getElementById('limpieza-teclado--si') ||
+    document.getElementById('limpieza-teclado--no') ||
+    document.getElementById('limpieza-teclado--texto') ||
+    document.getElementById('verificar-conexiones--si') ||
+    document.getElementById('verificar-conexiones--no') ||
+    document.getElementById('verificar-conexiones--texto') ||
+    document.getElementById('funciona-despues--si') ||
+    document.getElementById('funciona-despues--no') ||
+    document.getElementById('funciona-despues--texto') ||
+    document.getElementById('antivirus-funciona-si') ||
+    document.getElementById('antivirus-funciona-no') ||
+    document.getElementById('antivirus-funciona-texto') ||
+    document.getElementById('ejecucion-defrag--si') ||
+    document.getElementById('ejecucion-defrag--no') ||
+    document.getElementById('ejecucion-defrag--texto') ||
+    document.getElementById('dentro-dominio--si') ||
+    document.getElementById('dentro-dominio--no') ||
+    document.getElementById('dentro-dominio--texto') ||
+    document.getElementById('windows-actualizado--si') ||
+    document.getElementById('windows-actualizado--no') ||
+    document.getElementById('windows-actualizado--texto')
+) {
     document.addEventListener('DOMContentLoaded', function() {
         var siLimpiezaExterna = localStorage.getItem('limpieza-externa-equipo--si') || '';
         var noLimpiezaExterna = localStorage.getItem('limpieza-externa-equipo--no') || '';
         var textoLimpiezaExterna = localStorage.getItem('limpieza-externa-equipo--texto') || '';
+
         var siLimpiezaPantalla = localStorage.getItem('limpieza-externa-pantalla--si') || '';
         var noLimpiezaPantalla = localStorage.getItem('limpieza-externa-pantalla--no') || '';
         var textoLimpiezaPantalla = localStorage.getItem('limpieza-externa-pantalla--texto') || '';
+        
         var siLimpiezaTeclado = localStorage.getItem('limpieza-teclado--si') || '';
         var noLimpiezaTeclado = localStorage.getItem('limpieza-teclado--no') || '';
         var textoLimpiezaTeclado = localStorage.getItem('limpieza-teclado--texto') || '';
@@ -552,7 +574,7 @@ if (document.getElementById('limpieza-externa-equipo--si') || document.getElemen
         var noWindowsActualizado = localStorage.getItem('windows-actualizado--no') || '';
         var textoWindows = localStorage.getItem('windows-actualizado--texto') || '';
 
-        if (document.getElementById('limpieza-externa-equipo--si')) {
+        if (document.getElementById('limpieza-externa-equipo--si')) { //si existe el elemento entonces asignar el valor que se guardo en localStorage, esto podria factorizarse en una funcion o suponiendo que el campo siempre existira
             document.getElementById('limpieza-externa-equipo--si').textContent = siLimpiezaExterna;
         }
         if (document.getElementById('limpieza-externa-equipo--no')) {
