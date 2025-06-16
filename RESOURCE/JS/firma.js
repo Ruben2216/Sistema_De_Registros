@@ -40,18 +40,21 @@ function guardarFirma() {
         img1.src = dataURL;
         img1.style.display = 'block';
         document.getElementById('firma-area-1').style.display = 'none';
+        localStorage.setItem('firmaComputo1', dataURL); // Guardar en localStorage
     } else if (firmaActual === 2) {
         document.getElementById('firma-input-2').value = dataURL;
         var img2 = document.getElementById('firma-imagen-2');
         img2.src = dataURL;
         img2.style.display = 'block';
         document.getElementById('firma-area-2').style.display = 'none';
+        localStorage.setItem('firmaComputo2', dataURL); // Guardar en localStorage
     } else if (firmaActual === 3){
         document.getElementById('firma-input-3').value = dataURL;
         var img3 = document.getElementById('firma-imagen-3');
         img3.src = dataURL;
         img3.style.display = 'block';
         document.getElementById('firma-area-3').style.display = 'none';
+        localStorage.setItem('firmaComputo3', dataURL); // Guardar en localStorage
     }
     ocultarModalFirma();
 }
