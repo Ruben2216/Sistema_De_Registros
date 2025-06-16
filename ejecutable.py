@@ -189,7 +189,7 @@ def limpiar_archivos_viejos():
     """
     Elimina imágenes y archivos temporales de sesión con más de n mutos desde que se creo
     """
-    MINUTOS_EXPIRACION = 1 #minutos para expiración de archivos
+    MINUTOS_EXPIRACION = 10 #minutos para expiración de archivos
     ahora = time.time()
     tiempo_expiracion = MINUTOS_EXPIRACION * 60
     # Limpiar imágenes

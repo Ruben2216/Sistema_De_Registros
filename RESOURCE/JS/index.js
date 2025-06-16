@@ -531,4 +531,81 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Asegurarse que el botón de limpiar fotos esté habilitado al cargar la página
     clearButton.disabled = false;
+
+    // --- Lógica para reordenar imágenes en el contenedor de fotos (móvil y escritorio) ---
+    function agregarBotonesReordenarFotos() {
+        var fotos = Array.from(document.querySelectorAll('#photosContainer .photo-wrapper'));
+        fotos.forEach(function(wrapper) {
+            // Eliminar botones previos para evitar duplicados
+            var btns = wrapper.querySelectorAll('.btn-mover-arriba, .btn-mover-abajo');
+            btns.forEach(function(btn) { btn.remove(); });
+            var container = wrapper.parentElement;
+            var wrappers = Array.from(container.querySelectorAll('.photo-wrapper'));
+            var i = wrappers.indexOf(wrapper);
+            // Botón subir
+            var btnArriba = document.createElement('button');
+            btnArriba.textContent = '⬆️';
+            btnArriba.className = 'btn-mover-arriba';
+            btnArriba.style.position = 'absolute';
+            btnArriba.style.left = '5px';
+            btnArriba.style.top = '5px';
+            btnArriba.style.zIndex = '20';
+            btnArriba.style.background = 'rgba(255,255,255,0.8)';
+            btnArriba.style.border = 'none';
+            btnArriba.style.borderRadius = '50%';
+            btnArriba.style.width = '2.2em';
+            btnArriba.style.height = '2.2em';
+            btnArriba.style.fontSize = '1.2em';
+            btnArriba.style.touchAction = 'manipulation';
+            btnArriba.onclick = function(e) {
+                e.preventDefault();
+                var wrappers = Array.from(container.querySelectorAll('.photo-wrapper'));
+                var idx = wrappers.indexOf(wrapper);
+                if (idx > 0) {
+                    container.insertBefore(wrapper, wrappers[idx - 1]);
+                    setTimeout(agregarBotonesReordenarFotos, 100);
+                }
+            };
+            // Botón bajar
+            var btnAbajo = document.createElement('button');
+            btnAbajo.textContent = '⬇️';
+            btnAbajo.className = 'btn-mover-abajo';
+            btnAbajo.style.position = 'absolute';
+            btnAbajo.style.left = '5px';
+            btnAbajo.style.top = '40px';
+            btnAbajo.style.zIndex = '20';
+            btnAbajo.style.background = 'rgba(255,255,255,0.8)';
+            btnAbajo.style.border = 'none';
+            btnAbajo.style.borderRadius = '50%';
+            btnAbajo.style.width = '2.2em';
+            btnAbajo.style.height = '2.2em';
+            btnAbajo.style.fontSize = '1.2em';
+            btnAbajo.style.touchAction = 'manipulation';
+            btnAbajo.onclick = function(e) {
+                e.preventDefault();
+                var wrappers = Array.from(container.querySelectorAll('.photo-wrapper'));
+                var idx = wrappers.indexOf(wrapper);
+                if (idx < wrappers.length - 1) {
+                    if (wrappers[idx + 1].nextSibling) {
+                        container.insertBefore(wrapper, wrappers[idx + 1].nextSibling);
+                    } else {
+                        container.appendChild(wrapper);
+                    }
+                    setTimeout(agregarBotonesReordenarFotos, 100);
+                }
+            };
+            wrapper.appendChild(btnArriba);
+            wrapper.appendChild(btnAbajo);
+        });
+    }
+
+    // Observar cambios en el contenedor de fotos para agregar los botones
+    var observerReordenar = new MutationObserver(function() {
+        agregarBotonesReordenarFotos();
+    });
+    observerReordenar.observe(document.getElementById('photosContainer'), { childList: true, subtree: false });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        agregarBotonesReordenarFotos();
+    });
 });

@@ -1,14 +1,37 @@
-// editar_foto.js
-// Lógica para el modal de edición de fotos (original vs mejorada)
-// Debe integrarse con la lógica de captura y PDF
 
 // Array para guardar la decisión del usuario por cada foto ("original" o "mejorada")
 window.fotosDecisiones = [];
 window.fotosMejoradas = [];
 
-// Eliminar toda la lógica relacionada con el modal de edición de foto
-// Solo se mantiene la función para agregar el botón de editar a cada foto
+function mostrarModalEditarFoto(indice, dataUrlOriginal, imgElement) {
+    var modal = document.getElementById('modal-editar-foto');
+    var imgOriginal = document.getElementById('modal-foto-original');
+    var imgMejorada = document.getElementById('modal-foto-mejorada');
+    var btnCerrar = document.getElementById('btn-cerrar-modal-editar');
 
+    imgOriginal.src = dataUrlOriginal;
+    imgMejorada.src = '';
+
+    // Procesar la imagen con OpenCV y mostrar la mejorada si el usuario lo permite
+    if (typeof aplicarFiltroDocumento === 'function') {
+        aplicarFiltroDocumento(imgElement, 0.7, Math.max(imgElement.naturalWidth, imgElement.naturalHeight), function(dataUrlMejorada) {
+            if (dataUrlMejorada) {
+                imgMejorada.src = dataUrlMejorada;
+            } else {
+                imgMejorada.alt = 'Error al mejorar';
+            }
+        });
+    } else {
+        imgMejorada.alt = 'OpenCV no disponible';
+    }
+
+    btnCerrar.onclick = function() {
+        modal.style.display = 'none';
+    };
+    modal.style.display = 'block';
+}
+
+// Función para agregar el botón de editar a cada foto de un lapicito
 function agregarBotonEditarFotos() {
     var fotos = document.querySelectorAll('#photosContainer img');
     fotos.forEach(function(img, i) {
@@ -33,8 +56,7 @@ function agregarBotonEditarFotos() {
             var ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0);
             var dataUrlOriginal = canvas.toDataURL('image/webp', 0.7);
-            // Ya no se muestra ningún modal ni se ofrece elegir entre versiones aquí
-            // La lógica de edición se maneja solo con miniaturas en la galería
+            mostrarModalEditarFoto(i, dataUrlOriginal, img);
         };
         // Envolver la imagen en un div relativo si no lo está
         var wrapper = img.parentElement;

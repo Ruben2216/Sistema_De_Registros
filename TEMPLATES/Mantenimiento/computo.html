@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mantenimiento de Computo</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Librerías necesarias para PDF -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script> -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script> -->
+    <script src="/RESOURCE/JS/generar_pdf_computo.js"></script>
     <!-- <link rel="stylesheet" href="{{ url_for('static', filename='CSS/index.css') }}">  -->
     <link rel="stylesheet" href="/RESOURCE/CSS/index.css">
 </head>
@@ -58,6 +61,10 @@
                 <label class="campo__etiqueta">FECHA</label>
                 <input type="date" class="campo__control" id="fecha">
             </div>
+            <!-- Botón para imprimir el formato como PDF -->
+            <div class="campo">
+                <button type="button" id="btn_imprimir_formato">Imprimir Formato (PDF)</button>
+            </div>
             <div class="seccion">
                 <div class="campo">
                     <label class="campo__etiqueta">TIPO DE EQUIPO</label>
@@ -89,9 +96,9 @@
             
             <div class="campo">
                 <label for="inventario" class="campo__etiqueta">NÚMERO INVENTARIO</label>
-                <div class="search-container">
+                <div class="search-container" data-param-name="inventario">
                     <input type="text" class="campo__control" id="numero_inventario" name="inventario"> 
-                    <button type="button" id="search-button" data-url="/buscar_equipo">BUSCAR</button> 
+                    <button type="button" id="search-button" class="search-button" data-url="/buscar_equipo">BUSCAR</button> 
                 </div>
             </div>
             <div class="campo">
@@ -129,8 +136,12 @@
                 <h3 class="seccion__titulo">ELEMENTO</h3>
                 <div class="campo">1. Limpieza externa del equipo
                     <div class="grupo-opciones">
-                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="limpieza_externa" type="radio" value="si"> Sí</label>
-                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="limpieza_externa" type="radio" value="no" onchange="mostrarInput('limpieza_externa')"> No</label>
+                        <label class="grupo-opciones__opcion">
+                            <input class="grupo-opciones__control" name="limpieza_externa" type="radio"
+                                value="si"> Sí
+                            </label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="limpieza_externa" type="radio"
+                                value="no" onchange="mostrarInput('limpieza_externa')"> No</label>
                     </div>
                     <input type="text" id="input_limpieza_externa" class="campo__control" style="display: none;" placeholder="Especifique motivo">
                 </div>
@@ -162,7 +173,7 @@
                     </div>
                     <input type="text" id="input_despues_servicio" class="campo__control" style="display:none;" placeholder="Especifique motivo">
                 </div>
-                <div class="campo">6. Antivirus instituional actualizado</p>
+                <div class="campo">6. Antivirus institucional actualizado</p>
                     <div class="grupo-opciones">
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="antivirus" type="radio" value="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="antivirus" type="radio" value="no" onchange="mostrarInput('antivirus')"> No</label>
@@ -236,6 +247,7 @@
             <a href="/TEMPLATES/menu.html" class="boton--cancelar ">Cancelar</a>
             </div>
 
+
         </form>
     </div>
 
@@ -246,6 +258,6 @@
     <script src="/RESOURCE/JS/selects.js"></script>
     <script src="/RESOURCE/JS/formato_mantenimiento/pdf_compus.js"></script>
     <script src="/RESOURCE/JS/firma.js"></script>
-
+    <script src="/RESOURCE/JS/generar_pdf_computo.js"></script>
 </body>
 </html>

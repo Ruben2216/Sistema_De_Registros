@@ -210,22 +210,50 @@ function generarPDFConFotos() {
     });
 
     function agregarImagenAlPDF(imagen, callback) {
-        if (imagen.startsWith('data:')) {
+        // Si ya es un dataURL webp, usar directamente
+        if (imagen.startsWith('data:image/webp')) {
             callback(imagen);
-        } else {
-            fetch(imagen, { credentials: 'include' })
-                .then(function(response) { return response.blob(); })
-                .then(function(blob) {
-                    var reader = new FileReader();
-                    reader.onloadend = function() {
-                        callback(reader.result);
-                    };
-                    reader.readAsDataURL(blob);
-                })
-                .catch(function() {
-                    callback(null);
-                });
+            return;
         }
+        // Si es otro dataURL (png, jpeg, etc), convertir a webp
+        if (imagen.startsWith('data:')) {
+            var img = new window.Image();
+            img.onload = function() {
+                var canvas = document.createElement('canvas');
+                canvas.width = img.naturalWidth;
+                canvas.height = img.naturalHeight;
+                var ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                // Convertir a webp con calidad alta (0.9)
+                var webpDataUrl = canvas.toDataURL('image/webp', 0.9);
+                callback(webpDataUrl);
+            };
+            img.src = imagen;
+            return;
+        }
+        // Si es una URL, descargar y convertir a webp
+        fetch(imagen, { credentials: 'include' })
+            .then(function(response) { return response.blob(); })
+            .then(function(blob) {
+                var reader = new FileReader();
+                reader.onloadend = function() {
+                    var img = new window.Image();
+                    img.onload = function() {
+                        var canvas = document.createElement('canvas');
+                        canvas.width = img.naturalWidth;
+                        canvas.height = img.naturalHeight;
+                        var ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0);
+                        var webpDataUrl = canvas.toDataURL('image/webp', 0.9);
+                        callback(webpDataUrl);
+                    };
+                    img.src = reader.result;
+                };
+                reader.readAsDataURL(blob);
+            })
+            .catch(function() {
+                callback(null);
+            });
     }
 
     function procesarTodasLasImagenes(indice, imagenesProcesadas) {
