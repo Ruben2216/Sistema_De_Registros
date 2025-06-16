@@ -1,0 +1,11 @@
+
+body {
+    visibility: hidden; /* Oculta el contenido hasta que la página esté completamente cargada */
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out; 
+}
+
+body.loaded {
+    visibility: visible;
+    opacity: 1;
+}
