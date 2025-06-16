@@ -3,10 +3,10 @@ async function generarPDF() {
     const doc = new jsPDF(); /*crea pdf vacio*/
 
     // DATOS DE FORMULARIO
-    const division = document.querySelector('input[id="division"]').value;
+    //const division = document.querySelector('input[id="division"]').value;
     const zona = document.querySelector('select[id="zona"]').value;
     const centro = document.querySelector('input[id="centro_trabajo"]').value;
-    const inventario = document.querySelector('input[id="numero_inventario"]').value;
+    //const inventario = document.querySelector('input[id="numero_inventario"]').value;
     const folio = document.querySelector('input[id="folio"]').value;
     const fecha = document.querySelector('input[id="fecha"]').value;
     const usuario = document.querySelector('input[id="usuario"]').value;
@@ -33,7 +33,7 @@ async function generarPDF() {
 
     
     // ENCABEZADO
-    doc.setFont("helvetica", "bold"); /*tipo de letra y negritas*/
+    doc.setFont("helvetica"); /*tipo de letra y negritas*/
     doc.setFontSize(12);
     doc.text("Comisión Federal de Electricidad", 15, 15);
     doc.setFontSize(10);
@@ -41,37 +41,203 @@ async function generarPDF() {
     doc.text("Sistema Integral de Gestión (SIG-CFE)", 15, 25);
 
     doc.setFontSize(13);
+    doc.setFont("helvetica", "bold");
     doc.text("FORMATO MANTENIMIENTO PREVENTIVO TABLETAS", 105, 40, null, null, "center");
     /*doc.text(texto, x, y, opciones, transformaciones, alineación);*/
 
-    doc.setFontSize(10);
-    doc.text(`Fecha: ${fecha}`, 170, 40);
-
     // DATOS GENERALES
-    let y = 60;
+
+    const rectWidth = 43;
+    doc.setFontSize(9);
+    let y = 55;
+
+    doc.setFont("helvetica", "normal", "bold");
+    let label = "Zona:";
+    let labelWidth = doc.getTextWidth(label);
+    let xZona = 15 + (rectWidth - labelWidth) / 2;
+    doc.text(label, xZona, y);
+
     doc.setFont("helvetica", "normal");
-    doc.text(`División: ${division}`, 15, y);
-    doc.text(`Servicio: ${servicio}`, 87, y);
-    doc.text(`Serie: ${serie}`, 165, y);
+    let zonaWidth = doc.getTextWidth(zona);
+    let xZonaVal = 15 + (rectWidth - zonaWidth) / 2;
+    doc.text(zona, xZonaVal, y + 5);
 
-    y += 7;
-    doc.text(`Zona: ${zona}`, 15, y);
-    doc.text(`Tipo de equipo: ${tipo_equipo}`, 87, y);
-    doc.text(`Marca: ${marca}`, 165, y);
+    doc.setFont("helvetica", "normal", "bold");
+    label = "Marca:";
+    labelWidth = doc.getTextWidth(label);
+    let xMarca = 63 + (rectWidth - labelWidth) / 2;
+    doc.text(label, xMarca, y);
 
-    y += 7;
-    doc.text(`Centro de Trabajo: ${centro}`, 15, y);
-    doc.text(`Usuario: ${usuario}`, 87, y);
-    doc.text(`Modelo: ${modelo}`, 165, y);
+    doc.setFont("helvetica", "normal");
+    let marcaWidth = doc.getTextWidth(marca);
+    let xMarcaVal = 63 + (rectWidth - marcaWidth) / 2;
+    doc.text(marca, xMarcaVal, y + 5);
+
+    // === FECHA ===
+    doc.setFont("helvetica", "normal", "bold");
+    label = "Fecha:";
+    labelWidth = doc.getTextWidth(label);
+    let xFecha = 111 + (rectWidth - labelWidth) / 2;
+    doc.text(label, xFecha, y);
+
+    doc.setFont("helvetica", "normal");
+    let fechaWidth = doc.getTextWidth(fecha);
+    let xFechaVal = 111 + (rectWidth - fechaWidth) / 2; //calcular la anchura del texto y restarla del ancho del rectángulo, 
+                                                        // dividiendo el resultado entre 2 para obtener la posición x correcta.
+    doc.text(fecha, xFechaVal, y + 5);
+
+    // === FOLIO ===
+    doc.setFont("helvetica", "normal", "bold");
+    label = "Folio:";
+    labelWidth = doc.getTextWidth(label);
+    let xFolio = 159 + (rectWidth - labelWidth) / 2;
+    doc.text(label, xFolio, y);
+
+    doc.setFont("helvetica", "normal");
+    let folioWidth = doc.getTextWidth(folio);
+    let xFolioVal = 159 + (rectWidth - folioWidth) / 2;
+    doc.text(folio, xFolioVal, y + 5);
+
+    doc.rect(15, y - 4, 43, 12.5); 
+    doc.line(15, y+.7, 58, y+.7);
+    doc.rect(63, y - 4, 43, 12.5); 
+    doc.line(63, y+.7, 106, y+.5);
+    doc.rect(111, y - 4, 43, 12.5);
+    doc.line(111, y+.7, 154, y+.5);
+    doc.rect(159, y - 4, 43, 12.5);
+    doc.line(159, y+.7, 202, y+.5);
+
+    y += 15;
+    // === CENTRO ===
+    doc.setFont("helvetica", "normal", "bold");
+    label = "Centro de trabajo:";
+    labelWidth = doc.getTextWidth(label);
+    let xCentro = 15 + (rectWidth - labelWidth) / 2;
+    doc.text(label, xCentro, y);
+
+    doc.setFont("helvetica", "normal");
+    let centroWidth = doc.getTextWidth(centro);
+    let xCentroVal = 15 + (rectWidth - centroWidth) / 2;
+    doc.text(centro, xCentroVal, y + 5);
+
+    // == MODELO ==
+    doc.setFont("helvetica", "bold");
+    label = "Modelo:";
+    labelWidth = doc.getTextWidth(label);
+    let xModelo = 63 + (rectWidth - labelWidth) / 2;
+    doc.text(label, xModelo, y);
+
+    doc.setFont("helvetica", "normal");
+    let modeloWith = doc.getTextWidth(modelo);
+    let xModeloVal = 63 + (rectWidth - modeloWith) / 2;
+    doc.text(modelo, xModeloVal, y + 5);
+
+    // == HORA DE INICIO ==
+    doc.setFont("helvetica", "bold");
+    label = "Hora inicio:";
+    labelWidth = doc.getTextWidth(label);
+    let xHoraInicio = 111 + (rectWidth - labelWidth) / 2;
+    doc.text(label, xHoraInicio, y);
+
+    doc.setFont("helvetica", "normal");
+    let HoraInicioWidth = doc.getTextWidth(hora_inicio);
+    let xHoraInicioVal = 111 + (rectWidth - HoraInicioWidth) / 2;
+    doc.text(hora_inicio, xHoraInicioVal, y + 5);
+
+    // == TIPO DE EQUIPO ==
+    doc.setFont("helvetica", "bold");
+    label = "Tipo de equipo:";
+    labelWidth = doc.getTextWidth(label);
+    let xTipoEquipo = 159 + (rectWidth - labelWidth) / 2;
+    doc.text(label, xTipoEquipo, y);
+
+    doc.setFont("helvetica", "normal");
+    let TipoEquipoWidth = doc.getTextWidth(tipo_equipo);
+    let xTipoEquipoVal = 159 + (rectWidth - TipoEquipoWidth) / 2;
+    doc.text(tipo_equipo, xTipoEquipoVal, y + 5);
+
+    doc.rect(15, y - 4, 43, 12.5); 
+    doc.line(15, y+.7, 58, y+.7);
+    doc.rect(63, y - 4, 43, 12.5); 
+    doc.line(63, y+.7, 106, y+.5);
+    doc.rect(111, y - 4, 43, 12.5);
+    doc.line(111, y+.7, 154, y+.5);
+    doc.rect(159, y - 4, 43, 12.5);
+    doc.line(159, y+.7, 202, y+.5);
+
+    y += 15;
+    // === USUARIO ===
+    doc.setFont("helvetica", "normal", "bold");
+    label = "Nombre del usuario:";
+    labelWidth = doc.getTextWidth(label);
+    let xUsuario = 15 + (rectWidth - labelWidth) / 2;
+    doc.text(label, xUsuario, y);
+
+    doc.setFont("helvetica", "normal");
+    let usuarioWidth = doc.getTextWidth(usuario);
+    let xUsuarioVal = 15 + (rectWidth - usuarioWidth) / 2;
+    doc.text(usuario, xUsuarioVal, y + 5);
+
+    // === NUMERO DE SERIE ===
+    doc.setFont("helvetica", "normal", "bold");
+    label = "Número de serie:";
+    labelWidth = doc.getTextWidth(label);
+    let xSerie = 63 + (rectWidth - labelWidth) / 2;
+    doc.text(label, xSerie, y);
+
+    doc.setFont("helvetica", "normal");
+    let serieWidth = doc.getTextWidth(serie);
+    let xSerieVal = 63 + (rectWidth - serieWidth) / 2;
+    doc.text(serie, xSerieVal, y + 5);
+
+    // === HORA FINAL ===
+    doc.setFont("helvetica", "normal", "bold");
+    label = "Hora final:";
+    labelWidth = doc.getTextWidth(label);
+    let xHoraFinal = 111 + (rectWidth - labelWidth) / 2;
+    doc.text(label, xHoraFinal, y);
+
+    doc.setFont("helvetica", "normal");
+    let horaFinalWidht = doc.getTextWidth(hora_termino);
+    let xHoraFinalVal = 111 + (rectWidth - horaFinalWidht) / 2;
+    doc.text(hora_termino, xHoraFinalVal, y + 5);
+
+    // === SERVICIO ===
+    doc.setFont("helvetica", "normal", "bold");
+    label = "Servicio:";
+    labelWidth = doc.getTextWidth(label);
+    let xServicio = 159 + (rectWidth - labelWidth) / 2;
+    doc.text(label, xServicio, y);
+
+    doc.setFont("helvetica", "normal");
+    let servicioWidth = doc.getTextWidth(servicio);
+    let xServicioVal = 159 + (rectWidth - servicioWidth) / 2;
+    doc.text(servicio, xServicioVal, y + 5);
+ 
+    doc.rect(15, y - 4, 43, 12.5); 
+    doc.line(15, y+.7, 58, y+.7);
+    doc.rect(63, y - 4, 43, 12.5); 
+    doc.line(63, y+.7, 106, y+.5);
+    doc.rect(111, y - 4, 43, 12.5);
+    doc.line(111, y+.7, 154, y+.5);
+    doc.rect(159, y - 4, 43, 12.5);
+    doc.line(159, y+.7, 202, y+.5);
     
-    y+= 7;
-    doc.text(`Hora Inicio: ${hora_inicio}`, 15, y);
-    doc.text(`Folio: ${folio}`, 87, y);
-    doc.text(`Uso: ${uso}`, 165, y);
+    y+= 15;
+    // === USO ===
+    doc.setFont("helvetica", "normal", "bold");
+    label = "Servicio:";
+    labelWidth = doc.getTextWidth(label);
+    let xUso = 15 + (rectWidth - labelWidth) / 2;
+    doc.text(label, xUso, y);
 
-    y += 7;
-    doc.text(`Hora Término: ${hora_termino}`, 15, y);
-    doc.text(`Número de Inventario: ${inventario} `, 87, y);
+    doc.setFont("helvetica", "normal");
+    let usoWidth = doc.getTextWidth(uso);
+    let xUsoVal = 15 + (rectWidth - usoWidth) / 2;
+    doc.text(uso, xUsoVal, y + 5);
+
+    doc.rect(15, y - 4, 43, 12.5); 
+    doc.line(15, y+.7, 58, y+.5);
 
     // TABLA DE ACTIVIDADES
     y += 25;
@@ -230,14 +396,14 @@ async function generarPDF() {
      y += 5;
 
     // FIRMAS
-    y += 23;
+    y += 8;
     doc.text(`Realizó servicio:`, 15, y);
-    doc.text(realizo_servicio, 15, y + 24);
+    doc.text(realizo_servicio, 15, y + 21);
     doc.text(`Responsable del Equipo:`, 80, y);
-    doc.text(responsable, 80, y + 24);
+    doc.text(responsable, 80, y + 21);
     doc.text(`Visto Bueno:`, 145, y);
-    doc.text(visto_bueno, 145, y + 24);
-    y += 25;
+    doc.text(visto_bueno, 145, y + 21);
+    y += 22;
     doc.line(15, y, 60, y);
     doc.line(80, y, 130, y);
     doc.line(145, y, 200, y);
