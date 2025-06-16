@@ -247,7 +247,7 @@ def get_db_connection():
 def pagina_computo():
     return send_from_directory(os.path.join(TEMPLATES_FOLDER, 'Mantenimiento'), 'computo.html')
 
-# Ruta para un equipo por número de inventario 
+# Ruta para un equipo por número de inventario o serie (usadO por el botón)
 @app.route('/buscar_equipo')
 def buscar_equipo(): 
     inventario = request.args.get('inventario')
@@ -273,7 +273,7 @@ def buscar_equipo():
                 return jsonify({'error': 'Número de inventario inválido'}), 400
         elif serie:
             search_value = serie
-            query = "SELECT * FROM prueba_datos WHERE Numero_Serie = %s"
+            query = "SELECT * FROM prueba_datos WHERE Numero_Serie = %s" 
             cursor.execute(query, (search_value,))
             equipo = cursor.fetchone()
     except Error as e:
@@ -284,7 +284,7 @@ def buscar_equipo():
             conn.close()
 
     if equipo is None:
-        return jsonify({})
+        return jsonify({}) 
     else:
         datos_para_frontend = {
             'numero_inventario': equipo.get('Numero_Inventario'),
@@ -298,7 +298,51 @@ def buscar_equipo():
             'procesos': equipo.get('procesos')
         }
         return jsonify(datos_para_frontend)
-# --- FIN LÓGICA DE backend.py ---
+
+# SUGERENCIAS DE AUTOCOMPLETADO 
+@app.route('/buscar_sugerencias_serie')
+def buscar_sugerencias_serie():
+    query_param = request.args.get('q', '')
+
+    if len(query_param) < 3:
+        return jsonify([])
+
+    conn = get_db_connection()
+    if conn is None:
+        return jsonify([])
+
+    sugerencias = []
+    try:
+        cursor = conn.cursor(dictionary=True)
+        sql_query = "SELECT * FROM prueba_datos WHERE Numero_Serie LIKE %s LIMIT 10"
+        search_value = f"{query_param}%"
+        
+        cursor.execute(sql_query, (search_value,))
+        resultados = cursor.fetchall()
+
+        for equipo in resultados:
+            sugerencias.append({
+                'numero_inventario': equipo.get('Numero_Inventario'),
+                'numero_serie': equipo.get('Numero_Serie'),
+                'nombre_responsable': equipo.get('Nombre_Responsable'),
+                'marca': equipo.get('Marca'),
+                'modelo': equipo.get('Modelo'),
+                'nombre_division': equipo.get('Nombre_Division'),
+                'centro_trabajo': equipo.get('Centro_Trabajo'),
+                'tipo_uso': equipo.get('Tipo_Uso'),
+                'procesos': equipo.get('procesos')
+            })
+
+    except Error as e:
+        print(f"Error en la consulta de sugerencias: {e}")
+    finally:
+        if conn.is_connected():
+            cursor.close()
+            conn.close()
+
+    return jsonify(sugerencias)
+
+# --- FIN LÓGICA DE BACKEND ---
 
 if __name__ == '__main__':
     # --- INICIO DE MODIFICACIONES PARA HTTPS ---

@@ -101,6 +101,7 @@ h1{
     resize: vertical;
 }
 .search-container { 
+    position: relative; 
     display: flex; 
     align-items: flex-end; 
     gap: 10px; 
@@ -112,6 +113,24 @@ h1{
     padding: 8px 15px; 
     margin-top: 5px; 
     cursor: pointer; 
+}
+.sugerencias-container {
+    display: none; 
+    position: absolute;
+    inset: 100% 0 auto 0;
+    border: 1px solid #ccc;
+    background-color: white;
+    width: 100%; 
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+}
+.sugerencia-item { /* JS */
+        padding: 10px;
+        cursor: pointer;
+}
+.sugerencia-item:hover { /* JS */
+    background-color: #f0f0f0;
 }
 
 /* ESTILOS PARA SECCIÓN DE ELEMENTOS*/
