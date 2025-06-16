@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (Object.keys(data).length > 0) {
                         // Validación para mostrar solo 'Tuxtla' por lo que se requiere en el formato de los equipos, que sea solo "Tuxtla" (que yo sepa -Ruben)
                         if (data.nombre_division === "DIS Zona Tuxtla") {
-                            document.getElementById('division').value = "Tuxtla";
+                            document.getElementById('division').value = "TUXTLA";
                         } else {
                             document.getElementById('division').value = data.nombre_division || '';
                         }
@@ -44,12 +44,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         document.getElementById('usuario').value = data.nombre_responsable || '';
                         document.getElementById('marca').value = data.marca || '';
                         document.getElementById('modelo').value = data.modelo || '';
-                        document.getElementById('tipo_uso').value = data.tipo_uso || '';
-                        if (document.getElementById('procesos')) {
-                            procesos.value = data.procesos || ''; 
-                        } else { //CHECHAR ESTAS LINEAS, EN MI EQUIPO ME CAUSABA EL ERROR EN CONSOLA DE QUE UN ELEMENTO QUE SE QUIERE DESPLEGAR NO EXISTE EN EL HTML, LO MANEJE COMO UN ELSE PARA QUE NO SE DETENGA EL SCRIPT -RUBEN
-                            console.log("No se encontró el campo 'procesos' en el HTML.");
-                        }
+                        // document.getElementById('tipo_uso').value = data.tipo_uso || '';
+                        // document.getElementById('procesos').value = data.procesos || '';
 
                         if (document.getElementById('numero_serie')) {
                             document.getElementById('numero_serie').value = data.numero_serie || '';
@@ -57,9 +53,15 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (document.getElementById('numero_inventario')) { 
                             document.getElementById('numero_inventario').value = data.numero_inventario || ''; 
                         }
-
+                        if (document.getElementById('tipo_uso')) { 
+                            document.getElementById('tipo_uso').value = data.tipo_uso || ''; 
+                        }
+                        if (document.getElementById('procesos')) { 
+                            document.getElementById('procesos').value = data.procesos || ''; 
+                        }
+                    
                     } else {
-                        alert('Equipo no encontrado en la base de datos.');
+                        alert('Equipo no encontrado');
                     }
                 })
                 .catch(error => {

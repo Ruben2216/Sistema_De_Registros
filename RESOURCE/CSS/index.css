@@ -94,6 +94,7 @@ h1{
     box-sizing: border-box;
     background-color: #fff;
     color: #333;
+    text-transform: uppercase;
 }
 .campo__control--area-texto {
     min-height: 80px;
