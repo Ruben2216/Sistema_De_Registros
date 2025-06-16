@@ -87,7 +87,7 @@ canvasFirma.addEventListener('mousemove', function(e) {
         ctxFirma.moveTo(ultimaPos.x, ultimaPos.y);
         ctxFirma.lineTo(pos.x, pos.y);
         ctxFirma.strokeStyle = '#222';
-        ctxFirma.lineWidth = 2;
+        ctxFirma.lineWidth = 4;
         ctxFirma.lineCap = 'round';
         ctxFirma.stroke();
         ultimaPos = pos;

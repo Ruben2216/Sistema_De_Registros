@@ -29,8 +29,8 @@ var elementosGlobales = {
 };
 function obtenerFecha(){
     fecha= new Date();
-    var dia = fecha.getDate();
-    var mes = fecha.getMonth() + 1; 
+    var dia = (fecha.getDate()).toString().padStart(2, '0');
+    var mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
     var anio = fecha.getFullYear();
     fechaHoy = dia + '/' + mes + '/' + anio;
     return fechaHoy;
@@ -45,6 +45,10 @@ function inicializarElementosGlobales() {
     elementosGlobales.modeloInput = document.getElementById('modelo');
     elementosGlobales.modeloElemento = document.getElementById('modelo1');
     elementosGlobales.fechaInput = document.getElementById('fecha');
+    // Asignar la fecha actual al campo de fecha dwe computo.html
+    if (elementosGlobales.fechaInput) {
+        elementosGlobales.fechaInput.value = obtenerFecha();
+    }
     elementosGlobales.fechaElemento = document.getElementById('fecha1');
     elementosGlobales.centroTrabajoInput = document.getElementById('centro_trabajo');
     elementosGlobales.centroTrabajoElemento = document.getElementById('centro_trabajo1');

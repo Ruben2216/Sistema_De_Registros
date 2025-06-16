@@ -59,7 +59,7 @@
             </div>
             <div class="campo">
                 <label class="campo__etiqueta">FECHA</label>
-                <input type="date" class="campo__control" id="fecha">
+                <input type="text" class="campo__control" id="fecha" readonly> <!-- Lo pase a text porque en generar_pdf_computo.js retorno una funcion de fecha pero no cumple con el yyy-mm-dd, mejor solo pongo el contenido en texto y no como formato de fecha, al final no se puede modificar-->
             </div>
             <!-- Botón para imprimir el formato como PDF -->
             <div class="campo">
@@ -97,7 +97,7 @@
             <div class="campo">
                 <label for="inventario" class="campo__etiqueta">NÚMERO INVENTARIO</label>
                 <div class="search-container" data-param-name="inventario">
-                    <input type="text" class="campo__control" id="numero_inventario" name="inventario"> 
+                    <input type="text" inputmode="numeric" pattern="[0-9]*" class="campo__control" id="numero_inventario" name="inventario"> 
                     <button type="button" id="search-button" class="search-button" data-url="/buscar_equipo">BUSCAR</button> 
                 </div>
             </div>
