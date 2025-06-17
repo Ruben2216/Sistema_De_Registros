@@ -295,7 +295,7 @@ def buscar_equipo():
             'nombre_division': equipo.get('Nombre_Division'),
             'centro_trabajo': equipo.get('Centro_Trabajo'),
             'tipo_uso': equipo.get('Tipo_Uso'),
-            'procesos': equipo.get('procesos')
+            'procesos': equipo.get('Procesos')
         }
         return jsonify(datos_para_frontend)
 
