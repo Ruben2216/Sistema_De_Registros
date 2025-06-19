@@ -267,6 +267,7 @@ def obtener_meta_actual():
     except Error as e:
         print(f"Error al obtener la meta del día: {e}")
         meta_diaria = "Error al consultar la meta del día."
+        
     finally:
         if conn.is_connected():
             cursor.close()
@@ -274,9 +275,10 @@ def obtener_meta_actual():
             
     return meta_diaria
 
-@app.route('/mantenimiento/rij')
+@app.route('/formato_RIJ.html') 
 def pagina_rij():
     meta_del_dia = obtener_meta_actual()
+    print(f"Meta del día: {meta_del_dia}")  # Para depuración
     return render_template('formato_RIJ.html', meta_para_mostrar=meta_del_dia) 
 
 # Ruta para un equipo por número de inventario o serie (usadO por el botón)
@@ -408,3 +410,4 @@ if __name__ == '__main__':
 
     # Ejecuta la aplicación Flask con el contexto SSL/TLS
     app.run(host=HOST_IP, port=PORT, ssl_context=ssl_context_tuple, debug=True)
+    
