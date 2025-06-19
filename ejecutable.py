@@ -1,4 +1,4 @@
-from flask import Flask, send_from_directory, request, jsonify, session, url_for
+from flask import Flask, send_from_directory, request, jsonify, session, url_for, render_template
 import os
 import tempfile
 import json
@@ -11,6 +11,7 @@ from flask_cors import CORS
 import mysql.connector 
 from mysql.connector import Error
 from dotenv import load_dotenv
+import datetime 
 
 
 # Rutas absolutas a las carpetas en el proyecto. Preferentemente, si se mueven los archivos, verificar aquí las rutas para evitar que se rompan
@@ -242,10 +243,41 @@ def get_db_connection():
     except Error as e:
         print(f"Error al conectar a MySQL: {e}")
         return None
+    
+# OBTENER LA META RIJ
+def obtener_meta_actual():
+    meta_diaria = "No hay meta de seguridad programada para hoy." # Mensaje por defecto
+    conn = get_db_connection() 
+    if conn is None:
+        return "Error: No se pudo conectar a la base de datos."
+    
+    try:
+        cursor = conn.cursor()
+        fecha_hoy = datetime.date.today() # fecha de hoy 
+        
+        # buscar la meta de hoy
+        query = "SELECT meta FROM metas WHERE fecha_meta = %s"
+        cursor.execute(query, (fecha_hoy,))
+        
+        resultado = cursor.fetchone() 
+        
+        if resultado:
+            meta_diaria = resultado[0] 
 
-@app.route('/mantenimiento/computo')
-def pagina_computo():
-    return send_from_directory(os.path.join(TEMPLATES_FOLDER, 'Mantenimiento'), 'computo.html')
+    except Error as e:
+        print(f"Error al obtener la meta del día: {e}")
+        meta_diaria = "Error al consultar la meta del día."
+    finally:
+        if conn.is_connected():
+            cursor.close()
+            conn.close()
+            
+    return meta_diaria
+
+@app.route('/mantenimiento/rij')
+def pagina_rij():
+    meta_del_dia = obtener_meta_actual() 
+    return render_template('formato_RIJ.html', meta_para_mostrar=meta_del_dia) 
 
 # Ruta para un equipo por número de inventario o serie (usadO por el botón)
 @app.route('/buscar_equipo')
