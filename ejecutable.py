@@ -276,7 +276,7 @@ def obtener_meta_actual():
 
 @app.route('/mantenimiento/rij')
 def pagina_rij():
-    meta_del_dia = obtener_meta_actual() 
+    meta_del_dia = obtener_meta_actual()
     return render_template('formato_RIJ.html', meta_para_mostrar=meta_del_dia) 
 
 # Ruta para un equipo por número de inventario o serie (usadO por el botón)
