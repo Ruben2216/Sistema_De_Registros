@@ -2,7 +2,7 @@
 
 (function() {
     // URL del backend Flask para autoguardado de fotos
-    var API_URL = 'https://192.168.100.30:8000/api/rij/fotos';
+    var API_URL = 'https://192.168.1.90:8000/api/rij/fotos';
 
     // Función para obtener todas las imágenes actualmente mostradas y su versión
     function obtenerFotos() {
