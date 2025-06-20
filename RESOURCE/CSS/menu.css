@@ -119,3 +119,26 @@ select option{
     background-color: #fff;
     color: #333;
 }
+
+.btn-flotante {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+	border-radius: 20px; 
+	background-color: #00724e; 
+	padding: 10px; 
+	position: fixed;
+	bottom: 40px;
+	right: 40px;
+}
+.btn-flotante img {
+    margin-bottom: 0.5rem;
+    width: 2rem;
+}
+.btn-flotante div, a {
+    color:white;
+    text-decoration: none;
+    font-size: 12px;
+
+}
