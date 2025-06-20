@@ -151,13 +151,11 @@ function generarPDFConFotos() {
         showMessage('No hay fotos para exportar. Por favor, toma algunas imágenes.');
         return;
     }
-
     const btn = document.getElementById('btnGenerarPDF');
     if (btn) {
         btn.disabled = true;
         btn.textContent = 'Procesando imágenes...';
     }
-
     if (typeof window.jspdf === 'undefined') {
         showMessage('jsPDF no está cargado. Asegúrate de incluir la librería jsPDF en tu HTML.');
         if (btn) {
@@ -166,20 +164,16 @@ function generarPDFConFotos() {
         }
         return;
     }
-
     var { jsPDF } = window.jspdf;
     var pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'letter' });
-
     var anchoHoja = 216;
     var altoHoja = 279;
     var fotosPorHoja = 6;
     var columnas = 2;
     var filas = 3;
     var anchoCelda, altoCelda;
-
     var aspectoFoto = 4 / 3;
     // Usar la primera imagen seleccionada para calcular el aspecto
-    var primeraSeleccionada = null;
     for (var i = 0; i < fotos.length; i++) {
         var imgSeleccionada = fotos[i].querySelector('img.foto-principal');
         if (imgSeleccionada && imgSeleccionada.naturalWidth && imgSeleccionada.naturalHeight) {
@@ -187,35 +181,42 @@ function generarPDFConFotos() {
             break;
         }
     }
-
     altoCelda = altoHoja / filas;
     anchoCelda = altoCelda * aspectoFoto;
     if (anchoCelda * columnas > anchoHoja) {
         anchoCelda = anchoHoja / columnas;
         altoCelda = anchoCelda / aspectoFoto;
     }
-
     // Obtener solo la versión seleccionada de cada foto (la que se muestra en grande)
     var imagenesSeleccionadas = [];
+    var pantallaCompletaPorFoto = [];
     for (var i = 0; i < fotos.length; i++) {
         var imgSeleccionada = fotos[i].querySelector('img.foto-principal');
+        var checkbox = fotos[i].querySelector('.checkbox-pantalla-completa');
         if (imgSeleccionada) {
             imagenesSeleccionadas.push(imgSeleccionada.src);
+            pantallaCompletaPorFoto.push(checkbox && checkbox.checked);
         }
     }
-
     // Eliminar duplicados exactos (por si alguna foto se repite)
     var imagenesUnicas = imagenesSeleccionadas.filter(function(value, index, self) {
         return self.indexOf(value) === index;
     });
-
+    var pantallaCompletaUnica = pantallaCompletaPorFoto.filter(function(value, index, self) {
+        return imagenesSeleccionadas.indexOf(imagenesUnicas[index]) === index;
+    });
+    // Revisar si el checkbox global está activado
+    var pantallaCompletaGlobal = false;
+    var chkGlobal = document.getElementById('pantallaCompletaPDF');
+    if (chkGlobal) {
+        pantallaCompletaGlobal = chkGlobal.checked;
+    }
+    // Función para agregar una imagen al PDF
     function agregarImagenAlPDF(imagen, callback) {
-        // Si ya es un dataURL webp, usar directamente
         if (imagen.startsWith('data:image/webp')) {
             callback(imagen);
             return;
         }
-        // Si es otro dataURL (png, jpeg, etc), convertir a webp
         if (imagen.startsWith('data:')) {
             var img = new window.Image();
             img.onload = function() {
@@ -224,14 +225,12 @@ function generarPDFConFotos() {
                 canvas.height = img.naturalHeight;
                 var ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0);
-                // Convertir a webp con calidad alta (0.9)
                 var webpDataUrl = canvas.toDataURL('image/webp', 0.9);
                 callback(webpDataUrl);
             };
             img.src = imagen;
             return;
         }
-        // Si es una URL, descargar y convertir a webp
         fetch(imagen, { credentials: 'include' })
             .then(function(response) { return response.blob(); })
             .then(function(blob) {
@@ -255,28 +254,24 @@ function generarPDFConFotos() {
                 callback(null);
             });
     }
-
-    function procesarTodasLasImagenes(indice, imagenesProcesadas) {
+    // Procesar imágenes según el modo global o por foto
+    function procesarImagenes(indice, imagenesProcesadas, enMosaico, mosaicoPendiente) {
         if (indice >= imagenesUnicas.length) {
-            if (imagenesProcesadas.length <= 3) {
-                for (let j = 0; j < imagenesProcesadas.length; j++) {
-                    pdf.addImage(imagenesProcesadas[j], 'WEBP', 0, 0, anchoHoja, altoHoja);
-                    if (j !== imagenesProcesadas.length - 1) {
-                        pdf.addPage('letter', 'portrait');
-                    }
-                }
-            } else {
-                for (let i = 0; i < imagenesProcesadas.length; i++) {
-                    let col = i % columnas;
-                    let fila = Math.floor((i % fotosPorHoja) / columnas);
-                    let x = col * anchoCelda;
-                    let y = fila * altoCelda;
-                    pdf.addImage(imagenesProcesadas[i], 'WEBP', x, y, anchoCelda, altoCelda);
-                    if ((i + 1) % fotosPorHoja === 0 && i !== imagenesProcesadas.length - 1) {
+            // Si quedan fotos en mosaico pendientes, agrégalas al final
+            if (!pantallaCompletaGlobal && enMosaico.length > 0) {
+                for (var j = 0; j < enMosaico.length; j++) {
+                    var i = j;
+                    var col = i % columnas;
+                    var fila = Math.floor((i % fotosPorHoja) / columnas);
+                    var x = col * anchoCelda;
+                    var y = fila * altoCelda;
+                    pdf.addImage(enMosaico[j], 'WEBP', x, y, anchoCelda, altoCelda);
+                    if ((i + 1) % fotosPorHoja === 0 && j !== enMosaico.length - 1) {
                         pdf.addPage('letter', 'portrait');
                     }
                 }
             }
+            // Guardar PDF
             var hoy = new Date();
             var año = hoy.getFullYear();
             var mes = (hoy.getMonth() + 1).toString().padStart(2, '0');
@@ -291,13 +286,41 @@ function generarPDFConFotos() {
         }
         agregarImagenAlPDF(imagenesUnicas[indice], function(dataUrl) {
             if (dataUrl) {
+                if (pantallaCompletaGlobal) {
+                    pdf.addImage(dataUrl, 'WEBP', 0, 0, anchoHoja, altoHoja);
+                    if (indice !== imagenesUnicas.length - 1) {
+                        pdf.addPage('letter', 'portrait');
+                    }
+                } else if (pantallaCompletaUnica[indice]) {
+                    // Si hay fotos en mosaico pendientes, agrégalas antes de la hoja completa
+                    if (enMosaico.length > 0) {
+                        for (var j = 0; j < enMosaico.length; j++) {
+                            var i = j;
+                            var col = i % columnas;
+                            var fila = Math.floor((i % fotosPorHoja) / columnas);
+                            var x = col * anchoCelda;
+                            var y = fila * altoCelda;
+                            pdf.addImage(enMosaico[j], 'WEBP', x, y, anchoCelda, altoCelda);
+                            if ((i + 1) % fotosPorHoja === 0 && j !== enMosaico.length - 1) {
+                                pdf.addPage('letter', 'portrait');
+                            }
+                        }
+                        enMosaico = [];
+                        pdf.addPage('letter', 'portrait');
+                    }
+                    pdf.addImage(dataUrl, 'WEBP', 0, 0, anchoHoja, altoHoja);
+                    if (indice !== imagenesUnicas.length - 1) {
+                        pdf.addPage('letter', 'portrait');
+                    }
+                } else {
+                    enMosaico.push(dataUrl);
+                }
                 imagenesProcesadas.push(dataUrl);
             }
-            procesarTodasLasImagenes(indice + 1, imagenesProcesadas);
+            procesarImagenes(indice + 1, imagenesProcesadas, enMosaico);
         });
     }
-
-    procesarTodasLasImagenes(0, []);
+    procesarImagenes(0, [], [], []);
 }
 
 function asignarEventoPDF() {
@@ -315,6 +338,30 @@ function asignarEventoPDF() {
         }
     }
 }
+
+function obtenerPreferenciaPantallaCompleta() {
+    // Lee la preferencia del usuario desde localStorage (por defecto: false)
+    var valor = localStorage.getItem('pdfPantallaCompleta');
+    if (valor === null) {
+        return false;
+    }
+    return valor === 'true';
+}
+
+function guardarPreferenciaPantallaCompleta(valor) {
+    localStorage.setItem('pdfPantallaCompleta', valor ? 'true' : 'false');
+}
+
+// Al cargar la página, sincronizar el checkbox con la preferencia guardada
+window.addEventListener('DOMContentLoaded', function() {
+    var chk = document.getElementById('pantallaCompletaPDF');
+    if (chk) {
+        chk.checked = obtenerPreferenciaPantallaCompleta();
+        chk.addEventListener('change', function() {
+            guardarPreferenciaPantallaCompleta(chk.checked);
+        });
+    }
+});
 
 if (document.readyState === 'loading') {
     window.addEventListener('DOMContentLoaded', asignarEventoPDF);

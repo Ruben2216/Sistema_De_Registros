@@ -41,7 +41,14 @@ function obtenerListaFotos(callback) {
         return res.json();
     })
     .then(function(data) {
-        callback(null, data.fotos || []);
+        // Si el backend aún devuelve solo URLs, conviértelo a objetos
+        var fotos = (data.fotos || []).map(function(foto) {
+            if (typeof foto === 'string') {
+                return { url: foto, version: 'original', mejorada: null };
+            }
+            return foto;
+        });
+        callback(null, fotos);
     })
     .catch(function(err) {
         callback(err);
@@ -50,14 +57,15 @@ function obtenerListaFotos(callback) {
 
 // Ejemplo de uso: subir una imagen desde un canvas
 // Llama a esta función después de tomar una foto en tu lógica de cámara
+// NOTA: Cuando se sube una nueva foto, se debe guardar como objeto con versión
 function guardarFotoDesdeCanvas(canvas) {
     var base64 = canvas.toDataURL('image/png');
     subirFotoBase64(base64, function(err, url) {
         if (err) {
             alert('Error al subir la foto: ' + err);
         } else {
-            // Puedes agregar la imagen a la galería
-            agregarFotoAGaleria(url);
+            // Al agregar, siempre como versión original
+            window.agregarFotoAGaleria(url, 'original', null);
         }
     });
 }

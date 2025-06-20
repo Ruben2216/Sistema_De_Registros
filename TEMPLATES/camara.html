@@ -24,6 +24,13 @@
             <button id="clearButton" disabled>Limpiar fotos</button> 
         </div>
 
+        <!-- Checkbox para elegir el modo de fotos en PDF -->
+        <div class="campo" style="margin: 10px 0;">
+            <input type="checkbox" id="pantallaCompletaPDF" />
+            <label for="pantallaCompletaPDF">Mostrar evidencia en hoja en el PDF (una por hoja)</label>
+           
+        </div>
+
         <div class="output">
             <h2>Fotos Capturadas</h2> 
             <canvas id="canvas" style="display:none;"></canvas>
@@ -36,7 +43,7 @@
         <button id="btnGenerarPDF"  class= "boton boton--primario" disabled>Generar PDF de fotos</button>
         <div class="boton boton--secundario boton--cancelar">
 
-        <a href="/TEMPLATES/formato_RIJ.html" class="boton--secundario" id="link-formulario">Ir al formulario</a>
+        <a href="/TEMPLATES/formato_RIJ.html" class="boton--secundario" id="link-formulario">Ir al formulario</a> 
     </div> 
         <p id="status"></p>
     </div>
@@ -115,6 +122,7 @@
     <script src="/RESOURCE/JS/autoguardado_camara.js"></script>
     <script src="/RESOURCE/JS/index.js"></script>
     <script src="/RESOURCE/JS/editar_foto.js"></script>
+    <script src="/RESOURCE/JS/recorte_foto.js"></script>
 
 </body>
 </html>

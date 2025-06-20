@@ -2,48 +2,57 @@
 
 (function() {
     // URL del backend Flask para autoguardado de fotos
-    var API_URL = 'https://192.168.1.90:8000/api/rij/fotos';
+    var API_URL = 'https://192.168.100.30:8000/api/rij/fotos';
 
-    // Función para obtener todas las imágenes actualmente mostradas
+    // Función para obtener todas las imágenes actualmente mostradas y su versión
     function obtenerFotos() {
         var fotos = [];
         var contenedor = document.getElementById('photosContainer');
         if (!contenedor) {
             return fotos;
         }
-        var imgs = contenedor.querySelectorAll('img');
-        for (var i = 0; i < imgs.length; i++) {
-            fotos.push(imgs[i].src);
+        var wrappers = contenedor.querySelectorAll('.photo-wrapper');
+        for (var i = 0; i < wrappers.length; i++) {
+            var img = wrappers[i].querySelector('img.foto-principal');
+            if (!img) { continue; }
+            var url = img.getAttribute('data-original-url') || img.src;
+            var version = img.getAttribute('data-version') || 'original';
+            var mejorada = img.getAttribute('data-mejorada') || null;
+            fotos.push({ url: url, version: version, mejorada: mejorada });
         }
         return fotos;
     }
 
-    // Función para mostrar las fotos restauradas
+    // Función para mostrar las fotos restauradas con versión
     function mostrarFotos(fotos) {
         var contenedor = document.getElementById('photosContainer');
         if (!contenedor) {
             return;
         }
+        if (!Array.isArray(fotos) || fotos.length === 0) {
+            console.warn('No hay fotos para mostrar:', fotos);
+            return;
+        }
+        // Si el backend devuelve solo URLs, convertir a objetos
+        fotos = fotos.map(function(foto) {
+            if (typeof foto === 'string') {
+                return { url: foto, version: 'original', mejorada: null };
+            }
+            return foto;
+        });
         contenedor.innerHTML = '';
         var yaMostradas = new Set();
         for (var i = 0; i < fotos.length; i++) {
-            var url = fotos[i];
-            if (yaMostradas.has(url)) {
-                console.warn('Imagen duplicada omitida:', url);
-                continue; // Si ya se mostró esta URL, omitir
+            var foto = fotos[i];
+            if (!foto || !foto.url) { continue; }
+            if (yaMostradas.has(foto.url)) {
+                console.warn('Imagen duplicada omitida:', foto.url);
+                continue;
             }
-            yaMostradas.add(url);
-            // En vez de solo img, usar la función global para asegurar el botón borrar
+            yaMostradas.add(foto.url);
+            // Usar la función global para asegurar el botón borrar y lógica de versiones
             if (typeof window.agregarFotoAGaleria === 'function') {
-                window.agregarFotoAGaleria(url);
-            } else {
-                var photoWrapper = document.createElement('div');
-                photoWrapper.classList.add('photo-wrapper');
-                var img = document.createElement('img');
-                img.src = url;
-                img.alt = 'Foto restaurada ' + (i+1);
-                photoWrapper.appendChild(img);
-                contenedor.appendChild(photoWrapper);
+                window.agregarFotoAGaleria(foto.url, foto.version, foto.mejorada);
             }
         }
         // Log para depuración

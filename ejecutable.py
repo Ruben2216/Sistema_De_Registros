@@ -1,9 +1,9 @@
-from flask import Flask, send_from_directory, request, jsonify, session, url_for, render_template
+from flask import Flask, send_from_directory, request, jsonify, session, url_for, render_template, redirect
 import os
 import tempfile
 import json
 import base64
-from datetime import datetime
+import datetime
 import threading
 import time
 # --- INICIO LÓGICA DE backend (búsqueda de equipos en MySQL) ---
@@ -11,7 +11,6 @@ from flask_cors import CORS
 import mysql.connector 
 from mysql.connector import Error
 from dotenv import load_dotenv
-import datetime 
 
 
 # Rutas absolutas a las carpetas en el proyecto. Preferentemente, si se mueven los archivos, verificar aquí las rutas para evitar que se rompan
@@ -106,7 +105,7 @@ def upload_foto():
     # Nombre único por fecha y sesión
     sid = session.get('sid') or os.urandom(8).hex()
     session['sid'] = sid
-    filename = f"rij_{sid}_{datetime.now().strftime('%Y%m%d%H%M%S%f')}.{ext}"
+    filename = f"rij_{sid}_{datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')}.{ext}"
     filepath = os.path.join(FOTOS_RIJ_DIR, filename)
     # Guardar archivo
     with open(filepath, 'wb') as f:
@@ -281,6 +280,12 @@ def pagina_rij():
     print(f"Meta del día: {meta_del_dia}")  # Para depuración
     return render_template('formato_RIJ.html', meta_para_mostrar=meta_del_dia) 
 
+# Redirección para acceder a formato_RIJ.html desde TEMPLATES que esta todo configurado para que se acceda desde la carpeta TEMPLATES
+# Esto permite que la lógica de obtener la meta se ejecute correctamente al acceder a la ruta, OSEA LA FUNCION DE MOSTRAR LA META DEL DÍA
+@app.route('/TEMPLATES/formato_RIJ.html')
+def redirigir_formato_rij():
+    return redirect('/formato_RIJ.html')
+
 # Ruta para un equipo por número de inventario o serie (usadO por el botón)
 @app.route('/buscar_equipo')
 def buscar_equipo(): 
@@ -410,4 +415,4 @@ if __name__ == '__main__':
 
     # Ejecuta la aplicación Flask con el contexto SSL/TLS
     app.run(host=HOST_IP, port=PORT, ssl_context=ssl_context_tuple, debug=True)
-    
+

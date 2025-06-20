@@ -265,8 +265,9 @@ h1{
     cursor: pointer;
 }
 canvas{
-    width:400px;
-    height:300px;
+    /* width:400px;
+    height:300px; */
+    /* CHECAR SI NO ROMPE FUNCIONALIDADES DE CAMARA.HTML */
 
 }
 .btn-flotante {

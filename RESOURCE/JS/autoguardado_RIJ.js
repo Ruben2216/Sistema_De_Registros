@@ -2,7 +2,7 @@
 
 (function() {
     // URL del backend Flask para autoguardado
-    var API_URL = 'https://192.168.1.90:8000/api/rij/autoguardado';
+    var API_URL = 'https://192.168.100.30:8000/api/rij/autoguardado';
 
     // Función para obtener todos los datos del formulario, incluyendo firmas
     function obtenerDatosFormulario() {
@@ -15,6 +15,10 @@
             if (!key) {
                 // Si no tiene name ni id, usar un identificador único por tipo y posición
                 key = el.tagName + '_' + i;
+            }
+            // No guardar el textarea readonly (meta del día)
+            if (el.tagName === 'TEXTAREA' && el.readOnly) {
+                continue;
             }
             if (el.type === 'radio') {
                 if (el.checked) {
