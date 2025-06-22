@@ -175,11 +175,10 @@ function generarPDFConFotos() {
         return;
     }
     var { jsPDF } = window.jspdf;
-    var pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'letter' });
-    var anchoHoja = 216;
+    var pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'letter' });    var anchoHoja = 216;
     var altoHoja = 279;
-    var fotosPorHoja = 6;
-    var columnas = 2;
+    var fotosPorHoja = 9;
+    var columnas = 3;
     var filas = 3;
     var anchoCelda, altoCelda;
     var aspectoFoto = 4 / 3;
