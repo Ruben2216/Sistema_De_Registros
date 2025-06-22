@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Imagen del día</title>
+</head>
+<body>
+    <h2>Imagen del día {{ imagen_url and 'encontrada' or 'no encontrada' }}</h2>
+    {% if imagen_url %}
+        <img src="{{ imagen_url }}" alt="Imagen del día" style="max-width:600px;" />
+    {% else %}
+        <p>No se encontró imagen para la fecha de hoy.</p>
+    {% endif %}
+</body>
+</html>
