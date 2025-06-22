@@ -1,0 +1,120 @@
+/* Modal de progreso circular para generación de PDF de cámara */
+.pdf-progress-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+}
+
+.pdf-progress-modal.show {
+    display: flex;
+}
+
+.pdf-progress-container {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    min-width: 300px;
+    max-width: 400px;
+}
+
+.pdf-progress-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+    font-family: Arial, sans-serif;
+}
+
+/* Contenedor del círculo de progreso */
+.circular-progress {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    margin: 0 auto 20px;
+}
+
+/* SVG del círculo de progreso */
+.progress-ring {
+    width: 150px;
+    height: 150px;
+    transform: rotate(-90deg);
+}
+
+.progress-ring__circle {
+    stroke-width: 10;
+    fill: transparent;
+    transition: stroke-dashoffset 0.1s ease-out;
+}
+
+/* Círculo de fondo */
+.progress-ring__background {
+    stroke: #e6e6e6;
+}
+
+/* Círculo de progreso */
+.progress-ring__progress {
+    stroke: #00724e;
+    stroke-linecap: round;
+}
+
+/* Texto del porcentaje centrado */
+.progress-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 24px;
+    font-weight: bold;
+    color: #00724e;
+    font-family: Arial, sans-serif;
+}
+
+/* Subtítulo del modal */
+.pdf-progress-subtitle {
+    font-size: 14px;
+    color: #666;
+    margin-top: 10px;
+    font-family: Arial, sans-serif;
+}
+
+/* Animación de entrada suave */
+.pdf-progress-modal.show .pdf-progress-container {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Efecto de pulso para el círculo cuando está al 100% */
+.progress-ring__progress.complete {
+    animation: pulseComplete 0.5s ease-in-out;
+}
+
+@keyframes pulseComplete {
+    0% {
+        stroke-width: 10;
+    }
+    50% {
+        stroke-width: 12;
+    }
+    100% {
+        stroke-width: 10;
+    }
+}

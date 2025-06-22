@@ -42,3 +42,7 @@ $ openssl req -new -x509 -key key.pem -out cert.pem -days 365 -subj "//C=MX/ST=C
 -----------------------------------------------------------------------
 Instalar para archivo .env
 pip install python-dotenv
+
+
+
+pip install Flask google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client

@@ -151,16 +151,26 @@ function generarPDFConFotos() {
         showMessage('No hay fotos para exportar. Por favor, toma algunas imágenes.');
         return;
     }
+    
+    // Deshabilitar el botón y mostrar el modal de progreso
     const btn = document.getElementById('btnGenerarPDF');
     if (btn) {
         btn.disabled = true;
-        btn.textContent = 'Procesando imágenes...';
+        btn.textContent = 'Generando PDF...';
+    }    // Mostrar el modal de progreso circular
+    if (window.pdfProgressManager) {
+        window.pdfProgressManager.reiniciar(); // Asegurar estado limpio
+        window.pdfProgressManager.mostrar();
     }
+    
     if (typeof window.jspdf === 'undefined') {
         showMessage('jsPDF no está cargado. Asegúrate de incluir la librería jsPDF en tu HTML.');
         if (btn) {
             btn.disabled = false;
             btn.textContent = 'Generar PDF de fotos';
+        }        // Ocultar el modal de progreso
+        if (window.pdfProgressManager) {
+            window.pdfProgressManager.manejarError();
         }
         return;
     }
@@ -253,37 +263,52 @@ function generarPDFConFotos() {
             .catch(function() {
                 callback(null);
             });
-    }
-    // Procesar imágenes según el modo global o por foto
-    function procesarImagenes(indice, imagenesProcesadas, enMosaico, mosaicoPendiente) {
-        if (indice >= imagenesUnicas.length) {
-            // Si quedan fotos en mosaico pendientes, agrégalas al final
-            if (!pantallaCompletaGlobal && enMosaico.length > 0) {
-                for (var j = 0; j < enMosaico.length; j++) {
-                    var i = j;
-                    var col = i % columnas;
-                    var fila = Math.floor((i % fotosPorHoja) / columnas);
-                    var x = col * anchoCelda;
-                    var y = fila * altoCelda;
-                    pdf.addImage(enMosaico[j], 'WEBP', x, y, anchoCelda, altoCelda);
-                    if ((i + 1) % fotosPorHoja === 0 && j !== enMosaico.length - 1) {
-                        pdf.addPage('letter', 'portrait');
-                    }
+    }    // Procesar imágenes según el modo global o por foto
+    function procesarImagenes(indice, imagenesProcesadas, enMosaico, mosaicoPendiente) {        
+        if (indice >= imagenesUnicas.length) {            // Entrar en fase final de generación con progreso fluido
+            if (window.pdfProgressManager) {
+                const progresoActual = window.pdfProgressManager.obtenerProgresoActual();
+                window.pdfProgressManager.iniciarFaseFinal(progresoActual);
+            }
+            
+            // Continuar con la generación del PDF sin delays adicionales
+            // (el progreso ya está siendo manejado automáticamente)
+            setTimeout(() => {
+                // Si quedan fotos en mosaico pendientes, agrégalas al final
+                if (!pantallaCompletaGlobal && enMosaico.length > 0) {
+                    for (var j = 0; j < enMosaico.length; j++) {
+                        var i = j;
+                        var col = i % columnas;
+                        var fila = Math.floor((i % fotosPorHoja) / columnas);
+                        var x = col * anchoCelda;
+                        var y = fila * altoCelda;
+                        pdf.addImage(enMosaico[j], 'WEBP', x, y, anchoCelda, altoCelda);
+                        if ((i + 1) % fotosPorHoja === 0 && j !== enMosaico.length - 1) {
+                            pdf.addPage('letter', 'portrait');
+                        }
+                    }                }
+                
+                // Guardar PDF (el progreso se maneja automáticamente en las fases)
+                var hoy = new Date();
+                var año = hoy.getFullYear();
+                var mes = (hoy.getMonth() + 1).toString().padStart(2, '0');
+                var dia = hoy.getDate().toString().padStart(2, '0');
+                var fechaActual = dia + '-' + mes + '-' + año;
+                pdf.save('Formato_Digitalizado_' + fechaActual + '.pdf');
+                
+                // Restaurar el botón (el modal se ocultará automáticamente)
+                if (btn) {
+                    btn.disabled = false;
+                    btn.textContent = 'Generar PDF de fotos';
                 }
-            }
-            // Guardar PDF
-            var hoy = new Date();
-            var año = hoy.getFullYear();
-            var mes = (hoy.getMonth() + 1).toString().padStart(2, '0');
-            var dia = hoy.getDate().toString().padStart(2, '0');
-            var fechaActual = dia + '-' + mes + '-' + año;
-            pdf.save('Formato_Digitalizado_' + fechaActual + '.pdf');
-            if (btn) {
-                btn.disabled = false;
-                btn.textContent = 'Generar PDF de fotos';
-            }
+                
+            }, 200); // Pequeño delay solo para permitir que se vea la transición de fase
             return;
+        }        // Comenzar el procesamiento de esta imagen (progreso continuo)
+        if (window.pdfProgressManager) {
+            window.pdfProgressManager.iniciarProcesamientoImagen(indice, imagenesUnicas.length);
         }
+        
         agregarImagenAlPDF(imagenesUnicas[indice], function(dataUrl) {
             if (dataUrl) {
                 if (pantallaCompletaGlobal) {
@@ -314,13 +339,23 @@ function generarPDFConFotos() {
                     }
                 } else {
                     enMosaico.push(dataUrl);
-                }
-                imagenesProcesadas.push(dataUrl);
+                }                imagenesProcesadas.push(dataUrl);
             }
+              // Finalizar el progreso de esta imagen específica
+            if (window.pdfProgressManager) {
+                window.pdfProgressManager.finalizarProcesamientoImagen(indice, imagenesUnicas.length);
+            }
+            
+            // Continuar procesando la siguiente imagen
             procesarImagenes(indice + 1, imagenesProcesadas, enMosaico);
-        });
-    }
-    procesarImagenes(0, [], [], []);
+        });}
+      // Pequeño delay para que el usuario vea el 0% antes de empezar el procesamiento
+    setTimeout(() => {        // Comenzar con 1% para dar feedback inmediato
+        if (window.pdfProgressManager) {
+            window.pdfProgressManager.iniciarProgreso();
+        }
+        procesarImagenes(0, [], [], []);
+    }, 150);
 }
 
 function asignarEventoPDF() {
