@@ -41,17 +41,36 @@
         var firma1 = document.getElementById('firma-input-1');
         var firma2 = document.getElementById('firma-input-2');
         if (firma1) {
-            datos['firma1'] = firma1.value;
-        }
+            datos['firma1'] = firma1.value;        }
         if (firma2) {
             datos['firma2'] = firma2.value;
         }
         return datos;
+    }    // Función para establecer valores por defecto
+    function establecerValoresPorDefecto() {
+        var divisionSelect = document.getElementById('division');
+        var zonaSelect = document.getElementById('zona');
+        
+        if (divisionSelect && divisionSelect.value === '') {
+            divisionSelect.value = 'Sureste';
+            
+            var event = new Event('change', { bubbles: true });
+            divisionSelect.dispatchEvent(event);
+            
+            // Esperar un poco para que se carguen las zonas y luego seleccionar Tuxtla
+            setTimeout(function() {
+                if (zonaSelect) {
+                    zonaSelect.value = 'Tuxtla';
+                }
+            }, 100);
+        }
     }
 
     // Función para rellenar el formulario con datos
     function rellenarFormulario(datos) {
         if (!datos) {
+            // Si no hay datos guardados, establecer valores por defecto
+            establecerValoresPorDefecto();
             return;
         }
         var form = document.querySelector('.formulario-verificacion__formulario');
@@ -64,6 +83,7 @@
             // Lanzar evento change para que el script de zonas actualice el select de zona
             var event = new Event('change', { bubbles: true });
             divisionSelect.dispatchEvent(event);
+        
         }
         // 2. Restaurar el resto de campos (incluyendo zona, que ya tendrá las opciones correctas)
         for (var i = 0; i < elementos.length; i++) {
@@ -136,9 +156,7 @@
             // Si hay error, puedes guardar en localStorage como respaldo
             localStorage.setItem('borrador_RIJ', JSON.stringify(datos));
         });
-    }
-
-    // Función para restaurar (GET)
+    }    // Función para restaurar (GET)
     function restaurar() {
         fetch(API_URL, {
             method: 'GET',
@@ -151,18 +169,33 @@
             return res.json();
         })
         .then(function(datos) {
-            rellenarFormulario(datos);
+            if (datos && Object.keys(datos).length > 0) {
+                rellenarFormulario(datos);
+            } else {
+                // No hay datos guardados, establecer valores por defecto
+                establecerValoresPorDefecto();
+            }
         })
         .catch(function() {
             // Si falla, intenta restaurar de localStorage
             var borrador = localStorage.getItem('borrador_RIJ');
             if (borrador) {
-                rellenarFormulario(JSON.parse(borrador));
+                try {
+                    var datosLocalStorage = JSON.parse(borrador);
+                    if (datosLocalStorage && Object.keys(datosLocalStorage).length > 0) {
+                        rellenarFormulario(datosLocalStorage);
+                    } else {
+                        establecerValoresPorDefecto();
+                    }
+                } catch (e) {
+                    establecerValoresPorDefecto();
+                }
+            } else {
+                // No hay datos guardados en ningún lugar, establecer valores por defecto
+                establecerValoresPorDefecto();
             }
         });
-    }
-
-    // Detectar cambios en el formulario para autoguardar
+    }    // Detectar cambios en el formulario para autoguardar
     document.addEventListener('DOMContentLoaded', function() {
         var form = document.querySelector('.formulario-verificacion__formulario');
         if (form) {
@@ -173,8 +206,10 @@
                 autoguardar();
             });
         }
-        // Restaurar al cargar
-        restaurar();
+        // Retrasar la restauración para permitir que se establezcan los valores por defecto primero
+        setTimeout(function() {
+            restaurar();
+        }, 200);
     });
 
     // Forzar autoguardado antes de salir de la página

@@ -1,6 +1,5 @@
 // Lógica para selects de división y zona
 // -------------------------------------
-// Este archivo contiene la lógica relacionada con los selects de división y zona.
 
 const divisionSelect = document.getElementById("division");
 const zonaSelect = document.getElementById("zona");
@@ -206,5 +205,18 @@ divisionSelect.addEventListener("change", function() {
     limpiarSelect(zonaSelect);
     if (zonas) {
         llenarSelect(zonaSelect, Object.keys(zonas));
+    }
+});
+
+// Inicializar con valores por defecto al cargar la página
+document.addEventListener("DOMContentLoaded", function() {
+    if (divisionSelect.value === "Sureste") {
+        var zonasSureste = datos["Sureste"];
+        if (zonasSureste) {
+            limpiarSelect(zonaSelect);
+            llenarSelect(zonaSelect, Object.keys(zonasSureste));
+            // Seleccionar Tuxtla por defecto ya que esta pensado en esta zona
+            zonaSelect.value = "Tuxtla";
+        }
     }
 });
