@@ -17,10 +17,21 @@
             var version = img.getAttribute('data-version') || 'original';
             var mejorada = img.getAttribute('data-mejorada') || null;
             
-            // CORREGIDO: Obtener todas las versiones procesadas identificando por URL única
+            // Obtener información de recorte si existe
+            var recortada = img.getAttribute('data-recortada') || null;
+            var recorteInfo = null;
+            if (img.hasAttribute('data-recorte-info')) {
+                try {
+                    recorteInfo = JSON.parse(img.getAttribute('data-recorte-info'));
+                } catch (e) {
+                    console.warn('Error al parsear información de recorte:', e);
+                }
+            }
+            
             var versiones = {
                 original: url,
-                mejorada: mejorada
+                mejorada: mejorada,
+                recortada: recortada  // NUEVO: Agregar versión recortada
             };
             
             var miniaturas = wrappers[i].querySelectorAll('.miniatura-foto');
@@ -47,7 +58,9 @@
                 url: url, 
                 version: version, 
                 mejorada: mejorada,
-                versiones: versiones
+                versiones: versiones,
+                recortada: recortada,  
+                recorteInfo: recorteInfo  
             });
         }
         return fotos;
@@ -70,18 +83,27 @@
                     url: foto, 
                     version: 'original', 
                     mejorada: null, 
-                    versiones: null 
+                    versiones: null,
+                    recortada: null,  // NUEVO: Información de recorte
+                    recorteInfo: null  // NUEVO: Metadatos del recorte
                 };
             }
             // Asegurar que existe el campo versiones e id
             if (!foto.versiones) {
                 foto.versiones = {
                     original: foto.url,
-                    mejorada: foto.mejorada
+                    mejorada: foto.mejorada,
+                    recortada: foto.recortada || null  // NUEVO: Incluir versión recortada
                 };
             }
             if (!foto.id) {
                 foto.id = foto.url; // Usar URL como ID si no existe
+            }
+            if (!foto.hasOwnProperty('recortada')) {
+                foto.recortada = null;
+            }
+            if (!foto.hasOwnProperty('recorteInfo')) {
+                foto.recorteInfo = null;
             }
             return foto;
         });
@@ -89,25 +111,25 @@
         for (var i = 0; i < fotos.length; i++) {
             var foto = fotos[i];
             if (!foto || !foto.url) { continue; }
-            // CORREGIDO: Usar ID único para evitar duplicados y problemas de índice
             if (yaMostradas.has(foto.id || foto.url)) {
                 console.warn('Imagen duplicada omitida:', foto.url);
                 continue;
             }
             yaMostradas.add(foto.id || foto.url);            // Usar la función global para asegurar el botón borrar y lógica de versiones
             if (typeof window.agregarFotoRestaurada === 'function') {
-                // NUEVO: Usar función especial para fotos restauradas que preserva las versiones
-                window.agregarFotoRestaurada(foto.url, foto.version, foto.mejorada, foto.versiones);
-            } else if (typeof window.agregarFotoAGaleria === 'function') {
+                window.agregarFotoRestaurada(foto.url, foto.version, foto.mejorada, foto.versiones, foto.recortada, foto.recorteInfo);            } else if (typeof window.agregarFotoAGaleria === 'function') {
                 // Fallback a función original si la nueva no está disponible
-                window.agregarFotoAGaleria(foto.url, foto.version, foto.mejorada);
+                window.agregarFotoAGaleria(foto.url, foto.version, foto.mejorada, foto.recortada, foto.recorteInfo);
             }
-        }
-        // Log para depuración
+        }        // Log para depuración
         console.log('Fotos restauradas únicas:', Array.from(yaMostradas));
         if (fotos.length !== yaMostradas.size) {
             console.warn('Se omitieron duplicados al mostrar la galería.');
         }
+        
+        setTimeout(function() {
+            aplicarRecortesGuardados();
+        }, 100);
     }
 
     // Función para autoguardar (POST)
@@ -131,7 +153,6 @@
             // Guardado exitoso
         })
         .catch(function(err) {
-            // Si hay error, puedes guardar en localStorage como respaldo
             localStorage.setItem('borrador_fotos_RIJ', JSON.stringify(fotos));
         });
     }
@@ -165,6 +186,56 @@
                 mostrarFotos(JSON.parse(borrador));
             }
         });
+    }
+
+    function aplicarRecortesGuardados() {
+        var contenedor = document.getElementById('photosContainer');
+        if (!contenedor) {
+            return;
+        }
+        
+        var fotos = contenedor.querySelectorAll('.photo-wrapper img.foto-principal');
+        for (var i = 0; i < fotos.length; i++) {
+            var img = fotos[i];
+            var urlOriginal = img.getAttribute('data-original-url') || img.src;
+            var recortada = img.getAttribute('data-recortada');
+            var recorteInfo = img.getAttribute('data-recorte-info');
+              // Si ya tiene información de recorte, aplicarla
+            if (recortada && recorteInfo) {
+                try {
+                    var info = JSON.parse(recorteInfo);
+                    console.log('Aplicando recorte guardado para:', urlOriginal, info);
+                    // CORREGIDO: Aplicar la imagen recortada como fuente principal
+                    img.src = recortada;
+                    continue;
+                } catch (e) {
+                    console.warn('Error al parsear información de recorte:', e);
+                }
+            }
+            
+            // Si no tiene recorte en los atributos, buscar en localStorage
+            var claveRecorte = 'imagenRecortada_' + urlOriginal;
+            var datosGuardados = localStorage.getItem(claveRecorte);
+            if (datosGuardados) {
+                try {                    var datos = JSON.parse(datosGuardados);
+                    if (datos.imagen && datos.recorteInfo) {
+                        console.log('Aplicando recorte desde localStorage para:', urlOriginal);
+                        img.src = datos.imagen;
+                        img.setAttribute('data-recortada', datos.imagen);
+                        img.setAttribute('data-recorte-info', JSON.stringify(datos.recorteInfo));
+                        
+                        // Forzar autoguardado para persistir el recorte
+                        setTimeout(function() {
+                            if (window.autoguardadoCamara && window.autoguardadoCamara.autoguardarFotos) {
+                                window.autoguardadoCamara.autoguardarFotos();
+                            }
+                        }, 500);
+                    }
+                } catch (e) {
+                    console.warn('Error al parsear datos de recorte desde localStorage:', e);
+                }
+            }
+        }
     }
 
     // Detectar cambios en las fotos para autoguardar

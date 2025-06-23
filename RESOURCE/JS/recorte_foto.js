@@ -207,58 +207,73 @@ function abrirModalRecorte(img, url, callback) {
         canvas.addEventListener('touchstart', pointerDown, { passive: false });
         canvas.addEventListener('touchmove', pointerMove, { passive: false });
         canvas.addEventListener('touchend', pointerUp, { passive: false });
-        canvas.addEventListener('touchcancel', pointerUp, { passive: false });
-        // --- Guardar imagen recortada en el servidor y cargarla ---
-        async function guardarEnServidor(dataUrl) {
+        canvas.addEventListener('touchcancel', pointerUp, { passive: false });        // --- Guardar imagen recortada en el servidor y cargarla ---
+        async function guardarEnServidor(dataUrl, urlOriginal, infoRecorte) {
             try {
-                const response = await fetch('/guardar-imagen', {
+                const response = await fetch('/guardar-imagen-recortada', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ imagen: dataUrl })
+                    body: JSON.stringify({ 
+                        imagen: dataUrl,
+                        urlOriginal: urlOriginal,
+                        recorteInfo: infoRecorte
+                    })
                 });
                 if (!response.ok) {
                     throw new Error('Error al guardar la imagen en el servidor');
                 }
-                console.log('Imagen guardada en el servidor');
+                console.log('Imagen recortada guardada en el servidor');
+                // Guardar también en localStorage como respaldo
+                var claveRecorte = 'imagenRecortada_' + urlOriginal;
+                localStorage.setItem(claveRecorte, JSON.stringify({
+                    imagen: dataUrl,
+                    recorteInfo: infoRecorte,
+                    timestamp: Date.now()
+                }));
             } catch (error) {
                 console.error('Fallo al guardar en el servidor:', error);
-                localStorage.setItem('imagenRecortada', dataUrl); // Respaldo en localStorage
+                // Respaldo en localStorage
+                var claveRecorte = 'imagenRecortada_' + (urlOriginal || 'temp');
+                localStorage.setItem(claveRecorte, JSON.stringify({
+                    imagen: dataUrl,
+                    recorteInfo: infoRecorte,
+                    timestamp: Date.now()
+                }));
             }
-        }
-        async function cargarDesdeServidor() {
+        }        async function cargarDesdeServidor(urlOriginal) {
             try {
-                const response = await fetch('/cargar-imagen');
+                const response = await fetch('/cargar-imagen-recortada?url=' + encodeURIComponent(urlOriginal));
                 if (!response.ok) {
                     throw new Error('Error al cargar la imagen desde el servidor');
                 }
                 const data = await response.json();
                 if (data && data.imagen) {
-                    var img = new Image();
-                    img.onload = function() {
-                        canvas.width = img.width;
-                        canvas.height = img.height;
-                        ctx.clearRect(0, 0, canvas.width, canvas.height);
-                        ctx.drawImage(img, 0, 0);
+                    return {
+                        imagen: data.imagen,
+                        recorteInfo: data.recorteInfo
                     };
-                    img.src = data.imagen;
                 } else {
-                    throw new Error('No se encontró imagen en el servidor');
+                    throw new Error('No se encontró imagen recortada en el servidor');
                 }
             } catch (error) {
                 console.error('Fallo al cargar desde el servidor:', error);
-                var imagenRecortada = localStorage.getItem('imagenRecortada');
-                if (imagenRecortada) {
-                    var img = new Image();
-                    img.onload = function() {
-                        canvas.width = img.width;
-                        canvas.height = img.height;
-                        ctx.clearRect(0, 0, canvas.width, canvas.height);
-                        ctx.drawImage(img, 0, 0);
-                    };
-                    img.src = imagenRecortada;
+                // Intentar cargar desde localStorage
+                var claveRecorte = 'imagenRecortada_' + urlOriginal;
+                var datosGuardados = localStorage.getItem(claveRecorte);
+                if (datosGuardados) {
+                    try {
+                        var datos = JSON.parse(datosGuardados);
+                        return {
+                            imagen: datos.imagen,
+                            recorteInfo: datos.recorteInfo
+                        };
+                    } catch (e) {
+                        console.error('Error al parsear datos guardados:', e);
+                    }
                 }
+                return null;
             }
         }
         // --- Cargar imagen desde URL externa ---
@@ -285,8 +300,7 @@ function abrirModalRecorte(img, url, callback) {
         window.addEventListener('load', function() {
             const url = "https://192.168.100.30:8000/RESOURCE/IMG/Evidencias/rij_6c8eb7f585e34746_20250620031320234658.png";
             cargarImagenDesdeURL(url);
-        });
-        document.getElementById('btn-confirmar-recorte').onclick = function() {
+        });        document.getElementById('btn-confirmar-recorte').onclick = function() {
             var escala = tempImg.naturalWidth / canvas.width;
             var cropCanvas = document.createElement('canvas');
             cropCanvas.width = recorte.w * escala;
@@ -302,22 +316,56 @@ function abrirModalRecorte(img, url, callback) {
                 recorte.h * escala
             );
             var dataUrl = cropCanvas.toDataURL('image/png');
-            guardarEnServidor(dataUrl); // Intentar guardar en el servidor
+            
+            // NUEVO: Guardar información del recorte para poder regenerarlo
+            var infoRecorte = {
+                x: recorte.x / canvas.width,  // Proporcional al tamaño del canvas
+                y: recorte.y / canvas.height,
+                w: recorte.w / canvas.width,
+                h: recorte.h / canvas.height,
+                timestamp: Date.now()
+            };
+            
+            // Guardar en servidor con información del recorte
+            guardarEnServidor(dataUrl, img.src, infoRecorte);
+            
             modal.style.display = 'none';
             if (typeof callback === 'function') {
-                callback(dataUrl);
+                callback(dataUrl, infoRecorte);  // NUEVO: Pasar también la información del recorte
             }
-        };
-        // Botón cancelar recorte
+        };        // Botón cancelar recorte
         document.getElementById('btn-cancelar-recorte').onclick = function() {
             modal.style.display = 'none';
             if (typeof callback === 'function') {
-                callback(null);
+                callback(null, null);  // NUEVO: Pasar null para ambos parámetros
             }
         };
-        window.addEventListener('load', function() {
-            cargarDesdeServidor(); // Intentar cargar desde el servidor
+        
+        // NUEVO: Función para aplicar recorte guardado si existe
+        async function aplicarRecorteGuardado() {
+            var datosRecorte = await cargarDesdeServidor(img.src);
+            if (datosRecorte && datosRecorte.imagen && datosRecorte.recorteInfo) {
+                console.log('Aplicando recorte guardado para:', img.src);
+                if (typeof callback === 'function') {
+                    callback(datosRecorte.imagen, datosRecorte.recorteInfo);
+                }
+                modal.style.display = 'none';
+                return true;
+            }
+            return false;
+        }
+        
+        // Intentar aplicar recorte guardado al abrir el modal
+        aplicarRecorteGuardado().then(function(recorteAplicado) {
+            if (!recorteAplicado) {
+                console.log('No hay recorte guardado, mostrando modal normal');
+            }
         });
+        
+        // Eliminar el listener automático que se ejecutaba al cargar
+        // window.addEventListener('load', function() {
+        //     cargarDesdeServidor(); // Intentar cargar desde el servidor
+        // });
     };
     tempImg.src = img.src;
 }

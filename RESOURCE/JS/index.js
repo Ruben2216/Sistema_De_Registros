@@ -332,7 +332,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Reiniciar la cámara para aplicar el nuevo modo de user o viceversa
         await startCamera();
     });    // Permite agregar una foto a la galería con versión seleccionada
-    window.agregarFotoAGaleria = function(url, version, mejorada) {
+    window.agregarFotoAGaleria = function(url, version, mejorada, recortada, recorteInfo) {
         var contenedor = document.getElementById('photosContainer');
         if (!contenedor) {
             return;
@@ -344,23 +344,37 @@ document.addEventListener('DOMContentLoaded', () => {
         // Imagen principal mostrada
         var img = document.createElement('img');
         img.className = 'foto-principal';
-        img.setAttribute('data-original-url', url);
-        img.setAttribute('data-version', version || 'original');
+        img.setAttribute('data-original-url', url);        img.setAttribute('data-version', version || 'original');
         if (mejorada) {
             img.setAttribute('data-mejorada', mejorada);
         }
-          // CORRIGIDO: Mostrar la imagen correcta según la versión almacenada
-        var versionActual = version || 'original';
+        
+        // NUEVO: Agregar atributos de recorte si existen
+        if (recortada) {
+            img.setAttribute('data-recortada', recortada);
+        }
+        if (recorteInfo) {
+            img.setAttribute('data-recorte-info', JSON.stringify(recorteInfo));
+        }        // CORREGIDO: Verificar si hay imagen recortada y priorizarla
         var necesitaRegeneracion = false;
         
-        if (versionActual === 'mejorada' && mejorada) {
-            img.src = mejorada;
-        } else if (versionActual === 'original') {
-            img.src = url;
+        if (recortada) {
+            // Priorizar imagen recortada si existe
+            img.src = recortada;
+            console.log('Aplicando imagen recortada para:', url);
         } else {
-            // Para versiones avanzadas (contraste, bordes, color), mostrar original y marcar para regeneración
-            img.src = url;
-            necesitaRegeneracion = true;
+            // Mostrar la imagen correcta según la versión almacenada
+            var versionActual = version || 'original';
+            
+            if (versionActual === 'mejorada' && mejorada) {
+                img.src = mejorada;
+            } else if (versionActual === 'original') {
+                img.src = url;
+            } else {
+                // Para versiones avanzadas (contraste, bordes, color), mostrar original y marcar para regeneración
+                img.src = url;
+                necesitaRegeneracion = true;
+            }
         }
         img.alt = 'Foto subida';
         photoWrapper.appendChild(img);
@@ -646,17 +660,22 @@ document.addEventListener('DOMContentLoaded', () => {
         btnRecortar.style.border = 'none';
         btnRecortar.style.fontSize = '1.3rem';
         btnRecortar.style.cursor = 'pointer';
-        btnRecortar.style.touchAction = 'manipulation';
-        // --- Ajustar lógica de subida y recorte para asegurar URL correcta ---
+        btnRecortar.style.touchAction = 'manipulation';        // --- Ajustar lógica de subida y recorte para asegurar URL correcta ---
         btnRecortar.addEventListener('click', function(e) {
             e.preventDefault();
-            abrirModalRecorte(img, url, function(dataUrlRecortada) {
+            abrirModalRecorte(img, url, function(dataUrlRecortada, infoRecorte) {
                 if (dataUrlRecortada) {
-                    subirFotoBase64(dataUrlRecortada, function(err, nuevaUrl) {
-                        if (!err && nuevaUrl) {
-                            // Reemplazar la imagen en la galería
-                            img.src = nuevaUrl;
+                    subirFotoBase64(dataUrlRecortada, function(err, nuevaUrl) {                        if (!err && nuevaUrl) {
+                            // CORREGIDO: Mostrar la imagen recortada, no la nueva URL
+                            img.src = dataUrlRecortada;
                             img.setAttribute('data-original-url', nuevaUrl);
+                            
+                            // NUEVO: Guardar información del recorte en los atributos de la imagen
+                            if (infoRecorte) {
+                                img.setAttribute('data-recortada', dataUrlRecortada);
+                                img.setAttribute('data-recorte-info', JSON.stringify(infoRecorte));
+                            }
+                            
                             // Actualizar la preferencia de pantalla completa si existe
                             var clavePreferencia = 'fotoPantallaCompleta_' + url;
                             var valor = localStorage.getItem(clavePreferencia);
@@ -842,10 +861,8 @@ document.addEventListener('DOMContentLoaded', () => {
         divCheckbox.appendChild(labelPantallaCompleta);
         photoWrapper.appendChild(divCheckbox); // SIEMPRE al final
         contenedor.appendChild(photoWrapper);
-    }
-
-    // NUEVA: Función especial para agregar fotos restauradas conservando todas las versiones
-    window.agregarFotoRestaurada = function(url, version, mejorada, versionesGuardadas) {
+    }    // NUEVA: Función especial para agregar fotos restauradas conservando todas las versiones
+    window.agregarFotoRestaurada = function(url, version, mejorada, versionesGuardadas, recortada, recorteInfo) {
         var contenedor = document.getElementById('photosContainer');
         if (!contenedor) {
             return;
@@ -863,6 +880,14 @@ document.addEventListener('DOMContentLoaded', () => {
             img.setAttribute('data-mejorada', mejorada);
         }
         
+        // NUEVO: Agregar atributos de recorte si existen
+        if (recortada) {
+            img.setAttribute('data-recortada', recortada);
+        }
+        if (recorteInfo) {
+            img.setAttribute('data-recorte-info', JSON.stringify(recorteInfo));
+        }
+        
         // Configurar las versiones disponibles desde el guardado
         var versiones = {
             original: url,
@@ -878,14 +903,20 @@ document.addEventListener('DOMContentLoaded', () => {
             if (versionesGuardadas.bordes) versiones.bordes = versionesGuardadas.bordes;
             if (versionesGuardadas.color) versiones.color = versionesGuardadas.color;
         }
-        
-        // Mostrar la imagen correcta según la versión seleccionada
-        var versionActual = version || 'original';
-        if (versiones[versionActual]) {
-            img.src = versiones[versionActual];
+          // CORREGIDO: Priorizar imagen recortada si existe, luego versión seleccionada
+        if (recortada) {
+            // Si hay imagen recortada, mostrarla directamente
+            img.src = recortada;
+            console.log('Aplicando imagen recortada guardada para:', url);
         } else {
-            // Si la versión no está disponible, mostrar original
-            img.src = url;
+            // Mostrar la imagen correcta según la versión seleccionada
+            var versionActual = version || 'original';
+            if (versiones[versionActual]) {
+                img.src = versiones[versionActual];
+            } else {
+                // Si la versión no está disponible, mostrar original
+                img.src = url;
+            }
         }
         
         img.alt = 'Foto subida';
@@ -1071,15 +1102,21 @@ document.addEventListener('DOMContentLoaded', () => {
         btnRecortar.style.fontSize = '1.3rem';
         btnRecortar.style.cursor = 'pointer';
         btnRecortar.style.touchAction = 'manipulation';
-        
-        btnRecortar.addEventListener('click', function(e) {
+          btnRecortar.addEventListener('click', function(e) {
             e.preventDefault();
-            abrirModalRecorte(img, url, function(dataUrlRecortada) {
+            abrirModalRecorte(img, url, function(dataUrlRecortada, infoRecorte) {
                 if (dataUrlRecortada) {
-                    subirFotoBase64(dataUrlRecortada, function(err, nuevaUrl) {
-                        if (!err && nuevaUrl) {
-                            img.src = nuevaUrl;
+                    subirFotoBase64(dataUrlRecortada, function(err, nuevaUrl) {                        if (!err && nuevaUrl) {
+                            // CORREGIDO: Mostrar la imagen recortada, no la nueva URL
+                            img.src = dataUrlRecortada;
                             img.setAttribute('data-original-url', nuevaUrl);
+                            
+                            // NUEVO: Guardar información del recorte en los atributos de la imagen
+                            if (infoRecorte) {
+                                img.setAttribute('data-recortada', dataUrlRecortada);
+                                img.setAttribute('data-recorte-info', JSON.stringify(infoRecorte));
+                            }
+                            
                             var clavePreferencia = 'fotoPantallaCompleta_' + url;
                             var valor = localStorage.getItem(clavePreferencia);
                             if (valor !== null) {
