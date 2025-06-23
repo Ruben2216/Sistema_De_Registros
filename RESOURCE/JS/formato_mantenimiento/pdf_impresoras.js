@@ -25,15 +25,14 @@ async function generarPDF() {
     
     // ENCABEZADO
     doc.setFont("helvetica"); /*tipo de letra y negritas*/
-    doc.setFontSize(12);
-    doc.text("Comisión Federal de Electricidad", 15, 15);
     doc.setFontSize(10);
-    doc.text("Política Transversal de Calidad de CFE", 15, 20);
-    doc.text("Sistema Integral de Gestión (SIG-CFE)", 15, 25);
+    doc.text("Comisión Federal de Electricidad", 105, 40, null, null, "center");
+    doc.text("Política Transversal de Calidad de CFE", 105, 40, null, null, "center");
+    doc.text("Sistema Integral de Gestión (SIG-CFE)", 105, 40, null, null, "center");
 
-    doc.setFontSize(13);
+    doc.setFontSize(12);
     doc.setFont("helvetica", "bold");
-    doc.text("FORMATO MANTENIMIENTO PREVENTIVO COMPUTADORAS", 105, 40, null, null, "center");
+    doc.text("FORMATO MANTENIMIENTO PREVENTIVO IMPRESORAS", 105, 40, null, null, "center");
     /*doc.text(texto, x, y, opciones, transformaciones, alineación);*/
 
     // DATOS GENERALES
