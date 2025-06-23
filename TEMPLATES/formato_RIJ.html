@@ -30,8 +30,7 @@
 
 
             <div class="campo">
-                <label class="campo__etiqueta">División</label>
-            <select  class="campo__control" id="division">
+                <label class="campo__etiqueta">División</label>            <select  class="campo__control" id="division">
                 <option value="">Selecciona una división</option>
                 <option value="Baja_California">División Bajacalifornia</option>
                 <option value="Noroeste">División Noroeste</option>
@@ -44,7 +43,7 @@
                 <option value="Centro_Sur">División Centro Sur</option>
                 <option value="Centro_Oriente">Division Centro Oriente</option>
                 <option value="Oriente">División Oriente</option>
-                <option value="Sureste">División Sureste</option>
+                <option value="Sureste" selected>División Sureste</option>
                 <option value="Peninsular">División Peninsular</option>
                 <option value="Valle_Norte">División Valle de México Norte</option>
                 <option value="Valle_Centro">División Valle de México Centro</option>
@@ -78,12 +77,37 @@
                     <label class="campo__etiqueta">CATEGORÍA MÁXIMA PRESENTE EN LA REUNIÓN:</label>
                     <select class="campo__control" id="categoria_max">
                         <option value="">Seleccione una opción</option>
+                        <option value="Auxiliar Administrativo">Auxiliar Administrativo</option>
+                        <option value="Auxiliar Especializado">Auxiliar Especializado</option>
+                        <option value="Auxiliar Técnico">Auxiliar Técnico</option>
+                        <option value="Ayudante de Liniero">Ayudante de Liniero</option>
+                        <option value="Coordinador Capacitación">Coordinador Capacitación</option>
+                        <option value="Ejecutivo Atención Especializada">Ejecutivo Atención Especializada</option>
+                        <option value="Ejecutivo Atención Regional">Ejecutivo Atención Regional</option>
+                        <option value="Electricista">Electricista</option>
+                        <option value="Electricista Ayudante">Electricista Ayudante</option>
+                        <option value="Encargado de Sección">Encargado de Sección</option>
+                        <option value="Gerente">Gerente</option>
+                        <option value="Jefe de Departamento">Jefe de Departamento</option>
+                        <option value="Jefe de Oficina">Jefe de Oficina</option>
+                        <option value="Liniero">Liniero</option>
+                        <option value="Liniero Encargado">Liniero Encargado</option>
+                        <option value="Liniero LV">Liniero LV</option>
+                        <option value="Maniobrista">Maniobrista</option>   
+                        <option value="Oficinista">Oficinista</option>
+                        <option value="Oficinista Comercial">Oficinista Comercial</option>
+                        <option value="Operador de Distribución">Operador de Distribución</option>
+                        <option value="Profesionista">Profesionista</option>
+                        <option value="Secretaria">Secretaria</option>
+                        <option value="Sobrestante">Sobrestante</option>
+                        <option value="Subgerente">Subgerente</option>
                         <option value="Superintendente">Superintendente</option>
-                        <option value="JefeDepto">Jfe. Departamento</option>
-                        <option value="C">C</option>
-                        <option value="D">D</option>
-                        <option value="E">E</option>
-                        <option value="Otro">Otro</option>
+                        <option value="Supervisor">Supervisor</option>
+                        <option value="Supervisor Divisional">Supervisor Divisional</option>
+                        <option value="Técnico">Técnico</option>
+                        <option value="Verificador Calibrador">Verificador Calibrador</option>
+                        <option value="Verificador I">Verificador I</option>
+
                     </select>
                 </div>
                 <div class="campo">
@@ -322,9 +346,46 @@
         </div>
     </div>
 </div>
-<a href="/TEMPLATES/camara.html" class="btn-flotante">
-    <img src="/RESOURCE/IMG/camara.png" alt="Icono-camara">
-</a>
+
+{% if imagen_url %}
+<!-- Modal para mostrar la imagen en pantalla completa -->
+<div id="modal-imagen-dia" class="modal-imagen-dia" style="display:none;">
+    <span class="cerrar-modal" id="cerrar-modal-imagen-dia">&times;</span>
+    <img src="{{ imagen_url }}" alt="Imagen del día" class="imagen-dia-modal" />
+</div>
+{% else %}
+
+<!-- Modal para mostrar mensaje de que no hay imagen -->
+<div id="modal-imagen-dia" class="modal-imagen-dia" style="display:none;">
+    <span class="cerrar-modal" id="cerrar-modal-imagen-dia">&times;</span>
+    <div class="mensaje-sin-imagen" >
+        {% if mensaje_img %}{{ mensaje_img }}{% else %}No hay imagen disponible para el día de hoy{% endif %}
+    </div>
+</div>
+{% endif %}
+<!-- Botón menú hamburguesa flotante -->
+<div class="menu-hamburguesa-flotante" id="menu-hamburguesa-flotante">
+   
+    <div class="menu-hamburguesa-opciones" id="menu-hamburguesa-opciones">
+       
+        <a href="#" class="opcion-menu-hamburguesa" id="opcion-ver-imagen-dia">
+            <img src="/RESOURCE/IMG/seguridad-ico.png" alt="Imagen del día" />
+            <span>Kilómetro de vida</span>
+        </a>
+         <a href="/TEMPLATES/camara.html" class="opcion-menu-hamburguesa">
+            <img src="/RESOURCE/IMG/camara-RIJ.png" alt="Ir a cámara" />
+            <span>Cámara</span>
+        </a>
+        <a href="/RESOURCE\RIJ ENE A DIC 2025.pdf" class="opcion-menu-hamburguesa" id="enlacePDF">
+            <img src="/RESOURCE/IMG/pdf-icono.png" alt="Codigo 100" />
+            <span>Código 100</span>
+        </a>
+        
+    </div>
+     <button class="btn-hamburguesa" id="btn-hamburguesa" aria-label="Abrir menú">
+        <img src="https://images.icon-icons.com/1875/PNG/512/hamburgermenu_120234.png" alt="Menú" />
+    </button>
+</div>
         <script src="/RESOURCE/JS/autoguardado_RIJ.js"></script>
         <script src="/RESOURCE/JS/selects.js"></script>
         <script src="/RESOURCE/JS/formato_RIJ/fecha_reloj.js"></script>
@@ -333,6 +394,9 @@
         <script src="/RESOURCE/JS/barra_progreso.js"></script>
         <script src="/RESOURCE/JS/formato_RIJ/campos_desplegables_RIJ.js"></script>
         <script src="/RESOURCE/JS/formato_RIJ/pdf_rij.js"></script>
+        <script src="/RESOURCE/JS/menu_amburguesa.js"></script>
+        <script src="/RESOURCE/JS/redirigir_pdf.js"></script>
+
         <script>
 // Lógica para limpiar datos de sesión al cancelar
 const btnCancelar = document.getElementById('btn-cancelar-formulario');
@@ -346,6 +410,29 @@ if (btnCancelar) {
             });
     });
 }
+
+// Lógica para mostrar la imagen en pantalla completa
+window.addEventListener('DOMContentLoaded', function() {
+    var btn = document.getElementById('btn-ver-imagen-dia');
+    var modal = document.getElementById('modal-imagen-dia');
+    var cerrar = document.getElementById('cerrar-modal-imagen-dia');
+    if(btn && modal && cerrar) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            modal.style.display = 'flex';
+        });
+        cerrar.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+        modal.addEventListener('click', function(e) {
+            if(e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+    }
+});
 </script>
-    </body>
+
+
+</body>
 </html>

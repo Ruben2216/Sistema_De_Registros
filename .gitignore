@@ -12,3 +12,5 @@ key.pem
 =======
 .env
 # Ignorar archivos de configuración 
+
+credenciales/service_account.json
