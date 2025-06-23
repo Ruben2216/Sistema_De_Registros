@@ -73,6 +73,7 @@
                         <option value="Seleccionar_Zona">Seleccione el tipo de equipo</option>
                         <option value="PC">PC</option>
                         <option value="Laptop">Laptop</option>
+                        <option value="Impresora">Impresora</option>
                     </select>
                 </div>
             </div>
@@ -116,7 +117,7 @@
             </div>
             <div class="campo">
                 <label for="usuario" class="campo__etiqueta">NOMBRE DEL USUARIO</label>
-                <input type="text" class="campo__control" id="usuario" name="usuario" readonly>
+                <input type="text" class="campo__control" id="usuario" name="usuario" >
             </div>
             <div class="campo">
                 <label for="marca" class="campo__etiqueta">MARCA</label>
@@ -144,63 +145,63 @@
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="limpieza_externa" type="radio"
                                 value="no" onchange="mostrarInput('limpieza_externa')"> No</label>
                     </div>
-                    <input type="text" id="input_limpieza_externa" class="campo__control" style="display: none;" placeholder="Especifique motivo">
+                    <input type="text" id="input_limpieza_externa" class="campo__control" maxlength="40" style="display: none;" placeholder="Especifique motivo">
                 </div>
                 <div class="campo">2. Limpieza externa de pantalla</p>
                     <div class="grupo-opciones">
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="pantalla" type="radio" value="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="pantalla" type="radio" value="no" onchange="mostrarInput('pantalla')"> No</label>
                     </div>
-                    <input type="text" id="input_pantalla" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                    <input type="text" id="input_pantalla" class="campo__control" style="display:none;" maxlength="40" placeholder="Especifique motivo">
                 </div>
                 <div class="campo">3. Limpieza externa de teclado</p>
                     <div class="grupo-opciones">
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="teclado" type="radio" value="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="teclado" type="radio" value="no" onchange="mostrarInput('teclado')"> No</label>
                     </div>
-                    <input type="text" id="input_teclado" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                    <input type="text" id="input_teclado" class="campo__control" style="display:none;" maxlength="40" placeholder="Especifique motivo">
                 </div>
                 <div class="campo">4. Verificar conexiones eléctricas en buen estado</p>
                     <div class="grupo-opciones">
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="conexiones" type="radio" value="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="conexiones" type="radio" value="no" onchange="mostrarInput('conexiones')"> No</label>
                     </div>
-                    <input type="text" id="input_conexiones" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                    <input type="text" id="input_conexiones" class="campo__control" style="display:none;" maxlength="40" placeholder="Especifique motivo">
                 </div>
                 <div class="campo">5. Verificar que funcione correctamente después del servicio</p>
                     <div class="grupo-opciones">
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="despues_servicio" type="radio" value="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="despues_servicio" type="radio" value="no" onchange="mostrarInput('despues_servicio')"> No</label>
                     </div>
-                    <input type="text" id="input_despues_servicio" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                    <input type="text" id="input_despues_servicio" class="campo__control" style="display:none;" maxlength="40" placeholder="Especifique motivo">
                 </div>
                 <div class="campo">6. Antivirus institucional actualizado</p>
                     <div class="grupo-opciones">
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="antivirus" type="radio" value="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="antivirus" type="radio" value="no" onchange="mostrarInput('antivirus')"> No</label>
                     </div>
-                    <input type="text" id="input_antivirus" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                    <input type="text" id="input_antivirus" class="campo__control" style="display:none;" maxlength="40" placeholder="Especifique motivo">
                 </div>
                 <div class="campo">7. Ejecución de Defrag</p>
                     <div class="grupo-opciones">
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="defrag" type="radio" value="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="defrag" type="radio" value="no" onchange="mostrarInput('defrag')"> No</label>
                     </div>
-                    <input type="text" id="input_defrag" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                    <input type="text" id="input_defrag" class="campo__control" style="display:none;" maxlength="40" placeholder="Especifique motivo">
                 </div>
                 <div class="campo">8. Equipo dentro del dominio</p>
                     <div class="grupo-opciones">
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="dominio" type="radio" value="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="dominio" type="radio" value="no" onchange="mostrarInput('dominio')"> No</label>
                     </div>
-                    <input type="text" id="input_dominio" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                    <input type="text" id="input_dominio" class="campo__control" style="display:none;" maxlength="40" placeholder="Especifique motivo">
                 </div>
                 <div class="campo">9. Sistema operativo actualizado (Windows update)</p>
                     <div class="grupo-opciones">
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="Windows_update" type="radio" value="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="Windows_update" type="radio" value="no" onchange="mostrarInput('Windows_update')"> No</label>
                     </div>
-                    <input type="text" id="input_Windows_update" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                    <input type="text" id="input_Windows_update" class="campo__control" style="display:none;" maxlength="40" placeholder="Especifique motivo">
                 </div>
             </div>
 
@@ -208,21 +209,21 @@
             <hr class="seccion__divisor">
             <div class="campo">
                 <label class="campo__etiqueta">REALIZÓ SERVICIO:</label>
-                <input type="text" class="campo__control" id="realizo_servicio">
+                <input type="text" class="campo__control" id="realizo_servicio" placeholder="Nombre">
                 <div class="firma-area" id="firma-area-1">[Área para firma de quien realizo el servicio]<br>Hacer click aquí</div>
                 <input type="hidden" id="firma-input-1">
                 <img id="firma-imagen-1" class="firma-imagen"/>
             </div>
             <div class="campo">
-                <label class="campo__etiqueta">Responsable del equipo (nombre y firma):</label>
-                <input type="text" class="campo__control" id="responsable">
+                <label class="campo__etiqueta">RESPONSABLE DEL EQUIPO:</label>
+                <input type="text" class="campo__control" id="responsable" placeholder="Nombre">
                 <div class="firma-area" id="firma-area-2">[Área para firma del responsable]<br>Hacer click aquí</div>
                 <input type="hidden" id="firma-input-2">
                 <img id="firma-imagen-2" class="firma-imagen"/>
             </div>
             <div class="campo">
                 <label class="campo__etiqueta">VISTO BUENO:</label>
-                <input type="text" class="campo__control" id="visto_bueno">
+                <input type="text" class="campo__control" id="visto_bueno" placeholder="Nombre">
                 <div class="firma-area" id="firma-area-3">[Área para firma]<br>Hacer click aquí</div>
                 <input type="hidden" id="firma-input-3">
                 <img id="firma-imagen-3" class="firma-imagen"/>
@@ -260,6 +261,6 @@
     <script src="/RESOURCE/JS/selects.js"></script>
     <script src="/RESOURCE/JS/formato_mantenimiento/pdf_compus.js"></script>
     <script src="/RESOURCE/JS/firma.js"></script>
-    <script src="/RESOURCE/JS/generar_pdf_computo.js"></script>
+    <!--<script src="/RESOURCE/JS/generar_pdf_computo.js"></script>-->
 </body>
 </html>

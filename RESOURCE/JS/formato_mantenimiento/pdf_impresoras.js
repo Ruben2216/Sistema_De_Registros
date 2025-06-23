@@ -9,43 +9,19 @@ async function generarPDF() {
     const fecha = document.querySelector('input[id="fecha"]').value;
     const usuario = document.querySelector('input[id="usuario"]').value;
     const tipo_equipo = document.querySelector('select[id="tipo_equipo"]').value;
-    const uso = document.querySelector('input[id="tipo_uso"]').value;
     const marca = document.querySelector('input[id="marca"]').value;
     const modelo = document.querySelector('input[id="modelo"]').value;
     const serie = document.querySelector('input[id="numero_serie"]').value;
     const servicio = document.querySelector('select[id="servicio"]').value;
     const hora_inicio = document.querySelector('input[id="hora_inicio"]').value;
     const hora_termino = document.querySelector('input[id="hora_termino"]').value;
-    const limpieza_externa = document.querySelector('input[name="limpieza_externa"]:checked').value;
-    const pantalla = document.querySelector('input[name="pantalla"]:checked').value;
-    const teclado = document.querySelector('input[name="teclado"]:checked').value;
-    const conexiones = document.querySelector('input[name="conexiones"]:checked').value;
-    const despues_servicio = document.querySelector('input[name="despues_servicio"]:checked').value;
-    const antivirus = document.querySelector('input[name="antivirus"]:checked').value;
-    const defrag = document.querySelector('input[name="defrag"]:checked').value;
-    const dominio = document.querySelector('input[name="dominio"]:checked').value;
-    const Windows_update = document.querySelector('input[name="Windows_update"]:checked').value;
+    
     const realizo_servicio = document.querySelector('input[id="realizo_servicio"]').value;
     const responsable = document.querySelector('input[id="responsable"]').value;
     const visto_bueno = document.querySelector('input[id="visto_bueno"]').value;
     const firma3Base64 = document.getElementById("firma-input-3").value;
     const firma2Base64 = document.getElementById("firma-input-2").value;
-    const firma1Base64 = document.getElementById("firma-input-1").value;
-
-    await new Promise((resolve, reject) => {
-    const img = new Image(); // Este objeto representa la imagen que quieres insertar en el PDF.
-    img.src = '/RESOURCE/IMG/Comisión_Federal_de_Electricidad_(logo)_.svg.png';
-    img.onload = function () { // esta función se ejecutará automáticamente cuando la imagen haya terminado de cargarse correctamente.
-        const pageWidth = doc.internal.pageSize.getWidth();
-        const imgWidth = 40;
-        const imgHeight = 20;
-        const x = pageWidth - imgWidth - 15;
-        const y = 8;
-        doc.addImage(img, 'PNG', x, y, imgWidth, imgHeight);
-        resolve();
-    };
-    img.onerror = reject;
-    });
+    const firma1Base64 = document.getElementById("firma-input-1").value
     
     // ENCABEZADO
     doc.setFont("helvetica"); /*tipo de letra y negritas*/
@@ -242,22 +218,6 @@ async function generarPDF() {
     doc.line(122, y+.7, 155, y+.5);
     doc.rect(158, y - 4, 44, 12.5);
     doc.line(158, y+.7, 202, y+.5);
-    
-    y+= 15;
-    // === USO ===
-    doc.setFont("helvetica", "normal", "bold");
-    label = "Uso de que se le da al equipo:";
-    labelWidth = doc.getTextWidth(label);
-    let xUso = 15 + (rectWidthSeccion1 - labelWidth) / 2;
-    doc.text(label, xUso, y);
-
-    doc.setFont("helvetica", "normal");
-    let usoWidth = doc.getTextWidth(uso);
-    let xUsoVal = 15 + (rectWidthSeccion1 - usoWidth) / 2;
-    doc.text(uso, xUsoVal, y + 5);
-
-    doc.rect(15, y - 4, 55, 12.5); 
-    doc.line(15, y+.7, 70, y+.7);
 
     // TABLA DE ACTIVIDADES
     y += 25;
@@ -292,124 +252,7 @@ async function generarPDF() {
         /*doc.rect(x, y, width, height) dibuja un rectángulo*/
         doc.rect(125, y - 4, 10, 6); // Cuadro NO
         doc.rect(140, y - 4, 60, 6); // Cuadro OBS
-
-        if (index === 0) {
-            if (limpieza_externa === "si") {
-                doc.text("x", 114, y);
-            } else if (limpieza_externa === "no") {
-                doc.text("x", 129, y);
-                const motivo = document.querySelector('input[id="input_limpieza_externa"]').value;
-                if (motivo) {
-                    doc.setFontSize(8); // tamaño más pequeño para caber
-                    doc.text(motivo, 142, y); // dentro del cuadro OBSERVACIONES
-                    doc.setFontSize(10); // regresar a tamaño normal
-                }
-            }
-        }
-        if (index === 1) {
-            if (pantalla === "si") {
-                doc.text("x", 114, y);
-            } else if (pantalla === "no") {
-                doc.text("x", 129, y);
-                const motivo = document.querySelector('input[id="input_pantalla"]').value;
-                if (motivo) {
-                    doc.setFontSize(8); // tamaño más pequeño para caber
-                    doc.text(motivo, 142, y); // dentro del cuadro OBSERVACIONES
-                    doc.setFontSize(10); // regresar a tamaño normal
-                }
-            }
-        }
-        if(index === 2) {
-            if (teclado === "si") {
-                doc.text("x", 114, y);
-            } else if (teclado === "no") {
-                doc.text("x", 129, y);
-                const motivo = document.querySelector('input[id="input_teclado"]').value;
-                if(motivo){
-                    doc.setFontSize(8);
-                    doc.text(motivo, 142, y);
-                    doc.setFontSize(10);
-                }
-            }
-        }
-        if(index === 3){
-            if(conexiones === "si"){
-                doc.text("x", 114, y);
-            } else if(conexiones === "no"){
-                doc.text("x", 129, y);
-                const motivo = document.querySelector('input[id="input_conexiones"]').value;
-                if(motivo){
-                    doc.setFontSize(8);
-                    doc.text(motivo, 142, y);
-                    doc.setFontSize(10);
-                }
-            }
-        }
-        if(index === 4) {
-            if (despues_servicio === "si") {
-                doc.text("x", 114, y);
-            } else if (despues_servicio === "no") {
-                doc.text("x", 129, y);
-                const motivo = document.querySelector('input[id="input_despues_servicio"]').value;
-                if(motivo){
-                    doc.setFontSize(8);
-                    doc.text(motivo, 142, y);
-                    doc.setFontSize(10);
-                }
-            }
-        }
-        if(index === 5){
-            if(antivirus === "si"){
-                doc.text("x", 114, y)
-            } else if (antivirus === "no"){
-                doc.text("x", 129, y);
-                const motivo = document.querySelector('input[id="input_antivirus"]').value;
-                if(motivo){
-                    doc.setFontSize(8);
-                    doc.text(motivo, 142, y);
-                    doc.setFontSize(10);
-                }
-            }
-        }
-        if(index === 6){
-            if(defrag === "si"){
-                doc.text("x", 114, y);
-            } else if (defrag === "no"){
-                doc.text("x", 129, y);
-                const motivo = document.querySelector('input[id="input_defrag"]').value;
-                if(motivo){
-                    doc.setFontSize(8);
-                    doc.text(motivo, 142, y);
-                    doc.setFontSize(10);
-                }
-            }
-        }
-        if(index === 7){
-            if(dominio === "si"){
-                doc.text("x", 114, y);
-            } else if(dominio === "no"){
-                doc.text("x", 129, y);
-                const motivo = document.querySelector('input[id="input_dominio"]').value;
-                if(motivo){
-                    doc.setFontSize(8);
-                    doc.text(motivo, 142, y);
-                    doc.setFontSize(10);
-                }
-            }
-        }
-        if(index === 8){
-            if(Windows_update === "si"){
-                doc.text("x", 114, y);
-            } else if(Windows_update === "no"){
-                doc.text("x", 129, y)
-                const motivo = document.querySelector('input[id="input_Windows_update"]').value;
-                if(motivo){
-                    doc.setFontSize(8);
-                    doc.text(motivo, 142, y);
-                    doc.setFontSize(10);
-                }
-            }
-        }
+        
         y += 11; /*Se incrementa y para la siguiente actividad*/
     });
 

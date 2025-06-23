@@ -14,7 +14,7 @@
             <h1 class="formulario-verificacion__titulo-principal">Formato de mantenimiento preventivo de tabletas</h1>
             <div class="campo">
                 <label class="campo__etiqueta">FECHA</label>
-                <input type="date" class="campo__control">
+                <input type="text" class="campo__control" id="fecha" readonly> 
             </div>
             <div class="seccion">
                 <!-- <div class="campo">
@@ -48,22 +48,22 @@
                     </div>
                 </div>
             </div>
-            <div class="seccion">
+          <!--  <div class="seccion">
                 <div class="campo">
                 <label class="campo__etiqueta">CENTRO DE TRABAJO</label>
-                <select class="campo__control">
+                <select class="campo__control" id="centro">
                     <option value="Seleccionar_Zona">Seleccione una centro</option>
                 </select>
                 </div>
-            </div>
+            </div>-->
             <div class="campo">
                     <label class="campo__etiqueta">FOLIO</label>
-                    <input type="text" class="campo__control">
+                    <input type="text" class="campo__control" id="folio">
             </div>
             <div class="seccion">
                 <div class="campo">
                 <label class="campo__etiqueta">SERVICIO</label>
-                <select class="campo__control">
+                <select class="campo__control" id="servicio">
                     <option value="Seleccionar_Zona">Seleccione el tipo de servicio</option>
                     <option value="Preventivo">Preventivo</option>
                     <option value="Mantenimiento">Mantenimiento</option>
@@ -72,15 +72,15 @@
             </div>
             <div class="campo">
                 <label class="campo__etiqueta">HR. INICIO</label>
-                <input type="time" class="campo__control">
+                <input type="time" class="campo__control" id="hr.inicio">
             </div>
             <div class="campo">
                 <label class="campo__etiqueta">HR. TÉRMINO</label>
-                <input type="time" class="campo__control">
+                <input type="time" class="campo__control" id="hr.termino">
             </div>
             <div class="campo">
                     <label class="campo__etiqueta">RPE/RTT</label>
-                    <input type="text" class="campo__control">
+                    <input type="text" class="campo__control" id="RPE">
             </div>
             
             <div class="campo">
@@ -116,10 +116,6 @@
                 <label for="centro_trabajo" class="campo__etiqueta">CENTRO DE TRABAJO</label>
                 <input type="text" class="campo__control" id="centro_trabajo" name="centro_trabajo" readonly>
             </div>
-            <div class="campo" id="campo-uso-trabajo">
-                <label for="uso" class="campo__etiqueta">USO QUE SE LE DA AL EQUIPO</label>
-                <input type="text" class="campo__control" id="tipo_uso" name="tipo_uso" readonly>
-            </div>
             <div class="campo">
                 <label for="procesos" class="campo__etiqueta">PROCESO</label>
                 <input type="text" class="campo__control" id="procesos" name="procesos" readonly>
@@ -135,106 +131,121 @@
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="inspeccion" type="radio" value="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="inspeccion" type="radio" value="no"> No</label>
                     </div>
-                    <input type="text" id="input_inspeccion" style="display: none;" class="campo__control"  placeholder="Especifique motivo">
+                    <input type="text" id="input_inspeccion" style="display: none;" class="campo__control" maxlength="40"  placeholder="Especifique motivo">
                 </div>
                 <div class="campo">2. Limpieza externa usando cepillo de cerdas suevaes antiestáticas</p>
                     <div class="grupo-opciones">
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="limpieza_cepillo" type="radio" value="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="limpieza_cepillo" type="radio" value="no"> No</label>
                     </div>
-                    <input type="text" id="input_limpieza_cepillo" style="display: none;" class="campo__control"  placeholder="Especifique motivo">
+                    <input type="text" id="input_limpieza_cepillo" style="display: none;" class="campo__control" maxlength="40" placeholder="Especifique motivo">
                 </div>
                 <div class="campo">3. Limpieza de touch con paño suave, sin detergentes o abrasivos</p>
                     <div class="grupo-opciones">
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="limpieza_paño" type="radio" value="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="limpieza_paño" type="radio" value="no"> No</label>
                     </div>
-                    <input type="text" id="input_limpieza_paño" style="display: none;" class="campo__control"  placeholder="Especifique motivo">
+                    <input type="text" id="input_limpieza_paño" style="display: none;" class="campo__control" maxlength="40" placeholder="Especifique motivo">
                 </div>
                 <div class="campo">4. La cubierta con una franela o tela microfibra limpia y humedecida con líquido para limpieza de equipo de cómputo</p>
                     <div class="grupo-opciones">
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="limpieza_cubierta" type="radio" value="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="limpieza_cubierta" type="radio" value="no"> No</label>
                     </div>
-                    <input type="text" id="input_limpieza_cubierta" style="display: none;" class="campo__control"  placeholder="Especifique motivo">
+                    <input type="text" id="input_limpieza_cubierta" style="display: none;" class="campo__control" maxlength="40" placeholder="Especifique motivo">
                 </div>
                 <div class="campo">5. Sopleteado externo del equipo</p>
                     <div class="grupo-opciones">
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="sopleteado" type="radio" value="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="sopleteado" type="radio" value="no"> No</label>
                     </div>
-                    <input type="text" id="input_sopleteado" style="display: none;" class="campo__control"  placeholder="Especifique motivo">
+                    <input type="text" id="input_sopleteado" style="display: none;" class="campo__control" maxlength="40"  placeholder="Especifique motivo">
                 </div>
                 <div class="campo">6. Calibración de touch patalla</p>
                     <div class="grupo-opciones">
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="touch" type="radio" value="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="touch" type="radio" value="no"> No</label>
                     </div>
+                    <input type="text" id="input_touch" class="campo__control" style="display:none;" maxlength="40" placeholder="Especifique motivo">
                 </div>
                 <div class="campo">7. Revisión de batería</p>
                     <div class="grupo-opciones">
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="bateria" type="radio" value="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="bateria" type="radio" value="no"> No</label>
                     </div>
+                    <input type="text" id="input_bateria" class="campo__control" style="display:none;" maxlength="40" placeholder="Especifique motivo">
                 </div>
                 <div class="campo">8. Verificar software institucional actualizado</p>
                     <div class="grupo-opciones">
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="software" type="radio" value="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="software" type="radio" value="no"> No</label>
                     </div>
+                    <input type="text" id="input_software" class="campo__control" style="display:none;" maxlength="40" placeholder="Especifique motivo">
                 </div>
                 <div class="campo">9. Verificar estado del conector de datos</p>
                     <div class="grupo-opciones">
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="conector" type="radio" value="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="conector" type="radio" value="no"> No</label>
                     </div>
+                    <input type="text" id="input_conector" class="campo__control" style="display:none;" maxlength="40" placeholder="Especifique motivo">
                 </div>
                 <div class="campo">10. Conexión a la alimentación eléctrica para carga total</p>
                     <div class="grupo-opciones">
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="alimentacion" type="radio" value="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="alimentacion" type="radio" value="no"> No</label>
                     </div>
+                    <input type="text" id="input_alimentacion" class="campo__control" style="display:none;" maxlength="40" placeholder="Especifique motivo">
                 </div>
                 <div class="campo">11. Verificar estado y operación de cable de carga y comunicación</p>
                     <div class="grupo-opciones">
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="carga_comunicacion" type="radio" value="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="carga_comunicacion" type="radio" value="no"> No</label>
                     </div>
+                    <input type="text" id="input_carga_comunicacion" class="campo__control" style="display:none;" maxlength="40" placeholder="Especifique motivo">
                 </div>
                 <div class="campo">12. Validar estado del teclado</p>
                     <div class="grupo-opciones">
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="teclado" type="radio" value="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="teclado" type="radio" value="no"> No</label>
                     </div>
+                    <input type="text" id="input_teclado" class="campo__control" style="display:none;" maxlength="40" placeholder="Especifique motivo">
                 </div>
                 <div class="campo">13. Verificar estado de GPS(TPS)</p>
                     <div class="grupo-opciones">
-                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="GPS" type="radio" value="si"> Sí</label>
-                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="GPS" type="radio" value="no"> No</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="gps" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="gps" type="radio" value="no"> No</label>
                     </div>
+                    <input type="text" id="input_gps" class="campo__control" style="display:none;" maxlength="40" placeholder="Especifique motivo">
                 </div>
                 <div class="campo">14. Verificar funcionamiento del equipo después del servicio</p>
                     <div class="grupo-opciones">
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="funcionamiento" type="radio" value="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="funcionamiento" type="radio" value="no"> No</label>
                     </div>
+                    <input type="text" id="input_funcionamiento" class="campo__control" style="display:none;" maxlength="40" placeholder="Especifique motivo">
                 </div>
             </div>
             <hr class="seccion__divisor">
             <div class="campo">
-                <label class="campo__etiqueta">Realizó servicio:</label>
-                <input type="text" class="campo__control">
-            </div>
-            <div class="campo">
-                <label class="campo__etiqueta">Visto bueno:</label>
-                <input type="text" class="campo__control">
-            </div>
-            <div class="campo">
-                <label class="campo__etiqueta">Responsable del equipo (nombre y firma):</label>
-                <input type="text" class="campo__control">
-                <div class="firma-area" id="firma-area-1">[Área para firma del responsable]<br>Hacer click aquí</div>
+                <label class="campo__etiqueta">REALIZÓ SERVICIO:</label>
+                <input type="text" class="campo__control" id="realizo_servicio" placeholder="Nombre">
+                <div class="firma-area" id="firma-area-1">[Área para firma de quien realizo el servicio]<br>Hacer click aquí</div>
                 <input type="hidden" id="firma-input-1">
                 <img id="firma-imagen-1" class="firma-imagen"/>
+            </div>
+            <div class="campo">
+                <label class="campo__etiqueta">RESPONSABLE DEL EQUIPO:</label>
+                <input type="text" class="campo__control" id="responsable" placeholder="Nombre">
+                <div class="firma-area" id="firma-area-2">[Área para firma del responsable]<br>Hacer click aquí</div>
+                <input type="hidden" id="firma-input-2">
+                <img id="firma-imagen-2" class="firma-imagen"/>
+            </div>
+            <div class="campo">
+                <label class="campo__etiqueta">VISTO BUENO:</label>
+                <input type="text" class="campo__control" id="visto_bueno" placeholder="Nombre">
+                <div class="firma-area" id="firma-area-3">[Área para firma]<br>Hacer click aquí</div>
+                <input type="hidden" id="firma-input-3">
+                <img id="firma-imagen-3" class="firma-imagen"/>
             </div>
             <button type="button" class="boton boton--primario" onclick="generarPDF()">Pasar siguiente</button>
             <button type="button" class="boton boton--secundario">Guardar Borrador</button>
@@ -257,10 +268,10 @@
 </div>
     <script src="/RESOURCE/JS/formato_mantenimiento/connection.js" ></script>
     <script src="/RESOURCE/JS/firma.js"></script>
-    <script src="/RESOURCE/JS/barra_progreso.js"></script>
     <script src="/RESOURCE/JS/selects.js"></script>
     <script src="/RESOURCE/JS/campo_desplegable.js"></script>
     <script src="/RESOURCE/JS/formato_mantenimiento/pdf_tabletas.js"></script>
     <script src="/RESOURCE/JS/forzarCargaCSS.js" defer></script>
+    <scrip src="/RESOURCE/JS/barra_progreso.js"></scrip>
 </body>
 </html>
