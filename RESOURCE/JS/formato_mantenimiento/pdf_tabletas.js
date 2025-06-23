@@ -38,9 +38,9 @@ async function generarPDF() {
     const firma1Base64 = document.getElementById("firma-input-1").value;
 
     await new Promise((resolve, reject) => {
-    const img = new Image(); // Este objeto representa la imagen que quieres insertar en el PDF.
+    const img = new Image(); // Este objeto representa la imagen se va a insertar en el PDF
     img.src = '/RESOURCE/IMG/Comisión_Federal_de_Electricidad_(logo)_.svg.png';
-    img.onload = function () { // esta función se ejecutará automáticamente cuando la imagen haya terminado de cargarse correctamente.
+    img.onload = function () { // esta función se ejecutará automáticamente cuando la imagen haya terminado de cargarse correctamente
         const pageWidth = doc.internal.pageSize.getWidth();
         const imgWidth = 40;
         const imgHeight = 20;
