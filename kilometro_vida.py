@@ -10,7 +10,7 @@ import io
 # Configuración de Google Drive
 SERVICE_ACCOUNT_FILE = os.path.join('credenciales', 'service_account.json')
 SCOPES = ['https://www.googleapis.com/auth/drive.readonly']
-CARPETA_ONEDRIVE = 'Mensajes_Kilometro_Vida_2025'
+CARPETA_ONEDRIVE = 'Mensajes_Seguridad_2025'
 LOCAL_IMG_FOLDER = os.path.join('static', 'imagenes')
 os.makedirs(LOCAL_IMG_FOLDER, exist_ok=True)
 
