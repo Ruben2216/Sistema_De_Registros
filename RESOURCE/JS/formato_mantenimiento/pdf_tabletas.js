@@ -342,7 +342,7 @@ async function generarPDF() {
     // Línea horizontal al final del texto
     doc.line(15,y+6, w, y+6 );
 
-    // Subimos Y para seguir abajo de todo ese bloque
+    // sube Y para seguir abajo de todo ese bloque
     //y += textoDividido.length * 6;
 
     
