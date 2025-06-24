@@ -32,16 +32,14 @@ async function generarPDF() {
     const firma2Base64 = document.getElementById("firma-input-2").value;
     const firma1Base64 = document.getElementById("firma-input-1").value;
 
+    // IMAGEN -- LOGO
     await new Promise((resolve, reject) => {
     const img = new Image(); // Este objeto representa la imagen que se va a insertar en el PDF
     img.src = '/RESOURCE/IMG/Comisión_Federal_de_Electricidad_(logo)_.svg.png';
     img.onload = function () { // esta función se ejecutará automáticamente cuando la imagen haya terminado de cargarse correctamente
-        const pageWidth = doc.internal.pageSize.getWidth();
         const imgWidth = 40;
         const imgHeight = 20;
-        const x = pageWidth - imgWidth - 15;
-        const y = 8;
-        doc.addImage(img, 'PNG', x, y, imgWidth, imgHeight);
+        doc.addImage(img, 'PNG', 15, 8, imgWidth, imgHeight);
         resolve();
     };
     img.onerror = reject;
@@ -261,158 +259,162 @@ async function generarPDF() {
     // TABLA DE ACTIVIDADES
     y += 25;
     doc.setFont("helvetica", "bold");
-    doc.text("ACTIVIDADES", 15, y);
-    doc.text("SI", 112, y);
-    doc.text("NO", 127, y);
+    doc.text("ACTIVIDADES", 16, y);
+    doc.text("SI", 110, y);
+    doc.text("NO", 120, y);
     doc.text("OBSERVACIONES", 153, y);
 
     doc.setFont("helvetica", "normal");
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const z = pageWidth - 23;
+    doc.rect(15, y-4, z, 66); // TABLA
+    const top = y - 4;
+    const bottom = y - 4 + 66;
 
-    const actividades = [ /*arreglo de actividades "cadena de texto"*/
-        "Limpieza externa del equipo",
-        "Limpieza externa de pantalla",
-        "Limpieza externa de teclado",
-        "Verificar conexiones eléctricas en buen estado",
-        "Verificar que funcione correctamente después del servicio",
-        "Antivirus instituional actualizado",
-        "Ejecución de Defrag",
-        "Equipo dentro del dominio",
-        "Sistema operativo actualizado (Windows update)",
-    ];
+    doc.line(108, top, 108, bottom); // primera línea vertical
+    doc.line(118, top, 118, bottom); // segunda línea vertical
+    doc.line(128, top, 128, bottom)
 
-    y += 10;
-    actividades.forEach((act, index) => { /*Se recorre cada elemento (act) del arreglo actividades, con su índice (index)*/
-        if (y > 270) { /*Si la posición y es mayor a 270, se agrega una nueva página*/
-            doc.addPage(); /*agrega pagina nueva*/
-            y = 15;
-        }
-        doc.text(`${index + 1}. ${act}`, 10, y); /*Se usa `${index + 1}. ${act}` para que cada actividad esté numerada y se coloque en y*/
-        doc.rect(110, y - 4, 10, 6); // Cuadro SI
-        /*doc.rect(x, y, width, height) dibuja un rectángulo*/
-        doc.rect(125, y - 4, 10, 6); // Cuadro NO
-        doc.rect(140, y - 4, 60, 6); // Cuadro OBS
+    const w = pageWidth - 8;
 
-        if (index === 0) {
-            if (limpieza_externa === "si") {
-                doc.text("x", 114, y);
-            } else if (limpieza_externa === "no") {
-                doc.text("x", 129, y);
-                const motivo = document.querySelector('input[id="input_limpieza_externa"]').value;
-                if (motivo) {
-                    doc.setFontSize(8); // tamaño más pequeño para caber
-                    doc.text(motivo, 142, y); // dentro del cuadro OBSERVACIONES
-                    doc.setFontSize(10); // regresar a tamaño normal
-                }
+    doc.line(15,y+2, w, y+2 );
+
+    y+=6;
+    doc.text(`Limpieza externa del equipo`, 16, y);
+    doc.line(15,y+2, w, y+2 );
+
+    if (limpieza_externa === "si") {
+        doc.text("x", 112, y);
+        } else if (limpieza_externa === "no") {
+            doc.text("x", 122, y);
+            const motivo = document.querySelector('input[id="input_limpieza_externa"]').value;
+            if (motivo) {
+                doc.setFontSize(8); // tamaño más pequeño para caber
+                doc.text(motivo, 129, y); // dentro del cuadro OBSERVACIONES
+                doc.setFontSize(10); // regresar a tamaño normal
             }
         }
-        if (index === 1) {
+    
+    y+=6;
+    doc.text(`Limpieza externa de pantalla`, 16, y);
+    doc.line(15,y+2, w, y+2 );
             if (pantalla === "si") {
-                doc.text("x", 114, y);
+                doc.text("x", 112, y);
             } else if (pantalla === "no") {
-                doc.text("x", 129, y);
+                doc.text("x", 122, y);
                 const motivo = document.querySelector('input[id="input_pantalla"]').value;
                 if (motivo) {
                     doc.setFontSize(8); // tamaño más pequeño para caber
-                    doc.text(motivo, 142, y); // dentro del cuadro OBSERVACIONES
+                    doc.text(motivo, 129, y); // dentro del cuadro OBSERVACIONES
                     doc.setFontSize(10); // regresar a tamaño normal
                 }
             }
-        }
-        if(index === 2) {
+
+    y+=6;
+    doc.text(`Limpieza externa de teclado`, 16, y);
+    doc.line(15,y+2, w, y+2 );
             if (teclado === "si") {
-                doc.text("x", 114, y);
+                doc.text("x", 112, y);
             } else if (teclado === "no") {
-                doc.text("x", 129, y);
+                doc.text("x", 122, y);
                 const motivo = document.querySelector('input[id="input_teclado"]').value;
-                if(motivo){
-                    doc.setFontSize(8);
-                    doc.text(motivo, 142, y);
-                    doc.setFontSize(10);
+                if (motivo) {
+                    doc.setFontSize(8); // tamaño más pequeño para caber
+                    doc.text(motivo, 129, y); // dentro del cuadro OBSERVACIONES
+                    doc.setFontSize(10); // regresar a tamaño normal
                 }
             }
-        }
-        if(index === 3){
-            if(conexiones === "si"){
-                doc.text("x", 114, y);
-            } else if(conexiones === "no"){
-                doc.text("x", 129, y);
-                const motivo = document.querySelector('input[id="input_conexiones"]').value;
-                if(motivo){
-                    doc.setFontSize(8);
-                    doc.text(motivo, 142, y);
-                    doc.setFontSize(10);
-                }
+
+    y+=6;
+    doc.text(`Verificar conexiones eléctricas en buen estado`, 16, y);
+    doc.line(15,y+2, w, y+2 );
+    if (conexiones === "si") {
+        doc.text("x", 112, y);
+        } else if (conexiones === "no") {
+            doc.text("x", 122, y);
+            const motivo = document.querySelector('input[id="input_conexiones"]').value;
+            if(motivo){
+                doc.setFontSize(8);
+                doc.text(motivo, 129, y);
+                doc.setFontSize(10);
             }
         }
-        if(index === 4) {
+
+    y+=6;
+    doc.text(`Verificar que funcione correctamente después del servicio`, 16, y);
+    doc.line(15,y+2, w, y+2 );
             if (despues_servicio === "si") {
-                doc.text("x", 114, y);
+                doc.text("x", 112, y);
             } else if (despues_servicio === "no") {
-                doc.text("x", 129, y);
+                doc.text("x", 122, y);
                 const motivo = document.querySelector('input[id="input_despues_servicio"]').value;
                 if(motivo){
                     doc.setFontSize(8);
-                    doc.text(motivo, 142, y);
+                    doc.text(motivo, 129, y);
                     doc.setFontSize(10);
                 }
             }
-        }
-        if(index === 5){
+
+    y+=6;
+    doc.text(`Antivirus institucional actualizado`, 16, y);
+    doc.line(15,y+2, w, y+2 );
             if(antivirus === "si"){
-                doc.text("x", 114, y)
+                doc.text("x", 112, y)
             } else if (antivirus === "no"){
-                doc.text("x", 129, y);
+                doc.text("x", 122, y);
                 const motivo = document.querySelector('input[id="input_antivirus"]').value;
                 if(motivo){
                     doc.setFontSize(8);
-                    doc.text(motivo, 142, y);
+                    doc.text(motivo, 129, y);
                     doc.setFontSize(10);
                 }
             }
-        }
-        if(index === 6){
+
+    y+=6;
+    doc.text(`Ejecución de Defrag`, 16, y);
+    doc.line(15,y+2, w, y+2 );
             if(defrag === "si"){
-                doc.text("x", 114, y);
+                doc.text("x", 112, y);
             } else if (defrag === "no"){
-                doc.text("x", 129, y);
+                doc.text("x", 122, y);
                 const motivo = document.querySelector('input[id="input_defrag"]').value;
                 if(motivo){
                     doc.setFontSize(8);
-                    doc.text(motivo, 142, y);
+                    doc.text(motivo, 129, y);
                     doc.setFontSize(10);
                 }
             }
-        }
-        if(index === 7){
+
+    y+=6;
+    doc.text(`Equipo dentro del dominio`, 16, y);
+    doc.line(15,y+2, w, y+2 );
             if(dominio === "si"){
-                doc.text("x", 114, y);
+                doc.text("x", 112, y);
             } else if(dominio === "no"){
-                doc.text("x", 129, y);
+                doc.text("x", 122, y);
                 const motivo = document.querySelector('input[id="input_dominio"]').value;
                 if(motivo){
                     doc.setFontSize(8);
-                    doc.text(motivo, 142, y);
+                    doc.text(motivo, 129, y);
                     doc.setFontSize(10);
                 }
             }
-        }
-        if(index === 8){
+    y+=6;
+    doc.text(`Sistema operativo actualizado (Windows update)`, 16, y);
+    doc.line(15,y+2, w, y+2 );
             if(Windows_update === "si"){
-                doc.text("x", 114, y);
+                doc.text("x", 112, y);
             } else if(Windows_update === "no"){
-                doc.text("x", 129, y)
+                doc.text("x", 122, y)
                 const motivo = document.querySelector('input[id="input_Windows_update"]').value;
                 if(motivo){
                     doc.setFontSize(8);
-                    doc.text(motivo, 142, y);
+                    doc.text(motivo, 129, y);
                     doc.setFontSize(10);
                 }
             }
-        }
-        y += 11; /*Se incrementa y para la siguiente actividad*/
-    });
 
-     y += 5;
+     y += 55;
 
     // FIRMAS
     y+=8;

@@ -37,16 +37,14 @@ async function generarPDF() {
     const firma2Base64 = document.getElementById("firma-input-2").value;
     const firma1Base64 = document.getElementById("firma-input-1").value;
 
+    // IMAGEN -- LOGO
     await new Promise((resolve, reject) => {
-    const img = new Image(); // Este objeto representa la imagen se va a insertar en el PDF
+    const img = new Image(); // Este objeto representa la imagen que se va a insertar en el PDF
     img.src = '/RESOURCE/IMG/Comisión_Federal_de_Electricidad_(logo)_.svg.png';
     img.onload = function () { // esta función se ejecutará automáticamente cuando la imagen haya terminado de cargarse correctamente
-        const pageWidth = doc.internal.pageSize.getWidth();
         const imgWidth = 40;
         const imgHeight = 20;
-        const x = pageWidth - imgWidth - 15;
-        const y = 8;
-        doc.addImage(img, 'PNG', x, y, imgWidth, imgHeight);
+        doc.addImage(img, 'PNG', 15, 8, imgWidth, imgHeight);
         resolve();
     };
     img.onerror = reject;
@@ -251,236 +249,251 @@ async function generarPDF() {
     doc.rect(15, y-4, anchoTotal + 7, 6);
 
     // TABLA DE ACTIVIDADES
-    y += 13;
-    doc.setFontSize(11)
+    y += 25;
     doc.setFont("helvetica", "bold");
-    doc.text("ACTIVIDAD", 15, y);
-    doc.text("SI", 112, y);
-    doc.text("NO", 127, y);
+    doc.text("ACTIVIDADES", 16, y);
+    doc.text("SI", 110, y);
+    doc.text("NO", 120, y);
     doc.text("OBSERVACIONES", 153, y);
 
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(9);
+    const pageWidth2 = doc.internal.pageSize.getWidth();
+    const z = pageWidth2 - 23;
+    doc.rect(15, y-4, z, 95); // TABLA
+    const top = y - 4;
+    const bottom = y - 4 + 90;
 
-    const actividades = [ /*arreglo de actividades "cadena de texto"*/
-        "Realizar inspección inicial del equipo",
-        "Limpieza externa usando cepillo de cerdas suaves antiestáticas",
-        "Limpieza de touch con paño suave, sin detergentes o abrasivos",
-        "La cubierta de franela o tela microfibra limpia y humedecida con líquido para limpieza de equipo de cómputo",
-        "Sopleteado externo del equipo",
-        "Calibración de touch pantalla",
-        "Revisión de batería",
-        "Verificar software institucional actualizado",
-        "Verificar estado del coenctor de datos",
-        "Conexión a alimentacion eléctrica para carga y comunicación",
-        "Verificar estado y operación de cable de carga y comunicación",
-        "Validar estado del teclado",
-        "Verificar estado de GPS(TPS)",
-        "Verificar funcionamiento del equopo después del servicio"
-    ];
-    y += 8;
-    actividades.forEach((act, index) => { /*Se recorre cada elemento (act) del arreglo actividades, con su índice (index)*/
-        if (y > 270) { /*Si la posición y es mayor a 270, se agrega una nueva página*/
-            doc.addPage(); /*agrega pagina nueva*/
-            y = 15;
-        }
-        const texto = `${index + 1}. ${act}`;
-        const lineas = doc.splitTextToSize(texto, 95); // divide el texto en líneas de máx 95 px
+    doc.line(108, top, 108, bottom); // primera línea vertical
+    doc.line(118, top, 118, bottom); // segunda línea vertical
+    doc.line(128, top, 128, bottom)
 
-        const altoLinea = 7;
-        const altura = lineas.length * altoLinea;
+    const w = pageWidth2 - 8;
 
-        doc.text(lineas, 10, y); // escribe las líneas en x=10, y=y
+    doc.line(15,y+2, w, y+2 );
 
-        doc.rect(110, y - 4, 10, 6); // Cuadro SI
-        /*doc.rect(x, y, width, height) dibuja un rectángulo*/
-        doc.rect(125, y - 4, 10, 6); // Cuadro NO
-        doc.rect(140, y - 4, 60, altura); // Cuadro OBS
+    y+=6;
+    doc.text(`Realizar inspección inicial del equipo`, 16, y);
+    doc.line(15,y+2, w, y+2 );
 
-        if (index === 0) {
-            if (inspeccion === "si") {
-                doc.text("x", 114, y);
-            } else if (inspeccion === "no") {
-                doc.text("x", 129, y);
-                const motivo = document.querySelector('input[id="input_inspeccion"]').value;
-                if (motivo) {
-                    doc.setFontSize(8); // tamaño más pequeño para caber
-                    doc.text(doc.splitTextToSize(motivo, 58), 142, y); // ajusta texto en OBS
-                    doc.setFontSize(9); // regresar a tamaño normal
-                }
+    if (inspeccion === "si") {
+        doc.text("x", 112, y);
+        } else if (inspeccion === "no") {
+            doc.text("x", 122, y);
+            const motivo = document.querySelector('input[id="input_inspeccion"]').value;
+            if (motivo) {
+                doc.setFontSize(8); // tamaño más pequeño para caber
+                doc.text(motivo, 129, y); // dentro del cuadro OBSERVACIONES
+                doc.setFontSize(10); // regresar a tamaño normal
             }
         }
-        if (index === 1) {
-            if (limpieza_cepillo === "si") {
-                doc.text("x", 114, y);
-            } else if (limpieza_cepillo === "no") {
-                doc.text("x", 129, y);
-                const motivo = document.querySelector('input[id="input_limpieza_cepillo"]').value;
-                if (motivo) {
-                    doc.setFontSize(8); // tamaño más pequeño para caber
-                    doc.text(motivo, 142, y); // dentro del cuadro OBSERVACIONES
-                    doc.setFontSize(9); // regresar a tamaño normal
-                }
+
+    y+=6;
+    doc.text(`Limpieza externa usando cepillo de cerdas suaves antiestáticas`, 16, y);
+    doc.line(15,y+2, w, y+2 );
+
+    if (limpieza_cepillo === "si") {
+        doc.text("x", 112, y);
+        } else if (limpieza_cepillo === "no") {
+            doc.text("x", 122, y);
+            const motivo = document.querySelector('input[id="input_limpieza_cepillo"]').value;
+            if (motivo) {
+                doc.setFontSize(8); // tamaño más pequeño para caber
+                doc.text(motivo, 129, y); // dentro del cuadro OBSERVACIONES
+                doc.setFontSize(9); // regresar a tamaño normal
             }
+    }
+
+    y+=6;
+    doc.text(`Limpieza de touch con paño suave, sin detergentes o abrasivos`, 16, y);
+    doc.line(15,y+2, w, y+2 );
+    if (limpieza_paño === "si") {
+        doc.text("x", 112, y);
+        } else if (limpieza_paño === "no") {
+        doc.text("x", 122, y);
+        const motivo = document.querySelector('input[id="input_limpieza_paño"]').value;
+        if(motivo){
+            doc.setFontSize(8);
+            doc.text(motivo, 129, y);
+            doc.setFontSize(9);
         }
-        if(index === 2) {
-            if (limpieza_paño === "si") {
-                doc.text("x", 114, y);
-            } else if (limpieza_paño === "no") {
-                doc.text("x", 129, y);
-                const motivo = document.querySelector('input[id="input_limpieza_paño"]').value;
-                if(motivo){
-                    doc.setFontSize(8);
-                    doc.text(motivo, 142, y);
-                    doc.setFontSize(9);
-                }
-            }
+    }
+
+    y+=6;
+    const texto = "La cubierta de franela o tela microfibra limpia y humedecida con líquido para limpieza de equipo de cómputo";
+    const anchoMax = 90; // espacio antes de la línea vertical (108 - 16 - margen extra)
+    const textoDividido = doc.splitTextToSize(texto, anchoMax);
+
+    doc.text(textoDividido, 16, y); // dibuja el texto en varias líneas automáticas
+
+    // Marca con "x" en SI o NO (alineado con la primera línea del texto)
+    if (limpieza_cubierta === "si") {
+        doc.text("x", 112, y); // columna SI
+    } else if (limpieza_cubierta === "no") {
+        doc.text("x", 122, y); // columna NO
+
+        const motivo = document.querySelector('input[id="input_limpieza_cubierta"]').value;
+        if (motivo) {
+            doc.setFontSize(8);
+            doc.text(motivo, 129, y); // columna observaciones
+            doc.setFontSize(10);
         }
-        if(index === 3){
-            if(limpieza_cubierta === "si"){
-                doc.text("x", 114, y);
-            } else if(limpieza_cubierta === "no"){
-                doc.text("x", 129, y);
-                const motivo = document.querySelector('input[id="input_limpieza_cubierta"]').value;
-                if(motivo){
-                    doc.setFontSize(8);
-                    doc.text(motivo, 142, y);
-                    doc.setFontSize(9);
-                }
-            }
+    }
+
+    // Línea horizontal al final del texto
+    doc.line(15,y+6, w, y+6 );
+
+    // Subimos Y para seguir abajo de todo ese bloque
+    //y += textoDividido.length * 6;
+
+    
+    y+=10;
+    doc.text(`Sopleteado externo del equipo`, 16, y);
+    doc.line(15,y+2, w, y+2 );
+    if (sopleteado === "si") {
+        doc.text("x", 112, y);
+    } else if (sopleteado === "no") {
+        doc.text("x", 122, y);
+        const motivo = document.querySelector('input[id="input_sopleteado"]').value;
+        if(motivo){
+            doc.setFontSize(8);
+            doc.text(motivo, 129, y);
+            doc.setFontSize(9);
         }
-        if(index === 4) {
-            if (sopleteado === "si") {
-                doc.text("x", 114, y);
-            } else if (sopleteado === "no") {
-                doc.text("x", 129, y);
-                const motivo = document.querySelector('input[id="input_sopleteado"]').value;
-                if(motivo){
-                    doc.setFontSize(8);
-                    doc.text(motivo, 142, y);
-                    doc.setFontSize(9);
-                }
-            }
+    }
+
+    y+=6;
+    doc.text(`Calibración de touch pantalla`, 16, y);
+    doc.line(15,y+2, w, y+2 );
+    if(touch === "si"){
+        doc.text("x", 112, y)
+    } else if (touch === "no"){
+        doc.text("x", 122, y);
+        const motivo = document.querySelector('input[id="input_touch"]').value;
+        if(motivo){
+            doc.setFontSize(8);
+            doc.text(motivo, 129, y);
+            doc.setFontSize(9);
         }
-        if(index === 5){
-            if(touch === "si"){
-                doc.text("x", 114, y)
-            } else if (touch === "no"){
-                doc.text("x", 129, y);
-                const motivo = document.querySelector('input[id="input_touch"]').value;
-                if(motivo){
-                    doc.setFontSize(8);
-                    doc.text(motivo, 142, y);
-                    doc.setFontSize(9);
-                }
-            }
+    }
+
+    y+=6;
+    doc.text(`Revisión de batería`, 16, y);
+    doc.line(15,y+2, w, y+2 );
+    if(bateria === "si"){
+        doc.text("x", 112, y);
+    } else if (bateria === "no"){
+        doc.text("x", 122, y);
+        const motivo = document.querySelector('input[id="input_bateria"]').value;
+        if(motivo){
+            doc.setFontSize(8);
+            doc.text(motivo, 129, y);
+            doc.setFontSize(9);
         }
-        if(index === 6){
-            if(bateria === "si"){
-                doc.text("x", 114, y);
-            } else if (bateria === "no"){
-                doc.text("x", 129, y);
-                const motivo = document.querySelector('input[id="input_bateria"]').value;
-                if(motivo){
-                    doc.setFontSize(8);
-                    doc.text(motivo, 142, y);
-                    doc.setFontSize(9);
-                }
-            }
+    }
+
+    y+=6;
+    doc.text(`Verificar software institucional actualizado`, 16, y);
+    doc.line(15,y+2, w, y+2 );
+    if(software === "si"){
+        doc.text("x", 112, y);
+    } else if(software === "no"){
+        doc.text("x", 122, y);
+        const motivo = document.querySelector('input[id="input_software"]').value;
+        if(motivo){
+            doc.setFontSize(8);
+            doc.text(motivo, 129, y);
+            doc.setFontSize(9);
         }
-        if(index === 7){
-            if(software === "si"){
-                doc.text("x", 114, y);
-            } else if(software === "no"){
-                doc.text("x", 129, y);
-                const motivo = document.querySelector('input[id="input_software"]').value;
-                if(motivo){
-                    doc.setFontSize(8);
-                    doc.text(motivo, 142, y);
-                    doc.setFontSize(9);
-                }
-            }
+    }
+
+    y+=6;
+    doc.text(`Verificar estado del conector de datos`, 16, y);
+    doc.line(15,y+2, w, y+2 );
+    if(carga_comunicacion === "si"){
+        doc.text("x", 112, y);
+    } else if(carga_comunicacion === "no"){
+        doc.text("x", 122, y)
+        const motivo = document.querySelector('input[id="input_carga_comunicacion"]').value;
+        if(motivo){
+            doc.setFontSize(8);
+            doc.text(motivo, 129, y);
+            doc.setFontSize(9);
         }
-        if(index === 8){
-            if(conector === "si"){
-                doc.text("x", 114, y);
-            } else if(conector === "no"){
-                doc.text("x", 129, y)
-                const motivo = document.querySelector('input[id="input_conector"]').value;
-                if(motivo){
-                    doc.setFontSize(8);
-                    doc.text(motivo, 142, y);
-                    doc.setFontSize(9);
-                }
-            }
+    }
+
+    y+=6;
+    doc.text(`Conexión a alimentación eléctrica para la carga total`, 16, y);
+    doc.line(15,y+2, w, y+2 );
+    if(alimentacion === "si"){
+        doc.text("x", 112, y);
+    } else if(alimentacion === "no"){
+        doc.text("x", 122, y)
+        const motivo = document.querySelector('input[id="input_alimentacion"]').value;
+        if(motivo){
+            doc.setFontSize(8);
+            doc.text(motivo, 129, y);
+            doc.setFontSize(9);
         }
-        if(index === 9){
-            if(alimentacion === "si"){
-                doc.text("x", 114, y);
-            }else if(alimentacion === "no"){
-                doc.text("x", 129, y)
-                const motivo = document.querySelector('input[id="input_alimentacion"]').value;
-                if (motivo){
-                    doc.setFontSize(8);
-                    doc.text(motivo, 142, y);
-                    doc.setFontSize(9);
-                }
-            }
+    }
+
+    y+=6;
+    doc.text(`Verificar estado del conector de datos`, 16, y);
+    doc.line(15,y+2, w, y+2 );
+    if(conector === "si"){
+        doc.text("x", 112, y);
+    } else if(conector === "no"){
+        doc.text("x", 122, y)
+        const motivo = document.querySelector('input[id="input_conector"]').value;
+        if(motivo){
+            doc.setFontSize(8);
+            doc.text(motivo, 129, y);
+            doc.setFontSize(9);
         }
-        if(index === 10){
-            if(carga_comunicacion === "si"){
-                doc.text("x", 114, y);
-            }else if(carga_comunicacion === "no"){
-                doc.text("x", 129, y)
-                const motivo = document.querySelector('input[id="input_carga_comunicacion"]').value;
-                if (motivo){
-                    doc.setFontSize(8);
-                    doc.text(motivo, 142, y);
-                    doc.setFontSize(9);
-                }
-            }
+    }
+    
+    y+=6;
+    doc.text(`Validar estado del teclado`, 16, y);
+    doc.line(15,y+2, w, y+2 );
+    if(teclado === "si"){
+        doc.text("x", 112, y);
+    } else if(teclado === "no"){
+        doc.text("x", 122, y)
+        const motivo = document.querySelector('input[id="input_teclado"]').value;
+        if(motivo){
+            doc.setFontSize(8);
+            doc.text(motivo, 129, y);
+            doc.setFontSize(9);
         }
-        if(index === 11){
-            if(teclado === "si"){
-                doc.text("x", 114, y);
-            }else if(teclado === "no"){
-                doc.text("x", 129, y)
-                const motivo = document.querySelector('input[id="input_teclado"]').value
-                if (motivo){
-                    doc.setFontSize(8);
-                    doc.text(motivo, 142, y);
-                    doc.setFontSize(9);
-                }
-            }
+    }
+
+    y+=6;
+    doc.text(`Verificar estado de GPS(TPS)`, 16, y);
+    doc.line(15,y+2, w, y+2 );
+    if(gps === "si"){
+        doc.text("x", 112, y);
+    } else if(gps === "no"){
+        doc.text("x", 122, y)
+        const motivo = document.querySelector('input[id="input_gps"]').value;
+        if(motivo){
+            doc.setFontSize(8);
+            doc.text(motivo, 129, y);
+            doc.setFontSize(9);
         }
-        if(index === 12){
-            if(gps === "si"){
-                doc.text("x", 114, y);
-            }else if(gps === "no"){
-                doc.text("x", 129, y)
-                const motivo = document.querySelector('input[id="input_gps"]').value
-                if (motivo){
-                    doc.setFontSize(8);
-                    doc.text(motivo, 142, y);
-                    doc.setFontSize(9);
-                }
-            }
+    }
+
+    y+=6;
+    doc.text(`Verificar funcionamiento del equopo después del servicio`, 16, y);
+    if(funcionamiento === "si"){
+        doc.text("x", 112, y);
+    } else if(funcionamiento === "no"){
+        doc.text("x", 122, y)
+        const motivo = document.querySelector('input[id="input_funcionamiento"]').value;
+        if(motivo){
+            doc.setFontSize(8);
+            doc.text(motivo, 129, y);
+            doc.setFontSize(9);
         }
-        if(index === 13){
-            if(funcionamiento === "si"){
-                doc.text("x", 114, y);
-            }else if(funcionamiento === "no"){
-                doc.text("x", 129, y)
-                const motivo = document.querySelector('input[id="input_funcionamiento"]').value;
-                if (motivo){
-                    doc.setFontSize(8);
-                    doc.text(motivo, 142, y);
-                    doc.setFontSize(9);
-                }
-            }
-        }
-        y += 6 * lineas.length + 4; // 7 px por línea + espacio extra
-    });
+    }
 
     y+=5;
     // FIRMAS

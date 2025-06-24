@@ -11,24 +11,48 @@ async function generarPDF() {
     const tipo_equipo = document.querySelector('select[id="tipo_equipo"]').value;
     const marca = document.querySelector('input[id="marca"]').value;
     const modelo = document.querySelector('input[id="modelo"]').value;
-    const serie = document.querySelector('input[id="numero_serie"]').value;
+    const serie = document.querySelector('input[id="serie"]').value;
     const servicio = document.querySelector('select[id="servicio"]').value;
-    const hora_inicio = document.querySelector('input[id="hora_inicio"]').value;
-    const hora_termino = document.querySelector('input[id="hora_termino"]').value;
-    
+    const hora_inicio = document.querySelector('input[id="hrInicio"]').value;
+    const hora_termino = document.querySelector('input[id="hrTermino"]').value;
+
+    const limpieza_interna = document.querySelector('input[name="limpieza_interna"]:checked').value;
+    const sopleteado = document.querySelector('input[name="sopleteado"]:checked').value;
+    const bandejas = document.querySelector('input[name="bandejas"]:checked').value;
+    const papel = document.querySelector('input[name="papel"]:checked').value;
+    const fusion = document.querySelector('input[name="fusion"]:checked').value;
+    const laser = document.querySelector('input[name="laser"]:checked').value;
+    const consumibles = document.querySelector('input[name="consumibles"]:checked').value;
+    const red = document.querySelector('input[name="red"]:checked').value;
+    const prueba = document.querySelector('input[name="prueba"]:checked').value;
+    const operando = document.querySelector('input[name="operando"]:checked').value;
+
     const realizo_servicio = document.querySelector('input[id="realizo_servicio"]').value;
     const responsable = document.querySelector('input[id="responsable"]').value;
     const visto_bueno = document.querySelector('input[id="visto_bueno"]').value;
     const firma3Base64 = document.getElementById("firma-input-3").value;
     const firma2Base64 = document.getElementById("firma-input-2").value;
-    const firma1Base64 = document.getElementById("firma-input-1").value
+    const firma1Base64 = document.getElementById("firma-input-1").value;
+
+    // IMAGEN -- LOGO
+    await new Promise((resolve, reject) => {
+    const img = new Image(); // Este objeto representa la imagen que se va a insertar en el PDF
+    img.src = '/RESOURCE/IMG/Comisión_Federal_de_Electricidad_(logo)_.svg.png';
+    img.onload = function () { // esta función se ejecutará automáticamente cuando la imagen haya terminado de cargarse correctamente
+        const imgWidth = 40;
+        const imgHeight = 20;
+        doc.addImage(img, 'PNG', 15, 8, imgWidth, imgHeight);
+        resolve();
+    };
+    img.onerror = reject;
+    });
     
     // ENCABEZADO
     doc.setFont("helvetica"); /*tipo de letra y negritas*/
     doc.setFontSize(10);
-    doc.text("Comisión Federal de Electricidad", 105, 40, null, null, "center");
-    doc.text("Política Transversal de Calidad de CFE", 105, 40, null, null, "center");
-    doc.text("Sistema Integral de Gestión (SIG-CFE)", 105, 40, null, null, "center");
+    doc.text("Comisión Federal de Electricidad", 105, 15, null, null, "center");
+    doc.text("Política Transversal de Calidad de CFE", 105, 20, null, null, "center");
+    doc.text("Sistema Integral de Gestión (SIG-CFE)", 105, 25, null, null, "center");
 
     doc.setFontSize(12);
     doc.setFont("helvetica", "bold");
@@ -94,7 +118,7 @@ async function generarPDF() {
     doc.text(folio, xFolioVal, y + 5);
 
     doc.rect(15, y - 4, 55, 12.5); 
-    doc.line(15, y+.7, 70, y+.7);
+    doc.line(15, y+.7, 70, y+.7); 
     doc.rect(73, y - 4, 46, 12.5); 
     doc.line(73, y+.7, 119, y+.5);
     doc.rect(122, y - 4, 33, 12.5);
@@ -221,44 +245,173 @@ async function generarPDF() {
     // TABLA DE ACTIVIDADES
     y += 25;
     doc.setFont("helvetica", "bold");
-    doc.text("ACTIVIDADES", 15, y);
-    doc.text("SI", 112, y);
+    doc.text("ACTIVIDADES", 16, y);
+    doc.text("SI", 114, y);
     doc.text("NO", 127, y);
     doc.text("OBSERVACIONES", 153, y);
 
     doc.setFont("helvetica", "normal");
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const z = pageWidth - 23;
+    doc.rect(15, y-4, z, 66); // TABLA
+    const top = y - 4;
+    const bottom = y - 4 + 66;
 
-    const actividades = [ /*arreglo de actividades "cadena de texto"*/
-        "Limpieza externa del equipo",
-        "Limpieza externa de pantalla",
-        "Limpieza externa de teclado",
-        "Verificar conexiones eléctricas en buen estado",
-        "Verificar que funcione correctamente después del servicio",
-        "Antivirus instituional actualizado",
-        "Ejecución de Defrag",
-        "Equipo dentro del dominio",
-        "Sistema operativo actualizado (Windows update)",
-    ];
 
-    y += 10;
-    actividades.forEach((act, index) => { /*Se recorre cada elemento (act) del arreglo actividades, con su índice (index)*/
-        if (y > 270) { /*Si la posición y es mayor a 270, se agrega una nueva página*/
-            doc.addPage(); /*agrega pagina nueva*/
-            y = 15;
-        }
-        doc.text(`${index + 1}. ${act}`, 10, y); /*Se usa `${index + 1}. ${act}` para que cada actividad esté numerada y se coloque en y*/
-        doc.rect(110, y - 4, 10, 6); // Cuadro SI
-        /*doc.rect(x, y, width, height) dibuja un rectángulo*/
-        doc.rect(125, y - 4, 10, 6); // Cuadro NO
-        doc.rect(140, y - 4, 60, 6); // Cuadro OBS
-        
-        y += 11; /*Se incrementa y para la siguiente actividad*/
-    });
+    doc.line(112, top, 112, bottom); // primera línea vertical
+    doc.line(123.5, top, 123.5, bottom); // segunda línea vertical
+    doc.line(135, top, 135, bottom)
 
-     y += 5;
+    const w = pageWidth - 8;
+
+    doc.line(15,y+2, w, y+2 );
+
+    y+=6;
+    doc.text(`Desarmar equipo para su limpieza interna`, 16, y);
+    doc.line(15,y+2, w, y+2 );
+
+    if (limpieza_interna === "si") {
+                doc.text("x", 114, y);
+            } else if (limpieza_interna === "no") {
+                doc.text("x", 129, y);
+                const motivo = document.querySelector('input[id="input_limpieza_interna"]').value;
+                if (motivo) {
+                    doc.setFontSize(8); // tamaño más pequeño para caber
+                    doc.text(motivo, 142, y); // dentro del cuadro OBSERVACIONES
+                    doc.setFontSize(10); // regresar a tamaño normal
+                }
+            }
+
+    y+=6;
+    doc.text(`Limpieza y sopleteado interna y externa del equipo`, 16, y);
+    doc.line(15,y+2, w, y+2 );
+    if (sopleteado === "si") {
+        doc.text("x", 114, y);
+        } else if (sopleteado === "no") {
+            doc.text("x", 129, y);
+            const motivo = document.querySelector('input[id="input_sopleteado"]').value;
+            if(motivo){
+                doc.setFontSize(8);
+                doc.text(motivo, 142, y);
+                doc.setFontSize(10);
+            }
+    }
+    y+=6;
+    doc.text(`Limpieza de bandejas o charolas`, 16, y);
+    doc.line(15,y+2, w, y+2 );
+    if (bandejas === "si") {
+        doc.text("x", 114, y);
+        } else if (bandejas === "no") {
+            doc.text("x", 129, y);
+            const motivo = document.querySelector('input[id="input_bandejas"]').value;
+            if(motivo){
+                doc.setFontSize(8);
+                doc.text(motivo, 142, y);
+                doc.setFontSize(10);
+            }
+    }
+    y+=6;
+    doc.text(`Limpieza y revisión de mecanismo alimentación del papel`, 16, y);
+    doc.line(15,y+2, w, y+2 );
+    if (papel === "si") {
+        doc.text("x", 114, y);
+        } else if (papel === "no") {
+            doc.text("x", 129, y);
+            const motivo = document.querySelector('input[id="input_papel"]').value;
+            if(motivo){
+                doc.setFontSize(8);
+                doc.text(motivo, 142, y);
+                doc.setFontSize(10);
+            }
+    }
+    y+=6;
+    doc.text(`Limpieza y revisión de la unidad de fusión`, 16, y);
+    doc.line(15,y+2, w, y+2 );
+    if (fusion === "si") {
+        doc.text("x", 114, y);
+        } else if (fusion === "no") {
+            doc.text("x", 129, y);
+            const motivo = document.querySelector('input[id="input_fusion"]').value;
+            if(motivo){
+                doc.setFontSize(8);
+                doc.text(motivo, 142, y);
+                doc.setFontSize(10);
+            }
+    }
+    y+=6;
+    doc.text(`Limpieza y revisión de la unidad lasér`, 16, y);
+    doc.line(15,y+2, w, y+2 );
+    if (laser === "si") {
+        doc.text("x", 114, y);
+        } else if (laser === "no") {
+            doc.text("x", 129, y);
+            const motivo = document.querySelector('input[id="input_laser"]').value;
+            if(motivo){
+                doc.setFontSize(8);
+                doc.text(motivo, 142, y);
+                doc.setFontSize(10);
+            }
+    }
+    y+=6;
+    doc.text(`Validar estado de consumibles`, 16, y);
+    doc.line(15,y+2, w, y+2 );
+    if (consumibles === "si") {
+        doc.text("x", 114, y);
+        } else if (consumibles === "no") {
+            doc.text("x", 129, y);
+            const motivo = document.querySelector('input[id="input_consumibles"]').value;
+            if(motivo){
+                doc.setFontSize(8);
+                doc.text(motivo, 142, y);
+                doc.setFontSize(10);
+            }
+    }
+    y+=6;
+    doc.text(`Equipo de red`, 16, y);
+    doc.line(15,y+2, w, y+2 );
+    if (red === "si") {
+        doc.text("x", 114, y);
+        } else if (red === "no") {
+            doc.text("x", 129, y);
+            const motivo = document.querySelector('input[id="input_red"]').value;
+            if(motivo){
+                doc.setFontSize(8);
+                doc.text(motivo, 142, y);
+                doc.setFontSize(10);
+            }
+    }
+    y+=6;
+    doc.text(`Realizar auto prueba`, 16, y);
+    doc.line(15,y+2, w, y+2 );
+    if (prueba === "si") {
+        doc.text("x", 114, y);
+        } else if (prueba === "no") {
+            doc.text("x", 129, y);
+            const motivo = document.querySelector('input[id="input_prueba"]').value;
+            if(motivo){
+                doc.setFontSize(8);
+                doc.text(motivo, 142, y);
+                doc.setFontSize(10);
+            }
+    }
+    y+=6;
+    doc.text(`Equipo operando después del servicio`, 16, y);
+    if (operando === "si") {
+        doc.text("x", 114, y);
+        } else if (operando === "no") {
+            doc.text("x", 129, y);
+            const motivo = document.querySelector('input[id="input_operando"]').value;
+            if(motivo){
+                doc.setFontSize(8);
+                doc.text(motivo, 142, y);
+                doc.setFontSize(10);
+            }
+    }
+
+    y += 5;
 
     // FIRMAS
-    y+=8;
+    y+=65;
     if(firma1Base64)
         doc.addImage(firma1Base64, 'PNG', 15, y, 30, 30 );
     
