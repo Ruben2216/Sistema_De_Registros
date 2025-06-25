@@ -94,6 +94,10 @@ def autoguardado_fotos():
 FOTOS_RIJ_DIR = os.path.join(RESOURCE_FOLDER, 'IMG', 'Evidencias')
 os.makedirs(FOTOS_RIJ_DIR, exist_ok=True)
 
+# Directorio de imágenes RIJ predefinidas
+IMG_RIJ_DIR = os.path.join(RESOURCE_FOLDER, 'IMG', 'img RIJ')
+os.makedirs(IMG_RIJ_DIR, exist_ok=True)
+
 @app.route('/api/rij/upload_foto', methods=['POST'])
 def upload_foto():
     data = request.get_json()
@@ -186,43 +190,87 @@ def limpiar_sesion():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
-def limpiar_archivos_viejos():
-    """
-    Elimina imágenes y archivos temporales de sesión con más de n mutos desde que se creo
-    """
-    MINUTOS_EXPIRACION = 10 #minutos para expiración de archivos
-    ahora = time.time()
-    tiempo_expiracion = MINUTOS_EXPIRACION * 60
-    # Limpiar imágenes
-    for nombre_archivo in os.listdir(FOTOS_RIJ_DIR):
-        ruta_archivo = os.path.join(FOTOS_RIJ_DIR, nombre_archivo)
-        if os.path.isfile(ruta_archivo):
-            try:
-                # Obtener tiempo de modificación (o creación en Windows)
-                tiempo_archivo = os.path.getmtime(ruta_archivo)
-                if ahora - tiempo_archivo > tiempo_expiracion:
-                    os.remove(ruta_archivo)
-            except Exception as e:
-                print(f"[LIMPIEZA] Error al eliminar imagen x del servidor: {ruta_archivo} - {e}")
-    # Limpiar archivos temporales de sesión
-    for nombre_archivo in os.listdir(FOTOS_TMP_DIR):
-        ruta_archivo = os.path.join(FOTOS_TMP_DIR, nombre_archivo)
-        if os.path.isfile(ruta_archivo):
-            try:
-                tiempo_archivo = os.path.getmtime(ruta_archivo)
-                if ahora - tiempo_archivo > tiempo_expiracion:
-                    os.remove(ruta_archivo)
-                    print(f"[LIMPIEZA] Archivo temporal eliminado por antigüedad (>{MINUTOS_EXPIRACION} min): {ruta_archivo}")
-            except Exception as e:
-                print(f"[LIMPIEZA] Error al eliminar archivo temporal: {ruta_archivo} - {e}")
-    # Puedes agregar aquí limpieza de otros registros si es necesario
-    # Reprogramar la función para que se ejecute de nuevo en 1 minuto
-    threading.Timer(60, limpiar_archivos_viejos).start()
+# --- ENDPOINTS PARA IMPORTAR IMÁGENES PREDEFINIDAS ---
+# Directorio de imágenes RIJ predefinidas
+IMG_RIJ_DIR = os.path.join(RESOURCE_FOLDER, 'IMG', 'img RIJ')
+os.makedirs(IMG_RIJ_DIR, exist_ok=True)
 
-# Iniciar la limpieza automática al arrancar el servidor
-limpiar_archivos_viejos()
+@app.route('/api/rij/imagenes_disponibles', methods=['GET'])
+def obtener_imagenes_disponibles():
+    """
+    Devuelve una lista de imágenes disponibles en la carpeta /RESOURCE/IMG/img RIJ
+    """
+    try:
+        imagenes = []
+        # Extensiones de archivo permitidas
+        extensiones_permitidas = ('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp')
+        
+        # Verificar si la carpeta existe
+        if os.path.exists(IMG_RIJ_DIR):
+            # Obtener lista de archivos en la carpeta
+            archivos = os.listdir(IMG_RIJ_DIR)
+            
+            for archivo in archivos:
+                if archivo.lower().endswith(extensiones_permitidas):
+                    # Crear URL pública para la imagen
+                    url = url_for('resource_files', filename=f'IMG/img RIJ/{archivo}', _external=True)
+                    imagenes.append({
+                        'nombre': archivo,
+                        'url': url
+                    })
+        
+        return jsonify({'imagenes': imagenes}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
-# ---INICIO DE BACKEND ---
+@app.route('/api/rij/importar_imagen', methods=['POST'])
+def importar_imagen_rij():
+    """
+    Copia una imagen de la carpeta img RIJ a la carpeta de evidencias del usuario
+    """
+    try:
+        data = request.get_json()
+        nombre_archivo = data.get('nombre_archivo')
+        
+        if not nombre_archivo:
+            return jsonify({'success': False, 'error': 'Nombre de archivo no proporcionado'}), 400
+        
+        # Ruta de origen (imagen en img RIJ)
+        ruta_origen = os.path.join(IMG_RIJ_DIR, nombre_archivo)
+        
+        # Verificar que el archivo existe
+        if not os.path.isfile(ruta_origen):
+            return jsonify({'success': False, 'error': 'Archivo no encontrado'}), 404
+        
+        # Generar nombre único para evitar conflictos
+        sid = session.get('sid') or os.urandom(8).hex()
+        session['sid'] = sid
+        
+        # Extraer extensión del archivo original
+        nombre_base, extension = os.path.splitext(nombre_archivo)
+        nombre_destino = f"importada_{sid}_{datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')}{extension}"
+        
+        # Ruta de destino (carpeta de evidencias)
+        ruta_destino = os.path.join(FOTOS_RIJ_DIR, nombre_destino)
+        
+        # Copiar archivo
+        import shutil
+        shutil.copy2(ruta_origen, ruta_destino)
+        
+        # Construir URL pública
+        url = url_for('resource_files', filename=f'IMG/Evidencias/{nombre_destino}', _external=True)
+        
+        # Agregar a la lista de fotos en la sesión
+        fotos = session.get('rij_fotos', [])
+        fotos.append(url)
+        session['rij_fotos'] = fotos
+        
+        return jsonify({'success': True, 'url': url, 'nombre_original': nombre_archivo}), 200
+        
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+# --- INICIO DE BACKEND ---
 load_dotenv()
 
 CORS(app) 

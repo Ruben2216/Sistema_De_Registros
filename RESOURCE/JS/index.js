@@ -857,9 +857,38 @@ document.addEventListener('DOMContentLoaded', () => {
         // Guardar preferencia al cambiar
         checkboxPantallaCompleta.addEventListener('change', function() {
             localStorage.setItem(clavePreferencia, checkboxPantallaCompleta.checked ? 'true' : 'false');
-        });
-        divCheckbox.appendChild(labelPantallaCompleta);
+        });        divCheckbox.appendChild(labelPantallaCompleta);
         photoWrapper.appendChild(divCheckbox); // SIEMPRE al final
+        
+        // NUEVO: Botón para importar imagen predefinida después de cada foto
+        var divImportar = document.createElement('div');
+        divImportar.style.textAlign = 'center';
+        divImportar.style.margin = '8px 0 4px 0';
+        
+        var btnImportarIndividual = document.createElement('button');
+        btnImportarIndividual.textContent = '📁 Importar Imagen';
+        btnImportarIndividual.className = 'boton boton--terciario';
+        btnImportarIndividual.style.fontSize = '0.8em';
+        btnImportarIndividual.style.padding = '4px 8px';
+        btnImportarIndividual.style.backgroundColor = '#e8f4f8';
+        btnImportarIndividual.style.border = '1px solid #b0d4e3';
+        btnImportarIndividual.style.borderRadius = '4px';
+        btnImportarIndividual.style.color = '#2c5aa0';
+        btnImportarIndividual.style.cursor = 'pointer';
+        btnImportarIndividual.title = 'Importar una imagen predefinida desde la biblioteca';
+        
+        btnImportarIndividual.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (typeof window.mostrarModalImportarImagenes === 'function') {
+                window.mostrarModalImportarImagenes();
+            } else {
+                alert('Funcionalidad de importar imágenes no disponible');
+            }
+        });
+        
+        divImportar.appendChild(btnImportarIndividual);
+        photoWrapper.appendChild(divImportar);
+        
         contenedor.appendChild(photoWrapper);
     }    // NUEVA: Función especial para agregar fotos restauradas conservando todas las versiones
     window.agregarFotoRestaurada = function(url, version, mejorada, versionesGuardadas, recortada, recorteInfo) {
