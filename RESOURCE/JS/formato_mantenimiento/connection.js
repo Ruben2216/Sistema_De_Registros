@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
 function rellenarFormularioConDatos(data) {
     //campos que deben ocultarse 
-    const camposOpcionales = [
+    const camposOpcionales = [ 
         'campo-centro-trabajo',
         'campo-uso-trabajo',
     ];
@@ -80,12 +80,14 @@ searchContainers.forEach(container => {
     
     const paramName = container.dataset.paramName; 
     const inputField = container.querySelector('input[type="text"]');
-    const searchButton = container.querySelector('.search-button');
+    //const searchButton = container.querySelector('.search-button');
     
-    if (!paramName || !inputField || !searchButton) {
+    if (!paramName || !inputField) {
         console.error('Falta configuración en un contenedor de búsqueda.', container);
         return;
     }
+
+    
     
     const fetchDataConBoton = () => {
         const searchValue = inputField.value.trim();

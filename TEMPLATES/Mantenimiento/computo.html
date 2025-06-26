@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-00    <meta charset="UTF-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mantenimiento de Computo</title>
     <!-- Librerías necesarias para PDF -->
     <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="/RESOURCE/JS/generar_pdf_computo.js"></script>
+    <script src="/RESOURCE/JS/forzarCargaCSS.js"></script>
     <!-- <link rel="stylesheet" href="{{ url_for('static', filename='CSS/index.css') }}">  -->
     <link rel="stylesheet" href="/RESOURCE/CSS/globalPageLoadStyles.css">
     <link rel="stylesheet" href="/RESOURCE/CSS/index.css">
@@ -21,7 +21,7 @@
     
     <div class="formulario-verificacion">
         <form class = "formulario-verificacion__formulario">
-            <h1 class="formulario-verificacion__titulo-principal">Formato de mantenimiento de computo</h1>
+            <h1 class="formulario-verificacion__titulo-principal">FORMATO DE MANTENIMIENTO DE COMPUTO</h1>
             <div class="seccion">
                <!-- <div class="campo">
                     <label class="campo__etiqueta">División</label>
@@ -45,13 +45,10 @@
                         <option value="Valle_Sur">División Valle de México Sur</option>
                     </select>
                 </div>-->
-                <div class="seccion">
-                    <div class="campo">
-                        <label class="campo__etiqueta">ZONAS</label>
-                        <select class="campo__control" id="zona">
-                            <option value="Seleccionar_Zona" >Selecciona una zona</option>
-                        </select>
-                    </div>
+            <div class="seccion">
+                <div class="campo">
+                    <label class="campo__etiqueta">ZONAS</label>
+                        <input type="text" value="TUXTLA" id="zona" class="campo__control"> 
                 </div>
             </div>
             <div class="campo">
@@ -73,7 +70,6 @@
                         <option value="Seleccionar_Zona">Seleccione el tipo de equipo</option>
                         <option value="PC">PC</option>
                         <option value="Laptop">Laptop</option>
-                        <option value="Impresora">Impresora</option>
                     </select>
                 </div>
             </div>
@@ -105,15 +101,15 @@
             </div>
             <div class="campo">
                 <label for="division" class="campo__etiqueta">DIVISIÓN</label>
-                <input type="text" class="campo__control" id="division" name="division" readonly>
+                <input type="text" class="campo__control" id="division" name="division">
             </div>
             <div class="campo" id="campo-centro-trabajo">
                 <label for="centro_trabajo" class="campo__etiqueta">CENTRO DE TRABAJO</label>
-                <input type="text" class="campo__control" id="centro_trabajo" name="centro_trabajo" readonly>
+                <input type="text" class="campo__control" id="centro_trabajo" name="centro_trabajo">
             </div>
             <div class="campo">
-                <label for="numero_serie" class="campo__etiqueta">NÚMERO DE SERIE</label>
-                <input type="text" class="campo__control" id="numero_serie" name="numero_serie" readonly>
+                <label for="Numero_Serie" class="campo__etiqueta">NÚMERO DE SERIE</label>
+                <input type="text" class="campo__control" id="serie" name="serie">
             </div>
             <div class="campo">
                 <label for="usuario" class="campo__etiqueta">NOMBRE DEL USUARIO</label>
@@ -121,15 +117,15 @@
             </div>
             <div class="campo">
                 <label for="marca" class="campo__etiqueta">MARCA</label>
-                <input type="text" class="campo__control" id="marca" name="marca" readonly>
+                <input type="text" class="campo__control" id="marca" name="marca">
             </div>
             <div class="campo">
                 <label for="modelo" class="campo__etiqueta">MODELO</label>
-                <input type="text" class="campo__control" id="modelo" name="modelo" readonly>
+                <input type="text" class="campo__control" id="modelo" name="modelo">
             </div>
             <div class="campo" id="campo-uso-trabajo">
                 <label for="uso" class="campo__etiqueta">USO QUE SE LE DA AL EQUIPO</label>
-                <input type="text" class="campo__control" id="tipo_uso" name="tipo_uso" readonly>
+                <input type="text" class="campo__control" id="tipo_uso" name="tipo_uso">
             </div>
 
             <!--SECCIÓN DE ELEMENTO-->
@@ -209,21 +205,21 @@
             <hr class="seccion__divisor">
             <div class="campo">
                 <label class="campo__etiqueta">REALIZÓ SERVICIO:</label>
-                <input type="text" class="campo__control" id="realizo_servicio" placeholder="Nombre">
+                <input type="text" value="ING. LEYDEN ARIAS RUIZ" class="campo__control" id="realizo_servicio">
                 <div class="firma-area" id="firma-area-1">[Área para firma de quien realizo el servicio]<br>Hacer click aquí</div>
                 <input type="hidden" id="firma-input-1">
                 <img id="firma-imagen-1" class="firma-imagen"/>
             </div>
             <div class="campo">
                 <label class="campo__etiqueta">RESPONSABLE DEL EQUIPO:</label>
-                <input type="text" class="campo__control" id="responsable" placeholder="Nombre">
+                <input type="text" value="MTIE. GIOVANI PEDRO CRUZ LAVARIEGA" class="campo__control" id="responsable">
                 <div class="firma-area" id="firma-area-2">[Área para firma del responsable]<br>Hacer click aquí</div>
                 <input type="hidden" id="firma-input-2">
                 <img id="firma-imagen-2" class="firma-imagen"/>
             </div>
             <div class="campo">
                 <label class="campo__etiqueta">VISTO BUENO:</label>
-                <input type="text" class="campo__control" id="visto_bueno" placeholder="Nombre">
+                <input type="text" value="MTIE. GIOVANI PEDRO CRUZ LAVARIEGA" class="campo__control" id="visto_bueno">
                 <div class="firma-area" id="firma-area-3">[Área para firma]<br>Hacer click aquí</div>
                 <input type="hidden" id="firma-input-3">
                 <img id="firma-imagen-3" class="firma-imagen"/>
