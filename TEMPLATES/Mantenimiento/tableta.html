@@ -2,16 +2,22 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
     <title>Mantenimiento Preventivo de Tabletas</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="/RESOURCE/JS/forzarCargaCSS.js"></script>
     <link rel="stylesheet" href="/RESOURCE/CSS/globalPageLoadStyles.css">
     <link rel="stylesheet" href="\RESOURCE\CSS\index.css">
 </head>
 <body>
+    <div class="contenedor-barra">
+        <div class="progreso">
+            <div class="progreso-barra" id="progreso-barra" style="width: 0%;"></div>
+        </div>
+    </div>
     <div class="formulario-verificacion">
         <form class="formulario-verificacion__formulario">
-            <h1 class="formulario-verificacion__titulo-principal">Formato de mantenimiento preventivo de tabletas</h1>
+            <h1 class="formulario-verificacion__titulo-principal">FORMATO DE MANTENIMIENTO PREVENTIVO DE TABLETAS</h1>
             <div class="campo">
                 <label class="campo__etiqueta">FECHA</label>
                 <input type="text" class="campo__control" id="fecha" readonly> 
@@ -39,14 +45,12 @@
                         <option value="Valle_Sur">División Valle de México Sur</option>
                     </select>
                 </div> -->
-                <div class="seccion">
-                    <div class="campo">
-                        <label class="campo__etiqueta">ZONAS</label>
-                        <select class="campo__control" id="zona">
-                            <option value="Seleccionar_Zona" >Selecciona una zona</option>
-                        </select>
-                    </div>
+            <div class="seccion">
+                <div class="campo">
+                    <label class="campo__etiqueta">ZONAS</label>
+                        <input type="text" value="TUXTLA" id="zona" class="campo__control"> 
                 </div>
+            </div>
             </div>
           <!--  <div class="seccion">
                 <div class="campo">
@@ -86,8 +90,7 @@
             <div class="campo">
                 <label for="Numero_Serie" class="campo__etiqueta">NÚMERO DE SERIE</label>
                 <div class="search-container" data-param-name="serie">
-                    <input type="text" class="campo__control" id="serie" name="serie" autocomplete="off"> 
-                    <button type="button" id="search-button-serie" class="search-button" data-url="/buscar_equipo">BUSCAR</button> 
+                    <input type="text" class="campo__control" id="serie" name="serie" autocomplete="off" > 
 
                     <div id="serie-sugerencias" class="sugerencias-container"></div>
                 </div>
@@ -228,21 +231,21 @@
             <hr class="seccion__divisor">
             <div class="campo">
                 <label class="campo__etiqueta">REALIZÓ SERVICIO:</label>
-                <input type="text" class="campo__control" id="realizo_servicio" placeholder="Nombre">
+                <input type="text" value="NG. LEYDEN ARIAS RUIZ" class="campo__control" id="realizo_servicio">
                 <div class="firma-area" id="firma-area-1">[Área para firma de quien realizo el servicio]<br>Hacer click aquí</div>
                 <input type="hidden" id="firma-input-1">
                 <img id="firma-imagen-1" class="firma-imagen"/>
             </div>
             <div class="campo">
                 <label class="campo__etiqueta">RESPONSABLE DEL EQUIPO:</label>
-                <input type="text" class="campo__control" id="responsable" placeholder="Nombre">
+                <input type="text" value="MTIE. GIOVANI PEDRO CRUZ LAVARIEGA" class="campo__control" id="responsable">
                 <div class="firma-area" id="firma-area-2">[Área para firma del responsable]<br>Hacer click aquí</div>
                 <input type="hidden" id="firma-input-2">
                 <img id="firma-imagen-2" class="firma-imagen"/>
             </div>
             <div class="campo">
                 <label class="campo__etiqueta">VISTO BUENO:</label>
-                <input type="text" class="campo__control" id="visto_bueno" placeholder="Nombre">
+                <input type="text" value="MTIE. GIOVANI PEDRO CRUZ LAVARIEGA" class="campo__control" id="visto_bueno">
                 <div class="firma-area" id="firma-area-3">[Área para firma]<br>Hacer click aquí</div>
                 <input type="hidden" id="firma-input-3">
                 <img id="firma-imagen-3" class="firma-imagen"/>
@@ -267,6 +270,7 @@
     </div>
 </div>
     <script src="/RESOURCE/JS/formato_mantenimiento/connection.js" ></script>
+    <script src="/RESOURCE/JS/barra_progreso.js"></script>
     <script src="/RESOURCE/JS/firma.js"></script>
     <script src="/RESOURCE/JS/selects.js"></script>
     <script src="/RESOURCE/JS/campo_desplegable.js"></script>

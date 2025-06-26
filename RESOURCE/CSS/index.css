@@ -112,7 +112,7 @@ h1{
 .search-container button { 
     padding: 8px 15px; 
     margin-top: 5px; 
-    cursor: pointer; 
+    cursor: pointer;  
 }
 .sugerencias-container {
     display: none; 
@@ -175,6 +175,18 @@ h1{
     display: block;
     text-decoration: none;
     color: #333;
+}
+/*boton de buqueda para el backend*/
+.search-button {
+    background-color: #00724e;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    width: 100%;
+    text-align: center;
+    font-weight: bold;
 }
 .seccion--desplegable .seccion__resumen {
     font-weight: bold;
@@ -264,12 +276,12 @@ h1{
     border-radius: 4px;
     cursor: pointer;
 }
-canvas{
+/*.canvas{
     /* width:400px;
     height:300px; */
-    /* CHECAR SI NO ROMPE FUNCIONALIDADES DE CAMARA.HTML */
+    /* CHECAR SI NO ROMPE FUNCIONALIDADES DE CAMARA.HTML 
 
-}
+}*/
 .btn-flotante {
     position: fixed;
     bottom: 30px;
