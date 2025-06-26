@@ -271,28 +271,28 @@ async function generarPDF() {
     doc.line(15,y+2, w, y+2 );
 
     if (limpieza_interna === "si") {
-                doc.text("x", 114, y);
-            } else if (limpieza_interna === "no") {
-                doc.text("x", 129, y);
-                const motivo = document.querySelector('input[id="input_limpieza_interna"]').value;
-                if (motivo) {
-                    doc.setFontSize(8); // tamaño más pequeño para caber
-                    doc.text(motivo, 142, y); // dentro del cuadro OBSERVACIONES
-                    doc.setFontSize(10); // regresar a tamaño normal
-                }
-            }
+        doc.text("x", 117, y);
+    } else if (limpieza_interna === "no") {
+        doc.text("x", 129, y);
+        const motivo = document.querySelector('input[id="input_limpieza_interna"]').value;
+        if (motivo) {
+            doc.setFontSize(8); // tamaño más pequeño para caber
+            doc.text(motivo, 136, y); // dentro del cuadro OBSERVACIONES
+            doc.setFontSize(10); // regresar a tamaño normal
+        }
+    }
 
     y+=6;
     doc.text(`Limpieza y sopleteado interna y externa del equipo`, 16, y);
     doc.line(15,y+2, w, y+2 );
     if (sopleteado === "si") {
-        doc.text("x", 114, y);
+        doc.text("x", 117, y);
         } else if (sopleteado === "no") {
             doc.text("x", 129, y);
             const motivo = document.querySelector('input[id="input_sopleteado"]').value;
             if(motivo){
                 doc.setFontSize(8);
-                doc.text(motivo, 142, y);
+                doc.text(motivo, 136, y);
                 doc.setFontSize(10);
             }
     }
@@ -300,13 +300,13 @@ async function generarPDF() {
     doc.text(`Limpieza de bandejas o charolas`, 16, y);
     doc.line(15,y+2, w, y+2 );
     if (bandejas === "si") {
-        doc.text("x", 114, y);
+        doc.text("x", 117, y);
         } else if (bandejas === "no") {
             doc.text("x", 129, y);
             const motivo = document.querySelector('input[id="input_bandejas"]').value;
             if(motivo){
                 doc.setFontSize(8);
-                doc.text(motivo, 142, y);
+                doc.text(motivo, 136, y);
                 doc.setFontSize(10);
             }
     }
@@ -314,13 +314,13 @@ async function generarPDF() {
     doc.text(`Limpieza y revisión de mecanismo alimentación del papel`, 16, y);
     doc.line(15,y+2, w, y+2 );
     if (papel === "si") {
-        doc.text("x", 114, y);
+        doc.text("x", 117, y);
         } else if (papel === "no") {
             doc.text("x", 129, y);
             const motivo = document.querySelector('input[id="input_papel"]').value;
             if(motivo){
                 doc.setFontSize(8);
-                doc.text(motivo, 142, y);
+                doc.text(motivo, 136, y);
                 doc.setFontSize(10);
             }
     }
@@ -328,13 +328,13 @@ async function generarPDF() {
     doc.text(`Limpieza y revisión de la unidad de fusión`, 16, y);
     doc.line(15,y+2, w, y+2 );
     if (fusion === "si") {
-        doc.text("x", 114, y);
+        doc.text("x", 117, y);
         } else if (fusion === "no") {
             doc.text("x", 129, y);
             const motivo = document.querySelector('input[id="input_fusion"]').value;
             if(motivo){
                 doc.setFontSize(8);
-                doc.text(motivo, 142, y);
+                doc.text(motivo, 136, y);
                 doc.setFontSize(10);
             }
     }
@@ -342,13 +342,13 @@ async function generarPDF() {
     doc.text(`Limpieza y revisión de la unidad lasér`, 16, y);
     doc.line(15,y+2, w, y+2 );
     if (laser === "si") {
-        doc.text("x", 114, y);
+        doc.text("x", 117, y);
         } else if (laser === "no") {
             doc.text("x", 129, y);
             const motivo = document.querySelector('input[id="input_laser"]').value;
             if(motivo){
                 doc.setFontSize(8);
-                doc.text(motivo, 142, y);
+                doc.text(motivo, 136, y);
                 doc.setFontSize(10);
             }
     }
@@ -356,13 +356,13 @@ async function generarPDF() {
     doc.text(`Validar estado de consumibles`, 16, y);
     doc.line(15,y+2, w, y+2 );
     if (consumibles === "si") {
-        doc.text("x", 114, y);
+        doc.text("x", 117, y);
         } else if (consumibles === "no") {
             doc.text("x", 129, y);
             const motivo = document.querySelector('input[id="input_consumibles"]').value;
             if(motivo){
                 doc.setFontSize(8);
-                doc.text(motivo, 142, y);
+                doc.text(motivo, 136, y);
                 doc.setFontSize(10);
             }
     }
@@ -370,13 +370,13 @@ async function generarPDF() {
     doc.text(`Equipo de red`, 16, y);
     doc.line(15,y+2, w, y+2 );
     if (red === "si") {
-        doc.text("x", 114, y);
+        doc.text("x", 117, y);
         } else if (red === "no") {
             doc.text("x", 129, y);
             const motivo = document.querySelector('input[id="input_red"]').value;
             if(motivo){
                 doc.setFontSize(8);
-                doc.text(motivo, 142, y);
+                doc.text(motivo, 136, y);
                 doc.setFontSize(10);
             }
     }
@@ -384,26 +384,26 @@ async function generarPDF() {
     doc.text(`Realizar auto prueba`, 16, y);
     doc.line(15,y+2, w, y+2 );
     if (prueba === "si") {
-        doc.text("x", 114, y);
+        doc.text("x", 117, y);
         } else if (prueba === "no") {
             doc.text("x", 129, y);
             const motivo = document.querySelector('input[id="input_prueba"]').value;
             if(motivo){
                 doc.setFontSize(8);
-                doc.text(motivo, 142, y);
+                doc.text(motivo, 136, y);
                 doc.setFontSize(10);
             }
     }
     y+=6;
     doc.text(`Equipo operando después del servicio`, 16, y);
     if (operando === "si") {
-        doc.text("x", 114, y);
+        doc.text("x", 117, y);
         } else if (operando === "no") {
             doc.text("x", 129, y);
             const motivo = document.querySelector('input[id="input_operando"]').value;
             if(motivo){
                 doc.setFontSize(8);
-                doc.text(motivo, 142, y);
+                doc.text(motivo, 136, y);
                 doc.setFontSize(10);
             }
     }

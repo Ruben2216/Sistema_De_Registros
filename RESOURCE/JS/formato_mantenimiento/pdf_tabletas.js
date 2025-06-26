@@ -261,7 +261,7 @@ async function generarPDF() {
     const z = pageWidth2 - 23;
     doc.rect(15, y-4, z, 95); // TABLA
     const top = y - 4;
-    const bottom = y - 4 + 90;
+    const bottom = y - 4 + 95;
 
     doc.line(108, top, 108, bottom); // primera línea vertical
     doc.line(118, top, 118, bottom); // segunda línea vertical

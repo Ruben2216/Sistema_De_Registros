@@ -12,25 +12,22 @@ async function generarPDF() {
     const uso = document.querySelector('input[id="tipo_uso"]').value;
     const marca = document.querySelector('input[id="marca"]').value;
     const modelo = document.querySelector('input[id="modelo"]').value;
-    const serie = document.querySelector('input[id="numero_serie"]').value;
+    const serie = document.querySelector('input[id="serie"]').value;
     const servicio = document.querySelector('select[id="servicio"]').value;
-    const hora_inicio = document.querySelector('input[id="hora_inicio"]').value;
-    const hora_termino = document.querySelector('input[id="hora_termino"]').value;
-    const limpieza_externa = document.querySelector('input[name="limpieza_externa"]:checked').value;
-    const pantalla = document.querySelector('input[name="pantalla"]:checked').value;
-    const teclado = document.querySelector('input[name="teclado"]:checked').value;
-    const conexiones = document.querySelector('input[name="conexiones"]:checked').value;
-    const despues_servicio = document.querySelector('input[name="despues_servicio"]:checked').value;
-    const antivirus = document.querySelector('input[name="antivirus"]:checked').value;
-    const defrag = document.querySelector('input[name="defrag"]:checked').value;
-    const dominio = document.querySelector('input[name="dominio"]:checked').value;
-    const Windows_update = document.querySelector('input[name="Windows_update"]:checked').value;
+    const hora_inicio = document.querySelector('input[id="hrinicio"]').value;
+    const hora_termino = document.querySelector('input[id="hrtermino"]').value;
     const realizo_servicio = document.querySelector('input[id="realizo_servicio"]').value;
     const responsable = document.querySelector('input[id="responsable"]').value;
     const visto_bueno = document.querySelector('input[id="visto_bueno"]').value;
     const firma3Base64 = document.getElementById("firma-input-3").value;
     const firma2Base64 = document.getElementById("firma-input-2").value;
     const firma1Base64 = document.getElementById("firma-input-1").value;
+    const sopleteado = document.querySelector('input[name="sopleteado"]:checked').value;
+    const touch = document.querySelector('input[name="touch"]:checked').value;
+    const bateria = document.querySelector('input[name="bateria"]:checked').value;
+    const Sw = document.querySelector('input[name="Sw"]:checked').value;
+    const conector = document.querySelector('input[name="conector"]:checked').value;
+    const teclado = document.querySelector('input[name="teclado"]:checked').value;
 
     // IMAGEN -- LOGO
     await new Promise((resolve, reject) => {
@@ -54,7 +51,7 @@ async function generarPDF() {
 
     doc.setFontSize(12);
     doc.setFont("helvetica", "bold");
-    doc.text("FORMATO MANTENIMIENTO PREVENTIVO COMPUTADORAS", 105, 40, null, null, "center");
+    doc.text("FORMATO MANTENIMIENTO PREVENTIVO TPS HONEYWELL", 105, 40, null, null, "center");
     /*doc.text(texto, x, y, opciones, transformaciones, alineación);*/
 
     // DATOS GENERALES
@@ -261,159 +258,134 @@ async function generarPDF() {
     doc.setFont("helvetica", "bold");
     doc.text("ACTIVIDADES", 16, y);
     doc.text("SI", 110, y);
-    doc.text("NO", 120, y);
-    doc.text("OBSERVACIONES", 153, y);
+    doc.text("NO", 118, y);
+    doc.text("OBSERVACIONES", 150, y);
 
     doc.setFont("helvetica", "normal");
     const pageWidth = doc.internal.pageSize.getWidth();
     const z = pageWidth - 23;
-    doc.rect(15, y-4, z, 60); // TABLA
+    doc.rect(15, y-4, z, 48); // TABLA
     const top = y - 4;
-    const bottom = y - 4 + 60;
+    const bottom = y - 4 + 48;
 
     doc.line(108, top, 108, bottom); // primera línea vertical
-    doc.line(118, top, 118, bottom); // segunda línea vertical
-    doc.line(128, top, 128, bottom)
+    doc.line(116, top, 116, bottom); // segunda línea vertical
+    doc.line(125, top, 125, bottom)
 
     const w = pageWidth - 8;
 
     doc.line(15,y+2, w, y+2 );
 
     y+=6;
-    doc.text(`Limpieza externa del equipo`, 16, y);
+    doc.text(`Limpieza y sopleteado extremo del equipo`, 16, y);
     doc.line(15,y+2, w, y+2 );
 
-    if (limpieza_externa === "si") {
+    if (sopleteado === "si") {
         doc.text("x", 112, y);
-        } else if (limpieza_externa === "no") {
-            doc.text("x", 122, y);
-            const motivo = document.querySelector('input[id="input_limpieza_externa"]').value;
-            if (motivo) {
-                doc.setFontSize(8); // tamaño más pequeño para caber
-                doc.text(motivo, 129, y); // dentro del cuadro OBSERVACIONES
-                doc.setFontSize(10); // regresar a tamaño normal
-            }
+    } else if (sopleteado === "no") {
+        doc.text("x", 120, y);
+        const motivo = document.querySelector('input[id="input_sopleteado"]').value;
+        if (motivo) {
+            doc.setFontSize(8); // tamaño más pequeño para caber
+            doc.text(motivo, 126, y); // dentro del cuadro OBSERVACIONES
+            doc.setFontSize(10); // regresar a tamaño normal
         }
-    
+    }
     y+=6;
-    doc.text(`Limpieza externa de pantalla`, 16, y);
+    doc.text(`Validar touch pantalla`, 16, y);
     doc.line(15,y+2, w, y+2 );
-            if (pantalla === "si") {
-                doc.text("x", 112, y);
-            } else if (pantalla === "no") {
-                doc.text("x", 122, y);
-                const motivo = document.querySelector('input[id="input_pantalla"]').value;
-                if (motivo) {
-                    doc.setFontSize(8); // tamaño más pequeño para caber
-                    doc.text(motivo, 129, y); // dentro del cuadro OBSERVACIONES
-                    doc.setFontSize(10); // regresar a tamaño normal
-                }
-            }
 
-    y+=6;
-    doc.text(`Limpieza externa de teclado`, 16, y);
-    doc.line(15,y+2, w, y+2 );
-            if (teclado === "si") {
-                doc.text("x", 112, y);
-            } else if (teclado === "no") {
-                doc.text("x", 122, y);
-                const motivo = document.querySelector('input[id="input_teclado"]').value;
-                if (motivo) {
-                    doc.setFontSize(8); // tamaño más pequeño para caber
-                    doc.text(motivo, 129, y); // dentro del cuadro OBSERVACIONES
-                    doc.setFontSize(10); // regresar a tamaño normal
-                }
-            }
-
-    y+=6;
-    doc.text(`Verificar conexiones eléctricas en buen estado`, 16, y);
-    doc.line(15,y+2, w, y+2 );
-    if (conexiones === "si") {
+    if (touch === "si") {
         doc.text("x", 112, y);
-        } else if (conexiones === "no") {
-            doc.text("x", 122, y);
-            const motivo = document.querySelector('input[id="input_conexiones"]').value;
-            if(motivo){
-                doc.setFontSize(8);
-                doc.text(motivo, 129, y);
-                doc.setFontSize(10);
-            }
+    } else if (touch === "no") {
+        doc.text("x", 120, y);
+        const motivo = document.querySelector('input[id="input_sopleteado"]').value;
+        if (motivo) {
+            doc.setFontSize(8); // tamaño más pequeño para caber
+            doc.text(motivo, 126, y); // dentro del cuadro OBSERVACIONES
+            doc.setFontSize(10); // regresar a tamaño normal
         }
+    }
 
     y+=6;
-    doc.text(`Verificar que funcione correctamente después del servicio`, 16, y);
+    doc.text(`Revisión de batería`, 16, y);
     doc.line(15,y+2, w, y+2 );
-            if (despues_servicio === "si") {
-                doc.text("x", 112, y);
-            } else if (despues_servicio === "no") {
-                doc.text("x", 122, y);
-                const motivo = document.querySelector('input[id="input_despues_servicio"]').value;
-                if(motivo){
-                    doc.setFontSize(8);
-                    doc.text(motivo, 129, y);
-                    doc.setFontSize(10);
-                }
-            }
+
+    if (bateria === "si") {
+        doc.text("x", 112, y);
+    } else if (bateria === "no") {
+        doc.text("x", 120, y);
+        const motivo = document.querySelector('input[id="input_bateria"]').value;
+        if (motivo) {
+            doc.setFontSize(8); // tamaño más pequeño para caber
+            doc.text(motivo, 126, y); // dentro del cuadro OBSERVACIONES
+            doc.setFontSize(10); // regresar a tamaño normal
+        }
+    }
 
     y+=6;
-    doc.text(`Antivirus institucional actualizado`, 16, y);
+    doc.text(`Verificar Sw institucional actualizado`, 16, y);
     doc.line(15,y+2, w, y+2 );
-            if(antivirus === "si"){
-                doc.text("x", 112, y)
-            } else if (antivirus === "no"){
-                doc.text("x", 122, y);
-                const motivo = document.querySelector('input[id="input_antivirus"]').value;
-                if(motivo){
-                    doc.setFontSize(8);
-                    doc.text(motivo, 129, y);
-                    doc.setFontSize(10);
-                }
-            }
+
+    if (Sw === "si") {
+        doc.text("x", 112, y);
+    } else if (Sw === "no") {
+        doc.text("x", 120, y);
+        const motivo = document.querySelector('input[id="input_Sw"]').value;
+        if (motivo) {
+            doc.setFontSize(8); // tamaño más pequeño para caber
+            doc.text(motivo, 126, y); // dentro del cuadro OBSERVACIONES
+            doc.setFontSize(10); // regresar a tamaño normal
+        }
+    }
 
     y+=6;
-    doc.text(`Ejecución de Defrag`, 16, y);
+    doc.text(`Verificar estado del conector de datos`, 16, y);
     doc.line(15,y+2, w, y+2 );
-            if(defrag === "si"){
-                doc.text("x", 112, y);
-            } else if (defrag === "no"){
-                doc.text("x", 122, y);
-                const motivo = document.querySelector('input[id="input_defrag"]').value;
-                if(motivo){
-                    doc.setFontSize(8);
-                    doc.text(motivo, 129, y);
-                    doc.setFontSize(10);
-                }
-            }
+
+    if (conector === "si") {
+        doc.text("x", 112, y);
+    } else if (conector === "no") {
+        doc.text("x", 120, y);
+        const motivo = document.querySelector('input[id="input_conector"]').value;
+        if (motivo) {
+            doc.setFontSize(8); // tamaño más pequeño para caber
+            doc.text(motivo, 126, y); // dentro del cuadro OBSERVACIONES
+            doc.setFontSize(10); // regresar a tamaño normal
+        }
+    }
 
     y+=6;
-    doc.text(`Equipo dentro del dominio`, 16, y);
+    doc.text(`Validar estado del teclado`, 16, y);
     doc.line(15,y+2, w, y+2 );
-            if(dominio === "si"){
-                doc.text("x", 112, y);
-            } else if(dominio === "no"){
-                doc.text("x", 122, y);
-                const motivo = document.querySelector('input[id="input_dominio"]').value;
-                if(motivo){
-                    doc.setFontSize(8);
-                    doc.text(motivo, 129, y);
-                    doc.setFontSize(10);
-                }
-            }
-    y+=6;
-    doc.text(`Sistema operativo actualizado (Windows update)`, 16, y);
-            if(Windows_update === "si"){
-                doc.text("x", 112, y);
-            } else if(Windows_update === "no"){
-                doc.text("x", 122, y)
-                const motivo = document.querySelector('input[id="input_Windows_update"]').value;
-                if(motivo){
-                    doc.setFontSize(8);
-                    doc.text(motivo, 129, y);
-                    doc.setFontSize(10);
-                }
-            }
 
-     y += 55;
+    if (teclado === "si") {
+        doc.text("x", 112, y);
+    } else if (teclado === "no") {
+        doc.text("x", 120, y);
+        const motivo = document.querySelector('input[id="input_teclado"]').value;
+        if (motivo) {
+            doc.setFontSize(8); // tamaño más pequeño para caber
+            doc.text(motivo, 126, y); // dentro del cuadro OBSERVACIONES
+            doc.setFontSize(10); // regresar a tamaño normal
+        }
+    }
+
+    y+=6;
+    doc.text(`Vaerificar funcionamiento del equipo después del servicio`, 16, y);
+
+    if (teclado === "si") {
+        doc.text("x", 112, y);
+    } else if (teclado === "no") {
+        doc.text("x", 120, y);
+        const motivo = document.querySelector('input[id="input_teclado"]').value;
+        if (motivo) {
+            doc.setFontSize(8); // tamaño más pequeño para caber
+            doc.text(motivo, 126, y); // dentro del cuadro OBSERVACIONES
+            doc.setFontSize(10); // regresar a tamaño normal
+        }
+    }
+    y += 55;
 
     // FIRMAS
     y+=8;

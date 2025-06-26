@@ -29,8 +29,9 @@
             <p id="fecha_p" class="fecha_p"></p>
 
 
-            <div class="campo">
-                <label class="campo__etiqueta">División</label>            <select  class="campo__control" id="division">
+            <!--<div class="campo">
+                <label class="campo__etiqueta">División</label>            
+                <select  class="campo__control" id="division">
                 <option value="">Selecciona una división</option>
                 <option value="Baja_California">División Bajacalifornia</option>
                 <option value="Noroeste">División Noroeste</option>
@@ -57,8 +58,7 @@
                     <option value="Seleccionar_Zona" >Selecciona una zona</option>
                 </select>
                 </div>
-            </div>
-            
+            </div>-->
             <div class="seccion">
                 <div class="campo">
                     <label class="campo__etiqueta">DEPARTAMENTO Y/O COMPAÑÍA:</label>
@@ -140,8 +140,8 @@
                     <p class="campo__etiqueta">1. ¿Se realizó el saludo de inicio de jornada?</p>
                     <div class="grupo-opciones">
                         <label class="grupo-opciones__opcion">
-                            <input class="grupo-opciones__control" type="radio" id="inicio_jornada" value="si"> Sí</label>
-                            <input class="grupo-opciones__control" type="radio" id="inicio_jornada" value="no" data-desplegar="no"> No</label>
+                            <input class="grupo-opciones__control" type="radio" name="inicio_jornada" value="si"> Sí</label>
+                            <input class="grupo-opciones__control" type="radio" name="inicio_jornada" value="no" data-desplegar="no"> No</label>
                     </div>
                     <input type="text" name="input_inicio_jornada" class="campo__control" style="display:none;" placeholder="Especifique motivo">
                 </div>
@@ -151,12 +151,12 @@
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="#personal" type="radio" value="si" data-desplegar="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="#personal" type="radio" value="no"> No</label>
                     </div>
-                    <input type="text" id="input_#personal" class="campo__control" style="display:none;" placeholder="No. de participantes">
+                    <input type="text" id="input_personal" class="campo__control" style="display:none;" placeholder="No. de participantes">
                 </div>
-                <!--<div class="campo">
+                <div class="campo">
                     <label class="campo__etiqueta">No. Participantes:</label>
-                    <input type="number" min="0" class="campo__control">
-                </div>-->
+                    <input type="number" min="0" class="campo__control" id="enumeracion">
+                </div>
                 <div class="campo">
                     <p class="campo__etiqueta">3. ¿Se preguntó el estado de salud a los participantes?</p>
                     <div class="grupo-opciones">
@@ -187,16 +187,16 @@
                 <div class="campo">
                     <p class="campo__etiqueta">5.1. ¿Se comentaron trabajos de mantenimiento relevantes?</p>
                     <div class="grupo-opciones">
-                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="mantenimiento_relevante" type="radio" value="si" data-desplegar="si"> Sí</label>
-                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="mantenimiento_relevante" type="radio" value="no"> No</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="mantenimiento" type="radio" value="si" data-desplegar="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="mantenimiento" type="radio" value="no"> No</label>
                     </div>
                     <input type="text" id="input_mantenimiento_relevante" class="campo__control" style="display:none;" placeholder="Especifique trabajos de mantenimiento">
                 </div>
                 <div class="campo">
                     <p class="campo__etiqueta">5.2. ¿Se comentaron trabajos de operación relevantes?</p>
                     <div class="grupo-opciones">
-                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="operacion_relevante" type="radio" value="si" data-desplegar="si"> Sí</label>
-                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="operacion_relevante" type="radio" value="no"> No</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="operacion" type="radio" value="si" data-desplegar="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="operacion" type="radio" value="no"> No</label>
                     </div>
                     <input type="text" id="input_operacion_relevante" class="campo__control" style="display:none;" placeholder="Especifique trabajos de operación">
                 </div>
@@ -225,7 +225,7 @@
                 </div>
                 <div class="campo">
                     <label class="campo__etiqueta">Información (Especificar el nombre de los temas del cual se dio información):</label>
-                    <textarea class="campo__control campo__control--area-texto"></textarea>
+                    <textarea id= "extra_info" class="campo__control campo__control--area-texto"></textarea>
                 </div>
             </div>
             <div class="seccion seccion--desplegable">
@@ -289,13 +289,13 @@
                 <div class="campo">
                     <p class="campo__etiqueta">6.8. Solicitar que un colaborador de un mensaje en materia de Seguridad</p>
                     <div class="grupo-opciones">
-                        <label class="grupo-opciones__opcion"><input name="Solicitar_colaborador" class="grupo-opciones__control" type="radio" value="si"> Sí</label>
-                        <label class="grupo-opciones__opcion"><input name="Solicitar_colaborador" class="grupo-opciones__control" type="radio" value="no"> No</label>
+                        <label class="grupo-opciones__opcion"><input name="colaborador" class="grupo-opciones__control" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input name="colaborador" class="grupo-opciones__control" type="radio" value="no"> No</label>
                     </div>
                 </div>
                 <div class="campo">
                     <label class="campo__etiqueta">Actividad: (Especificar el nombre de las actividades de Seguridad que se realizaron)</label>
-                    <textarea class="campo__control campo__control--area-texto"></textarea>
+                    <textarea id="actividades_seguridad" class="campo__control campo__control--area-texto"></textarea>
                 </div>
             </div>
             <div class="seccion"> 
@@ -307,7 +307,7 @@
             <div class="seccion">
                 <div class="campo"> 
                     <label class="campo__etiqueta">OBSERVACIONES: (Anotar las preguntas, inquietudes, sugerencias y/o acciones tomadas en caso de que las condiciones de salud del personal no sean adecuadas)</label>
-                    <textarea class="campo__control campo__control--area-texto"></textarea>
+                    <textarea id="observaciones" class="campo__control campo__control--area-texto"></textarea>
                 </div>
             </div>
             <hr class="seccion__divisor">
@@ -315,7 +315,7 @@
                 <h3 class="seccion__titulo">Conductor de la Reunión</h3>
                 <div class="campo">
                     <label class="campo__etiqueta">CONDUCTOR DE LA REUNIÓN:</label>
-                    <input type="text" class="campo__control">
+                    <input id="conductor" type="text" class="campo__control">
                 </div>
                 <div class="campo">
                     <label class="campo__etiqueta">R.P.E.:</label>
@@ -328,7 +328,7 @@
                     <img id="firma-imagen-2" class="firma-imagen"/>
                 </div>
             </div>
-            <button type="submit" class="boton boton--primario" onclick="generarPDF()">Pasar siguiente</button>
+            <button type "button" class="boton boton--primario" onclick="generarPDF()">Generar PDF</button>
             <button type="button" class="boton boton--secundario">Guardar Borrador</button>
             <div class="boton boton--secundario boton--cancelar">
                 <a href="/TEMPLATES/menu.html" class="boton--cancelar" id="btn-cancelar-formulario">Cancelar</a>
@@ -397,7 +397,8 @@
         <script src="/RESOURCE/JS/menu_amburguesa.js"></script>
         <script src="/RESOURCE/JS/redirigir_pdf.js"></script>
 
-        <script>
+
+<script>
 // Lógica para limpiar datos de sesión al cancelar
 const btnCancelar = document.getElementById('btn-cancelar-formulario');
 if (btnCancelar) {

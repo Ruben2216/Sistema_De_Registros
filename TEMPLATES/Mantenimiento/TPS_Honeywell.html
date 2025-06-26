@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mantenimiento Preventivo de TPS</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="/RESOURCE/CSS/globalPageLoadStyles.css">
+    <link rel="stylesheet" href="\RESOURCE\CSS\index.css">
+</head>
+<body>
+    <div class="formulario-verificacion">
+        <form class="formulario-verificacion__formulario">
+            <h1 class="formulario-verificacion__titulo-principal">FORMATO MANTENIMIENTO PREVENTIVO TPS HONEYWELL</h1>
+            <div class="campo">
+                <label class="campo__etiqueta">FECHA</label>
+                <input type="text" class="campo__control" id="fecha" readonly> 
+            </div>
+            <div class="seccion">
+                <!-- <div class="campo">
+                    <label class="campo__etiqueta">División</label>
+                    <select  class="campo__control" id="division">
+                        <option value="">Selecciona una división</option>
+                        <option value="Baja_California">División Bajacalifornia</option>
+                        <option value="Noroeste">División Noroeste</option>
+                        <option value="Norte">División Norte</option>
+                        <option value="Golfo_Norte">División Golfo norte</option>
+                        <option value="Golfo_Centro">División Golfo Centro</option>
+                        <option value="Bajio">División Bajio</option>
+                        <option value="Jalisco">División Jalisco</option>
+                        <option value="Centro_Occidente">División Centro Occidente</option>
+                        <option value="Centro_Sur">División Centro Sur</option>
+                        <option value="Centro_Oriente">Division Centro Oriente</option>
+                        <option value="Oriente">División Oriente</option>
+                        <option value="Sureste">División Sureste</option>
+                        <option value="Peninsular">División Peninsular</option>
+                        <option value="Valle_Norte">División Valle de México Norte</option>
+                        <option value="Valle_Centro">División Valle de México Centro</option>
+                        <option value="Valle_Sur">División Valle de México Sur</option>
+                    </select>
+                </div> -->
+                <div class="seccion">
+                    <div class="campo">
+                        <label class="campo__etiqueta">ZONA</label>
+                        <select class="campo__control" id="zona">
+                            <option value="Seleccionar_Zona" >Selecciona una zona</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+          <!--  <div class="seccion">
+                <div class="campo">
+                <label class="campo__etiqueta">CENTRO DE TRABAJO</label>
+                <select class="campo__control" id="centro">
+                    <option value="Seleccionar_Zona">Seleccione una centro</option>
+                </select>
+                </div>
+            </div>-->
+            <div class="campo">
+                    <label class="campo__etiqueta">FOLIO</label>
+                    <input type="text" class="campo__control" id="folio">
+            </div>
+            <div class="seccion">
+                <div class="campo">
+                    <label class="campo__etiqueta">TIPO DE EQUIPO</label>
+                    <select class="campo__control" id="tipo_equipo">
+                        <option value="Seleccionar_Zona">Seleccione el tipo de equipo</option>
+                        <option value="PC">PC</option>
+                        <option value="Laptop">Laptop</option>
+                        <option value="Impresora">Impresora</option>
+                    </select>
+                </div>
+            </div>
+            <div class="seccion">
+                <div class="campo">
+                <label class="campo__etiqueta">SERVICIO</label>
+                <select class="campo__control" id="servicio">
+                    <option value="Seleccionar_Zona">Seleccione el tipo de servicio</option>
+                    <option value="Preventivo">Preventivo</option>
+                    <option value="Mantenimiento">Mantenimiento</option>
+                </select>
+                </div>
+            </div>
+            <div class="campo">
+                <label class="campo__etiqueta">HR. INICIO</label>
+                <input type="time" class="campo__control" id="hrinicio">
+            </div>
+            <div class="campo">
+                <label class="campo__etiqueta">HR. TÉRMINO</label>
+                <input type="time" class="campo__control" id="hrtermino">
+            </div>            
+            <div class="campo">
+                <label for="Numero_Serie" class="campo__etiqueta">NÚMERO DE SERIE</label>
+                <div class="search-container" data-param-name="serie">
+                    <input type="text" class="campo__control" id="serie" name="serie" autocomplete="off"> 
+                    <button type="button" id="search-button-serie" class="search-button" data-url="/buscar_equipo">BUSCAR</button> 
+
+                    <div id="serie-sugerencias" class="sugerencias-container"></div>
+                </div>
+            </div>
+            <div class="campo">
+                <label for="division" class="campo__etiqueta">DIVISIÓN</label>
+                <input type="text" class="campo__control" id="division" name="division" readonly>
+            </div>
+            <div class="campo">
+                <label for="numero_inventario" class="campo__etiqueta">NÚMERO INVENTARIO</label>
+                <input type="text" class="campo__control" id="numero_inventario" name="numero_inventario" readonly>
+            </div>
+            <div class="campo">
+                <label for="usuario" class="campo__etiqueta">NOMBRE DEL USUARIO</label>
+                <input type="text" class="campo__control" id="usuario" name="usuario" readonly>
+            </div>
+            <div class="campo">
+                <label for="marca" class="campo__etiqueta">MARCA</label>
+                <input type="text" class="campo__control" id="marca" name="marca" readonly>
+            </div>
+            <div class="campo">
+                <label for="modelo" class="campo__etiqueta">MODELO</label>
+                <input type="text" class="campo__control" id="modelo" name="modelo" readonly>
+            </div>
+            <div class="campo" id="campo-uso-trabajo">
+                <label for="uso" class="campo__etiqueta">USO QUE SE LE DA AL EQUIPO</label>
+                <input type="text" class="campo__control" id="tipo_uso" name="tipo_uso" readonly>
+            </div>
+            <div class="campo" id="campo-centro-trabajo">
+                <label for="centro_trabajo" class="campo__etiqueta">CENTRO DE TRABAJO</label>
+                <input type="text" class="campo__control" id="centro_trabajo" name="centro_trabajo" readonly>
+            </div>
+            <div class="campo" id="campo-uso-trabajo">
+                <label for="uso" class="campo__etiqueta">Justificación del porque se realiza el mantenimiento fuera del periodo</label>
+                <input type="text" class="campo__control" id="justificacion" name="justificacion">
+            </div>
+
+            <!--SECCIÓN DE ELEMENTO-->
+            <hr class="seccion__divisor">
+            <div class="seccion">
+                <h3 class="seccion__titulo">ELEMENTO</h3>
+                <div class="campo">1. Limpieza y sopleteado externo del equipo
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="sopleteado" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="sopleteado" type="radio" value="no"> No</label>
+                    </div>
+                    <input type="text" id="input_sopleteado" style="display: none;" class="campo__control" maxlength="40"  placeholder="Especifique motivo">
+                </div>
+                <div class="campo">2. Validar touch pantalla</p>
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="touch" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="touch" type="radio" value="no"> No</label>
+                    </div>
+                    <input type="text" id="input_touch" style="display: none;" class="campo__control" maxlength="40" placeholder="Especifique motivo">
+                </div>
+                <div class="campo">3. Revisión de batería</p>
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="bateria" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="bateria" type="radio" value="no"> No</label>
+                    </div>
+                    <input type="text" id="input_bateria" style="display: none;" class="campo__control" maxlength="40" placeholder="Especifique motivo">
+                </div>
+                <div class="campo">4.  Verificar Sw institucional actualizado</p>
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="Sw" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="Sw" type="radio" value="no"> No</label>
+                    </div>
+                    <input type="text" id="input_Sw" style="display: none;" class="campo__control" maxlength="40" placeholder="Especifique motivo">
+                </div>
+                <div class="campo">5. Verificar estado del conector de datos</p>
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="conector" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="conector" type="radio" value="no"> No</label>
+                    </div>
+                    <input type="text" id="input_conector" style="display: none;" class="campo__control" maxlength="40"  placeholder="Especifique motivo">
+                </div>
+                <div class="campo">6. Validar estado del teclado</p>
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="teclado" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="teclado" type="radio" value="no"> No</label>
+                    </div>
+                    <input type="text" id="input_teclado" class="campo__control" style="display:none;" maxlength="40" placeholder="Especifique motivo">
+                </div>
+                <div class="campo">7. Verificar funcionamiento del equipo después del servicio</p>
+                    <div class="grupo-opciones">
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="verificar" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="verificar" type="radio" value="no"> No</label>
+                    </div>
+                    <input type="text" id="input_verificar" class="campo__control" style="display:none;" maxlength="40" placeholder="Especifique motivo">
+                </div>
+            </div>
+            <hr class="seccion__divisor">
+            <div class="campo">
+                <label class="campo__etiqueta">REALIZÓ SERVICIO:</label>
+                <input type="text" class="campo__control" id="realizo_servicio" placeholder="Nombre">
+                <div class="firma-area" id="firma-area-1">[Área para firma de quien realizo el servicio]<br>Hacer click aquí</div>
+                <input type="hidden" id="firma-input-1">
+                <img id="firma-imagen-1" class="firma-imagen"/>
+            </div>
+            <div class="campo">
+                <label class="campo__etiqueta">RESPONSABLE DEL EQUIPO:</label>
+                <input type="text" class="campo__control" id="responsable" placeholder="Nombre">
+                <div class="firma-area" id="firma-area-2">[Área para firma del responsable]<br>Hacer click aquí</div>
+                <input type="hidden" id="firma-input-2">
+                <img id="firma-imagen-2" class="firma-imagen"/>
+            </div>
+            <div class="campo">
+                <label class="campo__etiqueta">VISTO BUENO:</label>
+                <input type="text" class="campo__control" id="visto_bueno" placeholder="Nombre">
+                <div class="firma-area" id="firma-area-3">[Área para firma]<br>Hacer click aquí</div>
+                <input type="hidden" id="firma-input-3">
+                <img id="firma-imagen-3" class="firma-imagen"/>
+            </div>
+            <button type="button" class="boton boton--primario" onclick="generarPDF()">Pasar siguiente</button>
+            <button type="button" class="boton boton--secundario">Guardar Borrador</button>
+            <div class="boton boton--secundario boton--cancelar">
+                <a href="/TEMPLATES/menu.html" class="boton--cancelar ">Cancelar</a>
+            </div>
+        </form>
+    </div>
+    <!-- Modal para la firma digital -->
+<div id="modal-firma" class="firma-modal">
+    <div class="firma-modal__contenido">
+        <h3 class="firma-modal__titulo">Firme en el recuadro</h3>
+        <canvas id="canvas-firma"  class="firma-canvas"></canvas>
+        <div class="firma-modal__botones">
+            <button type="button" id="btn-limpiar-firma" class="boton boton--secundario">Limpiar</button>
+            <button type="button" id="btn-guardar-firma" class="boton boton--primario">Guardar</button>
+            <button type="button" id="btn-cerrar-firma" class="boton boton--secundario">Cerrar</button>
+        </div>
+    </div>
+</div>
+    <script src="/RESOURCE/JS/formato_mantenimiento/connection.js" ></script>
+    <script src="/RESOURCE/JS/firma.js"></script>
+    <script src="/RESOURCE/JS/selects.js"></script>
+    <script src="/RESOURCE/JS/campo_desplegable.js"></script>
+    <script src="/RESOURCE/JS/forzarCargaCSS.js" defer></script>
+    <script src="/RESOURCE/JS/barra_progreso.js"></script>
+    <script src="/RESOURCE/JS/formato_mantenimiento/pdf_TPS.js"></script>
+</body>
+</html>
