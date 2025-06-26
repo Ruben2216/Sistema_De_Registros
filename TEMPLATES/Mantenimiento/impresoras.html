@@ -5,25 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mantenimiento Preventivo de Impresoras</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="/RESOURCE/JS/forzarCargaCSS.js"></script>
     <link rel="stylesheet" href="/RESOURCE/CSS/globalPageLoadStyles.css">
     <link rel="stylesheet" href="\RESOURCE\CSS\index.css">
 </head>
 <body>
     <div class="formulario-verificacion">
         <form class="formulario-verificacion__formulario">
-            <h1 class="formulario-verificacion__titulo-principal">Formato de mantenimiento preventivo de impresoras</h1>
+            <h1 class="formulario-verificacion__titulo-principal">FORMATO DE MANTENIMIENTO PREVENTIVO DE IMPRESORA</h1>
             <div class="campo">
                 <label class="campo__etiqueta">FECHA</label>
-                <input type="date" class="campo__control" id="fecha">
+                <input type="text" class="campo__control" id="fecha" readonly> 
             </div>
-                <div class="seccion">
-                    <div class="campo">
-                        <label class="campo__etiqueta">ZONAS</label>
-                        <select class="campo__control" id="zona">
-                            <option value="Seleccionar_Zona" >Selecciona una zona</option>
-                        </select>
-                    </div>
+            <div class="seccion">
+                <div class="campo">
+                    <label class="campo__etiqueta">ZONAS</label>
+                        <input type="text" value="TUXTLA" id="zona" class="campo__control"> 
                 </div>
+            </div>
             <div class="campo">
                     <label class="campo__etiqueta">FOLIO</label>
                     <input type="text" class="campo__control" id="folio">
@@ -45,39 +44,63 @@
             <div class="campo">
                 <label class="campo__etiqueta">HR. TÉRMINO</label>
                 <input type="time" class="campo__control" id="hrTermino">
-            </div>           
+            </div>
+            
+            <div class="campo">
+                <label for="inventario" class="campo__etiqueta">NÚMERO INVENTARIO</label>
+                <div class="search-container" data-param-name="inventario"> 
+                    <input type="text" inputmode="numeric" pattern="[0-9]*" class="campo__control" id="numero_inventario" name="inventario"> 
+                    <button type="button" id="search-button" class="search-button" data-url="/buscar_equipo">BUSCAR</button> 
+                </div>
+            </div>
             <div class="campo">
                 <label for="Numero_Serie" class="campo__etiqueta">NÚMERO DE SERIE</label>
                 <div class="search-container" data-param-name="serie">
                     <input type="text" class="campo__control" id="serie" name="serie" autocomplete="off"> 
-                    <button type="button" id="search-button-serie" class="search-button" data-url="/buscar_equipo">BUSCAR</button> 
+
                     <div id="serie-sugerencias" class="sugerencias-container"></div>
                 </div>
             </div>
             <div class="campo">
                 <label for="usuario" class="campo__etiqueta">NOMBRE DEL USUARIO</label>
-                <input type="text" class="campo__control" id="usuario" name="usuario" readonly>
+                <input type="text" class="campo__control" id="usuario" name="usuario">
             </div>
             <div class="campo">
                 <label for="marca" class="campo__etiqueta">MARCA</label>
-                <input type="text" class="campo__control" id="marca" name="marca" readonly>
+                <input type="text" class="campo__control" id="marca" name="marca">
             </div>
             <div class="campo">
-                <label for="modelo" class="campo__etiqueta">MODELO</label>
-                <input type="text" class="campo__control" id="modelo" name="modelo" readonly>
+                <label for="modelo" class="campo__etiqueta">MODELO</label> 
+                <input type="text" class="campo__control" id="modelo" name="modelo">
             </div>
             <div class="campo">
                 <label class="campo__etiqueta">TIPO DE EQUIPO</label>
-                <select class="campo__control" id="tipo_equipo">
-                    <option value="Seleccionar_Zona">Seleccione el tipo de equipo</option>
-                    <option value="PC">PC</option>
-                    <option value="Laptop">Laptop</option>
-                    <option value="Impresora">Impresora</option>
-                </select>
+                <input type="text" value="IMPRESORA" class="campo__control" id="modelo" name="modelo"> 
             </div>
-            <div class="campo" id="campo-centro-trabajo">
-                <label for="centro_trabajo" class="campo__etiqueta">CENTRO DE TRABAJO</label>
-                <input type="text" class="campo__control" id="centro_trabajo" name="centro_trabajo" readonly>
+            <div class="campo">
+                <label for="division" class="campo__etiqueta">DIVISIÓN</label>
+                <input type="text" class="campo__control" id="division" name="division">
+            </div>
+            <div class="seccion">
+                <div class="campo">
+                    <label class="campo__etiqueta">CENTRO DE TRABAJO</label>
+                    <select class="campo__control" id="tipo_equipo">
+                        <option value="centro"></option>
+                        <option value="consumos">Integ de Consumos - AGENCIA MALPASO, ZONA TUXTLA</option>
+                        <option value="comercial">Comercial Campo - AGENCIA BENITO JUAREZ</option>
+                        <option value="comercial">Comercial Campo - COMERCIAL</option>
+                        <option value="comercial">Comercial Campo - IMPRESORA OFICINA JURIDICO</option>
+                        <option value="finanzas">Finanzas - OFICINA DE CONTABILIDAD, ZONA TUXTLA</option>
+                        <option value="redes">Redes Aéreas - AREA BOCHIL</option>
+                        <option value="zona_tux">DIS Zona Tuxtla - SUPERINTENDENCIA</option>
+                        <option value="finanzas">Finanzas  - ADMINISTRACIÓN</option>
+                        
+
+
+                    </select>
+
+                </div>
+
             </div>
 
             <!--SECCIÓN DE ELEMENTO-->
@@ -158,21 +181,21 @@
             <hr class="seccion__divisor">
             <div class="campo">
                 <label class="campo__etiqueta">REALIZÓ SERVICIO:</label>
-                <input type="text" class="campo__control" id="realizo_servicio" placeholder="Nombre">
+                <input type="text" value="ING. LEYDEN ARIAS RUIZ" class="campo__control" id="realizo_servicio">
                 <div class="firma-area" id="firma-area-1">[Área para firma de quien realizo el servicio]<br>Hacer click aquí</div>
                 <input type="hidden" id="firma-input-1">
                 <img id="firma-imagen-1" class="firma-imagen"/>
             </div>
             <div class="campo">
                 <label class="campo__etiqueta">RESPONSABLE DEL EQUIPO:</label>
-                <input type="text" class="campo__control" id="responsable" placeholder="Nombre">
+                <input type="text" value="MTIE. GIOVANI PEDRO CRUZ LAVARIEGA" class="campo__control" id="responsable">
                 <div class="firma-area" id="firma-area-2">[Área para firma del responsable]<br>Hacer click aquí</div>
                 <input type="hidden" id="firma-input-2">
                 <img id="firma-imagen-2" class="firma-imagen"/>
             </div>
             <div class="campo">
                 <label class="campo__etiqueta">VISTO BUENO:</label>
-                <input type="text" class="campo__control" id="visto_bueno" placeholder="Nombre">
+                <input type="text" value="MTIE. GIOVANI PEDRO CRUZ LAVARIEGA" class="campo__control" id="visto_bueno">
                 <div class="firma-area" id="firma-area-3">[Área para firma]<br>Hacer click aquí</div>
                 <input type="hidden" id="firma-input-3">
                 <img id="firma-imagen-3" class="firma-imagen"/>

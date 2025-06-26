@@ -2,7 +2,11 @@
 
 (function() {
     // URL del backend Flask para autoguardado
+<<<<<<< HEAD
     var API_URL = 'https://192.168.100.81:8000/api/rij/autoguardado';
+=======
+    var API_URL = 'https://192.168.1.90:8000/api/rij/autoguardado';
+>>>>>>> 019cdf9a68463c94e0eaea9e622c054e7245df4f
 
     // Función para obtener todos los datos del formulario, incluyendo firmas
     function obtenerDatosFormulario() {

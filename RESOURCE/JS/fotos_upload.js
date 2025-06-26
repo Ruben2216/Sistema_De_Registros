@@ -60,12 +60,17 @@ function obtenerListaFotos(callback) {
 // NOTA: Cuando se sube una nueva foto, se debe guardar como objeto con versión
 function guardarFotoDesdeCanvas(canvas) {
     var base64 = canvas.toDataURL('image/png');
+    
+    // OPTIMIZACIÓN: Almacenar la imagen local inmediatamente para evitar dependencia del servidor
+    // Esto mejora la velocidad de generación de PDFs y reduce la carga del servidor
+    var localDataURL = canvas.toDataURL('image/webp', 0.9); // Usar WebP para mejor compresión
+    
     subirFotoBase64(base64, function(err, url) {
         if (err) {
             alert('Error al subir la foto: ' + err);
         } else {
-            // Al agregar, siempre como versión original
-            window.agregarFotoAGaleria(url, 'original', null);
+            // Al agregar, siempre como versión original, pero incluyendo data URL local
+            window.agregarFotoAGaleria(url, 'original', null, null, null, localDataURL);
         }
     });
 }
@@ -81,8 +86,63 @@ function agregarFotoAGaleria(url) {
     var img = document.createElement('img');
     img.src = url;
     img.alt = 'Foto subida';
+    img.className = 'foto-principal';
+    img.setAttribute('data-original-url', url);
+    img.setAttribute('data-version', 'original');
+    
+    // OPTIMIZACIÓN: Cargar imagen como data URL local para PDF
+    if (typeof window.cargarImagenComoDataURL === 'function') {
+        window.cargarImagenComoDataURL(url, function(dataURL) {
+            if (dataURL) {
+                img.setAttribute('data-local-image', dataURL);
+            }
+        });
+    }
+    
     photoWrapper.appendChild(img);
     contenedor.appendChild(photoWrapper);
 }
+
+// OPTIMIZACIÓN: Función para cargar una imagen como data URL local
+// Esto reduce la dependencia del servidor para generación de PDFs
+function cargarImagenComoDataURL(url, callback) {
+    if (url.startsWith('data:')) {
+        callback(url);
+        return;
+    }
+    
+    fetch(url, { credentials: 'include' })
+    .then(function(response) {
+        if (!response.ok) {
+            throw new Error('Error al cargar imagen');
+        }
+        return response.blob();
+    })
+    .then(function(blob) {
+        var reader = new FileReader();
+        reader.onloadend = function() {
+            // Convertir a WebP para mejor compresión
+            var img = new Image();
+            img.onload = function() {
+                var canvas = document.createElement('canvas');
+                canvas.width = img.naturalWidth;
+                canvas.height = img.naturalHeight;
+                var ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                var webpDataUrl = canvas.toDataURL('image/webp', 0.9);
+                callback(webpDataUrl);
+            };
+            img.src = reader.result;
+        };
+        reader.readAsDataURL(blob);
+    })
+    .catch(function(error) {
+        console.warn('Error al cargar imagen como data URL:', error);
+        callback(null);
+    });
+}
+
+// Exponer función globalmente
+window.cargarImagenComoDataURL = cargarImagenComoDataURL;
 
 

@@ -4,27 +4,40 @@ let opencvReady = false; // Variable global para controlar la carga de OpenCV
 if (typeof cv !== 'undefined') {
     cv.onRuntimeInitialized = function() {
         opencvReady = true;
-        console.log('OpenCV.js está completamente listo (onRuntimeInitialized).');
         // Habilitar el botón de generar PDF una vez que OpenCV.js esté listo
         const btn = document.getElementById('btnGenerarPDF');
         if (btn) {
             btn.disabled = false;
             btn.textContent = 'Generar PDF de fotos'; // Restaurar texto si se cambió
         }
+        
+        // Notificar al sistema de envío de correo que OpenCV está listo
+        if (typeof habilitarBotonEnvioCorreoCamara === 'function') {
+            habilitarBotonEnvioCorreoCamara();
+        }
+        
+        // Disparar evento personalizado para notificar que OpenCV está listo
+        window.dispatchEvent(new CustomEvent('opencvReady', { detail: { ready: true } }));
     };
 } else {
-    // Si cv no está definido aún, esperar a que el script de OpenCV.js lo defina
     window.addEventListener('DOMContentLoaded', function() {
         function checkOpenCVLoaded() {
             if (typeof cv !== 'undefined' && cv.onRuntimeInitialized) {
                 cv.onRuntimeInitialized = function() {
                     opencvReady = true;
-                    console.log('OpenCV.js está completamente listo (onRuntimeInitialized, fallback).');
                     const btn = document.getElementById('btnGenerarPDF');
                     if (btn) {
                         btn.disabled = false;
                         btn.textContent = 'Generar PDF de fotos';
                     }
+                    
+                    // Notificar al sistema de envío de correo que OpenCV está listo
+                    if (typeof habilitarBotonEnvioCorreoCamara === 'function') {
+                        habilitarBotonEnvioCorreoCamara();
+                    }
+                    
+                    // Disparar evento personalizado
+                    window.dispatchEvent(new CustomEvent('opencvReady', { detail: { ready: true } }));
                 };
             } else {
                 // Si aún no está, reintentar tras un pequeño retardo
@@ -119,7 +132,6 @@ function aplicarFiltroDocumento(img, calidad, maxLado, callback) {
         }, 'image/webp', calidad);
 
     } catch (e) {
-        console.error("Error durante el procesamiento OpenCV.js:", e);
         showMessage("Error al procesar la imagen con OpenCV.js: " + e.message + ". Se usará la imagen original.");
         // En caso de error, devolver la imagen original para que el PDF no falle completamente
         if (img && img.toDataURL) {
@@ -222,6 +234,74 @@ function generarPDFConFotos() {
     }
     // Función para agregar una imagen al PDF
     function agregarImagenAlPDF(imagen, callback) {
+        // Buscar si existe una versión local de la imagen en el DOM
+        var imgElementos = document.querySelectorAll('#photosContainer img.foto-principal');
+        var localDataURL = null;
+        
+        for (var i = 0; i < imgElementos.length; i++) {
+            var imgEl = imgElementos[i];
+            
+            // Verificar si esta imagen coincide con la que se va a procesar
+            // Puede coincidir por src directo o por ser una versión de la misma imagen
+            var coincide = false;
+            
+            if (imgEl.src === imagen) {
+                coincide = true;
+            } else if (imagen.startsWith('data:')) {
+                // Si la imagen es un data URL, verificar si coincide con alguna versión almacenada
+                var originalUrl = imgEl.getAttribute('data-original-url');
+                var mejorada = imgEl.getAttribute('data-mejorada');
+                var recortada = imgEl.getAttribute('data-recortada');
+                var contraste = imgEl.getAttribute('data-contraste');
+                var bordes = imgEl.getAttribute('data-bordes');
+                var color = imgEl.getAttribute('data-color');
+                var localImg = imgEl.getAttribute('data-local-image');
+                
+                if (imagen === mejorada || imagen === recortada || imagen === contraste || 
+                    imagen === bordes || imagen === color || imagen === localImg) {
+                    coincide = true;
+                }
+            }
+            
+            if (coincide) {
+                // Prioridad: la imagen que se está mostrando actualmente (imgEl.src)
+                // Si ya es un data URL, usarla directamente
+                if (imgEl.src.startsWith('data:')) {
+                    localDataURL = imgEl.src;
+                } else {
+                    // Buscar versión local en orden de prioridad:
+                    // 1. Imagen recortada (más específica)
+                    // 2. Data URL local original
+                    localDataURL = imgEl.getAttribute('data-recortada') || 
+                                  imgEl.getAttribute('data-local-image');
+                }
+                break;
+            }
+        }
+        
+        // Si encontramos una versión local, usarla directamente
+        if (localDataURL && localDataURL.startsWith('data:')) {
+            if (localDataURL.startsWith('data:image/webp')) {
+                callback(localDataURL);
+                return;
+            }
+            
+            // Convertir a WebP si no lo es ya
+            var img = new window.Image();
+            img.onload = function() {
+                var canvas = document.createElement('canvas');
+                canvas.width = img.naturalWidth;
+                canvas.height = img.naturalHeight;
+                var ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                var webpDataUrl = canvas.toDataURL('image/webp', 0.9);
+                callback(webpDataUrl);
+            };
+            img.src = localDataURL;
+            return;
+        }
+        
+        // Si la imagen ya es un data URL, procesarla directamente
         if (imagen.startsWith('data:image/webp')) {
             callback(imagen);
             return;
@@ -240,6 +320,8 @@ function generarPDFConFotos() {
             img.src = imagen;
             return;
         }
+        
+        // Última opción: fetch al servidor (mantener compatibilidad)
         fetch(imagen, { credentials: 'include' })
             .then(function(response) { return response.blob(); })
             .then(function(blob) {
@@ -584,7 +666,6 @@ function aplicarFiltroContrasteAutomatico(img, calidad, maxLado, callback) {
         sharpened.delete();
 
     } catch (e) {
-        console.error("Error en filtro mejorado para documentos con fondo de color:", e);
         showMessage("Error al procesar la imagen: " + e.message);
         callback(null);
     } finally {
@@ -728,7 +809,6 @@ function aplicarFiltroDeteccionBordes(img, calidad, maxLado, callback) {
         rgb.delete();
 
     } catch (e) {
-        console.error("Error en filtro para documentos con colores:", e);
         showMessage("Error al procesar la imagen: " + e.message);
         callback(null);
     } finally {
@@ -854,7 +934,6 @@ function aplicarFiltroCorreccionColor(img, calidad, maxLado, callback) {
         denoised.delete();
         final.delete();
         cleanKernel.delete();    } catch (e) {
-        console.error("Error en filtro para documentos con mala iluminación:", e);
         showMessage("Error al procesar la imagen: " + e.message);
         callback(null);
     } finally {

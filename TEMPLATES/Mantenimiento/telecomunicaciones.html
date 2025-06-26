@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formato Inspección de salas de Telecomunicación</title>
+    <script src="/RESOURCE/JS/forzarCargaCSS.js"></script>
     <link rel="stylesheet" href="/RESOURCE/CSS/globalPageLoadStyles.css">
     <link rel="stylesheet" href="/RESOURCE/CSS/index.css">
 </head>
@@ -15,7 +16,7 @@
     </div>
     <div class="formulario-verificacion">
         <form class = "formulario-verificacion__formulario">
-            <h1 class="formulario-verificacion__titulo-principal">Formato de mantenimiento de computo</h1>
+            <h1 class="formulario-verificacion__titulo-principal">FORMATO DE MANTENIMIENTO DE TELECOMUNICACIONES</h1>
             <div class="seccion">
                 <div class="campo">
                     <label class="campo__etiqueta">CLAVE DE DOCUMENTO</label>
@@ -25,10 +26,10 @@
                     <label class="campo__etiqueta">NÚMERO DE VERSIÓN</label>
                     <input type="text" class="campo__control">
                 </div>
-                <div class="campo">
-                    <label class="campo__etiqueta">FECHA DE PUBLICACIÓN</label>
-                    <input type="date" class="campo__control">
-                </div>
+            <div class="campo">
+                <label class="campo__etiqueta">FECHA</label>
+                <input type="text" class="campo__control" id="fecha" readonly> 
+            </div>
                 <div class="campo">
                     <label class="campo__etiqueta">División</label>
                     <select  class="campo__control" id="division">
@@ -53,12 +54,10 @@
                 </div>
                 <div class="seccion">
                     <div class="campo">
-                        <label class="campo__etiqueta">Zonas</label>
-                        <select class="campo__control" id="zona">
-                            <option value="Seleccionar_Zona" >Selecciona una zona</option>
-                        </select>
-                    </div>
+                        <label class="campo__etiqueta">ZONA</label>
+                        <input type="text" value="TUXTLA" id="zona" class="campo__control"> 
                 </div>
+            </div>
                 <div class="campo">
                     <label class="campo__etiqueta">UBICACIÓN DEL SITE</label>
                     <input type="text" class="campo__control">

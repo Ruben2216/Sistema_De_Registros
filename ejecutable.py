@@ -12,6 +12,9 @@ import mysql.connector
 from mysql.connector import Error
 from dotenv import load_dotenv
 from kilometro_vida import bp_imgdia
+# --- IMPORTACIONES PARA CORREO ---
+from flask_mail import Mail, Message
+import io
 
 
 # Rutas absolutas a las carpetas en el proyecto. Preferentemente, si se mueven los archivos, verificar aquí las rutas para evitar que se rompan
@@ -23,6 +26,16 @@ RESOURCE_FOLDER = os.path.join(BASE_DIR, 'RESOURCE')
 app = Flask(__name__, static_url_path='', static_folder=TEMPLATES_FOLDER)
 app.secret_key = 'supersecretkey'  # Necesario para usar session
 
+# --- CONFIGURACIÓN DE CORREO ---
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'sistemaregistrocfe@gmail.com'
+app.config['MAIL_PASSWORD'] = 'ytji fwik rftf njxw'  
+app.config['MAIL_DEFAULT_SENDER'] = 'sistemaregistrocfe@gmail.com'
+
+mail = Mail(app)
+
 # Aquí se define la ruta principal con el archivo HTML que se desplegará, como por ejemplo 'menu.html'.
 @app.route('/')
 def index():
@@ -31,6 +44,11 @@ def index():
 
 @app.route('/TEMPLATES/<path:filename>')
 def templates_root(filename):
+    # Validar que el filename no sea null, vacío o inválido
+    if not filename or filename.lower() in ['null', 'undefined', 'none', '']:
+        print(f"🚨 Intento de acceso a archivo inválido en TEMPLATES: '{filename}'")
+        return jsonify({'error': 'Archivo no válido'}), 400
+    
     return send_from_directory(TEMPLATES_FOLDER, filename)
 
 # Archivos dentro de /TEMPLATES/Mantenimiento/
@@ -93,6 +111,10 @@ def autoguardado_fotos():
 
 FOTOS_RIJ_DIR = os.path.join(RESOURCE_FOLDER, 'IMG', 'Evidencias')
 os.makedirs(FOTOS_RIJ_DIR, exist_ok=True)
+
+# Directorio de imágenes RIJ predefinidas
+IMG_RIJ_DIR = os.path.join(RESOURCE_FOLDER, 'IMG', 'img RIJ')
+os.makedirs(IMG_RIJ_DIR, exist_ok=True)
 
 @app.route('/api/rij/upload_foto', methods=['POST'])
 def upload_foto():
@@ -186,43 +208,171 @@ def limpiar_sesion():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
-def limpiar_archivos_viejos():
-    """
-    Elimina imágenes y archivos temporales de sesión con más de n mutos desde que se creo
-    """
-    MINUTOS_EXPIRACION = 10 #minutos para expiración de archivos
-    ahora = time.time()
-    tiempo_expiracion = MINUTOS_EXPIRACION * 60
-    # Limpiar imágenes
-    for nombre_archivo in os.listdir(FOTOS_RIJ_DIR):
-        ruta_archivo = os.path.join(FOTOS_RIJ_DIR, nombre_archivo)
-        if os.path.isfile(ruta_archivo):
-            try:
-                # Obtener tiempo de modificación (o creación en Windows)
-                tiempo_archivo = os.path.getmtime(ruta_archivo)
-                if ahora - tiempo_archivo > tiempo_expiracion:
-                    os.remove(ruta_archivo)
-            except Exception as e:
-                print(f"[LIMPIEZA] Error al eliminar imagen x del servidor: {ruta_archivo} - {e}")
-    # Limpiar archivos temporales de sesión
-    for nombre_archivo in os.listdir(FOTOS_TMP_DIR):
-        ruta_archivo = os.path.join(FOTOS_TMP_DIR, nombre_archivo)
-        if os.path.isfile(ruta_archivo):
-            try:
-                tiempo_archivo = os.path.getmtime(ruta_archivo)
-                if ahora - tiempo_archivo > tiempo_expiracion:
-                    os.remove(ruta_archivo)
-                    print(f"[LIMPIEZA] Archivo temporal eliminado por antigüedad (>{MINUTOS_EXPIRACION} min): {ruta_archivo}")
-            except Exception as e:
-                print(f"[LIMPIEZA] Error al eliminar archivo temporal: {ruta_archivo} - {e}")
-    # Puedes agregar aquí limpieza de otros registros si es necesario
-    # Reprogramar la función para que se ejecute de nuevo en 1 minuto
-    threading.Timer(60, limpiar_archivos_viejos).start()
+# --- ENDPOINTS PARA IMPORTAR IMÁGENES PREDEFINIDAS ---
+# Directorio de imágenes RIJ predefinidas
+IMG_RIJ_DIR = os.path.join(RESOURCE_FOLDER, 'IMG', 'img RIJ')
+os.makedirs(IMG_RIJ_DIR, exist_ok=True)
 
-# Iniciar la limpieza automática al arrancar el servidor
-limpiar_archivos_viejos()
+@app.route('/api/rij/imagenes_disponibles', methods=['GET'])
+def obtener_imagenes_disponibles():
+    """
+    Devuelve una lista de imágenes disponibles en la carpeta /RESOURCE/IMG/img RIJ
+    """
+    try:
+        imagenes = []
+        # Extensiones de archivo permitidas
+        extensiones_permitidas = ('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp')
+        
+        # Verificar si la carpeta existe
+        if os.path.exists(IMG_RIJ_DIR):
+            # Obtener lista de archivos en la carpeta
+            archivos = os.listdir(IMG_RIJ_DIR)
+            
+            for archivo in archivos:
+                if archivo.lower().endswith(extensiones_permitidas):
+                    try:
+                        # Crear URL pública para la imagen
+                        url = url_for('resource_files', filename=f'IMG/img RIJ/{archivo}', _external=True)
+                        
+                        # Validación adicional: asegurar que la URL no sea None, null, o vacía
+                        if url and url.strip() and 'null' not in url.lower():
+                            imagenes.append({
+                                'nombre': archivo,
+                                'url': url
+                            })
+                        else:
+                            print(f" URL inválida  {archivo}: {url}")
+                    except Exception as e:
+                        continue
+        
+        return jsonify({'imagenes': imagenes}), 200
+    except Exception as e:
+        print(f"❌ Error en obtener_imagenes_disponibles: {e}")
+        return jsonify({'error': str(e)}), 500
 
-# ---INICIO DE BACKEND ---
+@app.route('/api/rij/importar_imagen', methods=['POST'])
+def importar_imagen_rij():
+    """
+    Copia una imagen de la carpeta img RIJ a la carpeta de evidencias del usuario
+    """
+    try:
+        data = request.get_json()
+        nombre_archivo = data.get('nombre_archivo')
+        
+        if not nombre_archivo:
+            return jsonify({'success': False, 'error': 'Nombre de archivo no proporcionado'}), 400
+        
+        # Ruta de origen (imagen en img RIJ)
+        ruta_origen = os.path.join(IMG_RIJ_DIR, nombre_archivo)
+        
+        # Verificar que el archivo existe
+        if not os.path.isfile(ruta_origen):
+            return jsonify({'success': False, 'error': 'Archivo no encontrado'}), 404
+        
+        # Generar nombre único para evitar conflictos
+        sid = session.get('sid') or os.urandom(8).hex()
+        session['sid'] = sid
+        
+        # Extraer extensión del archivo original
+        nombre_base, extension = os.path.splitext(nombre_archivo)
+        nombre_destino = f"importada_{sid}_{datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')}{extension}"
+        
+        # Ruta de destino (carpeta de evidencias)
+        ruta_destino = os.path.join(FOTOS_RIJ_DIR, nombre_destino)
+        
+        # Copiar archivo
+        import shutil
+        shutil.copy2(ruta_origen, ruta_destino)
+        
+        # Construir URL pública
+        url = url_for('resource_files', filename=f'IMG/Evidencias/{nombre_destino}', _external=True)
+        
+        # Agregar a la lista de fotos en la sesión
+        fotos = session.get('rij_fotos', [])
+        fotos.append(url)
+        session['rij_fotos'] = fotos
+        
+        return jsonify({'success': True, 'url': url, 'nombre_original': nombre_archivo}), 200
+        
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+# --- ENDPOINT PARA ENVIAR PDF POR CORREO ---
+@app.route('/api/rij/enviar_correo', methods=['POST'])
+def enviar_pdf_correo():
+    """
+    Envía un PDF generado por correo electrónico al destinatario especificado
+    """
+    try:
+        data = request.get_json()
+        
+        # Validar datos requeridos
+        correo_destinatario = data.get('correo')
+        pdf_base64 = data.get('pdf_base64')
+        nombre_archivo = data.get('nombre_archivo', 'RIJ_Verificacion.pdf')
+        
+        if not correo_destinatario:
+            return jsonify({'success': False, 'error': 'Correo del destinatario no proporcionado'}), 400
+            
+        if not pdf_base64:
+            return jsonify({'success': False, 'error': 'Archivo PDF no proporcionado'}), 400
+        
+        # Validar formato de correo básico
+        if '@' not in correo_destinatario or '.' not in correo_destinatario:
+            return jsonify({'success': False, 'error': 'Formato de correo electrónico inválido'}), 400
+        
+        # Decodificar el PDF desde base64
+        try:
+            # Si el PDF viene con prefijo data:application/pdf;base64,
+            if pdf_base64.startswith('data:application/pdf;base64,'):
+                pdf_base64 = pdf_base64.split(',')[1]
+            
+            pdf_data = base64.b64decode(pdf_base64)
+        except Exception as e:
+            return jsonify({'success': False, 'error': 'Error al decodificar el archivo PDF'}), 400
+        
+        # Crear el mensaje de correo
+        asunto = f"RIJ - Lista de Verificación - {datetime.datetime.now().strftime('%d/%m/%Y')}"
+        
+        mensaje_texto = f"""
+        Estimado/a usuario/a,
+        
+        Se adjunta la Lista de Verificación de la Reunión de Inicio de Jornada (RIJ) correspondiente al día {datetime.datetime.now().strftime('%d de %B de %Y')}. #dia actual pero ingles
+        
+
+        """
+        
+        msg = Message(
+            subject=asunto,
+            recipients=[correo_destinatario],
+            body=mensaje_texto,
+            sender=app.config['MAIL_DEFAULT_SENDER']
+        )
+        
+        # Adjuntar el PDF
+        msg.attach(
+            filename=nombre_archivo,
+            content_type='application/pdf',
+            data=pdf_data
+        )
+        
+        # Enviar el correo
+        with app.app_context():
+            mail.send(msg)
+        
+        return jsonify({
+            'success': True, 
+            'message': f'PDF enviado exitosamente a {correo_destinatario}'
+        }), 200
+        
+    except Exception as e:
+        print(f"Error al enviar correo: {str(e)}")
+        return jsonify({
+            'success': False, 
+            'error': f'Error al enviar el correo: {str(e)}'
+        }), 500
+
+# --- INICIO DE BACKEND ---
 load_dotenv()
 
 CORS(app) 
@@ -434,15 +584,10 @@ if __name__ == '__main__':
 
     # Crea el contexto SSL/TLS usando los archivos
     ssl_context_tuple = (cert_path, key_path)
-
+    
     # Define la IP donde Flask escuchará (0.0.0.0 para acceso desde otras IPs en tu red)
     HOST_IP = '0.0.0.0'
     PORT = 8000
-
-    print(f"\n--- INICIANDO SERVIDOR FLASK HTTPS ---")
-    print(f"La aplicación se ejecutará en: https://{HOST_IP}:{PORT}")
-    print(f"Acceso desde otros dispositivos: https://192.168.100.30:{PORT}")
-    print(f"-------------------------------------\n")
 
     # Ejecuta la aplicación Flask con el contexto SSL/TLS
     app.run(host=HOST_IP, port=PORT, ssl_context=ssl_context_tuple, debug=True)
