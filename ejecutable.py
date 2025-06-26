@@ -12,6 +12,9 @@ import mysql.connector
 from mysql.connector import Error
 from dotenv import load_dotenv
 from kilometro_vida import bp_imgdia
+# --- IMPORTACIONES PARA CORREO ---
+from flask_mail import Mail, Message
+import io
 
 
 # Rutas absolutas a las carpetas en el proyecto. Preferentemente, si se mueven los archivos, verificar aquí las rutas para evitar que se rompan
@@ -23,6 +26,16 @@ RESOURCE_FOLDER = os.path.join(BASE_DIR, 'RESOURCE')
 app = Flask(__name__, static_url_path='', static_folder=TEMPLATES_FOLDER)
 app.secret_key = 'supersecretkey'  # Necesario para usar session
 
+# --- CONFIGURACIÓN DE CORREO ---
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'sistemaregistrocfe@gmail.com'
+app.config['MAIL_PASSWORD'] = 'ytji fwik rftf njxw'  
+app.config['MAIL_DEFAULT_SENDER'] = 'sistemaregistrocfe@gmail.com'
+
+mail = Mail(app)
+
 # Aquí se define la ruta principal con el archivo HTML que se desplegará, como por ejemplo 'menu.html'.
 @app.route('/')
 def index():
@@ -31,6 +44,11 @@ def index():
 
 @app.route('/TEMPLATES/<path:filename>')
 def templates_root(filename):
+    # Validar que el filename no sea null, vacío o inválido
+    if not filename or filename.lower() in ['null', 'undefined', 'none', '']:
+        print(f"🚨 Intento de acceso a archivo inválido en TEMPLATES: '{filename}'")
+        return jsonify({'error': 'Archivo no válido'}), 400
+    
     return send_from_directory(TEMPLATES_FOLDER, filename)
 
 # Archivos dentro de /TEMPLATES/Mantenimiento/
@@ -212,15 +230,24 @@ def obtener_imagenes_disponibles():
             
             for archivo in archivos:
                 if archivo.lower().endswith(extensiones_permitidas):
-                    # Crear URL pública para la imagen
-                    url = url_for('resource_files', filename=f'IMG/img RIJ/{archivo}', _external=True)
-                    imagenes.append({
-                        'nombre': archivo,
-                        'url': url
-                    })
+                    try:
+                        # Crear URL pública para la imagen
+                        url = url_for('resource_files', filename=f'IMG/img RIJ/{archivo}', _external=True)
+                        
+                        # Validación adicional: asegurar que la URL no sea None, null, o vacía
+                        if url and url.strip() and 'null' not in url.lower():
+                            imagenes.append({
+                                'nombre': archivo,
+                                'url': url
+                            })
+                        else:
+                            print(f" URL inválida  {archivo}: {url}")
+                    except Exception as e:
+                        continue
         
         return jsonify({'imagenes': imagenes}), 200
     except Exception as e:
+        print(f"❌ Error en obtener_imagenes_disponibles: {e}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/rij/importar_imagen', methods=['POST'])
@@ -269,6 +296,81 @@ def importar_imagen_rij():
         
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
+
+# --- ENDPOINT PARA ENVIAR PDF POR CORREO ---
+@app.route('/api/rij/enviar_correo', methods=['POST'])
+def enviar_pdf_correo():
+    """
+    Envía un PDF generado por correo electrónico al destinatario especificado
+    """
+    try:
+        data = request.get_json()
+        
+        # Validar datos requeridos
+        correo_destinatario = data.get('correo')
+        pdf_base64 = data.get('pdf_base64')
+        nombre_archivo = data.get('nombre_archivo', 'RIJ_Verificacion.pdf')
+        
+        if not correo_destinatario:
+            return jsonify({'success': False, 'error': 'Correo del destinatario no proporcionado'}), 400
+            
+        if not pdf_base64:
+            return jsonify({'success': False, 'error': 'Archivo PDF no proporcionado'}), 400
+        
+        # Validar formato de correo básico
+        if '@' not in correo_destinatario or '.' not in correo_destinatario:
+            return jsonify({'success': False, 'error': 'Formato de correo electrónico inválido'}), 400
+        
+        # Decodificar el PDF desde base64
+        try:
+            # Si el PDF viene con prefijo data:application/pdf;base64,
+            if pdf_base64.startswith('data:application/pdf;base64,'):
+                pdf_base64 = pdf_base64.split(',')[1]
+            
+            pdf_data = base64.b64decode(pdf_base64)
+        except Exception as e:
+            return jsonify({'success': False, 'error': 'Error al decodificar el archivo PDF'}), 400
+        
+        # Crear el mensaje de correo
+        asunto = f"RIJ - Lista de Verificación - {datetime.datetime.now().strftime('%d/%m/%Y')}"
+        
+        mensaje_texto = f"""
+        Estimado/a usuario/a,
+        
+        Se adjunta la Lista de Verificación de la Reunión de Inicio de Jornada (RIJ) correspondiente al día {datetime.datetime.now().strftime('%d de %B de %Y')}. #dia actual pero ingles
+        
+
+        """
+        
+        msg = Message(
+            subject=asunto,
+            recipients=[correo_destinatario],
+            body=mensaje_texto,
+            sender=app.config['MAIL_DEFAULT_SENDER']
+        )
+        
+        # Adjuntar el PDF
+        msg.attach(
+            filename=nombre_archivo,
+            content_type='application/pdf',
+            data=pdf_data
+        )
+        
+        # Enviar el correo
+        with app.app_context():
+            mail.send(msg)
+        
+        return jsonify({
+            'success': True, 
+            'message': f'PDF enviado exitosamente a {correo_destinatario}'
+        }), 200
+        
+    except Exception as e:
+        print(f"Error al enviar correo: {str(e)}")
+        return jsonify({
+            'success': False, 
+            'error': f'Error al enviar el correo: {str(e)}'
+        }), 500
 
 # --- INICIO DE BACKEND ---
 load_dotenv()
@@ -482,15 +584,10 @@ if __name__ == '__main__':
 
     # Crea el contexto SSL/TLS usando los archivos
     ssl_context_tuple = (cert_path, key_path)
-
+    
     # Define la IP donde Flask escuchará (0.0.0.0 para acceso desde otras IPs en tu red)
     HOST_IP = '0.0.0.0'
     PORT = 8000
-
-    print(f"\n--- INICIANDO SERVIDOR FLASK HTTPS ---")
-    print(f"La aplicación se ejecutará en: https://{HOST_IP}:{PORT}")
-    print(f"Acceso desde otros dispositivos: https://192.168.100.30:{PORT}")
-    print(f"-------------------------------------\n")
 
     # Ejecuta la aplicación Flask con el contexto SSL/TLS
     app.run(host=HOST_IP, port=PORT, ssl_context=ssl_context_tuple, debug=True)

@@ -1,3 +1,17 @@
+// Interceptor para detectar URLs inválidas
+(function() {
+    const originalFetch = window.fetch;
+    window.fetch = function(...args) {
+        const url = args[0];
+        if (typeof url === 'string' && (url.includes('null') || url.includes('undefined'))) {
+            console.error('⚠️ DETECTADA URL INVÁLIDA:', url);
+            console.trace('Stack trace de la petición inválida:');
+            return Promise.reject(new Error('URL inválida detectada: ' + url));
+        }
+        return originalFetch.apply(this, args);
+    };
+})();
+
 document.addEventListener('DOMContentLoaded', () => {
     const videoElement = document.getElementById('video');
     const canvasElement = document.getElementById('canvas'); 
@@ -71,7 +85,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Mostrar la resolución obtenida del navegador
                     const realWidth = videoElement.videoWidth;
                     const realHeight = videoElement.videoHeight;
-                    console.log("Resolución obtenida:", realWidth, "x", realHeight);
                     //------------------------------------------------
 
                     // Forzar trasera si el navegador lo permite (Nota: esto es un chequeo, no una "fuerza" de cambio si no se obtuvo inicialmente)
@@ -80,9 +93,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
 
                     // Mostrar en consola detalles de la resolución
-                    console.log("Stream settings:", settings);
-                    console.log("Video dimensions (onloadedmetadata):", realWidth, realHeight);
-                    console.log("Actual facingMode:", currentFacingMode, "Is frontCamera:", frontCamera);
 
                     updateVideoMirroring(); // Aplicar espejo CSS según la cámara
                     statusElement.textContent = "Toma la primera foto."; 
@@ -90,13 +100,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     snapButton.disabled = false; // Habilitar botón de captura AHORA
                     stopButton.disabled = false;
                     clearButton.disabled = false; 
-                };
-
-                videoElement.onerror = (e) => {
-                    console.error("Error en el elemento de video:", e);
-                    statusElement.textContent = "Error con el elemento de video.";
-                    stopCamera(); // Intentar limpiar
-                };
+                };                    videoElement.onerror = (e) => {
+                        statusElement.textContent = "Error con el elemento de video.";
+                        stopCamera(); // Intentar limpiar
+                    };
 
             } else {
                 statusElement.textContent = "Error: getUserMedia no es soportado.";
@@ -104,7 +111,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (err) {
             statusElement.textContent = `Error al acceder a la cámara: ${err.name}`;
-            console.error("Error accessing camera: ", err);
             if (err.name === "NotAllowedError") {
                 statusElement.textContent = "Permiso denegado.";
             } else if (err.name === "NotFoundError" || err.name === "DevicesNotFoundError") {
@@ -234,7 +240,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
         } catch (error) {
-            console.error("Error al tomar la foto:", error);
             statusElement.textContent = `Error al tomar la foto: ${error.name}`;
         }
     }
@@ -332,7 +337,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Reiniciar la cámara para aplicar el nuevo modo de user o viceversa
         await startCamera();
     });    // Permite agregar una foto a la galería con versión seleccionada
-    window.agregarFotoAGaleria = function(url, version, mejorada, recortada, recorteInfo) {
+    window.agregarFotoAGaleria = function(url, version, mejorada, recortada, recorteInfo, localDataURL) {
         var contenedor = document.getElementById('photosContainer');
         if (!contenedor) {
             return;
@@ -345,6 +350,12 @@ document.addEventListener('DOMContentLoaded', () => {
         var img = document.createElement('img');
         img.className = 'foto-principal';
         img.setAttribute('data-original-url', url);        img.setAttribute('data-version', version || 'original');
+        
+        // OPTIMIZACIÓN: Almacenar data URL local para evitar solicitudes al servidor en PDF
+        if (localDataURL) {
+            img.setAttribute('data-local-image', localDataURL);
+        }
+        
         if (mejorada) {
             img.setAttribute('data-mejorada', mejorada);
         }
@@ -361,7 +372,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (recortada) {
             // Priorizar imagen recortada si existe
             img.src = recortada;
-            console.log('Aplicando imagen recortada para:', url);
         } else {
             // Mostrar la imagen correcta según la versión almacenada
             var versionActual = version || 'original';
@@ -403,7 +413,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Función para crear miniatura con estado correcto
         function crearMiniatura(tipo, src, alt, titulo) {
             var mini = document.createElement('img');
-            mini.src = src;
+            if (src && src !== 'null' && src !== 'undefined' && src.trim() !== '') {
+                mini.src = src;
+            }
             mini.alt = alt;
             mini.title = titulo;
             mini.className = 'miniatura-foto';
@@ -523,7 +535,6 @@ document.addEventListener('DOMContentLoaded', () => {
                                     }, 300);
                                 }
                                 
-                                console.log('Versión regenerada:', versionActual);
                             } else {
                                 overlay.innerHTML = 'Error al<br>regenerar';
                                 setTimeout(function() {
@@ -620,6 +631,13 @@ document.addEventListener('DOMContentLoaded', () => {
                             versiones[versionActual.tipo] = dataUrlProcesada;
                             versionesGeneradas[versionActual.tipo] = true;
                             
+                            // OPTIMIZACIÓN: Almacenar versión procesada como data URL local
+                            if (versionActual.tipo === 'mejorada') {
+                                img.setAttribute('data-mejorada', dataUrlProcesada);
+                            } else {
+                                img.setAttribute('data-' + versionActual.tipo, dataUrlProcesada);
+                            }
+                            
                             // Actualizar la miniatura correspondiente
                             if (miniaturas[versionActual.tipo]) {
                                 miniaturas[versionActual.tipo].src = dataUrlProcesada;
@@ -670,6 +688,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             img.src = dataUrlRecortada;
                             img.setAttribute('data-original-url', nuevaUrl);
                             
+                            // OPTIMIZACIÓN: Guardar versión recortada como data URL local
+                            img.setAttribute('data-local-image', dataUrlRecortada);
+                            
                             // NUEVO: Guardar información del recorte en los atributos de la imagen
                             if (infoRecorte) {
                                 img.setAttribute('data-recortada', dataUrlRecortada);
@@ -685,7 +706,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             }
                             // Eliminar la foto anterior del servidor
                             borrarFotoDelServidor(url, function(){
-                                console.log('Foto anterior eliminada del servidor:', url);
                             });
                             // --- NUEVO: Forzar autoguardado tras recorte para que la URL real quede persistida ---
                             if (window.autoguardadoCamara && window.autoguardadoCamara.autoguardarFotos) {
@@ -804,13 +824,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Botón de borrar SIEMPRE visible
         var deleteButton = document.createElement('button');
-        deleteButton.textContent = 'X';
-        deleteButton.style.backgroundColor = '#00724e';
+        deleteButton.textContent = '🗑️';
         deleteButton.style.border = 'none';
-        deleteButton.style.borderRadius = '40px';
-        deleteButton.style.width = '1.8rem';
-        deleteButton.style.height = '1.8rem';
         deleteButton.style.position = 'absolute';
+        deleteButton.style.background = 'transparent';
+        deleteButton.style.fontSize = '1.3rem';
         deleteButton.style.top = '5px';
         deleteButton.style.right = '5px';
         deleteButton.addEventListener('click', function() {
@@ -936,7 +954,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (recortada) {
             // Si hay imagen recortada, mostrarla directamente
             img.src = recortada;
-            console.log('Aplicando imagen recortada guardada para:', url);
         } else {
             // Mostrar la imagen correcta según la versión seleccionada
             var versionActual = version || 'original';
@@ -1140,6 +1157,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             img.src = dataUrlRecortada;
                             img.setAttribute('data-original-url', nuevaUrl);
                             
+                            // OPTIMIZACIÓN: Guardar versión recortada como data URL local
+                            img.setAttribute('data-local-image', dataUrlRecortada);
+                            
                             // NUEVO: Guardar información del recorte en los atributos de la imagen
                             if (infoRecorte) {
                                 img.setAttribute('data-recortada', dataUrlRecortada);
@@ -1153,7 +1173,6 @@ document.addEventListener('DOMContentLoaded', () => {
                                 localStorage.removeItem(clavePreferencia);
                             }
                             borrarFotoDelServidor(url, function(){
-                                console.log('Foto anterior eliminada del servidor:', url);
                             });
                             if (window.autoguardadoCamara && window.autoguardadoCamara.autoguardarFotos) {
                                 setTimeout(function() {
@@ -1216,7 +1235,6 @@ document.addEventListener('DOMContentLoaded', () => {
         btnEliminar.style.background = 'transparent';
         btnEliminar.style.border = 'none';
         btnEliminar.style.fontSize = '1.3rem';
-        btnEliminar.style.cursor = 'pointer';
         btnEliminar.style.touchAction = 'manipulation';
         
         btnEliminar.addEventListener('click', function(e) {
@@ -1224,7 +1242,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (confirm('¿Estás seguro de que deseas eliminar esta foto?')) {
                 // Eliminar la foto del servidor
                 borrarFotoDelServidor(url, function() {
-                    console.log('Foto eliminada del servidor');
                 });                // Remover del DOM
                 photoWrapper.remove();                // Limpiar localStorage si tiene preferencias
                 var clavePreferencia = 'fotoPantallaCompleta_' + url;

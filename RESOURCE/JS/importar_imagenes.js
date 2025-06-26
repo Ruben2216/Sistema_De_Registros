@@ -1,5 +1,3 @@
-// importar_imagenes.js - Funcionalidad para importar imágenes desde la carpeta img RIJ
-
 (function() {    // Función para mostrar el modal de selección de imágenes
     function mostrarModalImportarImagenes() {
         // Limpiar selecciones previas
@@ -243,14 +241,22 @@
         imagenes.forEach(function(imagen, index) {
             // Crear ID único y seguro para el checkbox
             var checkboxId = 'check-imagen-' + index;
+            
+            // Validar que imagen.url no sea null, undefined o vacío
+            var urlImagen = imagen.url && imagen.url !== 'null' && imagen.url !== 'undefined' && imagen.url.trim() !== '' 
+                ? imagen.url 
+                : '/RESOURCE/IMG/placeholder.png';
+            
+            var nombreImagen = imagen.nombre || 'Sin nombre';
+            
             html += `
-                <div class="imagen-importar" data-nombre="${imagen.nombre}" data-url="${imagen.url}" onclick="toggleImagenPorClick('${checkboxId}')">
-                    <img src="${imagen.url}" alt="${imagen.nombre}" loading="lazy">
+                <div class="imagen-importar" data-nombre="${nombreImagen}" data-url="${urlImagen}">
+                    <img src="${urlImagen}" alt="${nombreImagen}" loading="lazy" onclick="toggleImagenPorClick('${checkboxId}')">
                     <div class="checkbox-importar">
-                        <input type="checkbox" id="${checkboxId}" onchange="toggleSeleccionImagen(this, '${imagen.nombre}', '${imagen.url}')">
+                        <input type="checkbox" id="${checkboxId}" onchange="toggleSeleccionImagen(this, '${nombreImagen}', '${urlImagen}')">
                         <label for="${checkboxId}">Seleccionar</label>
                     </div>
-                    <div class="nombre-archivo">${imagen.nombre}</div>
+                    <div class="nombre-archivo">${nombreImagen}</div>
                 </div>
             `;
         });
@@ -332,19 +338,8 @@
             return;
         }
         
-        var mensaje = imagenesSeleccionadas.length === 1 
-            ? `¿Deseas importar la imagen "${imagenesSeleccionadas[0].nombre}"?`
-            : `¿Deseas importar ${imagenesSeleccionadas.length} imágenes seleccionadas?`;
-        
-        if (typeof showConfirm === 'function') {
-            showConfirm(mensaje, function() {
-                procesarImportacionMultiple();
-            });
-        } else {
-            if (confirm(mensaje)) {
-                procesarImportacionMultiple();
-            }
-        }
+        // Importar directamente sin confirmación
+        procesarImportacionMultiple();
     }
     
     // Función para procesar la importación de múltiples imágenes
@@ -412,7 +407,6 @@
                 return response.json();
             })            .then(function(data) {
                 if (data.success) {
-                    console.log('Imagen importada exitosamente:', data);
                     
                     // Agregar la imagen a la galería
                     if (typeof window.agregarFotoAGaleria === 'function') {
@@ -423,7 +417,6 @@
                         setTimeout(function() {
                             if (window.autoguardadoCamara && window.autoguardadoCamara.autoguardarFotos) {
                                 window.autoguardadoCamara.autoguardarFotos();
-                                console.log('Autoguardado forzado después de importar imagen');
                             }
                         }, 500);
                         
@@ -433,7 +426,7 @@
                         }
                         
                     } else {
-                        console.error('Función agregarFotoAGaleria no disponible');
+                        // Función no disponible
                         // Fallback: agregar manualmente al DOM
                         var contenedor = document.getElementById('photosContainer');
                         if (contenedor) {
@@ -442,9 +435,25 @@
                             photoWrapper.style.position = 'relative';
                             
                             var img = document.createElement('img');
-                            img.src = data.url;
+                            // Verificar que data.url no sea null o undefined
+                            if (data.url && data.url !== 'null' && data.url !== '') {
+                                img.src = data.url;
+                                
+                                // OPTIMIZACIÓN: Cargar imagen como data URL local para PDF
+                                cargarImagenComoDataURL(data.url, function(dataURL) {
+                                    if (dataURL) {
+                                        img.setAttribute('data-local-image', dataURL);
+                                    }
+                                });
+                                
+                            } else {
+                                console.error('URL de imagen inválida:', data.url);
+                                img.src = '/RESOURCE/IMG/placeholder.png'; // Usar imagen placeholder
+                            }
                             img.alt = 'Imagen importada';
                             img.className = 'foto-principal';
+                            img.setAttribute('data-original-url', data.url);
+                            img.setAttribute('data-version', 'original');
                             
                             photoWrapper.appendChild(img);
                             contenedor.appendChild(photoWrapper);
@@ -478,30 +487,17 @@
             });
         }
         
+        // Mostrar resultado final
         function finalizarImportacion() {
-            // Remover progreso
             var progresoDiv = document.getElementById('progreso-importacion');
             if (progresoDiv) {
                 progresoDiv.remove();
             }
             
-            // Mostrar resultado
-            var exitosas = procesadas - errores.length;
-            var mensaje = `Importación completada:\n${exitosas} imagen${exitosas !== 1 ? 'es' : ''} importada${exitosas !== 1 ? 's' : ''} exitosamente`;
-            
-            if (errores.length > 0) {
-                mensaje += `\n${errores.length} error${errores.length !== 1 ? 'es' : ''}:\n${errores.join('\n')}`;
-            }
-            
-            if (typeof showMessage === 'function') {
-                showMessage(mensaje);
-            } else {
-                alert(mensaje);
-            }
-            
-            // Cerrar modal
-            limpiarSelecciones();
-            cerrarModalImportar();
+            setTimeout(function() {
+                limpiarSelecciones();
+                cerrarModalImportar();
+            }, 300);
             
             // Restaurar modal
             if (modal) {
@@ -529,7 +525,8 @@
           // Limpiar array
         imagenesSeleccionadas = [];
     }
-      // Función para seleccionar imagen haciendo clic en ella
+    
+    // Función para seleccionar imagen haciendo clic en ella
     function toggleImagenPorClick(checkboxId) {
         var checkbox = document.getElementById(checkboxId);
         if (checkbox) {
@@ -540,7 +537,7 @@
         }
     }
     
-    // Función para seleccionar e importar una imagen
+    // Función mantenida para compatibilidad (selección individual directa)
     function seleccionarImagenParaImportar(nombreArchivo, urlOriginal) {
         // Mostrar confirmación
         if (typeof showConfirm === 'function') {
@@ -559,6 +556,12 @@
                 importarImagenSeleccionada(nombreArchivo, urlOriginal);
             }
         }
+    }
+    
+    // Función para seleccionar e importar una imagen
+    function seleccionarImagenParaImportar(nombreArchivo, urlOriginal) {
+        // Importar directamente sin confirmación
+        importarImagenSeleccionada(nombreArchivo, urlOriginal);
     }
     
     // Función para importar la imagen seleccionada
@@ -623,16 +626,37 @@
                         var photoWrapper = document.createElement('div');
                         photoWrapper.classList.add('photo-wrapper');
                         photoWrapper.style.position = 'relative';
+                        photoWrapper.style.margin = '10px';
+                        photoWrapper.style.display = 'inline-block';
                         
                         var img = document.createElement('img');
-                        img.src = data.url;
-                        img.alt = 'Imagen importada';
+                        // Verificar que data.url no sea null o undefined
+                        if (data.url && data.url !== 'null' && data.url !== '') {
+                            img.src = data.url;
+                        } else {
+                            console.error('URL de imagen inválida:', data.url);
+                            img.src = '/RESOURCE/IMG/placeholder.png'; // Usar imagen placeholder
+                        }
+                        img.alt = 'Imagen importada: ' + nombreArchivo;
                         img.className = 'foto-principal';
                         img.style.width = '100%';
                         img.style.maxWidth = '300px';
+                        img.style.height = 'auto';
                         img.style.border = '2px solid #007bff';
+                        img.style.borderRadius = '8px';
+                        img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                        
+                        // Agregar título con el nombre del archivo
+                        var titulo = document.createElement('div');
+                        titulo.textContent = nombreArchivo;
+                        titulo.style.fontSize = '12px';
+                        titulo.style.color = '#666';
+                        titulo.style.textAlign = 'center';
+                        titulo.style.marginTop = '5px';
+                        titulo.style.wordBreak = 'break-word';
                         
                         photoWrapper.appendChild(img);
+                        photoWrapper.appendChild(titulo);
                         contenedor.appendChild(photoWrapper);
                         console.log('Imagen agregada manualmente al DOM');
                     } else {
@@ -640,15 +664,12 @@
                     }
                 }
                 
-                // Mostrar mensaje de éxito
-                if (typeof showMessage === 'function') {
-                    showMessage(`Imagen "${data.nombre_original}" importada exitosamente`);
-                } else {
-                    alert(`Imagen "${data.nombre_original}" importada exitosamente`);
-                }
+
                 
-                // Cerrar modal
-                cerrarModalImportar();
+                // Cerrar modal automáticamente
+                setTimeout(function() {
+                    cerrarModalImportar();
+                }, 1000);
             } else {
                 throw new Error(data.error || 'Error desconocido');
             }
@@ -669,36 +690,31 @@
         });
     }
     
+    // OPTIMIZACIÓN: Función para cargar una imagen como data URL local
+    function cargarImagenComoDataURL(url, callback) {
+        if (url.startsWith('data:')) {
+            callback(url);
+            return;
+        }
+        
+    }
+    
     // Función para cerrar el modal
     function cerrarModalImportar() {
         var modal = document.getElementById('modal-importar-imagenes');
         if (modal) {
             modal.style.display = 'none';
         }
-    }    // Exponer funciones globalmente
+    }
+    
+    // Exponer funciones globalmente
     window.mostrarModalImportarImagenes = mostrarModalImportarImagenes;
     window.cerrarModalImportar = cerrarModalImportar;
     window.cargarImagenesDisponibles = cargarImagenesDisponibles;
+    window.seleccionarImagenParaImportar = seleccionarImagenParaImportar;
     window.toggleSeleccionImagen = toggleSeleccionImagen;
     window.toggleImagenPorClick = toggleImagenPorClick;
     window.importarImagenesSeleccionadas = importarImagenesSeleccionadas;
     window.limpiarSelecciones = limpiarSelecciones;
-    
-    // Agregar el botón de importar después de que el DOM esté listo
-    document.addEventListener('DOMContentLoaded', function() {
-        // Agregar botón de importar imágenes después del botón de generar PDF
-        var btnGenerarPDF = document.getElementById('btnGenerarPDF');
-        if (btnGenerarPDF) {
-            var btnImportar = document.createElement('button');
-            btnImportar.id = 'btnImportarImagenes';
-            btnImportar.className = 'boton boton--secundario';
-            btnImportar.style.marginLeft = '10px';
-            btnImportar.textContent = 'Importar Imagen Predefinida';
-            btnImportar.onclick = mostrarModalImportarImagenes;
-            
-            // Insertar después del botón de PDF
-            btnGenerarPDF.parentNode.insertBefore(btnImportar, btnGenerarPDF.nextSibling);
-        }
-    });
-    
+
 })();

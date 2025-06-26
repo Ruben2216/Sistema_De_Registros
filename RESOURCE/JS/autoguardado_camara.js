@@ -24,7 +24,7 @@
                 try {
                     recorteInfo = JSON.parse(img.getAttribute('data-recorte-info'));
                 } catch (e) {
-                    console.warn('Error al parsear información de recorte:', e);
+                    // Error al parsear, ignorar
                 }
             }
             
@@ -73,7 +73,6 @@
             return;
         }
         if (!Array.isArray(fotos) || fotos.length === 0) {
-            console.warn('No hay fotos para mostrar:', fotos);
             return;
         }        // Si el backend devuelve solo URLs, convertir a objetos
         fotos = fotos.map(function(foto) {
@@ -112,7 +111,6 @@
             var foto = fotos[i];
             if (!foto || !foto.url) { continue; }
             if (yaMostradas.has(foto.id || foto.url)) {
-                console.warn('Imagen duplicada omitida:', foto.url);
                 continue;
             }
             yaMostradas.add(foto.id || foto.url);            // Usar la función global para asegurar el botón borrar y lógica de versiones
@@ -122,13 +120,17 @@
                 window.agregarFotoAGaleria(foto.url, foto.version, foto.mejorada, foto.recortada, foto.recorteInfo);
             }
         }        // Log para depuración
-        console.log('Fotos restauradas únicas:', Array.from(yaMostradas));
         if (fotos.length !== yaMostradas.size) {
-            console.warn('Se omitieron duplicados al mostrar la galería.');
+            // Se omitieron duplicados
         }
         
+        // Agregar botón global de importar después de restaurar fotos
         setTimeout(function() {
             aplicarRecortesGuardados();
+            // Agregar botón global si existe la función
+            if (typeof window.agregarBotonImportarGlobal === 'function') {
+                window.agregarBotonImportarGlobal();
+            }
         }, 100);
     }
 
@@ -204,12 +206,11 @@
             if (recortada && recorteInfo) {
                 try {
                     var info = JSON.parse(recorteInfo);
-                    console.log('Aplicando recorte guardado para:', urlOriginal, info);
                     // CORREGIDO: Aplicar la imagen recortada como fuente principal
                     img.src = recortada;
                     continue;
                 } catch (e) {
-                    console.warn('Error al parsear información de recorte:', e);
+                    // Error al parsear, ignorar
                 }
             }
             
@@ -219,7 +220,6 @@
             if (datosGuardados) {
                 try {                    var datos = JSON.parse(datosGuardados);
                     if (datos.imagen && datos.recorteInfo) {
-                        console.log('Aplicando recorte desde localStorage para:', urlOriginal);
                         img.src = datos.imagen;
                         img.setAttribute('data-recortada', datos.imagen);
                         img.setAttribute('data-recorte-info', JSON.stringify(datos.recorteInfo));
@@ -232,7 +232,7 @@
                         }, 500);
                     }
                 } catch (e) {
-                    console.warn('Error al parsear datos de recorte desde localStorage:', e);
+                    // Error al parsear datos de recorte
                 }
             }
         }
