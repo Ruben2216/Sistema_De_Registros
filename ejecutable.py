@@ -323,24 +323,36 @@ def enviar_pdf_correo():
         
         # Decodificar el PDF desde base64
         try:
+            
             # Si el PDF viene con prefijo data:application/pdf;base64,
             if pdf_base64.startswith('data:application/pdf;base64,'):
                 pdf_base64 = pdf_base64.split(',')[1]
+            elif pdf_base64.startswith('data:application/pdf;'):
+                # Manejar formatos alternativos que jsPDF podría generar
+                parts = pdf_base64.split(',')
+                if len(parts) >= 2:
+                    pdf_base64 = parts[-1]  # Tomar la última parte después de la última coma
+            
             
             pdf_data = base64.b64decode(pdf_base64)
+            
+            # Verificar que es un PDF válido
+            if not pdf_data.startswith(b'%PDF'):
+                raise Exception("El archivo decodificado no es un PDF válido")
+            
         except Exception as e:
-            return jsonify({'success': False, 'error': 'Error al decodificar el archivo PDF'}), 400
+            return jsonify({'success': False, 'error': f'Error al decodificar el archivo PDF: {str(e)}'}), 400
         
         # Crear el mensaje de correo
         asunto = f"RIJ - Lista de Verificación - {datetime.datetime.now().strftime('%d/%m/%Y')}"
         
         mensaje_texto = f"""
-        Estimado/a usuario/a,
+        Ya carga la mmd,
         
-        Se adjunta la Lista de Verificación de la Reunión de Inicio de Jornada (RIJ) correspondiente al día {datetime.datetime.now().strftime('%d de %B de %Y')}. #dia actual pero ingles
+{datetime.datetime.now().strftime('%d de %B de %Y')}. #dia actual pero ingles
         
 
-        """
+        """         
         
         msg = Message(
             subject=asunto,
