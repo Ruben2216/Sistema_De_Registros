@@ -16,6 +16,13 @@
         
         <div class="video-container">
             <video id="video" autoplay playsinline></video>
+            <!-- Overlay para mostrar estado de procesamiento -->
+            <div id="video-overlay" class="video-overlay" style="display: none;">
+                <div class="overlay-content">
+                    <div class="overlay-spinner"></div>
+                    <p class="overlay-message">Tomando foto...</p>
+                </div>
+            </div>
         </div>
 
         <div class="controls">
@@ -56,6 +63,16 @@
         <div class="confirm-buttons">
             <button id="confirmNo" class="bg-gray-500 hover:bg-gray-600 text-white">No</button>
             <button id="confirmYes" class="bg-red-600 hover:bg-red-700 text-white">Sí</button>
+        </div>
+    </div>
+
+    <!-- Modal para indicador de tomar foto -->
+    <div id="modal-tomar-foto" class="firma-modal" style="display: none;">
+        <div class="firma-modal__contenido" style="text-align: center; padding: 30px;">
+            <div class="circular-progress-foto">
+                <div class="circular-progress-inner-foto"></div>
+            </div>
+            <h3 id="mensaje-tomar-foto" class="firma-modal__titulo" style="margin-top: 20px;">Tomando foto...</h3>
         </div>
     </div>
 
@@ -147,6 +164,7 @@
 
     <!-- pdf_fotos.js se carga dinámicamente después de OpenCV.js -->
     <!-- Carga otros scripts de aplicación -->
+    <script src="/RESOURCE/JS/modal_tomar_foto.js"></script>
     <script src="/RESOURCE/JS/circular_progress_pdf.js"></script>
     <script src="/RESOURCE/JS/fotos_upload.js"></script>
     <script src="/RESOURCE/JS/autoguardado_camara.js"></script>

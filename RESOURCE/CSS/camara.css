@@ -126,26 +126,17 @@ h1 {
     }
 }
 
-/* Estilos específicos para mejorar interacción móvil */
 @media (max-width: 768px) {
-    /* Mejorar botones para móvil */
     .boton {
-        min-height: 44px; /* Tamaño mínimo recomendado para toque */
+        min-height: 44px; 
         padding: 12px 16px;
-        font-size: 16px; /* Evitar zoom en iOS */
-        touch-action: manipulation; /* Optimizar para toque */
-        user-select: none; /* Evitar selección de texto */
-        -webkit-touch-callout: none; /* Evitar callout en iOS */
+        font-size: 16px; 
+        user-select: none;
+        -webkit-touch-callout: none; 
         -webkit-user-select: none;
         -webkit-tap-highlight-color: transparent; /* Quitar highlight azul */
     }
-    
-    /* Espaciado entre botones para evitar toques accidentales */
-    .boton + .boton {
-        margin-top: 8px;
-    }
-    
-    /* Feedback visual en móvil */
+
     .boton:active {
         transform: scale(0.98);
         transition: transform 0.1s;
@@ -162,15 +153,13 @@ h1 {
         margin: 20px auto;
     }
     
-    /* Campos de input optimizados para móvil */
     .campo__control {
-        font-size: 16px; /* Evitar zoom en iOS */
+        font-size: 16px; 
         padding: 12px;
         min-height: 44px;
     }
 }
 
-/* Estilos específicos para botones de correo */
 #btnEnviarCorreo {
     cursor: pointer;
     -webkit-tap-highlight-color: rgba(0,0,0,0);
@@ -180,7 +169,7 @@ h1 {
     -moz-user-select: none;
     -ms-user-select: none;
     transition: all 0.2s ease;
-    min-height: 48px; /* Tamaño mínimo recomendado para elementos táctiles */
+    min-height: 48px; 
 }
 
 #btnEnviarCorreo:disabled {
@@ -205,7 +194,6 @@ h1 {
     max-width: calc(100vw - 40px);
 }
 
-/* Mejorar botones del modal en móvil */
 #btn-enviar-correo-camara,
 #btn-cerrar-modal-correo-camara {
     touch-action: manipulation;
@@ -220,11 +208,104 @@ h1 {
     transform: scale(0.98);
 }
 
-/* Mejorar inputs en móvil */
 #correo-destinatario-camara,
 #nombre-archivo-pdf-camara {
-    font-size: 16px; /* Evita zoom automático en iOS */
+    font-size: 16px; 
     min-height: 44px;
+}
+
+.circular-progress-foto {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: conic-gradient(#4caf50 0deg, #e0e0e0 0deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    animation: spin-foto 1s linear infinite;
+}
+
+.circular-progress-inner-foto {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background-color: white;
+}
+
+@keyframes spin-foto {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+#modal-tomar-foto {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+#modal-tomar-foto .firma-modal__contenido {
+    background: rgba(255, 255, 255, 0.95);
+    border: 2px solid #4caf50;
+    border-radius: 10px;
+    min-height: 150px;
+    min-width: 250px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+#mensaje-tomar-foto {
+    color: #4caf50;
+    font-weight: bold;
+    font-size: 18px;
+    margin: 20px 0 0 0;
+}
+
+.video-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(60, 60, 60, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    border-radius: 8px;
+}
+
+.overlay-content {
+    text-align: center;
+    color: white;
+}
+
+.overlay-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top: 4px solid white;
+    border-radius: 50%;
+    animation: spin-overlay 1s linear infinite;
+    margin: 0 auto 15px auto;
+}
+
+.overlay-message {
+    font-size: 16px;
+    font-weight: bold;
+    margin: 0;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+@keyframes spin-overlay {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 /* Estilos específicos para móviles */
