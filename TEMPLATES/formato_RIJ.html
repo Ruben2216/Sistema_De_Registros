@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verificación Reunión Inicio Jornada</title> 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        // Configurar PDF.js worker
+        if (typeof pdfjsLib !== 'undefined') {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
+    </script>
     <link rel="stylesheet" href="/RESOURCE/CSS/index.css">
 </head>
 <body>
@@ -390,6 +397,10 @@
         <script src="/RESOURCE/JS/selects.js"></script>
         <script src="/RESOURCE/JS/formato_RIJ/fecha_reloj.js"></script>
         <script src="/RESOURCE/JS/firma.js"></script>
+        <script src="/RESOURCE/JS/rij_pdf_a_imagen.js"></script>
+        <script src="/RESOURCE/JS/rij_integracion.js"></script>
+        <script src="/RESOURCE/JS/validador_rij.js"></script>
+        <script src="/RESOURCE/JS/prueba_rij.js"></script>
         <script src="/RESOURCE/JS/formato_RIJ/desplegables.js"></script>
         <script src="/RESOURCE/JS/barra_progreso.js"></script>
         <script src="/RESOURCE/JS/formato_RIJ/campos_desplegables_RIJ.js"></script>

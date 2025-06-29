@@ -7,6 +7,13 @@
     <link rel="stylesheet" href="/RESOURCE/CSS/camara.css">
     <link rel="stylesheet" href="/RESOURCE/CSS/index.css">
     <link rel="stylesheet" href="/RESOURCE/CSS/progreso_circular-pdf.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        // Configurar PDF.js worker
+        if (typeof pdfjsLib !== 'undefined') {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
+    </script>
 
 
 </head>
@@ -37,6 +44,14 @@
             <input type="checkbox" id="pantallaCompletaPDF" />
             <label for="pantallaCompletaPDF">Mostrar evidencia en hoja completa (PDF)</label>
            
+        </div>
+
+        <!-- Contenedor para mostrar imagen RIJ -->
+        <div id="contenedor-rij" style="display: none; margin-bottom: 20px;">
+            <h3>Reunión de Inicio de Jornada (RIJ)</h3>
+            <div id="imagen-rij-container">
+                <!-- Aquí se mostrará la imagen del RIJ -->
+            </div>
         </div>
 
         <div class="output">
@@ -168,10 +183,14 @@
     <script src="/RESOURCE/JS/circular_progress_pdf.js"></script>
     <script src="/RESOURCE/JS/fotos_upload.js"></script>
     <script src="/RESOURCE/JS/autoguardado_camara.js"></script>
+    <script src="/RESOURCE/JS/rij_pdf_a_imagen.js"></script>
+    <script src="/RESOURCE/JS/mostrar_rij_camara.js"></script>
     <script src="/RESOURCE/JS/index.js"></script>
     <script src="/RESOURCE/JS/editar_foto.js"></script>
     <script src="/RESOURCE/JS/recorte_foto.js"></script>
     <script src="/RESOURCE/JS/importar_imagenes.js?v=3"></script>
     <script src="/RESOURCE/JS/envio_correo_camara.js"></script>
+    <!-- Script de diagnóstico temporal -->
+    <script src="/RESOURCE/JS/diagnostico_modal_progreso.js"></script>
 </body>
 </html>

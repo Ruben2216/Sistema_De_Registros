@@ -6,6 +6,7 @@ import base64
 import datetime
 import threading
 import time
+from werkzeug.utils import secure_filename
 # --- INICIO LÓGICA DE backend (búsqueda de equipos en MySQL) ---
 from flask_cors import CORS 
 import mysql.connector 
@@ -382,6 +383,82 @@ def enviar_pdf_correo():
         return jsonify({
             'success': False, 
             'error': f'Error al enviar el correo: {str(e)}'
+        }), 500
+
+@app.route('/api/rij/guardar_imagen', methods=['POST'])
+def guardar_imagen_rij():
+    """
+    Guarda la imagen convertida del PDF RIJ
+    """
+    try:
+        # Obtener el archivo y el identificador
+        archivo = request.files.get('imagen')
+        identificador = request.form.get('identificador')
+        
+        if not archivo or not identificador:
+            return jsonify({
+                'success': False, 
+                'error': 'Archivo de imagen o identificador no proporcionado'
+            }), 400
+        
+        # Crear directorio si no existe
+        directorio_imagenes = os.path.join('RESOURCE', 'IMG', 'img RIJ')
+        os.makedirs(directorio_imagenes, exist_ok=True)
+        
+        # Generar nombre único para el archivo
+        timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+        nombre_archivo = f"{identificador}_{timestamp}.png"
+        ruta_archivo = os.path.join(directorio_imagenes, nombre_archivo)
+        
+        # Guardar archivo
+        archivo.save(ruta_archivo)
+        
+        # URL relativa para acceder a la imagen
+        url_imagen = f"/RESOURCE/IMG/img RIJ/{nombre_archivo}"
+        
+        return jsonify({
+            'success': True,
+            'message': 'Imagen guardada exitosamente',
+            'url': url_imagen,
+            'identificador': identificador
+        }), 200
+        
+    except Exception as e:
+        print(f"Error al guardar imagen RIJ: {str(e)}")
+        return jsonify({
+            'success': False, 
+            'error': f'Error al guardar imagen: {str(e)}'
+        }), 500
+
+@app.route('/api/rij/obtener_imagen/<identificador>')
+def obtener_imagen_rij(identificador):
+    """
+    Obtiene la URL de la imagen RIJ por identificador
+    """
+    try:
+        directorio_imagenes = os.path.join('RESOURCE', 'IMG', 'img RIJ')
+        
+        # Buscar archivos que coincidan con el identificador
+        if os.path.exists(directorio_imagenes):
+            archivos = os.listdir(directorio_imagenes)
+            for archivo in archivos:
+                if archivo.startswith(identificador):
+                    url_imagen = f"/RESOURCE/IMG/img RIJ/{archivo}"
+                    return jsonify({
+                        'success': True,
+                        'url': url_imagen,
+                        'identificador': identificador
+                    })
+        
+        return jsonify({
+            'success': False,
+            'error': 'Imagen no encontrada'
+        }), 404
+        
+    except Exception as e:
+        return jsonify({
+            'success': False, 
+            'error': f'Error al buscar imagen: {str(e)}'
         }), 500
 
 # --- INICIO DE BACKEND ---
