@@ -1,5 +1,3 @@
-// Script para integrar la funcionalidad RIJ con el generador de PDF
-// Se ejecuta después de que se genera el PDF del formulario RIJ
 
 (function() {
 

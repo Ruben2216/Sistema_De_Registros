@@ -1,4 +1,3 @@
-// Script para mostrar imagen RIJ en camara.html
 
 (function() {
     

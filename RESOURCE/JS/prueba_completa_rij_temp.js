@@ -1,4 +1,3 @@
-// Script de prueba completa para la funcionalidad RIJ
 
 (function() {
     
