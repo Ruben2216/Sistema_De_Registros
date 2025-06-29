@@ -157,74 +157,81 @@ function aplicarFiltroDocumento(img, calidad, maxLado, callback) {
 /**
  * Función principal para generar el PDF a partir de las fotos capturadas.
  */
-function generarPDFConFotos() {
-    var fotos = document.querySelectorAll('#photosContainer .photo-wrapper');
-    if (fotos.length === 0) {
-        showMessage('No hay fotos para exportar. Por favor, toma algunas imágenes.');
+async function generarPDFConFotos() {
+    if (!opencvReady) {
+        showMessage('OpenCV.js aún no está cargado. Por favor, espera y vuelve a intentarlo.');
         return;
     }
+
+    var fotosWrappers = document.querySelectorAll('#photosContainer .photo-wrapper');
     
-    // Deshabilitar el botón y mostrar el modal de progreso
-    const btn = document.getElementById('btnGenerarPDF');
-    if (btn) {
-        btn.disabled = true;
-        btn.textContent = 'Generando PDF...';
-    }    // Mostrar el modal de progreso circular
+    if (fotosWrappers.length === 0) {
+        showMessage('No hay fotos para procesar.');
+        return;
+    }
+
+    // Mostrar el modal de progreso circular al inicio de la generación del PDF
     if (window.pdfProgressManager) {
-        window.pdfProgressManager.reiniciar(); // Asegurar estado limpio
         window.pdfProgressManager.mostrar();
     }
-    
-    if (typeof window.jspdf === 'undefined') {
-        showMessage('jsPDF no está cargado. Asegúrate de incluir la librería jsPDF en tu HTML.');
-        if (btn) {
-            btn.disabled = false;
-            btn.textContent = 'Generar PDF de fotos';
-        }        // Ocultar el modal de progreso
-        if (window.pdfProgressManager) {
-            window.pdfProgressManager.manejarError();
-        }
-        return;
-    }
-    var { jsPDF } = window.jspdf;
-    var pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'letter' });    var anchoHoja = 216;
+
+    try {
+        var { jsPDF } = window.jspdf;
+    var pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'letter' });
+
+    var anchoHoja = 216;
     var altoHoja = 279;
     var fotosPorHoja = 9;
     var columnas = 3;
     var filas = 3;
-    var anchoCelda, altoCelda;
+    
+    let paginaActual = 1;
+    
+    // **NUEVO**: Agregar imagen RIJ al principio si existe
+    if (typeof window.rijPDFManager !== 'undefined' && window.rijPDFManager.rijYaProcesado()) {
+        const urlImagenRIJ = window.rijPDFManager.obtenerURLImagenRIJ();
+        if (urlImagenRIJ) {
+            try {
+                // Cargar y agregar imagen RIJ como primera página
+                await agregarImagenRIJalPDF(pdf, urlImagenRIJ);
+                
+                pdf.addPage('letter', 'portrait');
+                paginaActual = 2;
+                
+            } catch (error) {
+                // Error silencioso
+            }
+        }
+    }
+
+    // Obtener las imágenes principales (igual que antes)
+    var imagenesSeleccionadas = [];
     var aspectoFoto = 4 / 3;
     // Usar la primera imagen seleccionada para calcular el aspecto
-    for (var i = 0; i < fotos.length; i++) {
-        var imgSeleccionada = fotos[i].querySelector('img.foto-principal');
+    for (var i = 0; i < fotosWrappers.length; i++) {
+        var imgSeleccionada = fotosWrappers[i].querySelector('img.foto-principal');
         if (imgSeleccionada && imgSeleccionada.naturalWidth && imgSeleccionada.naturalHeight) {
             aspectoFoto = imgSeleccionada.naturalWidth / imgSeleccionada.naturalHeight;
             break;
         }
     }
-    altoCelda = altoHoja / filas;
-    anchoCelda = altoCelda * aspectoFoto;
+    var altoCelda = altoHoja / filas;
+    var anchoCelda = altoCelda * aspectoFoto;
     if (anchoCelda * columnas > anchoHoja) {
         anchoCelda = anchoHoja / columnas;
         altoCelda = anchoCelda / aspectoFoto;
     }
     // Obtener solo la versión seleccionada de cada foto (la que se muestra en grande)
-    var imagenesSeleccionadas = [];
-    var pantallaCompletaPorFoto = [];
-    for (var i = 0; i < fotos.length; i++) {
-        var imgSeleccionada = fotos[i].querySelector('img.foto-principal');
-        var checkbox = fotos[i].querySelector('.checkbox-pantalla-completa');
+    for (var i = 0; i < fotosWrappers.length; i++) {
+        var imgSeleccionada = fotosWrappers[i].querySelector('img.foto-principal');
+        var checkbox = fotosWrappers[i].querySelector('.checkbox-pantalla-completa');
         if (imgSeleccionada) {
             imagenesSeleccionadas.push(imgSeleccionada.src);
-            pantallaCompletaPorFoto.push(checkbox && checkbox.checked);
         }
     }
     // Eliminar duplicados exactos (por si alguna foto se repite)
     var imagenesUnicas = imagenesSeleccionadas.filter(function(value, index, self) {
         return self.indexOf(value) === index;
-    });
-    var pantallaCompletaUnica = pantallaCompletaPorFoto.filter(function(value, index, self) {
-        return imagenesSeleccionadas.indexOf(imagenesUnicas[index]) === index;
     });
     // Revisar si el checkbox global está activado
     var pantallaCompletaGlobal = false;
@@ -397,27 +404,6 @@ function generarPDFConFotos() {
                     if (indice !== imagenesUnicas.length - 1) {
                         pdf.addPage('letter', 'portrait');
                     }
-                } else if (pantallaCompletaUnica[indice]) {
-                    // Si hay fotos en mosaico pendientes, agrégalas antes de la hoja completa
-                    if (enMosaico.length > 0) {
-                        for (var j = 0; j < enMosaico.length; j++) {
-                            var i = j;
-                            var col = i % columnas;
-                            var fila = Math.floor((i % fotosPorHoja) / columnas);
-                            var x = col * anchoCelda;
-                            var y = fila * altoCelda;
-                            pdf.addImage(enMosaico[j], 'WEBP', x, y, anchoCelda, altoCelda);
-                            if ((i + 1) % fotosPorHoja === 0 && j !== enMosaico.length - 1) {
-                                pdf.addPage('letter', 'portrait');
-                            }
-                        }
-                        enMosaico = [];
-                        pdf.addPage('letter', 'portrait');
-                    }
-                    pdf.addImage(dataUrl, 'WEBP', 0, 0, anchoHoja, altoHoja);
-                    if (indice !== imagenesUnicas.length - 1) {
-                        pdf.addPage('letter', 'portrait');
-                    }
                 } else {
                     enMosaico.push(dataUrl);
                 }                imagenesProcesadas.push(dataUrl);
@@ -437,6 +423,16 @@ function generarPDFConFotos() {
         }
         procesarImagenes(0, [], [], []);
     }, 150);
+    
+    } catch (error) {
+        console.error('Error durante la generación del PDF:', error);
+        showMessage('Error al generar el PDF: ' + error.message);
+        
+        // Ocultar el modal de progreso en caso de error
+        if (window.pdfProgressManager) {
+            window.pdfProgressManager.manejarError();
+        }
+    }
 }
 
 function asignarEventoPDF() {
@@ -942,5 +938,7 @@ function aplicarFiltroCorreccionColor(img, calidad, maxLado, callback) {
         if (finalDst && typeof finalDst.delete === 'function') { try { finalDst.delete(); } catch (e) {} }
     }
 }
+
+//# sourceMappingURL=app.js.map
 
 

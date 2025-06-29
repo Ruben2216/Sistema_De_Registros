@@ -150,6 +150,24 @@ async function generarPDFParaCorreoCamara() {
         const columnas = 3;
         const filas = 3;
         
+        let paginaActual = 1;
+        
+        // **NUEVO**: Agregar imagen RIJ al principio si existe
+        if (typeof window.rijPDFManager !== 'undefined' && window.rijPDFManager.rijYaProcesado()) {
+            const urlImagenRIJ = window.rijPDFManager.obtenerURLImagenRIJ();
+            if (urlImagenRIJ) {
+                try {
+                    // Cargar y agregar imagen RIJ como primera página
+                    await agregarImagenRIJalPDFCorreo(pdf, urlImagenRIJ);
+                    
+                    pdf.addPage('letter', 'portrait');
+                    paginaActual = 2;
+                } catch (error) {
+                    // Error silencioso
+                }
+            }
+        }
+
         // Obtener las imágenes principales (igual que en pdf_fotos.js)
         const imagenesSeleccionadas = [];
         let aspectoFoto = 4 / 3;
@@ -586,6 +604,25 @@ async function generarPDFParaCorreoCAMARA_ARRAYBUFFER() {
         var altoHoja = 279;
         var aspectoFoto = 4 / 3;
         
+        let paginaActual = 1;
+        
+        // **NUEVO**: Agregar imagen RIJ al principio si existe (función alternativa)
+        if (typeof window.rijPDFManager !== 'undefined' && window.rijPDFManager.rijYaProcesado()) {
+            const urlImagenRIJ = window.rijPDFManager.obtenerURLImagenRIJ();
+            if (urlImagenRIJ) {
+                try {
+                    // Cargar y agregar imagen RIJ como primera página
+                    await agregarImagenRIJalPDFCorreo(pdf, urlImagenRIJ);
+                    
+                    // Agregar nueva página para las fotos
+                    pdf.addPage('letter', 'portrait');
+                    paginaActual = 2;
+                } catch (error) {
+                    console.error('Error al agregar imagen RIJ al PDF alternativo:', error);
+                }
+            }
+        }
+        
         // Calcular aspecto
         for (var i = 0; i < fotos.length; i++) {
             var imgSeleccionada = fotos[i].querySelector('img.foto-principal');
@@ -717,4 +754,59 @@ async function generarPDFParaCorreoCAMARA_ARRAYBUFFER() {
     } catch (error) {
         return null;
     }
+}
+
+// Función helper para agregar imagen RIJ al PDF en correo
+async function agregarImagenRIJalPDFCorreo(pdf, urlImagen) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        
+        img.onload = function() {
+            try {
+                // Calcular dimensiones para centrar la imagen manteniendo proporción
+                const anchoHoja = 216;
+                const altoHoja = 279;
+                const margen = 15;
+                
+                const anchoDisponible = anchoHoja - (2 * margen);
+                const altoDisponible = altoHoja - (2 * margen);
+                
+                const aspectoImagen = img.width / img.height;
+                const aspectoHoja = anchoDisponible / altoDisponible;
+                
+                let anchoFinal, altoFinal;
+                
+                if (aspectoImagen > aspectoHoja) {
+                    anchoFinal = anchoDisponible;
+                    altoFinal = anchoDisponible / aspectoImagen;
+                } else {
+                    altoFinal = altoDisponible;
+                    anchoFinal = altoDisponible * aspectoImagen;
+                }
+                
+                // Centrar la imagen
+                const x = (anchoHoja - anchoFinal) / 2;
+                const y = (altoHoja - altoFinal) / 2;
+                
+                // Agregar título
+                pdf.setFontSize(16);
+                pdf.setFont('helvetica', 'bold');
+                pdf.text('FORMULARIO RIJ - REUNIÓN DE INICIO DE JORNADA', anchoHoja / 2, 20, { align: 'center' });
+                
+                // Agregar imagen al PDF
+                pdf.addImage(img.src, 'PNG', x, y + 10, anchoFinal, altoFinal - 10);
+                
+                resolve();
+            } catch (error) {
+                reject(error);
+            }
+        };
+        
+        img.onerror = function() {
+            reject(new Error('No se pudo cargar la imagen RIJ para correo'));
+        };
+        
+        img.src = urlImagen;
+    });
 }
