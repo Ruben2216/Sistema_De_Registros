@@ -6,6 +6,7 @@ import base64
 import datetime
 import threading
 import time
+from werkzeug.utils import secure_filename
 # --- INICIO LÓGICA DE backend (búsqueda de equipos en MySQL) ---
 from flask_cors import CORS 
 import mysql.connector 
@@ -323,24 +324,36 @@ def enviar_pdf_correo():
         
         # Decodificar el PDF desde base64
         try:
+            
             # Si el PDF viene con prefijo data:application/pdf;base64,
             if pdf_base64.startswith('data:application/pdf;base64,'):
                 pdf_base64 = pdf_base64.split(',')[1]
+            elif pdf_base64.startswith('data:application/pdf;'):
+                # Manejar formatos alternativos que jsPDF podría generar
+                parts = pdf_base64.split(',')
+                if len(parts) >= 2:
+                    pdf_base64 = parts[-1]  # Tomar la última parte después de la última coma
+            
             
             pdf_data = base64.b64decode(pdf_base64)
+            
+            # Verificar que es un PDF válido
+            if not pdf_data.startswith(b'%PDF'):
+                raise Exception("El archivo decodificado no es un PDF válido")
+            
         except Exception as e:
-            return jsonify({'success': False, 'error': 'Error al decodificar el archivo PDF'}), 400
+            return jsonify({'success': False, 'error': f'Error al decodificar el archivo PDF: {str(e)}'}), 400
         
         # Crear el mensaje de correo
         asunto = f"RIJ - Lista de Verificación - {datetime.datetime.now().strftime('%d/%m/%Y')}"
         
         mensaje_texto = f"""
-        Estimado/a usuario/a,
+        Ya carga la mmd,
         
-        Se adjunta la Lista de Verificación de la Reunión de Inicio de Jornada (RIJ) correspondiente al día {datetime.datetime.now().strftime('%d de %B de %Y')}. #dia actual pero ingles
+{datetime.datetime.now().strftime('%d de %B de %Y')}. #dia actual pero ingles
         
 
-        """
+        """         
         
         msg = Message(
             subject=asunto,
@@ -370,6 +383,82 @@ def enviar_pdf_correo():
         return jsonify({
             'success': False, 
             'error': f'Error al enviar el correo: {str(e)}'
+        }), 500
+
+@app.route('/api/rij/guardar_imagen', methods=['POST'])
+def guardar_imagen_rij():
+    """
+    Guarda la imagen convertida del PDF RIJ
+    """
+    try:
+        # Obtener el archivo y el identificador
+        archivo = request.files.get('imagen')
+        identificador = request.form.get('identificador')
+        
+        if not archivo or not identificador:
+            return jsonify({
+                'success': False, 
+                'error': 'Archivo de imagen o identificador no proporcionado'
+            }), 400
+        
+        # Crear directorio si no existe
+        directorio_imagenes = os.path.join('RESOURCE', 'IMG', 'img RIJ')
+        os.makedirs(directorio_imagenes, exist_ok=True)
+        
+        # Generar nombre único para el archivo
+        timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+        nombre_archivo = f"{identificador}_{timestamp}.png"
+        ruta_archivo = os.path.join(directorio_imagenes, nombre_archivo)
+        
+        # Guardar archivo
+        archivo.save(ruta_archivo)
+        
+        # URL relativa para acceder a la imagen
+        url_imagen = f"/RESOURCE/IMG/img RIJ/{nombre_archivo}"
+        
+        return jsonify({
+            'success': True,
+            'message': 'Imagen guardada exitosamente',
+            'url': url_imagen,
+            'identificador': identificador
+        }), 200
+        
+    except Exception as e:
+        print(f"Error al guardar imagen RIJ: {str(e)}")
+        return jsonify({
+            'success': False, 
+            'error': f'Error al guardar imagen: {str(e)}'
+        }), 500
+
+@app.route('/api/rij/obtener_imagen/<identificador>')
+def obtener_imagen_rij(identificador):
+    """
+    Obtiene la URL de la imagen RIJ por identificador
+    """
+    try:
+        directorio_imagenes = os.path.join('RESOURCE', 'IMG', 'img RIJ')
+        
+        # Buscar archivos que coincidan con el identificador
+        if os.path.exists(directorio_imagenes):
+            archivos = os.listdir(directorio_imagenes)
+            for archivo in archivos:
+                if archivo.startswith(identificador):
+                    url_imagen = f"/RESOURCE/IMG/img RIJ/{archivo}"
+                    return jsonify({
+                        'success': True,
+                        'url': url_imagen,
+                        'identificador': identificador
+                    })
+        
+        return jsonify({
+            'success': False,
+            'error': 'Imagen no encontrada'
+        }), 404
+        
+    except Exception as e:
+        return jsonify({
+            'success': False, 
+            'error': f'Error al buscar imagen: {str(e)}'
         }), 500
 
 # --- INICIO DE BACKEND ---

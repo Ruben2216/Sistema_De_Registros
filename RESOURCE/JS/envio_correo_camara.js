@@ -1,5 +1,3 @@
-// Archivo JavaScript para manejar el envío de PDF de fotos por correo electrónico desde la página de cámara
-
 // Variable global para almacenar el PDF generado
 let pdfCamaraGenerado = null;
 
@@ -62,7 +60,7 @@ function abrirModalEnviarCorreoCamara() {
             }
         }
         
-        if (nombreInput) nombreInput.value = 'Evidencias_Fotograficas.pdf';
+        if (nombreInput) nombreInput.value = 'Formato RIJ.pdf';
         
         // Ocultar mensaje anterior
         const mensajeDiv = document.getElementById('mensaje-envio-correo-camara');
@@ -131,6 +129,7 @@ async function generarPDFParaCorreoCamara() {
     try {
         // Usar la misma verificación que la función original
         const fotosWrappers = document.querySelectorAll('#photosContainer .photo-wrapper');
+        
         if (fotosWrappers.length === 0) {
             mostrarMensajeCamara('No hay fotos para procesar.', 'error');
             return null;
@@ -151,14 +150,40 @@ async function generarPDFParaCorreoCamara() {
         const columnas = 3;
         const filas = 3;
         
+        let paginaActual = 1;
+        
+        // **NUEVO**: Agregar imagen RIJ al principio si existe
+        if (typeof window.rijPDFManager !== 'undefined' && window.rijPDFManager.rijYaProcesado()) {
+            const urlImagenRIJ = window.rijPDFManager.obtenerURLImagenRIJ();
+            if (urlImagenRIJ) {
+                try {
+                    // Cargar y agregar imagen RIJ como primera página
+                    await agregarImagenRIJalPDFCorreo(pdf, urlImagenRIJ);
+                    
+                    pdf.addPage('letter', 'portrait');
+                    paginaActual = 2;
+                } catch (error) {
+                    // Error silencioso
+                }
+            }
+        }
+
         // Obtener las imágenes principales (igual que en pdf_fotos.js)
         const imagenesSeleccionadas = [];
-        fotosWrappers.forEach(function(wrapper) {
-            const imgPrincipal = wrapper.querySelector('img.foto-principal');
+        let aspectoFoto = 4 / 3;
+        
+        // Calcular aspecto usando la primera imagen disponible
+        for (let i = 0; i < fotosWrappers.length; i++) {
+            const imgPrincipal = fotosWrappers[i].querySelector('img.foto-principal');
             if (imgPrincipal && imgPrincipal.src) {
                 imagenesSeleccionadas.push(imgPrincipal.src);
+                
+                // Calcular aspecto real de la primera imagen
+                if (imgPrincipal.naturalWidth && imgPrincipal.naturalHeight) {
+                    aspectoFoto = imgPrincipal.naturalWidth / imgPrincipal.naturalHeight;
+                }
             }
-        });
+        }
 
         if (imagenesSeleccionadas.length === 0) {
             mostrarMensajeCamara('No se encontraron imágenes válidas.', 'error');
@@ -180,8 +205,7 @@ async function generarPDFParaCorreoCamara() {
                 let ancho = anchoHoja - (2 * margen);
                 let alto = altoHoja - (2 * margen);
                 
-                // Ajustar proporción (asumiendo aspecto 4:3 para fotos de cámara)
-                const aspectoFoto = 4 / 3;
+                // Ajustar proporción
                 if (ancho / alto > aspectoFoto) {
                     ancho = alto * aspectoFoto;
                 } else {
@@ -191,12 +215,15 @@ async function generarPDFParaCorreoCamara() {
                 const x = (anchoHoja - ancho) / 2;
                 const y = (altoHoja - alto) / 2;
                 
-                pdf.addImage(imagenesSeleccionadas[i], 'JPEG', x, y, ancho, alto);
+                try {
+                    // Usar formato JPEG (más compatible) en lugar de WEBP
+                    pdf.addImage(imagenesSeleccionadas[i], 'JPEG', x, y, ancho, alto);
+                } catch (error) {
+                    // Error agregando imagen, continuar con las demás
+                }
             }
         } else {
             // Modo múltiples fotos: 9 fotos por página (3x3)
-            let aspectoFoto = 4 / 3; // Aspecto por defecto
-            
             // Calcular dimensiones de celda
             let altoCelda = altoHoja / filas;
             let anchoCelda = altoCelda * aspectoFoto;
@@ -218,12 +245,23 @@ async function generarPDFParaCorreoCamara() {
                 const x = columna * anchoCelda;
                 const y = fila * altoCelda;
                 
-                pdf.addImage(imagenesSeleccionadas[i], 'JPEG', x, y, anchoCelda, altoCelda);
+                try {
+                    // Usar formato JPEG (más compatible) en lugar de WEBP
+                    pdf.addImage(imagenesSeleccionadas[i], 'JPEG', x, y, anchoCelda, altoCelda);
+                } catch (error) {
+                    // Error agregando imagen, continuar con las demás
+                }
             }
         }
         
         // Convertir PDF a base64
-        const pdfBase64 = pdf.output('datauristring');
+        let pdfBase64 = pdf.output('datauristring');
+        
+        // CORREGIR FORMATO - jsPDF agrega filename que no es estándar
+        if (pdfBase64.includes(';filename=')) {
+            pdfBase64 = pdfBase64.replace(/;filename=[^;]+/, '');
+        }
+        
         return pdfBase64;
         
     } catch (error) {
@@ -509,3 +547,266 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 5000);
     
 });
+
+// Funciones para el modal de tomar foto
+function mostrarModalTomarFoto() {
+    const modal = document.getElementById('modal-tomar-foto');
+    const mensaje = document.getElementById('mensaje-tomar-foto');
+    
+    if (modal && mensaje) {
+        mensaje.textContent = 'Tomando foto...';
+        modal.style.display = 'flex';
+        
+        // Evitar scroll en móvil
+        if (esDispositivoMovil()) {
+            document.body.style.overflow = 'hidden';
+        }
+    }
+}
+
+function actualizarModalTomarFoto(mensaje) {
+    const mensajeElemento = document.getElementById('mensaje-tomar-foto');
+    if (mensajeElemento) {
+        mensajeElemento.textContent = mensaje;
+    }
+}
+
+function ocultarModalTomarFoto() {
+    const modal = document.getElementById('modal-tomar-foto');
+    
+    if (modal) {
+        modal.style.display = 'none';
+        
+        // Restaurar overflow del body
+        if (esDispositivoMovil()) {
+            document.body.style.overflow = '';
+        }
+    }
+}
+
+// FUNCIÓN ALTERNATIVA - Generar PDF como ArrayBuffer y convertir manualmente
+async function generarPDFParaCorreoCAMARA_ARRAYBUFFER() {
+    try {
+        var fotos = document.querySelectorAll('#photosContainer .photo-wrapper');
+        
+        if (fotos.length === 0) {
+            return null;
+        }
+        
+        if (typeof window.jspdf === 'undefined') {
+            return null;
+        }
+        
+        var { jsPDF } = window.jspdf;
+        var pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'letter' });
+        
+        var anchoHoja = 216;
+        var altoHoja = 279;
+        var aspectoFoto = 4 / 3;
+        
+        let paginaActual = 1;
+        
+        // **NUEVO**: Agregar imagen RIJ al principio si existe (función alternativa)
+        if (typeof window.rijPDFManager !== 'undefined' && window.rijPDFManager.rijYaProcesado()) {
+            const urlImagenRIJ = window.rijPDFManager.obtenerURLImagenRIJ();
+            if (urlImagenRIJ) {
+                try {
+                    // Cargar y agregar imagen RIJ como primera página
+                    await agregarImagenRIJalPDFCorreo(pdf, urlImagenRIJ);
+                    
+                    // Agregar nueva página para las fotos
+                    pdf.addPage('letter', 'portrait');
+                    paginaActual = 2;
+                } catch (error) {
+                    console.error('Error al agregar imagen RIJ al PDF alternativo:', error);
+                }
+            }
+        }
+        
+        // Calcular aspecto
+        for (var i = 0; i < fotos.length; i++) {
+            var imgSeleccionada = fotos[i].querySelector('img.foto-principal');
+            if (imgSeleccionada && imgSeleccionada.naturalWidth && imgSeleccionada.naturalHeight) {
+                aspectoFoto = imgSeleccionada.naturalWidth / imgSeleccionada.naturalHeight;
+                break;
+            }
+        }
+        
+        // Obtener imágenes
+        var imagenesSeleccionadas = [];
+        for (var i = 0; i < fotos.length; i++) {
+            var imgSeleccionada = fotos[i].querySelector('img.foto-principal');
+            if (imgSeleccionada) {
+                imagenesSeleccionadas.push(imgSeleccionada.src);
+            }
+        }
+        
+        // Verificar modo pantalla completa
+        var pantallaCompletaGlobal = false;
+        var chkGlobal = document.getElementById('pantallaCompletaPDF');
+        if (chkGlobal) {
+            pantallaCompletaGlobal = chkGlobal.checked;
+        }
+        
+        // Procesar todas las imágenes usando Promise.all para ser más eficiente
+        var imagenesProcessadas = await Promise.all(
+            imagenesSeleccionadas.map(function(imagen, index) {
+                return new Promise(function(resolve) {
+                    if (imagen.startsWith('data:')) {
+                        // Convertir a WebP
+                        var img = new Image();
+                        img.onload = function() {
+                            var canvas = document.createElement('canvas');
+                            canvas.width = img.naturalWidth;
+                            canvas.height = img.naturalHeight;
+                            var ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0);
+                            var webpDataUrl = canvas.toDataURL('image/webp', 0.9);
+                            resolve(webpDataUrl);
+                        };
+                        img.onerror = function() {
+                            resolve(null);
+                        };
+                        img.src = imagen;
+                    } else {
+                        // Fetch desde servidor
+                        fetch(imagen, { credentials: 'include' })
+                            .then(function(response) { return response.blob(); })
+                            .then(function(blob) {
+                                var reader = new FileReader();
+                                reader.onloadend = function() {
+                                    var img = new Image();
+                                    img.onload = function() {
+                                        var canvas = document.createElement('canvas');
+                                        canvas.width = img.naturalWidth;
+                                        canvas.height = img.naturalHeight;
+                                        var ctx = canvas.getContext('2d');
+                                        ctx.drawImage(img, 0, 0);
+                                        var webpDataUrl = canvas.toDataURL('image/webp', 0.9);
+                                        resolve(webpDataUrl);
+                                    };
+                                    img.onerror = function() {
+                                        resolve(null);
+                                    };
+                                    img.src = reader.result;
+                                };
+                                reader.readAsDataURL(blob);
+                            })
+                            .catch(function() {
+                                resolve(null);
+                            });
+                    }
+                });
+            })
+        );
+        
+        // Filtrar imágenes válidas
+        imagenesProcessadas = imagenesProcessadas.filter(function(img) { return img !== null; });
+        
+        if (imagenesProcessadas.length === 0) {
+            return null;
+        }
+        
+        // Agregar imágenes al PDF
+        for (var i = 0; i < imagenesProcessadas.length; i++) {
+            if (i > 0) {
+                pdf.addPage('letter', 'portrait');
+            }
+            
+            if (pantallaCompletaGlobal) {
+                // Pantalla completa
+                var margen = 10;
+                var ancho = anchoHoja - (2 * margen);
+                var alto = altoHoja - (2 * margen);
+                
+                if (ancho / alto > aspectoFoto) {
+                    ancho = alto * aspectoFoto;
+                } else {
+                    alto = ancho / aspectoFoto;
+                }
+                
+                var x = (anchoHoja - ancho) / 2;
+                var y = (altoHoja - alto) / 2;
+                
+                pdf.addImage(imagenesProcessadas[i], 'WEBP', x, y, ancho, alto);
+            } else {
+                // Mosaico simplificado (una imagen por página por simplicidad)
+                pdf.addImage(imagenesProcessadas[i], 'WEBP', 10, 10, anchoHoja - 20, altoHoja - 20);
+            }
+        }
+        
+        // Generar como ArrayBuffer y convertir manualmente a base64
+        var pdfArrayBuffer = pdf.output('arraybuffer');
+        
+        // Convertir ArrayBuffer a base64 manualmente
+        var bytes = new Uint8Array(pdfArrayBuffer);
+        var binary = '';
+        for (var i = 0; i < bytes.byteLength; i++) {
+            binary += String.fromCharCode(bytes[i]);
+        }
+        var base64 = btoa(binary);
+        
+        // Construir data URI manualmente
+        var pdfBase64 = 'data:application/pdf;base64,' + base64;
+        
+        return pdfBase64;
+        
+    } catch (error) {
+        return null;
+    }
+}
+
+// Función helper para agregar imagen RIJ al PDF en correo
+async function agregarImagenRIJalPDFCorreo(pdf, urlImagen) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        
+        img.onload = function() {
+            try {
+                // Calcular dimensiones para centrar la imagen manteniendo proporción
+                const anchoHoja = 216;
+                const altoHoja = 279;
+                const margen = 15;
+                
+                const anchoDisponible = anchoHoja - (2 * margen);
+                const altoDisponible = altoHoja - (2 * margen);
+                
+                const aspectoImagen = img.width / img.height;
+                const aspectoHoja = anchoDisponible / altoDisponible;
+                
+                let anchoFinal, altoFinal;
+                
+                if (aspectoImagen > aspectoHoja) {
+                    anchoFinal = anchoDisponible;
+                    altoFinal = anchoDisponible / aspectoImagen;
+                } else {
+                    altoFinal = altoDisponible;
+                    anchoFinal = altoDisponible * aspectoImagen;
+                }
+                
+                // Centrar la imagen
+                const x = (anchoHoja - anchoFinal) / 2;
+                const y = (altoHoja - altoFinal) / 2;
+                
+                // Agregar título
+                pdf.setFontSize(16);
+                pdf.setFont('helvetica', 'bold');
+                pdf.text('FORMULARIO RIJ - REUNIÓN DE INICIO DE JORNADA', anchoHoja / 2, 20, { align: 'center' });
+                
+                // Agregar imagen al PDF
+                pdf.addImage(img.src, 'PNG', x, y + 10, anchoFinal, altoFinal - 10);
+                
+                resolve();
+            } catch (error) {
+                reject(error);
+            }
+        };
+        
+        img.onerror = function() {
+            reject(new Error('No se pudo cargar la imagen RIJ para correo'));
+        };
+        
+        img.src = urlImagen;
+    });
+}

@@ -158,6 +158,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
+            // Mostrar solo overlay en el video (no el modal)
+            if (typeof mostrarOverlayVideo === 'function') {
+                mostrarOverlayVideo('Tomando foto...');
+            }
+
             const videoSourceWidth = videoElement.videoWidth;
             const videoSourceHeight = videoElement.videoHeight;
             const videoAspectRatio = videoSourceWidth / videoSourceHeight;
@@ -204,6 +209,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             context.restore();
 
+            // Actualizar overlay después del procesamiento de imagen
+            if (typeof actualizarOverlayVideo === 'function') {
+                actualizarOverlayVideo('Procesando fotografía...');
+            }
+
             // Agregar fecha/hora
             var fecha = new Date();
             var fechaTexto = fecha.toLocaleDateString('es-MX') + ' ' + fecha.getHours() + ':' + fecha.getMinutes();
@@ -221,7 +231,13 @@ document.addEventListener('DOMContentLoaded', () => {
             context.fillText(fechaTexto, x, y);
             context.restore();
 
-            // Mostrar mensaje de subida
+            // Pequeña pausa para mostrar el mensaje de procesamiento
+            await new Promise(resolve => setTimeout(resolve, 800));
+
+            // Actualizar solo overlay con mensaje de subida
+            if (typeof actualizarOverlayVideo === 'function') {
+                actualizarOverlayVideo('Subiendo al servidor...');
+            }
             statusElement.textContent = "Subiendo foto al servidor...";
 
             // Subir la foto al servidor y actualizar galería
@@ -229,18 +245,51 @@ document.addEventListener('DOMContentLoaded', () => {
                 guardarFotoDesdeCanvas(canvasElement);
                 // Incrementar el contador de fotos al tomar una nueva
                 photosTakenCount++;
+                
+                // Actualizar overlay con éxito
+                if (typeof actualizarOverlayVideo === 'function') {
+                    actualizarOverlayVideo('¡Foto guardada!');
+                }
                 statusElement.textContent = "¡Foto tomada y subida! Puedes tomar otra.";
+                
                 // Mostrar el contador justo debajo del mensaje
                 if (statusElement.nextSibling !== photoCounterElement) {
                     statusElement.parentNode.insertBefore(photoCounterElement, statusElement.nextSibling);
                 }
                 actualizarContadorFotos(); // Actualizar el contador visual
+                
+                // Ocultar overlay después de 2 segundos
+                setTimeout(function() {
+                    if (typeof ocultarOverlayVideo === 'function') {
+                        ocultarOverlayVideo();
+                    }
+                }, 2000);
             } else {
                 statusElement.textContent = "Error: función de guardado no disponible.";
+                if (typeof actualizarOverlayVideo === 'function') {
+                    actualizarOverlayVideo('Error al guardar');
+                }
+                
+                // Ocultar overlay después de 3 segundos
+                setTimeout(function() {
+                    if (typeof ocultarOverlayVideo === 'function') {
+                        ocultarOverlayVideo();
+                    }
+                }, 3000);
             }
 
         } catch (error) {
             statusElement.textContent = `Error al tomar la foto: ${error.name}`;
+            if (typeof actualizarOverlayVideo === 'function') {
+                actualizarOverlayVideo('Error al procesar');
+            }
+            
+            // Ocultar overlay después de 3 segundos
+            setTimeout(function() {
+                if (typeof ocultarOverlayVideo === 'function') {
+                    ocultarOverlayVideo();
+                }
+            }, 3000);
         }
     }
 

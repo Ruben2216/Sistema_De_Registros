@@ -7,6 +7,13 @@
     <link rel="stylesheet" href="/RESOURCE/CSS/camara.css">
     <link rel="stylesheet" href="/RESOURCE/CSS/index.css">
     <link rel="stylesheet" href="/RESOURCE/CSS/progreso_circular-pdf.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        // Configurar PDF.js worker
+        if (typeof pdfjsLib !== 'undefined') {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
+    </script>
 
 
 </head>
@@ -16,6 +23,13 @@
         
         <div class="video-container">
             <video id="video" autoplay playsinline></video>
+            <!-- Overlay para mostrar estado de procesamiento -->
+            <div id="video-overlay" class="video-overlay" style="display: none;">
+                <div class="overlay-content">
+                    <div class="overlay-spinner"></div>
+                    <p class="overlay-message">Tomando foto...</p>
+                </div>
+            </div>
         </div>
 
         <div class="controls">
@@ -30,6 +44,14 @@
             <input type="checkbox" id="pantallaCompletaPDF" />
             <label for="pantallaCompletaPDF">Mostrar evidencia en hoja completa (PDF)</label>
            
+        </div>
+
+        <!-- Contenedor para mostrar imagen RIJ -->
+        <div id="contenedor-rij" style="display: none; margin-bottom: 20px;">
+            <h3>Reunión de Inicio de Jornada (RIJ)</h3>
+            <div id="imagen-rij-container">
+                <!-- Aquí se mostrará la imagen del RIJ -->
+            </div>
         </div>
 
         <div class="output">
@@ -56,6 +78,16 @@
         <div class="confirm-buttons">
             <button id="confirmNo" class="bg-gray-500 hover:bg-gray-600 text-white">No</button>
             <button id="confirmYes" class="bg-red-600 hover:bg-red-700 text-white">Sí</button>
+        </div>
+    </div>
+
+    <!-- Modal para indicador de tomar foto -->
+    <div id="modal-tomar-foto" class="firma-modal" style="display: none;">
+        <div class="firma-modal__contenido" style="text-align: center; padding: 30px;">
+            <div class="circular-progress-foto">
+                <div class="circular-progress-inner-foto"></div>
+            </div>
+            <h3 id="mensaje-tomar-foto" class="firma-modal__titulo" style="margin-top: 20px;">Tomando foto...</h3>
         </div>
     </div>
 
@@ -147,13 +179,18 @@
 
     <!-- pdf_fotos.js se carga dinámicamente después de OpenCV.js -->
     <!-- Carga otros scripts de aplicación -->
+    <script src="/RESOURCE/JS/modal_tomar_foto.js"></script>
     <script src="/RESOURCE/JS/circular_progress_pdf.js"></script>
     <script src="/RESOURCE/JS/fotos_upload.js"></script>
     <script src="/RESOURCE/JS/autoguardado_camara.js"></script>
+    <script src="/RESOURCE/JS/rij_pdf_a_imagen.js"></script>
+    <script src="/RESOURCE/JS/mostrar_rij_camara.js"></script>
     <script src="/RESOURCE/JS/index.js"></script>
     <script src="/RESOURCE/JS/editar_foto.js"></script>
     <script src="/RESOURCE/JS/recorte_foto.js"></script>
     <script src="/RESOURCE/JS/importar_imagenes.js?v=3"></script>
     <script src="/RESOURCE/JS/envio_correo_camara.js"></script>
+    <!-- Script de diagnóstico temporal -->
+    <script src="/RESOURCE/JS/diagnostico_modal_progreso.js"></script>
 </body>
 </html>

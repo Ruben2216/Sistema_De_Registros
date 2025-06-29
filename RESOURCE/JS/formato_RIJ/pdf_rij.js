@@ -32,14 +32,15 @@ async function generarPDF() {
     const textArea3 = document.querySelector('textarea[id="observaciones"]').value;
     const conductor = document.querySelector('input[id="conductor"]').value;
     const firma1Base64 = document.getElementById("firma-input-1").value;
+    const firma2Base64 = document.getElementById("firma-input-2").value;
 
-    // ENCABEZADO
     doc.setFontSize(11);
     doc.setFont("helvetica", "bold");
     doc.text("LISTA DE VERIFICACIÓN DE LA REUNIÓN DIARIA DE INICIO DE JORNADA", 105, 15, null, null, "center");
 
     // DATOS GENERALES
     y = 30;
+
     // Texto en negritas
     doc.setFont("helvetica", "bold");
     doc.setFontSize(9);
@@ -88,6 +89,18 @@ async function generarPDF() {
     doc.setFontSize(10);
     const rpeWidth = doc.getTextWidth(rpe);
     doc.text(RPE, 98 + rpeWidth, y);
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(9);
+    const firma1 = "Firma: ";
+    doc.text(firma1, 155, y);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    const firmaWidth = doc.getTextWidth(firma1);
+    doc.text(firma1Base64, 155 + firmaWidth, y);
+    if(firma1Base64)
+        doc.addImage(firma1Base64, 'PNG', 165, y, 30, 20 );
 
     y+=8;
     doc.setFont("helvetica", "bold");
@@ -539,11 +552,19 @@ async function generarPDF() {
 
     y+=1;
 
-    const anchoFirma = doc.getTextWidth(firma);
-    doc.line(anchoFirma + 106, y, anchoFirma + 146, y);
+    const anchoFirma2 = doc.getTextWidth(firma);
+    doc.line(anchoFirma2 + 106, y, anchoFirma2 + 146, y);
 
-     if(firma1Base64)
-        doc.addImage(firma1Base64, 'PNG', 15, y, 30, 30 );
+     if(firma2Base64)
+        doc.addImage(firma2Base64, 'PNG', 115, y-19, 30, 20 );
+
+    // ENCABEZADO
+    const pageHeight = doc.internal.pageSize.getHeight();
+    z=15
+    //MARGEN
+    doc.rect(14, z-4, 185, pageHeight - 20); // TABLA 1
+    doc.rect(13, z-5, 187, pageHeight - 18); // TABLA 2
+
 
     doc.save("RIJ.pdf");
 }
