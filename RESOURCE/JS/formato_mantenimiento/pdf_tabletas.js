@@ -3,7 +3,7 @@ async function generarPDF() {
     const doc = new jsPDF(); /*crea pdf vacio*/
 
     //CAPTURADO DE DATOS
-    const zona = document.querySelector('select[id="zona"]').value;
+    const zona = document.querySelector('input[id="zona"]').value;
     const centro = document.querySelector('input[id="centro_trabajo"').value;
     const folio = document.querySelector('input[id="folio"]').value;
     const servicio = document.querySelector('select[id="servicio"]').value;
