@@ -1,3 +1,4 @@
+
 async function generarPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF(); /*crea pdf vacio*/
@@ -27,6 +28,7 @@ async function generarPDF() {
     const reglas_vida = document.querySelector('input[name="reglas_vida"]:checked').value;
     const politicas = document.querySelector('input[name="politicas"]:checked').value;
     const colaborador = document.querySelector('input[name="colaborador"]:checked').value;
+    const metaTextArea = document.querySelector('textarea[id="meta"]').value;
     const textArea1 = document.querySelector('textarea[id="extra_info"]').value;
     const textArea2 = document.querySelector('textarea[id="actividades_seguridad"]').value;
     const textArea3 = document.querySelector('textarea[id="observaciones"]').value;
@@ -37,6 +39,7 @@ async function generarPDF() {
     doc.setFontSize(11);
     doc.setFont("helvetica", "bold");
     doc.text("LISTA DE VERIFICACIÓN DE LA REUNIÓN DIARIA DE INICIO DE JORNADA", 105, 15, null, null, "center");
+    doc.line(14, 17 , 199, 17);
 
     // DATOS GENERALES
     y = 30;
@@ -44,7 +47,7 @@ async function generarPDF() {
     // Texto en negritas
     doc.setFont("helvetica", "bold");
     doc.setFontSize(9);
-    const dep = "DEPARTAMENTO: ";
+    const dep = "DEPARTAMENTO Y/O COMPAÑIA: ";
     doc.text(dep, 15, y);
 
     // Texto normal justo después del anterior
@@ -52,14 +55,15 @@ async function generarPDF() {
     doc.setFontSize(10);
     const depWidth = doc.getTextWidth(dep);
     doc.text(departamento, 15 + depWidth, y);
-    doc.line(depWidth + 16, y + 1, depWidth + 46, y + 1);
+    doc.line(depWidth + 11, y + 1, depWidth + 43, y + 1);
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(9);
     const fech = "FECHA: ";
+    //const fechaActual = new Date();
     const fechWidth = doc.getTextWidth(fech);
-    doc.text(fech, 105, y, "center");
-    doc.line(fechWidth + 98, y + 1, fechWidth + 136, y + 1);
+    doc.text(fech, 107, y, "center");
+    doc.line(fechWidth + 100, y + 1, fechWidth + 138, y + 1);
 
 
     y+=8;
@@ -89,13 +93,13 @@ async function generarPDF() {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(9);
     const rpe = "R.P.E: ";
-    doc.text(rpe, 98, y);
+    doc.text(rpe, 100, y);
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
     const rpeWidth = doc.getTextWidth(rpe);
-    doc.line(rpeWidth + 99, y + 1, rpeWidth + 129, y + 1);
-    doc.text(RPE, 98 + rpeWidth, y);
+    doc.line(rpeWidth + 101, y + 1, rpeWidth + 131, y + 1);
+    doc.text(RPE, 100 + rpeWidth, y);
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(9);
@@ -126,13 +130,13 @@ async function generarPDF() {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(9);
     const termino = "TÉRMINO: ";
-    doc.text(termino, 98, y);
+    doc.text(termino, 100, y);
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
     const terminoWidth = doc.getTextWidth(termino);
-    doc.text(hora_termino, 98 + terminoWidth, y);
-    doc.line(terminoWidth + 99, y + 1, terminoWidth + 129, y + 1);
+    doc.text(hora_termino, 100 + terminoWidth, y);
+    doc.line(terminoWidth + 101, y + 1, terminoWidth + 129, y + 1);
 
     //ACTIVIDADES
     /*y+=15;
@@ -314,7 +318,6 @@ async function generarPDF() {
 
     y+=6;
     doc.setFont("helvetica","normal")
-    doc.setTextColor(39, 34, 193)
     doc.text(textArea1, 15, y);
     y+=1;
     doc.line(15, y, 195, y);
@@ -500,7 +503,6 @@ async function generarPDF() {
 
     y+=6;
     doc.setFont("helvetica", "normal");
-    doc.setTextColor(39, 34, 193);
     doc.text(textArea2, 15, y);
 
     y+=1;
@@ -520,7 +522,9 @@ async function generarPDF() {
     const anchoMaxMeta = 136;
     const textDividido = doc.splitTextToSize(meta, anchoMaxMeta);
     doc.text(textDividido, 60, y);
-    y+=7;
+    y+=6;
+    doc.text(metaTextArea, 15, y);
+    y+=1;
     doc.line(15, y, 195, y);
 //--------------------------------------------------------------------
     y+=8;
@@ -538,7 +542,6 @@ async function generarPDF() {
 
     y+=9;
     doc.setFont("helvetica", "normal");
-    doc.setTextColor(39, 34, 193);
     doc.text(textArea3, 15, y);
 
     y+=1;

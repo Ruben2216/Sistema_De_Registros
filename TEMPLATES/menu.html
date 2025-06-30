@@ -31,7 +31,7 @@
 
         <div class="contenedor__item">
             <img src="/RESOURCE/IMG/equipo-arcus-global-7.jpg" alt="Formato rm" class="contenedor__item--img">
-            <select class="contenedor__item contenedor__item--equipos" onchange="redirigir(this.value)">
+            <select id="select-mantenimiento" class="contenedor__item contenedor__item--equipos" onchange="redirigir(this.value)">
                 <option value="#">FORMATO MANTENIMIENTO</option>
                 <option value="\TEMPLATES\Mantenimiento\computo.html">Equipo de cómputo</option>
                 <option value="\TEMPLATES\Mantenimiento\tableta.html">Tabletas</option>
@@ -60,5 +60,6 @@
     }
     </script>
     <script src="/RESOURCE/JS/forzarCargaCSS.js" defer></script>
+    <script src="/RESOURCE/JS/regresar_Select.js"></script>
 </body>
 </html>

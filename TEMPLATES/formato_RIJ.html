@@ -5,13 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verificación Reunión Inicio Jornada</title> 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="/RESOURCE/JS/interceptar_pdf_real.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    
-    <!-- Sistema de limpieza automática -->
-    <script src="/RESOURCE/JS/limpieza_automatica.js"></script>
-    <script src="/RESOURCE/JS/integracion_limpieza.js"></script>
-    
     <script>
         // Configurar PDF.js worker
         if (typeof pdfjsLib !== 'undefined') {
@@ -139,7 +133,7 @@
                 </div>
                 <div class="campo">
                     <label class="campo__etiqueta">HR. INICIO:</label>
-                    <input type="time" class="campo__control" id="hora_inicio" value="08:00" readonly>
+                    <input type="time" class="campo__control" id="hora_inicio">
                 </div>
                 <div class="campo">
                     <label class="campo__etiqueta">TÉRMINO:</label>
@@ -314,7 +308,7 @@
             <div class="seccion"> 
                 <div class="campo">
                     <label class="campo__etiqueta">7. Meta o propósito de la jornada: (Anotar el compromiso de seguridad que los miembros del grupo se proponen cumplir ese día)</label>
-                    <textarea class="campo__control campo__control--area-texto" readonly>{{ meta_para_mostrar }}</textarea>
+                    <textarea id="meta" class="campo__control campo__control--area-texto" readonly>{{ meta_para_mostrar }}</textarea>
                 </div>
             </div>
             <div class="seccion">
@@ -404,8 +398,9 @@
         <script src="/RESOURCE/JS/formato_RIJ/fecha_reloj.js"></script>
         <script src="/RESOURCE/JS/firma.js"></script>
         <script src="/RESOURCE/JS/rij_pdf_a_imagen.js"></script>
-        <script src="/RESOURCE/JS/rij_integracion_pdf.js"></script>
+        <script src="/RESOURCE/JS/rij_integracion.js"></script>
         <script src="/RESOURCE/JS/validador_rij.js"></script>
+        <script src="/RESOURCE/JS/prueba_rij.js"></script>
         <script src="/RESOURCE/JS/formato_RIJ/desplegables.js"></script>
         <script src="/RESOURCE/JS/barra_progreso.js"></script>
         <script src="/RESOURCE/JS/formato_RIJ/campos_desplegables_RIJ.js"></script>

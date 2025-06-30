@@ -2,7 +2,7 @@
 
 (function() {
 
-    var API_URL = 'https://192.168.100.30:8000/api/rij/autoguardado';
+    var API_URL = 'https://192.168.1.81:8000/api/rij/autoguardado';
 
 
     // Función para obtener todos los datos del formulario, incluyendo firmas
