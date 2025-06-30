@@ -39,15 +39,13 @@
                         <option value="Valle_Sur">División Valle de México Sur</option>
                     </select>
                 </div> -->
-                <div class="seccion">
-                    <div class="campo">
-                        <label class="campo__etiqueta">ZONA</label>
-                        <select class="campo__control" id="zona">
-                            <option value="Seleccionar_Zona" >Selecciona una zona</option>
-                        </select>
-                    </div>
+            <div class="seccion">
+                <div class="campo">
+                    <label class="campo__etiqueta">ZONA</label>
+                        <input type="text" value="TUXTLA" id="zona" class="campo__control"> 
                 </div>
             </div>
+    </div>
           <!--  <div class="seccion">
                 <div class="campo">
                 <label class="campo__etiqueta">CENTRO DE TRABAJO</label>
@@ -185,28 +183,30 @@
                     <input type="text" id="input_verificar" class="campo__control" style="display:none;" maxlength="40" placeholder="Especifique motivo">
                 </div>
             </div>
+
             <hr class="seccion__divisor">
             <div class="campo">
                 <label class="campo__etiqueta">REALIZÓ SERVICIO:</label>
-                <input type="text" class="campo__control" id="realizo_servicio" placeholder="Nombre">
+                <input type="text" value="ING. LEYDEN ARIAS RUIZ" class="campo__control" id="realizo_servicio">
                 <div class="firma-area" id="firma-area-1">[Área para firma de quien realizo el servicio]<br>Hacer click aquí</div>
                 <input type="hidden" id="firma-input-1">
                 <img id="firma-imagen-1" class="firma-imagen"/>
             </div>
             <div class="campo">
                 <label class="campo__etiqueta">RESPONSABLE DEL EQUIPO:</label>
-                <input type="text" class="campo__control" id="responsable" placeholder="Nombre">
+                <input type="text" value="MTIE. GIOVANI PEDRO CRUZ LAVARIEGA" class="campo__control" id="responsable">
                 <div class="firma-area" id="firma-area-2">[Área para firma del responsable]<br>Hacer click aquí</div>
                 <input type="hidden" id="firma-input-2">
                 <img id="firma-imagen-2" class="firma-imagen"/>
             </div>
             <div class="campo">
                 <label class="campo__etiqueta">VISTO BUENO:</label>
-                <input type="text" class="campo__control" id="visto_bueno" placeholder="Nombre">
+                <input type="text" value="MTIE. GIOVANI PEDRO CRUZ LAVARIEGA" class="campo__control" id="visto_bueno">
                 <div class="firma-area" id="firma-area-3">[Área para firma]<br>Hacer click aquí</div>
                 <input type="hidden" id="firma-input-3">
                 <img id="firma-imagen-3" class="firma-imagen"/>
             </div>
+
             <button type="button" class="boton boton--primario" onclick="generarPDF()">Pasar siguiente</button>
             <button type="button" class="boton boton--secundario">Guardar Borrador</button>
             <div class="boton boton--secundario boton--cancelar">
