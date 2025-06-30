@@ -244,9 +244,19 @@
             <div class="boton boton--secundario boton--cancelar">
             <a href="/TEMPLATES/menu.html" class="boton--cancelar ">Cancelar</a>
             </div>
-
-
         </form>
+        <!-- Botón menú hamburguesa flotante -->
+<div class="menu-hamburguesa-flotante" id="menu-hamburguesa-flotante"> 
+    <div class="menu-hamburguesa-opciones" id="menu-hamburguesa-opciones">
+         <a href="/TEMPLATES/camara.html" class="opcion-menu-hamburguesa">
+            <img src="/RESOURCE/IMG/camara-RIJ.png" alt="Ir a cámara" />
+            <span>Cámara</span>
+        </a>
+    </div>
+     <button type="button" class="btn-hamburguesa" id="btn-hamburguesa" aria-label="Abrir menú">
+        <img src="https://images.icon-icons.com/1875/PNG/512/hamburgermenu_120234.png" alt="Menú" />
+    </button>
+</div>
     </div>
 
     <!-- <script src="{{ url_for('static', filename='JS/formato_mantenimiento/connection.js') }}"></script> -->
@@ -257,6 +267,7 @@
     <script src="/RESOURCE/JS/selects.js"></script>
     <script src="/RESOURCE/JS/formato_mantenimiento/pdf_compus.js"></script>
     <script src="/RESOURCE/JS/firma.js"></script>
+    <script src="/RESOURCE/JS/menu_amburguesa.js"></script>
     <!--<script src="/RESOURCE/JS/generar_pdf_computo.js"></script>-->
 </body>
 </html>
