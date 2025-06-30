@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba Completa RIJ</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <h1>Prueba Completa del Sistema RIJ</h1>
+    
+    <div style="margin: 20px 0;">
+        <button onclick="simularFormularioRIJ()">1. Simular Formulario RIJ Completado</button>
+        <button onclick="irACamara()">2. Ir a Cámara</button>
+        <button onclick="limpiarDatos()">3. Limpiar Datos</button>
+    </div>
+    
+    <div id="estado"></div>
+    
+    <script>
+        async function simularFormularioRIJ() {
+            const estado = document.getElementById('estado');
+            estado.innerHTML = '<h3>🔄 Simulando formulario RIJ...</h3>';
+            
+            try {
+                // 1. Crear PDF como lo haría el formulario real
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                doc.setFontSize(11);
+                doc.setFont("helvetica", "bold");
+                doc.text("LISTA DE VERIFICACIÓN DE LA REUNIÓN DIARIA DE INICIO DE JORNADA", 105, 15, null, null, "center");
+                
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(9);
+                doc.text("DEPARTAMENTO: División Sureste", 15, 30);
+                doc.text("NOMBRE: Usuario de Prueba", 15, 40);
+                doc.text("RPE: 123456", 15, 50);
+                doc.text("FECHA: " + new Date().toLocaleDateString(), 15, 60);
+                
+                let y = 80;
+                const preguntas = [
+                    "1. INICIO DE JORNADA: SÍ",
+                    "2. PERSONAL PRESENTE: SÍ", 
+                    "3. SALUD: SÍ",
+                    "4. EJERCICIO: SÍ",
+                    "5. ANOMALÍAS: NO",
+                    "6. MANTENIMIENTO: SÍ"
+                ];
+                
+                preguntas.forEach(pregunta => {
+                    doc.text(pregunta, 15, y);
+                    y += 15;
+                });
+                
+                const pdfBase64 = doc.output('datauristring');
+                
+                // 2. Crear identificador único
+                const identificador = 'RIJ_test_usuario';
+                
+                // 3. Guardar en localStorage
+                localStorage.setItem('usuario_identificador_rij', identificador);
+                localStorage.setItem('ultimo_pdf_rij', pdfBase64);
+                localStorage.setItem('rij_pdf_procesado', 'true');
+                
+                estado.innerHTML += '<p>✅ PDF creado y guardado en localStorage</p>';
+                estado.innerHTML += '<p>🆔 Identificador: ' + identificador + '</p>';
+                
+                // 4. Convertir a imagen en el servidor
+                const response = await fetch('/api/rij/convertir_pdf_imagen', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        pdf_base64: pdfBase64,
+                        identificador: identificador
+                    }),
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const resultado = await response.json();
+                    estado.innerHTML += '<p>✅ Imagen creada en servidor: ' + resultado.url + '</p>';
+                    localStorage.setItem('rij_imagen_url', resultado.url);
+                    
+                    // Mostrar imagen
+                    estado.innerHTML += '<div style="margin: 20px 0;"><img src="' + resultado.url + '" style="max-width: 400px; border: 1px solid #ccc;"></div>';
+                } else {
+                    const error = await response.text();
+                    estado.innerHTML += '<p>❌ Error creando imagen: ' + error + '</p>';
+                }
+                
+            } catch (error) {
+                estado.innerHTML += '<p>❌ Error: ' + error.toString() + '</p>';
+            }
+        }
+        
+        function irACamara() {
+            window.location.href = '/TEMPLATES/camara.html';
+        }
+        
+        function limpiarDatos() {
+            localStorage.removeItem('usuario_identificador_rij');
+            localStorage.removeItem('ultimo_pdf_rij');
+            localStorage.removeItem('rij_pdf_procesado');
+            localStorage.removeItem('rij_imagen_url');
+            document.getElementById('estado').innerHTML = '<p>🗑️ Datos limpiados</p>';
+        }
+        
+        // Mostrar estado actual al cargar
+        window.onload = function() {
+            const identificador = localStorage.getItem('usuario_identificador_rij');
+            const procesado = localStorage.getItem('rij_pdf_procesado');
+            const url = localStorage.getItem('rij_imagen_url');
+            
+            document.getElementById('estado').innerHTML = `
+                <h3>Estado Actual:</h3>
+                <p>Identificador: ${identificador || 'No configurado'}</p>
+                <p>PDF Procesado: ${procesado || 'No'}</p>
+                <p>URL Imagen: ${url || 'No disponible'}</p>
+            `;
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba Endpoint RIJ</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <h1>Prueba del Endpoint de Conversión PDF a Imagen</h1>
+    <button id="test-btn">Probar Conversión</button>
+    <div id="resultado"></div>
+    
+    <script>
+        document.getElementById('test-btn').addEventListener('click', async function() {
+            const resultado = document.getElementById('resultado');
+            resultado.innerHTML = '<p>🔄 Iniciando prueba...</p>';
+            
+            try {
+                // Crear un PDF de prueba con jsPDF
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                doc.setFontSize(20);
+                doc.text('Formulario RIJ de Prueba', 20, 30);
+                doc.text('Identificador: TEST_' + Date.now(), 20, 50);
+                doc.text('Fecha: ' + new Date().toLocaleDateString(), 20, 70);
+                
+                // Obtener el PDF como base64
+                const pdfBase64 = doc.output('datauristring');
+                
+                resultado.innerHTML += '<p>✅ PDF generado con jsPDF</p>';
+                
+                // Crear identificador único
+                const identificador = 'TEST_' + Date.now() + '_' + Math.random().toString(36).substring(7);
+                
+                resultado.innerHTML += '<p>🆔 Identificador: ' + identificador + '</p>';
+                
+                // Enviar al endpoint
+                const response = await fetch('/api/rij/convertir_pdf_imagen', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        pdf_base64: pdfBase64,
+                        identificador: identificador
+                    }),
+                    credentials: 'include'
+                });
+                
+                resultado.innerHTML += '<p>📡 Respuesta del servidor: ' + response.status + '</p>';
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultado.innerHTML += '<p>✅ Conversión exitosa:</p>';
+                    resultado.innerHTML += '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                    
+                    // Mostrar imagen si está disponible
+                    if (data.url) {
+                        resultado.innerHTML += '<p>🖼️ Imagen generada:</p>';
+                        resultado.innerHTML += '<img src="' + data.url + '" style="max-width: 300px; border: 1px solid #ccc;">';
+                    }
+                } else {
+                    const errorText = await response.text();
+                    resultado.innerHTML += '<p>❌ Error del servidor:</p>';
+                    resultado.innerHTML += '<pre>' + errorText + '</pre>';
+                }
+                
+            } catch (error) {
+                resultado.innerHTML += '<p>❌ Error JavaScript:</p>';
+                resultado.innerHTML += '<pre>' + error.toString() + '</pre>';
+            }
+        });
+    </script>
+</body>
+</html>

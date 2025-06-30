@@ -134,31 +134,43 @@ btnCerrarFirma.addEventListener('click', function() {
 var areaFirma1 = document.getElementById('firma-area-1');
 var areaFirma2 = document.getElementById('firma-area-2');
 var areaFirma3 = document.getElementById('firma-area-3');
-areaFirma1.addEventListener('click', function() {
-    mostrarModalFirma(1);
-});
-areaFirma2.addEventListener('click', function() {
-    mostrarModalFirma(2);
-});
-areaFirma3.addEventListener('click', function() {
-    mostrarModalFirma(3);
-});
+if (areaFirma1) {
+    areaFirma1.addEventListener('click', function() {
+        mostrarModalFirma(1);
+    });
+}
+if (areaFirma2) {
+    areaFirma2.addEventListener('click', function() {
+        mostrarModalFirma(2);
+    });
+}
+if (areaFirma3) {
+    areaFirma3.addEventListener('click', function() {
+        mostrarModalFirma(3);
+    });
+}
 
 var imgFirma1 = document.getElementById('firma-imagen-1');
 var imgFirma2 = document.getElementById('firma-imagen-2');
 var imgFirma3 = document.getElementById('firma-imagen-3');
-imgFirma1.addEventListener('click', function() {
-    document.getElementById('firma-area-1').style.display = 'flex';
-    imgFirma1.style.display = 'none';
-    mostrarModalFirma(1);
-});
-imgFirma2.addEventListener('click', function() {
-    document.getElementById('firma-area-2').style.display = 'flex';
-    imgFirma2.style.display = 'none';
-    mostrarModalFirma(2);
-});
-imgFirma3.addEventListener('click', function() {
-    document.getElementById('firma-area-3').style.display = 'flex';
-    imgFirma3.style.display = 'none';
-    mostrarModalFirma(3);
-});
+if (imgFirma1) {
+    imgFirma1.addEventListener('click', function() {
+        document.getElementById('firma-area-1').style.display = 'flex';
+        imgFirma1.style.display = 'none';
+        mostrarModalFirma(1);
+    });
+}
+if (imgFirma2) {
+    imgFirma2.addEventListener('click', function() {
+        document.getElementById('firma-area-2').style.display = 'flex';
+        imgFirma2.style.display = 'none';
+        mostrarModalFirma(2);
+    });
+}
+if (imgFirma3) {
+    imgFirma3.addEventListener('click', function() {
+        document.getElementById('firma-area-3').style.display = 'flex';
+        imgFirma3.style.display = 'none';
+        mostrarModalFirma(3);
+    });
+}

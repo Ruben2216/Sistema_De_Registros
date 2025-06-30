@@ -188,19 +188,14 @@ async function generarPDFConFotos() {
     let paginaActual = 1;
     
     // **NUEVO**: Agregar imagen RIJ al principio si existe
-    if (typeof window.rijPDFManager !== 'undefined' && window.rijPDFManager.rijYaProcesado()) {
-        const urlImagenRIJ = window.rijPDFManager.obtenerURLImagenRIJ();
-        if (urlImagenRIJ) {
-            try {
-                // Cargar y agregar imagen RIJ como primera página
-                await agregarImagenRIJalPDF(pdf, urlImagenRIJ);
-                
-                pdf.addPage('letter', 'portrait');
-                paginaActual = 2;
-                
-            } catch (error) {
-                // Error silencioso
-            }
+    const identificador = localStorage.getItem('usuario_identificador_rij');
+    if (identificador) {
+        try {
+            await agregarImagenRIJalPDF(pdf, null);
+            pdf.addPage('letter', 'portrait');
+            paginaActual = 2;
+        } catch (error) {
+            // Continuar sin imagen RIJ
         }
     }
 
@@ -435,6 +430,50 @@ async function generarPDFConFotos() {
     }
 }
 
+// **NUEVO**: Función para agregar imagen RIJ al PDF
+async function agregarImagenRIJalPDF(pdf, urlImagen) {
+    return new Promise((resolve, reject) => {
+        // Buscar imagen RIJ por identificador
+        const identificador = localStorage.getItem('usuario_identificador_rij');
+        if (!identificador) {
+            resolve(); // No hay identificador, continuar sin imagen
+            return;
+        }
+
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        
+        img.onload = function() {
+            try {
+                // Calcular dimensiones para ajustar a página completa
+                const anchoHoja = 216; // mm
+                const altoHoja = 279; // mm
+                
+                // Usar toda la página para la imagen RIJ
+                pdf.addImage(img, 'PNG', 0, 0, anchoHoja, altoHoja);
+                resolve();
+            } catch (error) {
+                resolve(); // Continuar aunque falle
+            }
+        };
+        
+        img.onerror = function() {
+            resolve(); // Continuar aunque no se pueda cargar
+        };
+        
+        // Intentar diferentes rutas de imagen
+        const rutasImagen = [
+            `/RESOURCE/IMG/img RIJ/${identificador}.png`,
+            urlImagen
+        ];
+        
+        img.src = rutasImagen[0];
+    });
+}
+
+/**
+ * Función para asignar el evento de generación de PDF al botón correspondiente.
+ */
 function asignarEventoPDF() {
     var botonPDF = document.getElementById('btnGenerarPDF');
     if (botonPDF) {

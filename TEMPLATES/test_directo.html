@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Directo PDF</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <h1>Test Directo: Generar PDF y Convertir</h1>
+    
+    <button onclick="testDirecto()">TEST DIRECTO</button>
+    <div id="log"></div>
+    
+    <script>
+        async function testDirecto() {
+            const log = document.getElementById('log');
+            log.innerHTML = '<h3>🔄 Iniciando test directo...</h3>';
+            
+            try {
+                // 1. Generar PDF exactamente como pdf_rij.js
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                doc.setFontSize(11);
+                doc.setFont("helvetica", "bold");
+                doc.text("LISTA DE VERIFICACIÓN DE LA REUNIÓN DIARIA DE INICIO DE JORNADA", 105, 15, null, null, "center");
+                
+                // Datos básicos
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(9);
+                doc.text("DEPARTAMENTO: Sureste", 15, 30);
+                doc.text("NOMBRE: Test User", 15, 40);
+                doc.text("RPE: 123456", 15, 50);
+                
+                // Contenido del formulario
+                let y = 70;
+                doc.text("1. INICIO DE JORNADA: SÍ", 15, y);
+                y += 10;
+                doc.text("2. PERSONAL: SÍ", 15, y);
+                y += 10;
+                doc.text("3. SALUD: SÍ", 15, y);
+                
+                // Bordes como en el original
+                doc.rect(14, 25, 185, 200);
+                
+                log.innerHTML += '<p>✅ PDF creado</p>';
+                
+                // 2. Obtener como data URI
+                const pdfDataUri = doc.output('datauristring');
+                log.innerHTML += '<p>📄 PDF tamaño: ' + pdfDataUri.length + ' chars</p>';
+                
+                // 3. Crear identificador
+                const identificador = 'TEST_' + Date.now();
+                log.innerHTML += '<p>🆔 ID: ' + identificador + '</p>';
+                
+                // 4. Enviar al endpoint
+                log.innerHTML += '<p>📡 Enviando al servidor...</p>';
+                
+                const response = await fetch('/api/rij/convertir_pdf_imagen', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        pdf_base64: pdfDataUri,
+                        identificador: identificador
+                    }),
+                    credentials: 'include'
+                });
+                
+                log.innerHTML += '<p>📨 Respuesta: ' + response.status + '</p>';
+                
+                if (response.ok) {
+                    const resultado = await response.json();
+                    log.innerHTML += '<p>✅ Éxito: ' + JSON.stringify(resultado) + '</p>';
+                    
+                    // Mostrar imagen
+                    if (resultado.url) {
+                        log.innerHTML += '<div><img src="' + resultado.url + '" style="max-width: 400px; border: 1px solid #000;"></div>';
+                        
+                        // Guardar en localStorage
+                        localStorage.setItem('usuario_identificador_rij', identificador);
+                        localStorage.setItem('rij_imagen_url', resultado.url);
+                        localStorage.setItem('rij_pdf_procesado', 'true');
+                        
+                        log.innerHTML += '<p>💾 Datos guardados en localStorage</p>';
+                        log.innerHTML += '<p><a href="/TEMPLATES/camara.html">IR A CÁMARA</a></p>';
+                    }
+                } else {
+                    const error = await response.text();
+                    log.innerHTML += '<p>❌ Error: ' + error + '</p>';
+                }
+                
+            } catch (error) {
+                log.innerHTML += '<p>❌ Error JS: ' + error.toString() + '</p>';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -576,6 +576,54 @@ async function generarPDF() {
     doc.rect(14, z-4, 185, pageHeight - 20); // TABLA 1
     doc.rect(13, z-5, 187, pageHeight - 18); // TABLA 2
 
+    // **NUEVO**: Convertir PDF a imagen antes de guardar
+    try {
+        // Obtener el PDF como base64
+        const pdfBase64 = doc.output('datauristring');
+        
+        // Obtener identificador único del usuario
+        const identificador = window.rijPDFManager ? window.rijPDFManager.obtenerIdentificadorUsuario() : 'RIJ_' + Date.now() + '_' + Math.random().toString(36).substring(7);
+        
+        // Guardar identificador si no existe
+        if (!localStorage.getItem('usuario_identificador_rij')) {
+            localStorage.setItem('usuario_identificador_rij', identificador);
+        }
+        
+        // Guardar PDF en localStorage como respaldo
+        localStorage.setItem('ultimo_pdf_rij', pdfBase64);
+        localStorage.setItem('rij_pdf_procesado', 'true');
+        
+        // Intentar convertir a imagen en el backend (sin bloquear si falla)
+        fetch('/api/rij/convertir_pdf_imagen', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                pdf_base64: pdfBase64,
+                identificador: identificador
+            }),
+            credentials: 'include'
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error('Error del servidor');
+        })
+        .then(data => {
+            if (data.success) {
+                // Guardar referencias para uso posterior
+                localStorage.setItem('rij_imagen_url', data.url);
+            }
+        })
+        .catch(error => {
+            // Error silencioso - el sistema seguirá funcionando con las imágenes existentes
+        });
+        
+    } catch (error) {
+        // Error silencioso
+    }
 
     doc.save("RIJ.pdf");
 }

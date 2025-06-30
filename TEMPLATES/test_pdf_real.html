@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba PDF Real</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="/RESOURCE/JS/interceptar_pdf_real.js"></script>
+</head>
+<body>
+    <h1>Prueba de Intercepción de PDF Real</h1>
+    
+    <div>
+        <button onclick="generarPDFPrueba()">Generar PDF de Prueba</button>
+        <button onclick="irACamara()">Ir a Cámara</button>
+        <button onclick="limpiar()">Limpiar</button>
+    </div>
+    
+    <div id="resultado"></div>
+    
+    <script>
+        function generarPDFPrueba() {
+            const resultado = document.getElementById('resultado');
+            resultado.innerHTML = '<p>🔄 Generando PDF...</p>';
+            
+            // Simular exactamente lo que hace formato_RIJ.html
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Contenido similar al RIJ real
+            doc.setFontSize(11);
+            doc.setFont("helvetica", "bold");
+            doc.text("LISTA DE VERIFICACIÓN DE LA REUNIÓN DIARIA DE INICIO DE JORNADA", 105, 15, null, null, "center");
+            
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(9);
+            doc.text("DEPARTAMENTO: División Sureste", 15, 30);
+            doc.text("NOMBRE: Usuario Real", 15, 40);
+            doc.text("RPE: 987654", 15, 50);
+            doc.text("FECHA: " + new Date().toLocaleDateString(), 15, 60);
+            
+            let y = 80;
+            doc.text("INICIO DE JORNADA:", 15, y);
+            doc.text("SÍ", 120, y);
+            y += 15;
+            
+            doc.text("PERSONAL PRESENTE:", 15, y);
+            doc.text("SÍ", 120, y);
+            y += 15;
+            
+            doc.text("SALUD:", 15, y);
+            doc.text("SÍ", 120, y);
+            y += 15;
+            
+            doc.text("EJERCICIO:", 15, y);
+            doc.text("SÍ", 120, y);
+            y += 15;
+            
+            // Margen/borde
+            doc.rect(14, 25, 185, 200);
+            
+            // Esto debería ser interceptado por interceptar_pdf_real.js
+            doc.save("RIJ_Real.pdf");
+            
+            resultado.innerHTML += '<p>✅ PDF generado y guardado</p>';
+            
+            // Verificar después de un momento
+            setTimeout(() => {
+                const id = localStorage.getItem('usuario_identificador_rij');
+                const procesado = localStorage.getItem('rij_pdf_procesado');
+                resultado.innerHTML += `<p>ID: ${id}</p>`;
+                resultado.innerHTML += `<p>Procesado: ${procesado}</p>`;
+                
+                if (id) {
+                    const url = `/RESOURCE/IMG/img RIJ/${id}.png`;
+                    resultado.innerHTML += `<p>Imagen: <a href="${url}" target="_blank">${url}</a></p>`;
+                    resultado.innerHTML += `<img src="${url}" style="max-width: 400px; border: 1px solid #ccc;" onerror="this.style.display='none'">`;
+                }
+            }, 3000);
+        }
+        
+        function irACamara() {
+            window.location.href = '/TEMPLATES/camara.html';
+        }
+        
+        function limpiar() {
+            localStorage.clear();
+            document.getElementById('resultado').innerHTML = '<p>Limpiado</p>';
+        }
+    </script>
+</body>
+</html>

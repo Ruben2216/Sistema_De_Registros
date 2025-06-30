@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test PDF Mínimo</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <h1>Test con PDF Mínimo</h1>
+    <button onclick="testPDFMinimo()">Generar PDF Mínimo y Convertir</button>
+    <div id="resultado"></div>
+    
+    <script>
+        async function testPDFMinimo() {
+            const resultado = document.getElementById('resultado');
+            resultado.innerHTML = '<p>🔄 Generando PDF mínimo...</p>';
+            
+            try {
+                // Crear PDF mínimo exactamente como pdf_rij.js
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                // Solo el título
+                doc.setFontSize(11);
+                doc.setFont("helvetica", "bold");
+                doc.text("LISTA DE VERIFICACIÓN - PRUEBA MÍNIMA", 105, 15, null, null, "center");
+                
+                // Una línea de contenido
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(9);
+                doc.text("PRUEBA: SÍ", 15, 30);
+                
+                // Obtener como data URI (igual que el frontend)
+                const pdfBase64 = doc.output('datauristring');
+                
+                resultado.innerHTML += '<p>✅ PDF generado: ' + pdfBase64.length + ' caracteres</p>';
+                resultado.innerHTML += '<p>🔍 Tipo: ' + (pdfBase64.substring(0, 30)) + '...</p>';
+                
+                // Crear identificador
+                const identificador = 'TEST_MINIMO_' + Date.now();
+                
+                resultado.innerHTML += '<p>🆔 ID: ' + identificador + '</p>';
+                
+                // Enviar al backend
+                resultado.innerHTML += '<p>📡 Enviando...</p>';
+                
+                const response = await fetch('/api/rij/convertir_pdf_imagen', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        pdf_base64: pdfBase64,
+                        identificador: identificador
+                    }),
+                    credentials: 'include'
+                });
+                
+                resultado.innerHTML += '<p>📨 Status: ' + response.status + '</p>';
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultado.innerHTML += '<p>✅ Éxito!</p>';
+                    resultado.innerHTML += '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                    
+                    if (data.url) {
+                        resultado.innerHTML += '<img src="' + data.url + '" style="max-width: 300px;">';
+                    }
+                } else {
+                    const errorText = await response.text();
+                    resultado.innerHTML += '<p>❌ Error:</p>';
+                    resultado.innerHTML += '<pre>' + errorText + '</pre>';
+                }
+                
+            } catch (error) {
+                resultado.innerHTML += '<p>❌ Error JS:</p>';
+                resultado.innerHTML += '<pre>' + error.toString() + '</pre>';
+            }
+        }
+    </script>
+</body>
+</html>

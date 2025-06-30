@@ -200,23 +200,28 @@ function llenarSelect(select, opciones) {
     });
 }
 
-divisionSelect.addEventListener("change", function() {
-    var zonas = datos[divisionSelect.value];
-    limpiarSelect(zonaSelect);
-    if (zonas) {
-        llenarSelect(zonaSelect, Object.keys(zonas));
-    }
-});
+if (divisionSelect) {
+    divisionSelect.addEventListener("change", function() {
+        var zonas = datos[divisionSelect.value];
+        limpiarSelect(zonaSelect);
+        if (zonas) {
+            llenarSelect(zonaSelect, Object.keys(zonas));
+        }
+    });
+}
 
 // Inicializar con valores por defecto al cargar la página
 document.addEventListener("DOMContentLoaded", function() {
-    if (divisionSelect.value === "Sureste") {
+    // Verificar que todos los elementos existen antes de trabajar con ellos
+    if (divisionSelect && zonaSelect && divisionSelect.value === "Sureste") {
         var zonasSureste = datos["Sureste"];
         if (zonasSureste) {
             limpiarSelect(zonaSelect);
             llenarSelect(zonaSelect, Object.keys(zonasSureste));
             // Seleccionar Tuxtla por defecto ya que esta pensado en esta zona
-            zonaSelect.value = "Tuxtla";
+            if (zonaSelect.options.length > 0) {
+                zonaSelect.value = "Tuxtla";
+            }
         }
     }
 });

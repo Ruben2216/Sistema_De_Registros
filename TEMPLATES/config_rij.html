@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurar Identificador RIJ</title>
+</head>
+<body>
+    <h1>Configurar Identificador RIJ para Testing</h1>
+    
+    <div>
+        <label>Identificador actual: </label>
+        <span id="identificador-actual">-</span>
+    </div>
+    
+    <div style="margin: 20px 0;">
+        <label>Imágenes disponibles:</label>
+        <ul id="imagenes-disponibles">
+            <li>Cargando...</li>
+        </ul>
+    </div>
+    
+    <div style="margin: 20px 0;">
+        <button onclick="setIdentificador('usuario_demo')">Usar: usuario_demo</button>
+        <button onclick="setIdentificador('test_endpoint_12345')">Usar: test_endpoint_12345</button>
+        <button onclick="setIdentificador('RIJ_1751290000000_abcd123')">Usar: RIJ_1751290000000_abcd123</button>
+    </div>
+    
+    <div style="margin: 20px 0;">
+        <button onclick="window.location.href='/TEMPLATES/camara.html'">Ir a Página de Cámara</button>
+    </div>
+    
+    <script>
+        // Mostrar identificador actual
+        function actualizarIdentificador() {
+            const id = localStorage.getItem('usuario_identificador_rij') || 'No configurado';
+            document.getElementById('identificador-actual').textContent = id;
+        }
+        
+        // Configurar identificador
+        function setIdentificador(id) {
+            localStorage.setItem('usuario_identificador_rij', id);
+            localStorage.setItem('rij_pdf_procesado', 'true');
+            actualizarIdentificador();
+            console.log('Identificador configurado:', id);
+        }
+        
+        // Cargar imágenes disponibles
+        async function cargarImagenes() {
+            try {
+                const response = await fetch('/api/rij/imagenes_disponibles');
+                const data = await response.json();
+                
+                const lista = document.getElementById('imagenes-disponibles');
+                if (data.imagenes && data.imagenes.length > 0) {
+                    lista.innerHTML = data.imagenes.map(img => 
+                        `<li>${img.nombre} - <a href="${img.url}" target="_blank">Ver</a></li>`
+                    ).join('');
+                } else {
+                    lista.innerHTML = '<li>No hay imágenes disponibles</li>';
+                }
+            } catch (error) {
+                document.getElementById('imagenes-disponibles').innerHTML = '<li>Error cargando imágenes</li>';
+            }
+        }
+        
+        // Inicializar
+        actualizarIdentificador();
+        cargarImagenes();
+    </script>
+</body>
+</html>

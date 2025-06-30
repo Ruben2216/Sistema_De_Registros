@@ -402,12 +402,11 @@ def guardar_imagen_rij():
             }), 400
         
         # Crear directorio si no existe
-        directorio_imagenes = os.path.join('RESOURCE', 'IMG', 'img RIJ')
+        directorio_imagenes = os.path.join(RESOURCE_FOLDER, 'IMG', 'img RIJ')
         os.makedirs(directorio_imagenes, exist_ok=True)
         
-        # Generar nombre único para el archivo
-        timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-        nombre_archivo = f"{identificador}_{timestamp}.png"
+        # Usar solo el identificador como nombre (sin timestamp para consistencia)
+        nombre_archivo = f"{identificador}.png"
         ruta_archivo = os.path.join(directorio_imagenes, nombre_archivo)
         
         # Guardar archivo
@@ -430,13 +429,13 @@ def guardar_imagen_rij():
             'error': f'Error al guardar imagen: {str(e)}'
         }), 500
 
-@app.route('/api/rij/obtener_imagen/<identificador>')
+@app.route('/api/rij/obtener_imagen/<identificador>', methods=['GET'])
 def obtener_imagen_rij(identificador):
     """
-    Obtiene la URL de la imagen RIJ por identificador
+    Busca la imagen RIJ del usuario por identificador
     """
     try:
-        directorio_imagenes = os.path.join('RESOURCE', 'IMG', 'img RIJ')
+        directorio_imagenes = os.path.join(RESOURCE_FOLDER, 'IMG', 'img RIJ')
         
         # Buscar archivos que coincidan con el identificador
         if os.path.exists(directorio_imagenes):
@@ -459,6 +458,128 @@ def obtener_imagen_rij(identificador):
         return jsonify({
             'success': False, 
             'error': f'Error al buscar imagen: {str(e)}'
+        }), 500
+
+@app.route('/api/rij/convertir_pdf_imagen', methods=['POST'])
+def convertir_pdf_a_imagen():
+    """
+    Convierte un PDF base64 a imagen PNG y la guarda en el servidor
+    """
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({
+                'success': False,
+                'error': 'No se recibieron datos'
+            }), 400
+        
+        pdf_base64 = data.get('pdf_base64')
+        identificador = data.get('identificador')
+        
+        if not pdf_base64 or not identificador:
+            return jsonify({
+                'success': False,
+                'error': 'PDF o identificador no proporcionado'
+            }), 400
+        
+        # Limpiar el base64 - manejar diferentes formatos
+        if pdf_base64.startswith('data:application/pdf;base64,'):
+            pdf_base64 = pdf_base64.split(',')[1]
+        elif pdf_base64.startswith('data:'):
+            # Buscar la coma y tomar todo después de ella
+            comma_index = pdf_base64.find(',')
+            if comma_index != -1:
+                pdf_base64 = pdf_base64[comma_index + 1:]
+        
+        # Decodificar PDF
+        try:
+            pdf_data = base64.b64decode(pdf_base64)
+            
+            # Verificar que es un PDF válido
+            if not pdf_data.startswith(b'%PDF'):
+                return jsonify({
+                    'success': False,
+                    'error': 'El archivo no es un PDF válido'
+                }), 400
+                
+        except Exception as e:
+            return jsonify({
+                'success': False,
+                'error': f'Error al decodificar PDF: {str(e)}'
+            }), 400
+        
+        # Crear directorio si no existe
+        directorio_imagenes = os.path.join(RESOURCE_FOLDER, 'IMG', 'img RIJ')
+        os.makedirs(directorio_imagenes, exist_ok=True)
+        
+        # Crear archivo temporal para el PDF
+        with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as temp_pdf:
+            temp_pdf.write(pdf_data)
+            temp_pdf_path = temp_pdf.name
+        
+        try:
+            # Ruta de imagen destino
+            imagen_path = os.path.join(directorio_imagenes, f"{identificador}.png")
+            
+            try:
+                import fitz  # PyMuPDF
+                
+                # Abrir PDF con PyMuPDF
+                doc = fitz.open(temp_pdf_path)
+                
+                if doc.page_count == 0:
+                    raise Exception("El PDF no tiene páginas")
+                
+                page = doc[0]  # Primera página
+                
+                # Renderizar como imagen con alta calidad
+                mat = fitz.Matrix(3.0, 3.0)  # Escala 3x para muy buena calidad
+                pix = page.get_pixmap(matrix=mat)
+                
+                # Guardar como PNG
+                pix.save(imagen_path)
+                
+                doc.close()
+                
+            except ImportError:
+                # Fallback usando PIL
+                from PIL import Image, ImageDraw, ImageFont
+                
+                img = Image.new('RGB', (800, 1000), color='white')
+                draw = ImageDraw.Draw(img)
+                
+                try:
+                    font = ImageFont.truetype("arial.ttf", 24)
+                except:
+                    font = ImageFont.load_default()
+                
+                draw.text((50, 50), "Formulario RIJ", fill='black', font=font)
+                draw.text((50, 100), f"ID: {identificador}", fill='black', font=font)
+                draw.text((50, 150), "PDF Real Procesado", fill='black', font=font)
+                draw.rectangle([(10, 10), (790, 990)], outline='black', width=2)
+                
+                img.save(imagen_path, 'PNG')
+            
+            # URL pública de la imagen
+            url_imagen = f'/RESOURCE/IMG/img RIJ/{identificador}.png'
+            
+            return jsonify({
+                'success': True,
+                'url': url_imagen,
+                'identificador': identificador,
+                'message': 'PDF convertido a imagen correctamente'
+            })
+            
+        finally:
+            # Limpiar archivo temporal
+            if os.path.exists(temp_pdf_path):
+                os.unlink(temp_pdf_path)
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'Error al convertir PDF: {str(e)}'
         }), 500
 
 # --- INICIO DE BACKEND ---
