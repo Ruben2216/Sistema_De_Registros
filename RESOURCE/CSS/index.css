@@ -409,6 +409,7 @@ h1{
     outline: none;
     -webkit-tap-highlight-color: transparent; /*quita el color de fondo azul al tocar en celulares */
 
+
 }
 .btn-hamburguesa img {
     width: 38px;
@@ -510,3 +511,8 @@ h1{
     border: 1px solid #bee5eb;
 }
 
+.contenedor-botones{
+    position: relative;
+    z-index: 2000;
+
+}
