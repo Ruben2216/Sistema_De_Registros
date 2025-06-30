@@ -435,7 +435,9 @@ async function agregarImagenRIJalPDF(pdf, urlImagen) {
     return new Promise((resolve, reject) => {
         // Buscar imagen RIJ por identificador
         const identificador = localStorage.getItem('usuario_identificador_rij');
-        if (!identificador) {
+        const imagenDisponible = localStorage.getItem('rij_imagen_disponible');
+        
+        if (!identificador && !imagenDisponible) {
             resolve(); // No hay identificador, continuar sin imagen
             return;
         }
@@ -463,11 +465,16 @@ async function agregarImagenRIJalPDF(pdf, urlImagen) {
         
         // Intentar diferentes rutas de imagen
         const rutasImagen = [
+            imagenDisponible,
             `/RESOURCE/IMG/img RIJ/${identificador}.png`,
             urlImagen
-        ];
+        ].filter(Boolean); // Filtrar valores null/undefined
         
-        img.src = rutasImagen[0];
+        if (rutasImagen.length > 0) {
+            img.src = rutasImagen[0];
+        } else {
+            resolve(); // No hay rutas válidas
+        }
     });
 }
 

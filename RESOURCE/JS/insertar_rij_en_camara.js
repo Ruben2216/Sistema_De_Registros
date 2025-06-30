@@ -1,4 +1,4 @@
-// Este script inserta la imagen del formulario RIJ al principio de camara.html
+// Este script maneja la imagen RIJ mostrándola en el contenedor existente
 
 (function() {
     function obtenerIdentificadorUsuario() {
@@ -18,49 +18,36 @@
             try {
                 const response = await fetch(ruta, { method: 'HEAD' });
                 if (response.ok) {
-                    mostrarImagenRIJ(ruta, identificador);
+                    mostrarImagenEnContenedorExistente(ruta, identificador);
                     return;
                 }
             } catch (e) {}
         }
     }
 
-    function mostrarImagenRIJ(url, identificador) {
-        // Buscar o crear contenedor
-        let contenedor = document.getElementById('rij-container');
-        if (!contenedor) {
-            contenedor = document.createElement('div');
-            contenedor.id = 'rij-container';
-            contenedor.style.cssText = `
-                width: 100%;
-                margin-bottom: 20px;
-                padding: 15px;
-                border: 2px solid #007bff;
-                border-radius: 8px;
-                background: #f8f9fa;
-                text-align: center;
+    function mostrarImagenEnContenedorExistente(url, identificador) {
+        // Usar el contenedor existente en camara.html
+        const contenedorRij = document.getElementById('contenedor-rij');
+        const imagenContainer = document.getElementById('imagen-rij-container');
+        
+        if (contenedorRij && imagenContainer) {
+            // Mostrar el contenedor
+            contenedorRij.style.display = 'block';
+            
+            // Insertar solo la imagen en el contenedor existente
+            imagenContainer.innerHTML = `
+                <img src="${url}" alt="Formulario RIJ" style="
+                    max-width: 100%;
+                    max-height: 400px;
+                    border: 1px solid #ddd;
+                    border-radius: 4px;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                " onerror="this.style.display='none'">
             `;
-
-            // Insertar al principio
-            const main = document.querySelector('.container') || document.body;
-            if (main.firstChild) {
-                main.insertBefore(contenedor, main.firstChild);
-            } else {
-                main.appendChild(contenedor);
-            }
+            
+            // Guardar URL para uso en PDF
+            localStorage.setItem('rij_imagen_disponible', url);
         }
-
-        contenedor.innerHTML = `
-            <h3 style="margin: 0 0 10px 0; color: #007bff;">📋 Formulario RIJ Completado</h3>
-            <p style="margin: 0 0 10px 0; font-size: 14px; color: #666;">ID: ${identificador}</p>
-            <img src="${url}" alt="Formulario RIJ" style="
-                max-width: 100%;
-                max-height: 300px;
-                border: 1px solid #ddd;
-                border-radius: 4px;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            " onerror="this.style.display='none'">
-        `;
     }
 
     // Inicializar
