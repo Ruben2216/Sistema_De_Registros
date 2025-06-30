@@ -52,11 +52,15 @@ async function generarPDF() {
     doc.setFontSize(10);
     const depWidth = doc.getTextWidth(dep);
     doc.text(departamento, 15 + depWidth, y);
+    doc.line(depWidth + 16, y + 1, depWidth + 46, y + 1);
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(9);
     const fech = "FECHA: ";
+    const fechWidth = doc.getTextWidth(fech);
     doc.text(fech, 105, y, "center");
+    doc.line(fechWidth + 98, y + 1, fechWidth + 136, y + 1);
+
 
     y+=8;
     doc.setFont("helvetica", "bold");
@@ -67,6 +71,7 @@ async function generarPDF() {
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
     const catWidth = doc.getTextWidth(cate);
+    doc.line(catWidth + 10, y + 1, catWidth + 46, y + 1);
     doc.text(categoria_max, 10 + catWidth, y);
 
     y+=8;
@@ -78,6 +83,7 @@ async function generarPDF() {
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
     const nomWidth = doc.getTextWidth(nom);
+    doc.line(nomWidth + 16, y + 1, nomWidth + 46, y + 1);
     doc.text(nombre, 15 + nomWidth, y);
 
     doc.setFont("helvetica", "bold");
@@ -88,6 +94,7 @@ async function generarPDF() {
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
     const rpeWidth = doc.getTextWidth(rpe);
+    doc.line(rpeWidth + 99, y + 1, rpeWidth + 129, y + 1);
     doc.text(RPE, 98 + rpeWidth, y);
 
     doc.setFont("helvetica", "bold");
@@ -95,12 +102,13 @@ async function generarPDF() {
     const firma1 = "Firma: ";
     doc.text(firma1, 155, y);
 
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
-    const firmaWidth = doc.getTextWidth(firma1);
-    doc.text(firma1Base64, 155 + firmaWidth, y);
-    if(firma1Base64)
-        doc.addImage(firma1Base64, 'PNG', 165, y, 30, 20 );
+    y+=1;
+
+    const anchoFirma1 = doc.getTextWidth(firma1);
+    doc.line(anchoFirma1 + 156, y, anchoFirma1 + 176, y);
+
+     if(firma2Base64)
+        doc.addImage(firma1Base64, 'PNG', 165, y-19, 30, 20 );
 
     y+=8;
     doc.setFont("helvetica", "bold");
@@ -112,6 +120,8 @@ async function generarPDF() {
     doc.setFont("helvetica", "normal");
     const inicioWidth = doc.getTextWidth(inicio);
     doc.text(hora_inicio, 15 + inicioWidth, y);
+    doc.line(inicioWidth + 16, y + 1, inicioWidth + 46, y + 1);
+
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(9);
@@ -122,6 +132,7 @@ async function generarPDF() {
     doc.setFontSize(10);
     const terminoWidth = doc.getTextWidth(termino);
     doc.text(hora_termino, 98 + terminoWidth, y);
+    doc.line(terminoWidth + 99, y + 1, terminoWidth + 129, y + 1);
 
     //ACTIVIDADES
     /*y+=15;
