@@ -21,6 +21,10 @@
             if (el.tagName === 'TEXTAREA' && el.readOnly) {
                 continue;
             }
+            // No guardar el campo hora_inicio (valor fijo de 08:00)
+            if (el.id === 'hora_inicio') {
+                continue;
+            }
             if (el.type === 'radio') {
                 if (el.checked) {
                     datos[key] = el.value;
@@ -95,6 +99,10 @@
             }
             // Saltar división porque ya se restauró arriba
             if (el.id === 'division') {
+                continue;
+            }
+            // No restaurar el campo hora_inicio (mantener valor fijo de 08:00)
+            if (el.id === 'hora_inicio') {
                 continue;
             }
             if (datos.hasOwnProperty(key)) {

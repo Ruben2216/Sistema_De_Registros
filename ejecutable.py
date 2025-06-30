@@ -6,6 +6,7 @@ import base64
 import datetime
 import threading
 import time
+import atexit
 from werkzeug.utils import secure_filename
 # --- INICIO LÓGICA DE backend (búsqueda de equipos en MySQL) ---
 from flask_cors import CORS 
@@ -50,6 +51,10 @@ def templates_root(filename):
         print(f"🚨 Intento de acceso a archivo inválido en TEMPLATES: '{filename}'")
         return jsonify({'error': 'Archivo no válido'}), 400
     
+    # Registrar actividad automáticamente para páginas RIJ y cámara
+    if 'formato_RIJ.html' in filename or 'camara.html' in filename:
+        registrar_actividad_usuario()
+    
     return send_from_directory(TEMPLATES_FOLDER, filename)
 
 # Archivos dentro de /TEMPLATES/Mantenimiento/
@@ -70,11 +75,15 @@ def autoguardado_rij():
     if request.method == 'POST':
         datos = request.get_json()
         session['rij_datos'] = datos
+        # Registrar actividad del usuario para sistema de limpieza
+        registrar_actividad_usuario()
         print(f"[POST] Guardando datos en sesión: {datos}", file=sys.stderr)
         print(f"[POST] session.sid: {session.get('sid')}", file=sys.stderr)
         return jsonify({'ok': True, 'msg': 'Datos guardados temporalmente'}), 200
     else:
         datos = session.get('rij_datos')
+        # Registrar actividad del usuario para sistema de limpieza
+        registrar_actividad_usuario()
         print(f"[GET] Recuperando datos de sesión: {datos}", file=sys.stderr)
         print(f"[GET] session.sid: {session.get('sid')}", file=sys.stderr)
         if datos:
@@ -101,8 +110,12 @@ def autoguardado_fotos():
         fotos = request.get_json().get('fotos', [])
         with open(path, 'w', encoding='utf-8') as f:
             json.dump({'fotos': fotos}, f)
+        # Registrar actividad del usuario para sistema de limpieza
+        registrar_actividad_usuario()
         return jsonify({'ok': True, 'msg': 'Fotos guardadas temporalmente'}), 200
     else:
+        # Registrar actividad del usuario para sistema de limpieza
+        registrar_actividad_usuario()
         if os.path.exists(path):
             with open(path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
@@ -129,6 +142,8 @@ def upload_foto():
     # Nombre único por fecha y sesión
     sid = session.get('sid') or os.urandom(8).hex()
     session['sid'] = sid
+    # Registrar actividad del usuario para sistema de limpieza
+    registrar_actividad_usuario()
     filename = f"rij_{sid}_{datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')}.{ext}"
     filepath = os.path.join(FOTOS_RIJ_DIR, filename)
     # Guardar archivo
@@ -175,37 +190,17 @@ def borrar_foto():
 def limpiar_sesion():
     # Borra datos de sesión y elimina fotos físicas
     try:
-        # Borrar datos de formulario
-        session.pop('rij_datos', None)
-        # Borrar lista de fotos de sesión
-        fotos = session.pop('rij_fotos', [])
-        # Borrar archivo temporal de fotos
         sid = session.get('sid')
+        
+        # Usar la función de limpieza completa del sistema automático
         if sid:
-            fotos_tmp_path = os.path.join(tempfile.gettempdir(), 'rij_fotos', f'fotos_{sid}.json')
-            if os.path.exists(fotos_tmp_path):
-                os.remove(fotos_tmp_path)
-        # Borrar fotos físicas listadas en la sesión (por compatibilidad)
-        for url in fotos:
-            filename = url.split('/IMG/Evidencias/')[-1]
-            filepath = os.path.join(FOTOS_RIJ_DIR, filename)
-            if os.path.isfile(filepath):
-                try:
-                    os.remove(filepath)
-                except Exception as e:
-                    print(f"No se pudo borrar {filepath}: {e}")
-        # Borrar todas las fotos físicas restantes en la carpeta (garantiza limpieza total SOLO de este usuario)
-        # Solo borrar archivos que empiecen con el sid del usuario
-        if sid:
-            for nombre_archivo in os.listdir(FOTOS_RIJ_DIR):
-                if nombre_archivo.startswith(f"rij_{sid}_"):
-                    ruta_archivo = os.path.join(FOTOS_RIJ_DIR, nombre_archivo)
-                    if os.path.isfile(ruta_archivo):
-                        try:
-                            os.remove(ruta_archivo)
-                        except Exception as e:
-                            print(f"No se pudo borrar {ruta_archivo}: {e}")
-        return jsonify({'success': True, 'msg': 'Sesión y todas las fotos eliminadas'}), 200
+            limpiar_datos_usuario_completo(sid)
+        
+        # Limpiar datos de sesión adicionales por compatibilidad
+        session.pop('rij_datos', None)
+        session.pop('rij_fotos', [])
+        
+        return jsonify({'success': True, 'msg': 'Sesión y todas las fotos eliminadas completamente'}), 200
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
@@ -483,6 +478,9 @@ def convertir_pdf_a_imagen():
                 'error': 'PDF o identificador no proporcionado'
             }), 400
         
+        # Registrar actividad del usuario para sistema de limpieza
+        registrar_actividad_usuario()
+        
         # Limpiar el base64 - manejar diferentes formatos
         if pdf_base64.startswith('data:application/pdf;base64,'):
             pdf_base64 = pdf_base64.split(',')[1]
@@ -635,8 +633,37 @@ def obtener_meta_actual():
             
     return meta_diaria
 
+# Endpoint de prueba para debugging
+@app.route('/test_debug')
+def test_debug():
+    print(f"[TEST] === INICIO TEST DEBUG ===")
+    print(f"[TEST] Request: {request}")
+    print(f"[TEST] Session: {dict(session)}")
+    try:
+        print(f"[TEST] Llamando a registrar_actividad_usuario...")
+        sid = registrar_actividad_usuario()
+        print(f"[TEST] registrar_actividad_usuario completado, SID: {sid}")
+        return f"Test exitoso, SID: {sid}"
+    except Exception as e:
+        print(f"[TEST] ERROR: {e}")
+        import traceback
+        traceback.print_exc()
+        return f"Error: {e}"
+
 @app.route('/formato_RIJ.html')
 def pagina_rij():
+    print(f"[DEBUG] === ACCESO A PÁGINA RIJ ===")
+    try:
+        # Registrar actividad automáticamente
+        print(f"[DEBUG] Llamando a registrar_actividad_usuario...")
+        sid = registrar_actividad_usuario()
+        print(f"[DEBUG] registrar_actividad_usuario completado, SID: {sid}")
+    except Exception as e:
+        print(f"[DEBUG] ERROR en registrar_actividad_usuario: {e}")
+        import traceback
+        traceback.print_exc()
+    
+    print(f"[DEBUG] Continuando con lógica de la página...")
     meta_del_dia = obtener_meta_actual()
     # --- Lógica para imagen del día ---
     from kilometro_vida import obtener_servicio_drive, buscar_archivo_por_fecha, descargar_archivo, CARPETA_ONEDRIVE, LOCAL_IMG_FOLDER
@@ -658,6 +685,7 @@ def pagina_rij():
             imagen_url = f"/static/imagenes/{nombre_archivo}"
     else:
         mensaje_img = "No hay imagen disponible para el día de hoy."
+    print(f"[DEBUG] Retornando render_template...")
     return render_template('formato_RIJ.html', meta_para_mostrar=meta_del_dia, imagen_url=imagen_url, mensaje_img=mensaje_img) 
 
 # Redirección para acceder a formato_RIJ.html desde TEMPLATES que esta todo configurado para que se acceda desde la carpeta TEMPLATES
@@ -774,9 +802,277 @@ def static_imagenes(filename):
 
 # --- FIN LÓGICA DE BACKEND ---
 
+# --- INICIO SISTEMA DE LIMPIEZA AUTOMÁTICA ---
+# Archivo para persistir usuarios activos entre reinicios del servidor
+USUARIOS_ACTIVOS_FILE = os.path.join(tempfile.gettempdir(), 'rij_usuarios_activos.json')
+lock_usuarios = threading.Lock()
+
+def cargar_usuarios_activos():
+    """Carga el diccionario de usuarios activos desde archivo"""
+    try:
+        if os.path.exists(USUARIOS_ACTIVOS_FILE):
+            with open(USUARIOS_ACTIVOS_FILE, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                # Convertir timestamps de string a datetime
+                for sid, info in data.items():
+                    if 'timestamp' in info:
+                        info['timestamp'] = datetime.datetime.fromisoformat(info['timestamp'])
+                return data
+    except Exception as e:
+        print(f"[DEBUG] Error cargando usuarios activos: {e}")
+    return {}
+
+def guardar_usuarios_activos(usuarios):
+    """Guarda el diccionario de usuarios activos en archivo"""
+    try:
+        # Convertir timestamps a string para serialización JSON
+        data_to_save = {}
+        for sid, info in usuarios.items():
+            data_to_save[sid] = dict(info)
+            if 'timestamp' in data_to_save[sid]:
+                data_to_save[sid]['timestamp'] = info['timestamp'].isoformat()
+        
+        with open(USUARIOS_ACTIVOS_FILE, 'w', encoding='utf-8') as f:
+            json.dump(data_to_save, f, indent=2)
+    except Exception as e:
+        print(f"[DEBUG] Error guardando usuarios activos: {e}")
+
+def get_usuarios_activos():
+    """Obtiene el diccionario actual de usuarios activos"""
+    return cargar_usuarios_activos()
+
+def set_usuarios_activos(usuarios):
+    """Actualiza el diccionario de usuarios activos"""
+    guardar_usuarios_activos(usuarios)
+
+def registrar_actividad_usuario():
+    """
+    Registra el inicio de sesión del usuario (NO actualiza el timestamp en actividades posteriores)
+    """
+    print(f"[DEBUG] === INICIO REGISTRO ACTIVIDAD ===")
+    print(f"[DEBUG] Request endpoint: {request.endpoint}")
+    print(f"[DEBUG] Request path: {request.path}")
+    print(f"[DEBUG] Session antes: {dict(session)}")
+    
+    sid = session.get('sid')
+    print(f"[DEBUG] SID actual en session: {sid}")
+    
+    with lock_usuarios:
+        usuarios_activos = get_usuarios_activos()
+        print(f"[DEBUG] Usuarios activos antes: {len(usuarios_activos)}")
+        
+        if not sid:
+            sid = os.urandom(8).hex()
+            session['sid'] = sid
+            print(f"[DEBUG] Nuevo SID generado: {sid}")
+            
+            # Solo registrar timestamp la PRIMERA vez que se crea el usuario
+            if sid not in usuarios_activos:
+                timestamp_inicio = datetime.datetime.now()
+                usuarios_activos[sid] = {
+                    'timestamp': timestamp_inicio,  # Timestamp fijo desde el inicio
+                    'datos_sesion': True,
+                    'fotos_guardadas': True,
+                    'pdf_generado': True
+                }
+                print(f"[DEBUG] ✅ Nuevo usuario registrado: {sid[:8]}... - Inicio: {timestamp_inicio}")
+                print(f"[DEBUG] Total usuarios activos después de registro: {len(usuarios_activos)}")
+                print(f"[DEBUG] Diccionario completo: {list(usuarios_activos.keys())}")
+                set_usuarios_activos(usuarios_activos)
+            else:
+                print(f"[DEBUG] Usuario existente: {sid[:8]}... - No se actualiza timestamp")
+        else:
+            print(f"[DEBUG] Usuario ya tiene SID: {sid}")
+            # Verificar si está en el diccionario
+            if sid in usuarios_activos:
+                print(f"[DEBUG] Usuario encontrado en diccionario activos")
+            else:
+                print(f"[DEBUG] Usuario NO encontrado en diccionario activos, re-registrando...")
+                timestamp_inicio = datetime.datetime.now()
+                usuarios_activos[sid] = {
+                    'timestamp': timestamp_inicio,
+                    'datos_sesion': True,
+                    'fotos_guardadas': True,
+                    'pdf_generado': True
+                }
+                print(f"[DEBUG] Usuario re-registrado: {sid[:8]}... - Inicio: {timestamp_inicio}")
+                print(f"[DEBUG] Total usuarios activos después de re-registro: {len(usuarios_activos)}")
+                set_usuarios_activos(usuarios_activos)
+    
+    print(f"[DEBUG] Session después: {dict(session)}")
+    print(f"[DEBUG] === FIN REGISTRO ACTIVIDAD ===")
+    return sid
+
+def limpiar_datos_usuario_completo(sid):
+    """
+    Limpia TODOS los datos de un usuario específico silenciosamente
+    """
+    try:
+        # 1. Limpiar archivos temporales de fotos
+        fotos_tmp_path = os.path.join(tempfile.gettempdir(), 'rij_fotos', f'fotos_{sid}.json')
+        if os.path.exists(fotos_tmp_path):
+            os.remove(fotos_tmp_path)
+        
+        # 2. Limpiar todas las fotos físicas del usuario en carpeta de evidencias
+        if os.path.exists(FOTOS_RIJ_DIR):
+            for nombre_archivo in os.listdir(FOTOS_RIJ_DIR):
+                if (nombre_archivo.startswith(f"rij_{sid}_") or 
+                    nombre_archivo.startswith(f"importada_{sid}_")):
+                    ruta_archivo = os.path.join(FOTOS_RIJ_DIR, nombre_archivo)
+                    if os.path.isfile(ruta_archivo):
+                        try:
+                            os.remove(ruta_archivo)
+                        except Exception:
+                            pass
+        
+        # 3. Limpiar imágenes de PDF generadas en img RIJ
+        directorio_imagenes = os.path.join(RESOURCE_FOLDER, 'IMG', 'img RIJ')
+        if os.path.exists(directorio_imagenes):
+            for nombre_archivo in os.listdir(directorio_imagenes):
+                if sid in nombre_archivo and nombre_archivo.endswith('.png'):
+                    ruta_archivo = os.path.join(directorio_imagenes, nombre_archivo)
+                    if os.path.isfile(ruta_archivo):
+                        try:
+                            os.remove(ruta_archivo)
+                        except Exception:
+                            pass
+        
+        # 4. Remover usuario del diccionario de usuarios activos
+        with lock_usuarios:
+            usuarios_activos = get_usuarios_activos()
+            if sid in usuarios_activos:
+                del usuarios_activos[sid]
+                set_usuarios_activos(usuarios_activos)
+        
+    except Exception:
+        pass
+
+def tarea_limpieza_automatica():
+    """
+    Ejecuta la limpieza automática de usuarios que han excedido el tiempo límite
+    """
+    try:
+        tiempo_limite = datetime.timedelta(minutes=1)
+        tiempo_actual = datetime.datetime.now()
+        usuarios_a_limpiar = []
+        
+        print(f"[DEBUG] Verificando limpieza - Tiempo actual: {tiempo_actual}")
+        
+        with lock_usuarios:
+            usuarios_activos = get_usuarios_activos()
+            print(f"[DEBUG] Usuarios activos: {len(usuarios_activos)}")
+            
+            for sid, datos in usuarios_activos.items():
+                tiempo_transcurrido = tiempo_actual - datos['timestamp']
+                print(f"[DEBUG] Usuario {sid[:8]}... - Tiempo transcurrido: {tiempo_transcurrido.total_seconds():.1f}s")
+                if tiempo_transcurrido >= tiempo_limite:
+                    usuarios_a_limpiar.append(sid)
+                    print(f"[DEBUG] ¡Usuario {sid[:8]}... marcado para limpieza!")
+        
+        # Limpiar usuarios fuera del lock para evitar bloqueos
+        for sid in usuarios_a_limpiar:
+            print(f"[DEBUG] Limpiando datos del usuario {sid[:8]}...")
+            limpiar_datos_usuario_completo(sid)
+            print(f"[DEBUG] ✅ Usuario {sid[:8]}... limpiado completamente")
+    
+    except Exception as e:
+        print(f"[DEBUG] Error en limpieza automática: {e}")
+        pass
+
+def iniciar_sistema_limpieza():
+    """
+    Inicia el sistema de limpieza automática en un hilo separado
+    """
+    def ejecutar_limpieza_periodica():
+        while True:
+            try:
+                tarea_limpieza_automatica()
+                time.sleep(10)  # Verificar cada 10 segundos para que sea dinámico
+            except Exception:
+                time.sleep(5)  # Esperar 5 segundos antes de reintentar
+    
+    hilo_limpieza = threading.Thread(target=ejecutar_limpieza_periodica, daemon=True)
+    hilo_limpieza.start()
+
+# Endpoint para forzar limpieza inmediata (útil para pruebas)
+@app.route('/api/rij/forzar_limpieza', methods=['POST'])
+def forzar_limpieza_inmediata():
+    """
+    Fuerza la limpieza inmediata de todos los usuarios que han excedido el tiempo
+    """
+    try:
+        tarea_limpieza_automatica()
+        return jsonify({
+            'success': True,
+            'message': 'Limpieza forzada ejecutada correctamente'
+        }), 200
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+# Endpoint para obtener información de usuarios activos (para monitoreo)
+@app.route('/api/rij/usuarios_activos', methods=['GET'])
+def obtener_usuarios_activos():
+    """
+    Devuelve información sobre usuarios activos y sus tiempos
+    """
+    try:
+        tiempo_actual = datetime.datetime.now()
+        info_usuarios = []
+        
+        with lock_usuarios:
+            usuarios_activos = get_usuarios_activos()
+            for sid, datos in usuarios_activos.items():
+                tiempo_transcurrido = tiempo_actual - datos['timestamp']
+                tiempo_restante = datetime.timedelta(minutes=1) - tiempo_transcurrido
+                
+                info_usuarios.append({
+                    'sid': sid[:8] + '...',  # Solo mostrar parte del SID por seguridad
+                    'tiempo_transcurrido_minutos': int(tiempo_transcurrido.total_seconds() / 60),
+                    'tiempo_restante_minutos': max(0, int(tiempo_restante.total_seconds() / 60)),
+                    'estado': 'próximo_a_limpiar' if tiempo_restante.total_seconds() < 300 else 'activo'
+                })
+        
+        return jsonify({
+            'usuarios_activos': len(info_usuarios),
+            'usuarios': info_usuarios
+        }), 200
+    
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+# Endpoint específico para registrar actividad de usuario
+@app.route('/api/rij/registrar_actividad', methods=['POST'])
+def endpoint_registrar_actividad():
+    """
+    Endpoint específico para registrar la actividad del usuario
+    """
+    try:
+        sid = registrar_actividad_usuario()
+        return jsonify({
+            'success': True,
+            'sid': sid[:8] + '...',
+            'message': 'Actividad registrada correctamente'
+        }), 200
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+# --- FIN SISTEMA DE LIMPIEZA AUTOMÁTICA ---
+
 if __name__ == '__main__':
     # --- INICIO DE MODIFICACIONES PARA HTTPS ---
     # Configuración para habilitar HTTPS en el servidor Flask.
+
+    # Inicializar sistema de limpieza automática
+    iniciar_sistema_limpieza()
 
     # Rutas a tus archivos de certificado y clave privada
     cert_path = os.path.join(BASE_DIR, 'cert.pem')
@@ -800,5 +1096,5 @@ if __name__ == '__main__':
     PORT = 8000
 
     # Ejecuta la aplicación Flask con el contexto SSL/TLS
-    app.run(host=HOST_IP, port=PORT, ssl_context=ssl_context_tuple, debug=True)
+    app.run(host=HOST_IP, port=PORT, ssl_context=ssl_context_tuple, debug=False)
 
