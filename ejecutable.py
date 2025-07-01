@@ -818,9 +818,7 @@ def cargar_usuarios_activos():
                     if 'timestamp' in info:
                         info['timestamp'] = datetime.datetime.fromisoformat(info['timestamp'])
                 return data
-    except Exception as e:
-        print(f"[DEBUG] Error cargando usuarios activos: {e}")
-    return {}
+    except Exception as e:        return {}
 
 def guardar_usuarios_activos(usuarios):
     """Guarda el diccionario de usuarios activos en archivo"""
@@ -835,7 +833,7 @@ def guardar_usuarios_activos(usuarios):
         with open(USUARIOS_ACTIVOS_FILE, 'w', encoding='utf-8') as f:
             json.dump(data_to_save, f, indent=2)
     except Exception as e:
-        print(f"[DEBUG] Error guardando usuarios activos: {e}")
+        pass
 
 def get_usuarios_activos():
     """Obtiene el diccionario actual de usuarios activos"""
@@ -859,12 +857,10 @@ def registrar_actividad_usuario():
     
     with lock_usuarios:
         usuarios_activos = get_usuarios_activos()
-        print(f"[DEBUG] Usuarios activos antes: {len(usuarios_activos)}")
         
         if not sid:
             sid = os.urandom(8).hex()
             session['sid'] = sid
-            print(f"[DEBUG] Nuevo SID generado: {sid}")
             
             # Solo registrar timestamp la PRIMERA vez que se crea el usuario
             if sid not in usuarios_activos:
@@ -875,14 +871,11 @@ def registrar_actividad_usuario():
                     'fotos_guardadas': True,
                     'pdf_generado': True
                 }
-                print(f"[DEBUG] ✅ Nuevo usuario registrado: {sid[:8]}... - Inicio: {timestamp_inicio}")
-                print(f"[DEBUG] Total usuarios activos después de registro: {len(usuarios_activos)}")
-                print(f"[DEBUG] Diccionario completo: {list(usuarios_activos.keys())}")
                 set_usuarios_activos(usuarios_activos)
             else:
-                print(f"[DEBUG] Usuario existente: {sid[:8]}... - No se actualiza timestamp")
+                pass
         else:
-            print(f"[DEBUG] Usuario ya tiene SID: {sid}")
+            pass
             # Verificar si está en el diccionario
             if sid in usuarios_activos:
                 print(f"[DEBUG] Usuario encontrado en diccionario activos")
@@ -895,12 +888,8 @@ def registrar_actividad_usuario():
                     'fotos_guardadas': True,
                     'pdf_generado': True
                 }
-                print(f"[DEBUG] Usuario re-registrado: {sid[:8]}... - Inicio: {timestamp_inicio}")
-                print(f"[DEBUG] Total usuarios activos después de re-registro: {len(usuarios_activos)}")
                 set_usuarios_activos(usuarios_activos)
     
-    print(f"[DEBUG] Session después: {dict(session)}")
-    print(f"[DEBUG] === FIN REGISTRO ACTIVIDAD ===")
     return sid
 
 def limpiar_datos_usuario_completo(sid):
@@ -956,27 +945,19 @@ def tarea_limpieza_automatica():
         tiempo_actual = datetime.datetime.now()
         usuarios_a_limpiar = []
         
-        print(f"[DEBUG] Verificando limpieza - Tiempo actual: {tiempo_actual}")
-        
         with lock_usuarios:
             usuarios_activos = get_usuarios_activos()
-            print(f"[DEBUG] Usuarios activos: {len(usuarios_activos)}")
             
             for sid, datos in usuarios_activos.items():
                 tiempo_transcurrido = tiempo_actual - datos['timestamp']
-                print(f"[DEBUG] Usuario {sid[:8]}... - Tiempo transcurrido: {tiempo_transcurrido.total_seconds():.1f}s")
                 if tiempo_transcurrido >= tiempo_limite:
                     usuarios_a_limpiar.append(sid)
-                    print(f"[DEBUG] ¡Usuario {sid[:8]}... marcado para limpieza!")
         
         # Limpiar usuarios fuera del lock para evitar bloqueos
         for sid in usuarios_a_limpiar:
-            print(f"[DEBUG] Limpiando datos del usuario {sid[:8]}...")
             limpiar_datos_usuario_completo(sid)
-            print(f"[DEBUG] ✅ Usuario {sid[:8]}... limpiado completamente")
     
     except Exception as e:
-        print(f"[DEBUG] Error en limpieza automática: {e}")
         pass
 
 def iniciar_sistema_limpieza():
