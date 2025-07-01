@@ -471,5 +471,9 @@ if (APS === "si") {
 }
 
     
-    doc.save("mantenimiento_preventivo_telecomunicacion.pdf");
+
+    requestPDFFilename((filename) => {
+        doc.save(filename);
+    }, site, 'TELECOMUNICACIONES');
 }
+
