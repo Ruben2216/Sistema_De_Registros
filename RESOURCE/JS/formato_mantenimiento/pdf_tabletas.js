@@ -341,10 +341,6 @@ async function generarPDF() {
 
     // Línea horizontal al final del texto
     doc.line(15,y+6, w, y+6 );
-
-    // sube Y para seguir abajo de todo ese bloque
-    //y += textoDividido.length * 6;
-
     
     y+=10;
     doc.text(`Sopleteado externo del equipo`, 16, y);
