@@ -7,6 +7,7 @@ window.addEventListener('load', function() {
     }
 });
 
+//FECHA ACTUAL PARA FORMULARIOS DE MANTENIMIENTO 
 var elementosGlobales = {
     fechaInput: null,
     fechaElemento: null,

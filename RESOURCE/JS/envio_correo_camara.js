@@ -200,24 +200,24 @@ async function generarPDFParaCorreoCamara() {
                     pdf.addPage('letter', 'portrait');
                 }
                 
-                // Calcular dimensiones manteniendo proporción
-                const margen = 10;
-                let ancho = anchoHoja - (2 * margen);
-                let alto = altoHoja - (2 * margen);
+                // // Calcular dimensiones manteniendo proporción
+                // const margen = 10;
+                // let ancho = anchoHoja - (2 * margen);
+                // let alto = altoHoja - (2 * margen);
                 
-                // Ajustar proporción
-                if (ancho / alto > aspectoFoto) {
-                    ancho = alto * aspectoFoto;
-                } else {
-                    alto = ancho / aspectoFoto;
-                }
+                // // Ajustar proporción
+                // if (ancho / alto > aspectoFoto) {
+                //     ancho = alto * aspectoFoto;
+                // } else {
+                //     alto = ancho / aspectoFoto;
+                // }
                 
-                const x = (anchoHoja - ancho) / 2;
-                const y = (altoHoja - alto) / 2;
+                // const x = (anchoHoja - ancho) / 2;
+                // const y = (altoHoja - alto) / 2;
                 
                 try {
                     // Usar formato JPEG (más compatible) en lugar de WEBP
-                    pdf.addImage(imagenesSeleccionadas[i], 'JPEG', x, y, ancho, alto);
+                    pdf.addImage(imagenesSeleccionadas[i], 'JPEG', 0, 0, anchoHoja, altoHoja);
                 } catch (error) {
                     // Error agregando imagen, continuar con las demás
                 }
