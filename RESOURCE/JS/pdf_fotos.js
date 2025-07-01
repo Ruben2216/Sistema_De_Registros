@@ -486,7 +486,7 @@ async function agregarImagenRIJalPDF(pdf, urlImagen) {
     return new Promise((resolve, reject) => {
         // Buscar imagen RIJ por identificador
         const identificador = localStorage.getItem('usuario_identificador_rij');
-        const imagenDisponible = localStorage.getItem('rij_imagen_disponible');
+        const imagenDisponible = localStorage.getItem('rij_imagen_url');
         
         if (!identificador && !imagenDisponible) {
             resolve(); // No hay identificador, continuar sin imagen

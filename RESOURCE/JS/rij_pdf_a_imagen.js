@@ -108,6 +108,11 @@
             localStorage.setItem('rij_imagen_url', resultado.url);
             localStorage.setItem('rij_pdf_procesado', 'true');
             
+            // Disparar evento para notificar que se generó una nueva imagen
+            window.dispatchEvent(new CustomEvent('rij_imagen_generada', {
+                detail: { url: resultado.url, identificador: identificadorUsuario }
+            }));
+            
             return resultado;
             
         } catch (error) {
