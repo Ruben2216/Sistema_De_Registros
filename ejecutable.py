@@ -952,7 +952,7 @@ def tarea_limpieza_automatica():
     Ejecuta la limpieza automática de usuarios que han excedido el tiempo límite
     """
     try:
-        tiempo_limite = datetime.timedelta(minutes=1)
+        tiempo_limite = datetime.timedelta(minutes=5)
         tiempo_actual = datetime.datetime.now()
         usuarios_a_limpiar = []
         

@@ -36,8 +36,8 @@ document.addEventListener('DOMContentLoaded', () => {
         audio: false,  
         video: {
             facingMode: currentFacingMode, 
-            width: { max: 4096, ideal: 3840, min: 1280 }, // 4K UHD
-            height: { max: 2160, ideal: 2160, min: 720 }, // 4K UHD
+            width: { max: 4096, ideal: 3840, min: 1280 }, 
+            height: { max: 2160, ideal: 2160, min: 720 }, 
             advanced: [{ zoom: 1}]
         }
     };

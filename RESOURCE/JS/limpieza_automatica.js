@@ -3,7 +3,7 @@
     'use strict';
     
     // Configuración
-    const TIEMPO_LIMITE_MS = 1 * 60 * 1000; // 1 minuto en milisegundos
+    const TIEMPO_LIMITE_MS = 5 * 60 * 1000; // 1 minuto en milisegundos
     const CLAVE_TIMESTAMP = 'rij_timestamp_actividad';
     
     // Claves del localStorage que deben ser limpiadas
@@ -20,9 +20,7 @@
     
     let timerLimpieza = null;
     
-    /**
-     * Limpia completamente el localStorage del usuario
-     */
+
     function limpiarLocalStorageCompleto() {
         // Eliminar claves específicas del sistema RIJ
         CLAVES_A_LIMPIAR.forEach(function(clave) {

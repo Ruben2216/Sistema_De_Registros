@@ -1,9 +1,4 @@
-/**
- * Script de integración del Sistema de Limpieza Automática
- * Sistema silencioso - sin notificaciones ni indicadores visuales
- */
 
-// Configuración específica para cada página
 const CONFIGURACION_PAGINA = {
     // Páginas que deben redirigir al menú después de la limpieza
     paginasConRedireccion: [
@@ -22,9 +17,7 @@ const CONFIGURACION_PAGINA = {
     ]
 };
 
-/**
- * Función que se ejecuta después de la limpieza automática
- */
+
 function despuesLimpieza() {
     const paginaActual = window.location.pathname;
     
@@ -41,9 +34,7 @@ function despuesLimpieza() {
     }
 }
 
-/**
- * Función para registrar actividad específica de la página
- */
+
 function registrarActividadPagina() {
     // Registrar en el sistema de limpieza local
     if (window.SistemaLimpiezaRIJ) {

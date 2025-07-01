@@ -1,4 +1,3 @@
-// Lógica para enviar imágenes base64 al backend Flask y mostrar las URLs devueltas
 
 // Función para subir una imagen base64 al servidor y obtener la URL
 function subirFotoBase64(base64, callback) {
@@ -63,7 +62,7 @@ function guardarFotoDesdeCanvas(canvas) {
     
     // OPTIMIZACIÓN: Almacenar la imagen local inmediatamente para evitar dependencia del servidor
     // Esto mejora la velocidad de generación de PDFs y reduce la carga del servidor
-    var localDataURL = canvas.toDataURL('image/webp', 0.9); // Usar WebP para mejor compresión
+    var localDataURL = canvas.toDataURL('image/webp', 0.9); // Máxima calidad inicial - el controlador ajustará
     
     subirFotoBase64(base64, function(err, url) {
         if (err) {

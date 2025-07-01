@@ -234,8 +234,8 @@ async function generarPDFConFotos() {
     if (chkGlobal) {
         pantallaCompletaGlobal = chkGlobal.checked;
     }
-    // Función para agregar una imagen al PDF
-    function agregarImagenAlPDF(imagen, callback) {
+    // Función para agregar una imagen al PDF con control de tamaño
+    function agregarImagenAlPDF(imagen, indiceImagen, totalImagenes, callback) {
         // Buscar si existe una versión local de la imagen en el DOM
         var imgElementos = document.querySelectorAll('#photosContainer img.foto-principal');
         var localDataURL = null;
@@ -281,49 +281,64 @@ async function generarPDFConFotos() {
             }
         }
         
-        // Si encontramos una versión local, usarla directamente
+        // Si encontramos una versión local, procesarla con control de tamaño
         if (localDataURL && localDataURL.startsWith('data:')) {
-            if (localDataURL.startsWith('data:image/webp')) {
-                callback(localDataURL);
-                return;
-            }
-            
-            // Convertir a WebP si no lo es ya
             var img = new window.Image();
             img.onload = function() {
-                var canvas = document.createElement('canvas');
-                canvas.width = img.naturalWidth;
-                canvas.height = img.naturalHeight;
-                var ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0);
-                var webpDataUrl = canvas.toDataURL('image/webp', 0.9);
-                callback(webpDataUrl);
+                // Usar el sistema de control de tamaño para procesar la imagen
+                if (typeof window.procesarImagenParaPDF === 'function') {
+                    window.procesarImagenParaPDF(img, indiceImagen, totalImagenes, function(dataUrlProcesada) {
+                        if (dataUrlProcesada) {
+                            callback(dataUrlProcesada);
+                        } else {
+                            // Fallback: usar método anterior con calidad reducida
+                            var canvas = document.createElement('canvas');
+                            canvas.width = Math.min(800, img.naturalWidth);
+                            canvas.height = Math.min(600, img.naturalHeight);
+                            var ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                            var webpDataUrl = canvas.toDataURL('image/webp', 0.5);
+                            callback(webpDataUrl);
+                        }
+                    });
+                } else {
+                    // Fallback si no está disponible el controlador
+                    var canvas = document.createElement('canvas');
+                    canvas.width = img.naturalWidth;
+                    canvas.height = img.naturalHeight;
+                    var ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    var webpDataUrl = canvas.toDataURL('image/webp', 0.9);
+                    callback(webpDataUrl);
+                }
             };
             img.src = localDataURL;
             return;
         }
         
-        // Si la imagen ya es un data URL, procesarla directamente
-        if (imagen.startsWith('data:image/webp')) {
-            callback(imagen);
-            return;
-        }
+        // Si la imagen ya es un data URL, procesarla con control de tamaño
         if (imagen.startsWith('data:')) {
             var img = new window.Image();
             img.onload = function() {
-                var canvas = document.createElement('canvas');
-                canvas.width = img.naturalWidth;
-                canvas.height = img.naturalHeight;
-                var ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0);
-                var webpDataUrl = canvas.toDataURL('image/webp', 0.9);
-                callback(webpDataUrl);
+                // Usar el sistema de control de tamaño
+                if (typeof window.procesarImagenParaPDF === 'function') {
+                    window.procesarImagenParaPDF(img, indiceImagen, totalImagenes, callback);
+                } else {
+                    // Fallback
+                    var canvas = document.createElement('canvas');
+                    canvas.width = img.naturalWidth;
+                    canvas.height = img.naturalHeight;
+                    var ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    var webpDataUrl = canvas.toDataURL('image/webp', 0.9);
+                    callback(webpDataUrl);
+                }
             };
             img.src = imagen;
             return;
         }
         
-        // Última opción: fetch al servidor (mantener compatibilidad)
+        // Última opción: fetch al servidor con control de tamaño
         fetch(imagen, { credentials: 'include' })
             .then(function(response) { return response.blob(); })
             .then(function(blob) {
@@ -331,13 +346,19 @@ async function generarPDFConFotos() {
                 reader.onloadend = function() {
                     var img = new window.Image();
                     img.onload = function() {
-                        var canvas = document.createElement('canvas');
-                        canvas.width = img.naturalWidth;
-                        canvas.height = img.naturalHeight;
-                        var ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0);
-                        var webpDataUrl = canvas.toDataURL('image/webp', 0.9);
-                        callback(webpDataUrl);
+                        // Usar el sistema de control de tamaño
+                        if (typeof window.procesarImagenParaPDF === 'function') {
+                            window.procesarImagenParaPDF(img, indiceImagen, totalImagenes, callback);
+                        } else {
+                            // Fallback
+                            var canvas = document.createElement('canvas');
+                            canvas.width = img.naturalWidth;
+                            canvas.height = img.naturalHeight;
+                            var ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0);
+                            var webpDataUrl = canvas.toDataURL('image/webp', 0.9);
+                            callback(webpDataUrl);
+                        }
                     };
                     img.src = reader.result;
                 };
@@ -371,15 +392,45 @@ async function generarPDFConFotos() {
                         }
                     }                }
                 
-                // Guardar PDF (el progreso se maneja automáticamente en las fases)
+                // Generar nombre con reporte de tamaño
                 var hoy = new Date();
                 var año = hoy.getFullYear();
                 var mes = (hoy.getMonth() + 1).toString().padStart(2, '0');
                 var dia = hoy.getDate().toString().padStart(2, '0');
                 var fechaActual = dia + '-' + mes + '-' + año;
-                pdf.save('Formato_Digitalizado_' + fechaActual + '.pdf');
+                
+                // Obtener reporte del controlador de tamaño
+                var reporte = '';
+                if (typeof window.obtenerReportePDF === 'function') {
+                    var estadisticas = window.obtenerReportePDF();
+                    reporte = '_' + estadisticas.tamaño_final_mb + 'MB';
+                    
+                    // Mostrar información detallada al usuario
+                    if (typeof showMessage === 'function') {
+                        var mensaje = `✅ PDF GENERADO EXITOSAMENTE\n\n`;
+                        mensaje += `📊 Tamaño: ${estadisticas.tamaño_final_mb}MB (${estadisticas.porcentaje_usado}% del límite de 5MB)\n`;
+                        mensaje += `${estadisticas.estado_optimizacion}\n\n`;
+                        mensaje += `📷 Fotos procesadas: ${estadisticas.fotos_procesadas}\n`;
+                        mensaje += `🎯 Nivel de calidad: ${estadisticas.nivel_optimizacion}\n`;
+                        mensaje += `⚡ Promedio por foto: ${estadisticas.promedio_por_foto_kb}KB\n`;
+                        mensaje += `💾 Espacio restante: ${estadisticas.espacio_restante_mb}MB\n`;
+                        mensaje += `🏆 Aprovechamiento: ${estadisticas.eficiencia}\n\n`;
+                        mensaje += `${estadisticas.recomendacion}`;
+                        
+                        if (parseFloat(estadisticas.porcentaje_usado) < 80) {
+                            mensaje += `\n\n🔼 El sistema incrementó automáticamente la calidad para maximizar la claridad del documento.`;
+                        } else if (parseFloat(estadisticas.porcentaje_usado) > 90) {
+                            mensaje += `\n\n🔽 El sistema optimizó automáticamente la calidad para mantenerse dentro del límite de 5MB.`;
+                        }
+                        
+                        showMessage(mensaje);
+                    }
+                }
+                
+                pdf.save('Formato_Digitalizado_' + fechaActual + reporte + '.pdf');
                 
                 // Restaurar el botón (el modal se ocultará automáticamente)
+                const btn = document.getElementById('btnGenerarPDF');
                 if (btn) {
                     btn.disabled = false;
                     btn.textContent = 'Generar PDF de fotos';
@@ -392,7 +443,7 @@ async function generarPDFConFotos() {
             window.pdfProgressManager.iniciarProcesamientoImagen(indice, imagenesUnicas.length);
         }
         
-        agregarImagenAlPDF(imagenesUnicas[indice], function(dataUrl) {
+        agregarImagenAlPDF(imagenesUnicas[indice], indice, imagenesUnicas.length, function(dataUrl) {
             if (dataUrl) {
                 if (pantallaCompletaGlobal) {
                     pdf.addImage(dataUrl, 'WEBP', 0, 0, anchoHoja, altoHoja);
