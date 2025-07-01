@@ -30,6 +30,20 @@ body {
   border-radius: 5px;
   transition: width 0.3s ease; 
 }
+
+.progreso-barra--inicial {
+  width: 0%;
+}
+
+/* Estados de visibilidad para campos condicionales */
+.campo__control--oculto {
+  display: none;
+}
+
+/* Clases para modales de imagen */
+.modal-imagen-dia {
+  display: none;
+}
 .fecha_p{ 
     text-align: right;
     margin:0 0 0.7rem 0;   

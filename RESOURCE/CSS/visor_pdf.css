@@ -1,0 +1,236 @@
+
+.visor-pdf {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    z-index: 10000;
+    overflow: auto;
+}
+
+/* Elemento: contenedor */
+.visor-pdf__contenedor {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Elemento: botón cerrar */
+.visor-pdf__boton-cerrar {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    background: #ff4444;
+    color: white;
+    border: none;
+    font-size: 24px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10001;
+    transition: background-color 0.3s ease;
+}
+
+.visor-pdf__boton-cerrar:hover {
+    background: #cc3333;
+}
+
+/* Elemento: controles */
+.visor-pdf__controles {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #333;
+    padding: 10px;
+    color: white;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* Elemento: botón base */
+.visor-pdf__boton {
+    background-color: #555;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: 3px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.visor-pdf__boton:hover:not(:disabled) {
+    background-color: #666;
+    transform: translateY(-1px);
+}
+
+.visor-pdf__boton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+
+.visor-pdf__boton--ir-pagina {
+    background-color: #007acc;
+    padding: 6px 12px;
+}
+
+.visor-pdf__boton--ir-pagina:hover:not(:disabled) {
+    background-color: #005999;
+}
+
+.visor-pdf__boton--ir-fecha {
+    background-color: #28a745;
+    padding: 6px 12px;
+}
+
+.visor-pdf__boton--ir-fecha:hover:not(:disabled) {
+    background-color: #1e7e34;
+}
+
+/* Elemento: información de página */
+.visor-pdf__info-pagina {
+    font-weight: bold;
+    white-space: nowrap;
+    margin: 0 10px;
+}
+
+.visor-pdf__numero-pagina,
+.visor-pdf__total-paginas {
+    font-weight: bold;
+    color: #ffd700;
+}
+
+/* Elemento: grupo de controles */
+.visor-pdf__control-grupo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: 15px;
+}
+
+/* Elemento: etiqueta */
+.visor-pdf__etiqueta {
+    font-size: 14px;
+    white-space: nowrap;
+    margin: 0;
+}
+
+/* Elemento: entrada base */
+.visor-pdf__entrada {
+    padding: 4px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    color: black;
+    font-size: 14px;
+}
+
+.visor-pdf__entrada:focus {
+    outline: none;
+    border-color: #007acc;
+    box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.2);
+}
+
+/* Modificadores de entrada */
+.visor-pdf__entrada--numero {
+    width: 60px;
+}
+
+
+/* Elemento: contenido */
+.visor-pdf__contenido {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background-color: #f0f0f0;
+    overflow: auto;
+}
+
+/* Elemento: documento */
+.visor-pdf__documento {
+    border: 1px solid #ccc;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background: white;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.visor-pdf__lienzo {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+@media (max-width: 768px) {
+    .visor-pdf__controles {
+        flex-direction: column;
+        gap: 15px;
+        padding: 15px;
+    }
+    
+    .visor-pdf__control-grupo {
+        margin-left: 0;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .visor-pdf__boton-cerrar {
+        top: 10px;
+        right: 10px;
+        width: 35px;
+        height: 35px;
+        font-size: 20px;
+    }
+    
+    .visor-pdf__titulo {
+        font-size: 16px;
+    }
+    
+    .visor-pdf__contenido {
+        padding: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .visor-pdf__control-grupo {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .visor-pdf__etiqueta {
+        font-size: 12px;
+    }
+    
+    .visor-pdf__boton {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+}
+.visor-pdf--activo {
+    display: block;
+}
+
+.visor-pdf--cargando .visor-pdf__contenido {
+    position: relative;
+}
+
+.visor-pdf--cargando .visor-pdf__contenido::before {
+    content: "Cargando PDF...";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 4px;
+    z-index: 1;
+}
