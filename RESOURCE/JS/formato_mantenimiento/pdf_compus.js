@@ -3,7 +3,7 @@ async function generarPDF() {
     const doc = new jsPDF(); /*crea pdf vacio*/
 
     // DATOS DE FORMULARIO
-    const zona = document.querySelector('select[id="zona"]').value;
+    const zona = document.querySelector('input[id="zona"]').value;
     const centro = document.querySelector('input[id="centro_trabajo"]').value;
     const folio = document.querySelector('input[id="folio"]').value;
     const fecha = document.querySelector('input[id="fecha"]').value;
@@ -12,7 +12,7 @@ async function generarPDF() {
     const uso = document.querySelector('input[id="tipo_uso"]').value;
     const marca = document.querySelector('input[id="marca"]').value;
     const modelo = document.querySelector('input[id="modelo"]').value;
-    const serie = document.querySelector('input[id="numero_serie"]').value;
+    const serie = document.querySelector('input[id="serie"]').value;
     const servicio = document.querySelector('select[id="servicio"]').value;
     const hora_inicio = document.querySelector('input[id="hora_inicio"]').value;
     const hora_termino = document.querySelector('input[id="hora_termino"]').value;

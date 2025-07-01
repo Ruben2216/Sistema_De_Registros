@@ -412,8 +412,8 @@ h1{
 
 }
 .btn-hamburguesa img {
-    width: 38px;
-    height: 38px;
+    width: 28px;
+    height: 28px;
 }
 .menu-hamburguesa-flotante.activo .btn-hamburguesa {
     transform: rotate(90deg) scale(1.08);
@@ -439,7 +439,7 @@ h1{
 }
 .opcion-menu-hamburguesa {
     background: #fff;
-    border-radius: 32px;
+    border-radius: 20px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.13);
     display: flex;
     align-items: center;
