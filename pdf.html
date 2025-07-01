@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visor de PDF con Navegación por URL</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #pdf-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            background-color: #333;
+            padding: 10px;
+            border-radius: 5px;
+            color: white;
+        }
+        #pdf-controls button {
+            background-color: #555;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            margin: 0 10px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        #pdf-controls button:disabled {
+            background-color: #777;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        #page-info {
+            font-weight: bold;
+        }
+        #pdf-viewer {
+            border: 1px solid #ccc;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        #pdf-canvas {
+            display: block; /* Evita espacios extra debajo del canvas */
+            width: 100%;
+            max-width: 800px;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Mi Visor de PDF</h1>
+    
+    <!-- Indicador de estado para debug en móviles -->
+    <div id="debug-info" style="background-color: #e8f4f8; padding: 10px; margin-bottom: 15px; border-radius: 5px; font-size: 12px; display: none;">
+        <div><strong>🌐 URL:</strong> <span id="current-url"></span></div>
+        <div><strong>#️⃣ Hash:</strong> <span id="current-hash"></span></div>
+        <div><strong>📱 Móvil:</strong> <span id="is-mobile"></span></div>
+    </div>
+
+    <!-- Controles de navegación -->
+    <div id="pdf-controls">
+        <button id="prev-page" disabled>Anterior</button>
+        <span id="page-info">
+            Página <span id="page-num">0</span> de <span id="page-count">0</span>
+        </span>
+        <button id="next-page" disabled>Siguiente</button>
+        
+        <!-- Control para ir a página específica -->
+        <div style="margin-left: 20px; display: flex; align-items: center; gap: 10px;">
+            <label for="page-input" style="font-size: 14px;">Ir a página:</label>
+            <input type="number" id="page-input" min="1" max="1" value="1" 
+                   style="width: 60px; padding: 4px; border: 1px solid #ccc; border-radius: 3px;">
+            <button id="go-to-page" style="background-color: #007acc; padding: 6px 12px;">Ir</button>
+        </div>
+    </div>
+
+    <!-- El canvas donde se dibujará el PDF -->
+    <div id="pdf-viewer">
+        <canvas id="pdf-canvas"></canvas>
+    </div>
+
+    <!-- Incluimos la biblioteca PDF.js desde CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+    <script>
+        // --- CONFIGURACIÓN ---
+        // Ruta relativa al archivo PDF
+        const pdfUrl = './RESOURCE/RIJ ENE A DIC 2025.pdf'; 
+
+        // --- INICIALIZACIÓN DE PDF.js ---
+        // Configuramos el worker desde CDN para mejorar el rendimiento
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        // --- VARIABLES GLOBALES ---
+        let pdfDoc = null;
+        let currentPageNum = 1;
+        let pageRendering = false;
+        let pageNumPending = null;
+
+        const canvas = document.getElementById('pdf-canvas');
+        const ctx = canvas.getContext('2d');
+        const pageNumDisplay = document.getElementById('page-num');
+        const pageCountDisplay = document.getElementById('page-count');
+        const prevButton = document.getElementById('prev-page');
+        const nextButton = document.getElementById('next-page');
+        const pageInput = document.getElementById('page-input');
+        const goToPageButton = document.getElementById('go-to-page');
+
+        /**
+         * Renderiza una página específica del PDF en el canvas.
+         * @param {number} num - El número de la página a renderizar.
+         */
+        function renderPage(num) {
+            pageRendering = true;
+            
+            // Usando la instancia del documento PDF, obtenemos la página.
+            pdfDoc.getPage(num).then(page => {
+                const viewport = page.getViewport({ scale: 1.5 }); // Puedes ajustar la escala
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                // Renderiza la página PDF en el contexto del canvas.
+                const renderContext = {
+                    canvasContext: ctx,
+                    viewport: viewport
+                };
+                const renderTask = page.render(renderContext);
+
+                // Espera a que el renderizado termine.
+                renderTask.promise.then(() => {
+                    pageRendering = false;
+                    if (pageNumPending !== null) {
+                        // Si hay otra página esperando, la renderiza.
+                        renderPage(pageNumPending);
+                        pageNumPending = null;
+                    }
+                    // Actualiza la información de la página.
+                    pageNumDisplay.textContent = num;
+                    pageInput.value = num;
+                    updateButtons();
+                    updateDebugInfo(); // Actualizar info de debug
+                });
+            });
+        }
+
+        /**
+         * Si una página ya se está renderizando, pone la nueva solicitud en cola.
+         * De lo contrario, la renderiza inmediatamente.
+         * @param {number} num - El número de página a mostrar.
+         */
+        function queueRenderPage(num) {
+            if (pageRendering) {
+                pageNumPending = num;
+            } else {
+                renderPage(num);
+            }
+        }
+        
+        /**
+         * Actualiza el estado (activado/desactivado) de los botones de navegación.
+         */
+        function updateButtons() {
+            prevButton.disabled = (currentPageNum <= 1);
+            nextButton.disabled = (currentPageNum >= pdfDoc.numPages);
+        }
+
+        /**
+         * Navega a la página anterior.
+         */
+        function onPrevPage() {
+            if (currentPageNum <= 1) return;
+            currentPageNum--;
+            updateUrlHash(currentPageNum); // Usar la nueva función
+            queueRenderPage(currentPageNum);
+        }
+
+        /**
+         * Navega a la página siguiente.
+         */
+        function onNextPage() {
+            if (currentPageNum >= pdfDoc.numPages) return;
+            currentPageNum++;
+            updateUrlHash(currentPageNum); // Usar la nueva función
+            queueRenderPage(currentPageNum);
+        }
+
+        /**
+         * Lee el número de página de la URL (#page=N).
+         * @returns {number} El número de página o 1 si no se especifica.
+         */
+        function getPageFromUrl() {
+            const hash = window.location.hash;
+            const match = hash.match(/^#page=(\d+)$/);
+            if (match) {
+                const page = parseInt(match[1], 10);
+                if (page > 0) {
+                    return page;
+                }
+            }
+            return 1; // Página por defecto
+        }
+        
+        /**
+         * Maneja los cambios en el hash de la URL (cuando el usuario usa los botones de atrás/adelante del navegador).
+         */
+        function handleHashChange() {
+            console.log(`🔄 Hash cambió a: ${window.location.hash}`);
+            const page = getPageFromUrl();
+            console.log(`📄 Página extraída de URL: ${page}`);
+            
+            if (page !== currentPageNum && pdfDoc) {
+                 if (page > 0 && page <= pdfDoc.numPages) {
+                    console.log(`✅ Cambiando de página ${currentPageNum} a ${page}`);
+                    currentPageNum = page;
+                    queueRenderPage(currentPageNum);
+                } else {
+                    console.warn(`⚠️ Página ${page} fuera de rango (1-${pdfDoc.numPages})`);
+                }
+            }
+        }
+
+        /**
+         * Actualiza la URL con el número de página actual de manera robusta para móviles
+         * @param {number} pageNumber - Número de página a establecer en la URL
+         */
+        function updateUrlHash(pageNumber) {
+            try {
+                // Método principal para actualizar el hash
+                const newHash = `#page=${pageNumber}`;
+                
+                // Para máxima compatibilidad móvil, usamos múltiples métodos
+                if (history.replaceState) {
+                    // Método moderno - funciona en la mayoría de móviles
+                    history.replaceState(null, null, newHash);
+                    console.log(`✅ URL actualizada con history.replaceState: ${newHash}`);
+                } else {
+                    // Método de respaldo para navegadores más antiguos
+                    window.location.hash = newHash;
+                    console.log(`✅ URL actualizada con window.location.hash: ${newHash}`);
+                }
+                
+                // Verificación adicional para móviles
+                setTimeout(() => {
+                    const currentHash = window.location.hash;
+                    console.log(`🔍 Verificación URL: ${currentHash}`);
+                    if (currentHash !== newHash) {
+                        console.warn(`⚠️ Hash no coincide. Esperado: ${newHash}, Actual: ${currentHash}`);
+                        // Intento adicional
+                        window.location.hash = newHash;
+                    }
+                }, 100);
+                
+            } catch (error) {
+                console.error('❌ Error al actualizar URL hash:', error);
+                // Método de respaldo más básico
+                window.location.hash = `#page=${pageNumber}`;
+            }
+        }
+
+        /**
+         * Navega directamente a una página específica y actualiza la URL
+         * @param {number} pageNumber - Número de página a mostrar
+         */
+        function goToPage(pageNumber) {
+            if (pdfDoc && pageNumber > 0 && pageNumber <= pdfDoc.numPages) {
+                console.log(`📱 Navegando a la página ${pageNumber}`);
+                currentPageNum = pageNumber;
+                updateUrlHash(currentPageNum);
+                queueRenderPage(currentPageNum);
+            } else {
+                console.log(`❌ Página ${pageNumber} no válida. El documento tiene ${pdfDoc ? pdfDoc.numPages : 0} páginas.`);
+            }
+        }
+
+        /**
+         * Función específica para verificar compatibilidad móvil
+         */
+        function checkMobileCompatibility() {
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+            
+            console.log(`📱 Dispositivo móvil detectado: ${isMobile}`);
+            console.log(`👆 Soporte táctil: ${isTouch}`);
+            console.log(`🌐 Navegador: ${navigator.userAgent}`);
+            console.log(`📍 URL actual: ${window.location.href}`);
+            console.log(`#️⃣ Hash actual: ${window.location.hash}`);
+            
+            return isMobile || isTouch;
+        }
+
+        /**
+         * Actualiza la información de debug en la interfaz
+         */
+        function updateDebugInfo() {
+            const debugDiv = document.getElementById('debug-info');
+            const currentUrlSpan = document.getElementById('current-url');
+            const currentHashSpan = document.getElementById('current-hash');
+            const isMobileSpan = document.getElementById('is-mobile');
+            
+            if (debugDiv && currentUrlSpan && currentHashSpan && isMobileSpan) {
+                currentUrlSpan.textContent = window.location.href;
+                currentHashSpan.textContent = window.location.hash || '(sin hash)';
+                isMobileSpan.textContent = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ? 'Sí' : 'No';
+                
+                // Mostrar debug info en móviles o si hay parámetro en URL
+                const showDebug = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                                 window.location.search.includes('debug=true');
+                debugDiv.style.display = showDebug ? 'block' : 'none';
+            }
+        }
+
+        // --- Carga inicial del documento ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Verificar compatibilidad móvil y mostrar información de debug
+            const isMobileDevice = checkMobileCompatibility();
+            updateDebugInfo(); // Mostrar info inicial
+            
+            console.log(`🚀 Iniciando visor PDF...`);
+            console.log(`📱 Dispositivo móvil: ${isMobileDevice}`);
+            
+            // Asigna los eventos a los botones.
+            prevButton.addEventListener('click', onPrevPage);
+            nextButton.addEventListener('click', onNextPage);
+            
+            // Event listener para el botón "Ir a página"
+            goToPageButton.addEventListener('click', () => {
+                const pageNumber = parseInt(pageInput.value, 10);
+                console.log(`🎯 Usuario solicita ir a página: ${pageNumber}`);
+                goToPage(pageNumber);
+            });
+            
+            // Event listener para presionar Enter en el input de página
+            pageInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    const pageNumber = parseInt(pageInput.value, 10);
+                    console.log(`⌨️ Usuario presionó Enter para ir a página: ${pageNumber}`);
+                    goToPage(pageNumber);
+                }
+            });
+            
+            // Escucha cambios en el hash de la URL con múltiples eventos para móviles
+            window.addEventListener('hashchange', handleHashChange);
+            
+            // Evento adicional para móviles que pueden no disparar hashchange consistentemente
+            window.addEventListener('popstate', () => {
+                console.log(`📱 Evento popstate detectado`);
+                handleHashChange();
+            });
+
+            // Carga el documento PDF.
+            pdfjsLib.getDocument(pdfUrl).promise.then(pdfDoc_ => {
+                pdfDoc = pdfDoc_;
+                pageCountDisplay.textContent = pdfDoc.numPages;
+                
+                // Actualizar el máximo del input de página
+                pageInput.max = pdfDoc.numPages;
+                
+                // Obtenemos la página inicial de la URL.
+                let initialPage = getPageFromUrl();
+                
+                // Si no hay página en la URL, navegar directamente a la página 15 para prueba
+                if (window.location.hash === '') {
+                    initialPage = 15;
+                    console.log(`🎯 Navegando automáticamente a la página 15 para prueba en móvil`);
+                    updateUrlHash(15);
+                } else {
+                    console.log(`📖 Página inicial desde URL: ${initialPage}`);
+                }
+                
+                // Nos aseguramos de que la página inicial sea válida.
+                if (initialPage > pdfDoc.numPages) {
+                    initialPage = pdfDoc.numPages;
+                }
+                
+                currentPageNum = initialPage;
+                
+                // Renderizamos la página inicial.
+                renderPage(currentPageNum);
+
+            }).catch(err => {
+                console.error("Error al cargar el PDF: " + err);
+                const viewer = document.getElementById('pdf-viewer');
+                viewer.innerHTML = `<p style="color:red;">Error: No se pudo cargar el PDF. Revisa la ruta del archivo y la consola para más detalles.</p>`;
+            });
+        });
+
+    </script>
+</body>
+</html>
