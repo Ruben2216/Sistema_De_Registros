@@ -28,9 +28,9 @@ function validarYGenerarPDF() {
 
     if (camposIncompletos.length > 0) {
         alert("Por favor, complete todos los campos obligatorios.");
-    } else {
-        generarPDF();
-    }
+   
+            }        generarPDF();
+    
 }
 
 
@@ -60,9 +60,10 @@ async function generarPDF() {
     const orden_impieza = document.querySelector('input[name="orden_impieza"]:checked')?.value;
     const bitacora = document.querySelector('input[name="bitacora"]:checked')?.value;
     const aire_funcionando = document.querySelector('input[name="aire_funcionando"]:checked')?.value;
-
-
-
+    const realizo_inspeccion = document.querySelector('input[id="realizo_inspeccion"]').value;
+    const VoBo = document.querySelector('input[id="VoBo"]').value;
+    const firma2Base64 = document.getElementById("firma-input-2").value;
+    const firma1Base64 = document.getElementById("firma-input-1").value;
 
     // IMAGEN -- LOGO
     await new Promise((resolve, reject) => {
@@ -126,34 +127,29 @@ async function generarPDF() {
     doc.line(55, y - 4, 55, 64)// LINEA 1
 
     y+=8;
-    doc.setFont("helvetica", "normal", "bold");
+    doc.setFont("helvetica", "bold");
     doc.setFontSize(9);
-    const clave = "Clave de documento: ";
-    doc.text(clave, 57, y);
+
+    doc.text(`Clave de documento: `, 57, y);
 
     doc.setFont("helvetica", "normal");
-    const claveMedida = doc.getTextWidth(clave);
-    doc.text(clave_documento, 59 + claveMedida, y );
+    doc.text(clave_documento, 57, y+4);
 
-    doc.setFont("helvetica", "normal", "bold");
-    doc.setFontSize(9);
-    const versionT = "No. de versión: ";
-    doc.text(versionT, 105, y);
+    doc.setFont("helvetica", "bold");
+
+    doc.text(`No. de versión: `, 105, y);
 
     doc.setFont("helvetica", "normal");
-    const versionMedida = doc.getTextWidth(versionT);
-    doc.text(version, 107 + versionMedida, y );
+    doc.text(version, 105, y+4);
 
     doc.line(104, y-4 , 104, 64);//LINEA 2
 
-    doc.setFont("helvetica", "normal", "bold");
-    doc.setFontSize(9);
-    const Fecha1 = "Fecha publicación: ";
-    doc.text(Fecha1, 160, y);
+    doc.setFont("helvetica", "bold");
+
+    doc.text(`Fecha publicación: `, 160, y);
 
     doc.setFont("helvetica", "normal");
-    const fechaMedida = doc.getTextWidth(Fecha1);
-    doc.text(fecha_publicacion, 160 + fechaMedida, y );
+    doc.text(fecha_publicacion, 160, y+4);
 
     doc.line(159, y-4 , 159, 64); //LINEA 3
 
@@ -174,7 +170,7 @@ async function generarPDF() {
     doc.text(`Ubicación del Site:`, 105, y, "center");
 
     doc.setFont("helvetica", "normal")
-    doc.text(site, 85, y+6);
+    doc.text(site, 106, y+6, "center");
 
     doc.line(76, y-4, 76, 82);
 
@@ -189,9 +185,9 @@ async function generarPDF() {
 
     //----------------------------------------------------------------
     // TABLA DE ACTIVIDADES
-    y += 25;
+    y += 20;
     doc.setFont("helvetica", "bold");
-    doc.text("ACTIVIDADES", 16, y);
+    doc.text("Pasos", 16, y);
     doc.text("SI", 110, y);
     doc.text("NO", 120, y);
     doc.text("OBSERVACIONES", 153, y);
@@ -199,9 +195,9 @@ async function generarPDF() {
     doc.setFont("helvetica", "normal");
     const pageWidth2 = doc.internal.pageSize.getWidth();
     const p = pageWidth2 - 23;
-    doc.rect(15, y-4, p, 106); // TABLA
+    doc.rect(15, y-4, p, 122); // TABLA 3
     const top = y - 4;
-    const bottom = y - 4 + 106;
+    const bottom = y - 4 + 122;
 
     doc.line(108, top, 108, bottom); // primera línea vertical
     doc.line(118, top, 118, bottom); // segunda línea vertical
@@ -263,7 +259,7 @@ async function generarPDF() {
             }
         }
 
-    y+=9;
+    y+=10;
     doc.text(`4. ¿El estado de las baterías es correcto?`, 16, y);
     doc.line(15,y+2, w, y+2 );
 
@@ -392,8 +388,12 @@ if (bitacora === "si") {
 
 // Pregunta 11
 y += 6;
-doc.text(`11. ¿Existe orden y limpieza en sala de Telecomunicaciones (5s)?`, 16, y);
-doc.line(15, y + 2, w, y + 2);
+const texto11 = "11. ¿Existe orden y limpieza en sala de Telecomunicaciones (5s)?";
+const textoDividido11 = doc.splitTextToSize(texto11, anchoMax);
+
+doc.text(textoDividido11, 16, y);
+doc.line(15, y + 6, w, y + 6);
+
 if (orden_impieza === "si") {
     doc.text("x", 112, y);
 } else if (orden_impieza === "no") {
@@ -407,9 +407,13 @@ if (orden_impieza === "si") {
 }
 
 // Pregunta 12
-y += 6;
-doc.text(`12. ¿Se cuenta con cableado de red estructurado etiquetado?`, 16, y);
-doc.line(15, y + 2, w, y + 2);
+y += 10;
+const texto12 = "12. ¿Se cuenta con cableado de red estructurado etiquetado?";
+const textoDividido12 = doc.splitTextToSize(texto12, anchoMax);
+
+doc.text(textoDividido12, 16, y);
+doc.line(15, y + 6, w, y + 6);
+
 if (etiquetado === "si") {
     doc.text("x", 112, y);
 } else if (etiquetado === "no") {
@@ -423,7 +427,7 @@ if (etiquetado === "si") {
 }
 
 // Pregunta 13
-y += 6;
+y += 10;
 doc.text(`13. ¿Switch se encuentra libre de polvo?`, 16, y);
 doc.line(15, y + 2, w, y + 2);
 if (polvo === "si") {
@@ -440,8 +444,12 @@ if (polvo === "si") {
 
 // Pregunta 14
 y += 6;
-doc.text(`14. ¿Los puntos de acceso están correctamente instalados en plafón, pared o rack?`, 16, y);
-doc.line(15, y + 2, w, y + 2);
+const texto14 = "14. ¿Los puntos de acceso están correctamente instalados en plafón, pared o rack?";
+const textoDividido14 = doc.splitTextToSize(texto14, anchoMax);
+
+doc.text(textoDividido14, 16, y);
+doc.line(15, y + 6, w, y + 6);
+
 if (switchAcceso === "si") {
     doc.text("x", 112, y);
 } else if (switchAcceso === "no") {
@@ -455,8 +463,12 @@ if (switchAcceso === "si") {
 }
 
 // Pregunta 15
-y += 6;
-doc.text(`15. ¿Se encuentra operando el o los puntos de acceso (AP's)?`, 16, y);
+y += 10;
+const texto15 = "15. ¿Se encuentra operando el o los puntos de acceso (AP's)?";
+const textoDividido15 = doc.splitTextToSize(texto15, anchoMax);
+
+doc.text(textoDividido15, 16, y);
+
 if (APS === "si") {
     doc.text("x", 112, y);
 } else if (APS === "no") {
@@ -468,6 +480,29 @@ if (APS === "si") {
         doc.setFontSize(10);
     }
 }
+
+// FIRMAS    
+    y += 25;
+    doc.text(`RALIZA INSPECCIÓN`, 15, y);
+    doc.text(`Vo.Bo.`, 145, y);
+
+    if(firma1Base64)
+        doc.addImage(firma1Base64, 'PNG', 21.5, y, 30, 30 );
+    
+    if(firma2Base64)
+        doc.addImage(firma2Base64, 'PNG', 143.5, y, 30, 30, "center" );
+    y += 30;
+    doc.line(15, y, 88, y); 
+    doc.line(122, y, 195, y);
+    y += 5;
+    doc.setFontSize(9)
+    doc.text("MTIE. GIOVANI PEDRO CRUZ LAVARIEGA", 15, y);
+    doc.text("ENCARGADO DEL DEPARTAMENTO DE", 15, y+4);
+    doc.text("TECNOLOGIAS DE LA INFORMACIÓN", 15, y+8);
+
+    doc.text("MTIE. GIOVANI PEDRO CRUZ LAVARIEGA", 125, y);
+    doc.text("ENCARGADO DEL DEPARTAMENTO DE", 125, y+4);
+    doc.text("TECNOLOGIAS DE LA INFORMACIÓN", 125, y+8);
 
     
 

@@ -15,8 +15,9 @@ function validarYGenerarPDF() {
 
     // Validar radios (1 por cada pregunta)
     const radios = [
-        "limpieza_externa", "pantalla", "teclado", "conexiones", "despues_servicio", "antivirus",
-        "defrag", "dominio", "Windows_update"
+        "inspeccion", "limpieza_cepillo", "limpieza_paño", "limpieza_cubierta", "sopleteado", "touch",
+        "bateria", "software", "conector", "alimentacion", "carga_comunicacion",
+        "teclado", "gps", "funcionamiento"
     ];
     radios.forEach(name => {
         const seleccionado = document.querySelector(`input[name="${name}"]:checked`);
@@ -26,8 +27,7 @@ function validarYGenerarPDF() {
     });
 
     if (camposIncompletos.length > 0) {
-        alert("Por favor, complete todos los campos obligatorios.");
-    } else {
+        alert("Por favor, completa todos los campos obligatorios.");
         generarPDF();
     }
 }

@@ -1,11 +1,11 @@
 function validarYGenerarPDF() {
-    // Busca los campos de tipo text 
-    const camposTexto = document.querySelectorAll('.campo__control[type="text"]:not([style*="display: none"])'); 
     let camposIncompletos = [];
 
     // Validar campos de texto visibles
-    camposTexto.forEach(campo => {
-        if (campo.value.trim() === "") {
+    const camposTextoVisibles = document.querySelectorAll('.campo__control[type="text"]');
+    camposTextoVisibles.forEach(campo => {
+        const estilo = window.getComputedStyle(campo);
+        if (estilo.display !== "none" && campo.value.trim() === "") {
             camposIncompletos.push(campo);
             campo.classList.add("campo__control--error");
         } else {
@@ -18,19 +18,22 @@ function validarYGenerarPDF() {
         "limpieza_interna", "sopleteado", "bandejas", "papel", "fusion", "laser",
         "consumibles", "red", "prueba", "operando"
     ];
-    radios.forEach(name => {
-        const seleccionado = document.querySelector(`input[name="${name}"]:checked`);
+
+    nombresRadios.forEach(nombre => {
+        const seleccionado = document.querySelector(`input[name ="${nombre}"]:checked`);
         if (!seleccionado) {
-            camposIncompletos.push(name);
+            camposIncompletos.push(nombre);
         }
     });
 
+    // Validación final
     if (camposIncompletos.length > 0) {
         alert("Por favor, complete todos los campos obligatorios.");
-    } else {
-        generarPDF();
-    }
+    }        
+    generarPDF();
 }
+    
+   
 
 
 async function generarPDF() {

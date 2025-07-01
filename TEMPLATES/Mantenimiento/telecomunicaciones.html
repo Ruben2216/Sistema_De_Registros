@@ -151,24 +151,23 @@
                 <div class="campo">15. ¿Se encuentra operando el o los puntos de acceso (AP's)?
                     <div class="grupo-opciones">
                         <label class="grupo-opciones__opcion"><input type="radio" class="grupo-opciones__control" name="APS" value="si">Sí</label>
-                        <label class="grupo-opciones__opcion"><input type="radio" class="grupo-opciones__control" name="APS" value="no" onchange="mostrarInput('limpieza_externa')">No</label>
+                        <label class="grupo-opciones__opcion"><input type="radio" class="grupo-opciones__control" name="APS" value="no" onchange="mostrarInput('limpieza_externa')"> No</label>
                     </div>
                     <input type="text" id="input_APS" class="campo__control" style="display:none;" placeholder="Especifique motivo">
                 </div>
 
-                
-
             <hr class="seccion__divisor">
             <div class="campo">
-                <label class="campo__etiqueta">REALIZA INSPECCIÓN</label>
-                <input type="text" value="ING. LEYDEN ARIAS RUIZ" class="campo__control" id="realizo_servicio">
-                <div class="firma-area" id="firma-area-1">[Área para firma de quien realizó la inspección]<br>Hacer click aquí</div>
+                <label class="campo__etiqueta">REALIZA INSPECCIÓN:</label>
+                <input type="text" value="ING. LEYDEN ARIAS RUIZ" class="campo__control" id="realizo_inspeccion">
+                <div class="firma-area" id="firma-area-1">[Área para firma de quien realizo el servicio]<br>Hacer click aquí</div>
                 <input type="hidden" id="firma-input-1">
                 <img id="firma-imagen-1" class="firma-imagen"/>
             </div>
-            <div class="campo">Vo. Bo.</label>
-                <input type="text" value="MTIE. GIOVANI PEDRO CRUZ LAVARIEGA" class="campo__control" id="responsable">
-                <div class="firma-area" id="firma-area-2">[Área para firma]<br>Hacer click aquí</div>
+            <div class="campo">
+                <label class="campo__etiqueta">Vo. Bo:</label>
+                <input type="text" value="MTIE. GIOVANI PEDRO CRUZ LAVARIEGA" class="campo__control" id="VoBo">
+                <div class="firma-area" id="firma-area-2">[Área para firma del responsable]<br>Hacer click aquí</div>
                 <input type="hidden" id="firma-input-2">
                 <img id="firma-imagen-2" class="firma-imagen"/>
             </div>
@@ -180,11 +179,11 @@
                     <canvas id="canvas-firma"  class="firma-canvas"></canvas>
                     <div class="firma-modal__botones">
                         <button type="button" id="btn-limpiar-firma" class="boton boton--secundario">Limpiar</button>
+                        <button type="button" id="btn-guardar-firma" class="boton boton--primario">Guardar</button>
                         <button type="button" id="btn-cerrar-firma" class="boton boton--secundario">Cerrar</button>
                     </div>
                 </div>
             </div>
-
 
             <button type="button" class="boton boton--primario" onclick="validarYGenerarPDF()">Generar PDF</button>
             <button type="button" class="boton boton--secundario">Guardar Borrador</button>
