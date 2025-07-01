@@ -1,8 +1,3 @@
-/**
- * Sistema de Limpieza Automática del LocalStorage
- * Elimina todos los datos del usuario después de 30 minutos de inactividad
- * Funciona de manera completamente silenciosa
- */
 
 (function() {
     'use strict';
@@ -67,16 +62,36 @@
     }
     
     /**
-     * Programa la limpieza automática
+     * Programa la limpieza automática (solo si no hay timer activo)
      */
     function programarLimpieza() {
-        if (timerLimpieza) {
-            clearTimeout(timerLimpieza);
+        if (!timerLimpieza) {
+            timerLimpieza = setTimeout(function() {
+                limpiarLocalStorageCompleto();
+            }, TIEMPO_LIMITE_MS);
+        }
+    }
+    
+    /**
+     * Verifica si el usuario ha excedido el tiempo límite SIN reiniciar el timer
+     */
+    function verificarTiempoLimiteSinReiniciar() {
+        const timestampStr = localStorage.getItem(CLAVE_TIMESTAMP);
+        
+        if (!timestampStr) {
+            return false; // No hay timestamp, no hacer nada
         }
         
-        timerLimpieza = setTimeout(function() {
+        const timestamp = parseInt(timestampStr, 10);
+        const ahora = new Date().getTime();
+        const tiempoTranscurrido = ahora - timestamp;
+        
+        if (tiempoTranscurrido >= TIEMPO_LIMITE_MS) {
             limpiarLocalStorageCompleto();
-        }, TIEMPO_LIMITE_MS);
+            return true;
+        }
+        
+        return false;
     }
     
     /**
@@ -100,24 +115,24 @@
             return true;
         }
         
+        // NO reprogramar limpieza - mantener timer fijo
         const tiempoRestante = TIEMPO_LIMITE_MS - tiempoTranscurrido;
-        if (timerLimpieza) {
-            clearTimeout(timerLimpieza);
+        if (!timerLimpieza) {
+            timerLimpieza = setTimeout(function() {
+                limpiarLocalStorageCompleto();
+            }, tiempoRestante);
         }
-        
-        timerLimpieza = setTimeout(function() {
-            limpiarLocalStorageCompleto();
-        }, tiempoRestante);
         
         return false;
     }
     
     /**
-     * Registra actividad del usuario y reinicia el timer
+     * Registra actividad del usuario pero NO reinicia el timer (timer fijo)
      */
     function registrarActividad() {
-        actualizarTimestampActividad();
-        programarLimpieza();
+        // NO actualizar timestamp - mantener timer fijo desde el inicio
+        // Solo verificar si necesita limpiar por tiempo transcurrido
+        verificarTiempoLimiteSinReiniciar();
     }
     
     /**

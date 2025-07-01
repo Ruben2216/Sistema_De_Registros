@@ -511,6 +511,85 @@ h1{
     border: 1px solid #bee5eb;
 }
 
+/* Estilos para el modal de nombrado de PDFs */
+.pdf-naming-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+.pdf-naming-modal__contenido {
+    background: #fff;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.pdf-naming-modal__titulo {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.3em;
+    color: #333;
+    text-align: center;
+}
+
+.pdf-naming-modal__form {
+    margin-bottom: 20px;
+}
+
+.pdf-naming-modal__help-text {
+    display: block;
+    margin-top: 5px;
+    font-size: 0.9em;
+    color: #666;
+    font-style: italic;
+}
+
+#preview-filename {
+    font-weight: bold;
+    color: #00724e;
+}
+
+.pdf-naming-modal__botones {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.pdf-naming-modal__botones .boton {
+    margin-top: 0;
+    width: auto;
+    padding: 10px 20px;
+    min-width: 100px;
+}
+
+/* Responsive para pantallas pequeñas */
+@media (max-width: 600px) {
+    .pdf-naming-modal__contenido {
+        padding: 20px;
+        margin: 10px;
+    }
+    
+    .pdf-naming-modal__botones {
+        flex-direction: column;
+    }
+    
+    .pdf-naming-modal__botones .boton {
+        width: 100%;
+    }
+}
+
 .contenedor-botones{
     position: relative;
     z-index: 2000;
