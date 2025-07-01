@@ -437,5 +437,8 @@ async function generarPDF() {
     doc.text("Nombre y firma", 95, y);
     doc.text("Nombre y firma", 165, y);
 
-    doc.save("mantenimiento_preventivo_tableta.pdf");
+    // Usar el sistema de nombrado automático basado en número de serie
+    requestPDFFilename((filename) => {
+        doc.save(filename);
+    }, serie, 'IMPRESORA');
 }
