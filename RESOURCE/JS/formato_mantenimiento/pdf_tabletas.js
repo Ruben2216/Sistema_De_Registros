@@ -1,3 +1,39 @@
+function validarYGenerarPDF() {
+    // Busca los campos de tipo text 
+    const camposTexto = document.querySelectorAll('.campo__control[type="text"]:not([style*="display: none"])'); 
+    let camposIncompletos = [];
+
+    // Validar campos de texto visibles
+    camposTexto.forEach(campo => {
+        if (campo.value.trim() === "") {
+            camposIncompletos.push(campo);
+            campo.classList.add("campo__control--error");
+        } else {
+            campo.classList.remove("campo__control--error");
+        }
+    });
+
+    // Validar radios (1 por cada pregunta)
+    const radios = [
+        "inspeccion", "limpieza_cepillo", "limpieza_paño", "limpieza_cubierta", "sopleteado", "touch",
+        "bateria", "software", "conector", "alimentacion", "carga_comunicacion",
+        "teclado", "gps", "funcionamiento"
+    ];
+    radios.forEach(name => {
+        const seleccionado = document.querySelector(`input[name="${name}"]:checked`);
+        if (!seleccionado) {
+            camposIncompletos.push(name);
+        }
+    });
+
+    if (camposIncompletos.length > 0) {
+        alert("Por favor, complete todos los campos obligatorios.");
+    } else {
+        generarPDF();
+    }
+}
+
+
 async function generarPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF(); /*crea pdf vacio*/

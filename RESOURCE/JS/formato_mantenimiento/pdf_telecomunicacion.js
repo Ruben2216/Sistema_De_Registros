@@ -1,5 +1,6 @@
 function validarYGenerarPDF() {
-    const camposTexto = document.querySelectorAll('.campo__control[type="text"]:not([style*="display: none"])');
+    // Busca los campos de tipo text 
+    const camposTexto = document.querySelectorAll('.campo__control[type="text"]:not([style*="display: none"])'); 
     let camposIncompletos = [];
 
     // Validar campos de texto visibles
@@ -26,13 +27,11 @@ function validarYGenerarPDF() {
     });
 
     if (camposIncompletos.length > 0) {
-        alert("Por favor, completa todos los campos obligatorios.");
+        alert("Por favor, complete todos los campos obligatorios.");
     } else {
         generarPDF();
     }
 }
-
-
 
 
 async function generarPDF() {
