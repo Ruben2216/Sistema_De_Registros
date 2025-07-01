@@ -591,40 +591,7 @@ function mostrarAdvertenciaTamaño() {
     // Usar el controlador para estimar configuración inicial
     if (typeof window.pdfSizeController !== 'undefined') {
         const espacioPorFoto = (5 * 1024 * 1024) / totalFotos; // 5MB dividido entre fotos
-        const espacioMB = (espacioPorFoto / (1024 * 1024)).toFixed(1);
-        
-        let mensaje = `📄 ANÁLISIS DE CALIDAD AUTOMÁTICA\n\n`;
-        mensaje += `📊 Fotos a procesar: ${totalFotos}\n`;
-        mensaje += `💾 Espacio por foto: ~${espacioMB}MB\n`;
-        mensaje += `🎯 Límite total: 5MB máximo\n\n`;
-        
-        if (espacioPorFoto > 500 * 1024) { // > 500KB por foto
-            mensaje += `✨ CALIDAD MÁXIMA\n`;
-            mensaje += `• Resolución: 4K (3840x2160)\n`;
-            mensaje += `• Calidad WebP: 95%\n`;
-            mensaje += `• Resultado: Excelente para documentos`;
-        } else if (espacioPorFoto > 300 * 1024) { // 300-500KB por foto
-            mensaje += `🎯 CALIDAD ALTA\n`;
-            mensaje += `• Resolución: 4K (3840x2160)\n`;
-            mensaje += `• Calidad WebP: 90%\n`;
-            mensaje += `• Resultado: Muy buena para documentos`;
-        } else if (espacioPorFoto > 200 * 1024) { // 200-300KB por foto
-            mensaje += `⚡ CALIDAD BUENA\n`;
-            mensaje += `• Resolución: Full HD+ (1600x900)\n`;
-            mensaje += `• Calidad WebP: 85%\n`;
-            mensaje += `• Resultado: Buena legibilidad`;
-        } else {
-            mensaje += `🔧 OPTIMIZACIÓN AUTOMÁTICA\n`;
-            mensaje += `• El sistema ajustará dinámicamente\n`;
-            mensaje += `• Prioridad: Legibilidad del texto\n`;
-            mensaje += `• Resultado: Calidad equilibrada`;
-        }
-        
-        mensaje += `\n\n🔄 VENTAJA: Si el PDF pesa menos de 5MB, el sistema incrementará automáticamente la calidad para aprovechar el espacio disponible.`;
-        
-        if (typeof showMessage === 'function') {
-            showMessage(mensaje);
-        }
+        // La configuración se maneja automáticamente sin mostrar mensajes
     }
 }
 
@@ -632,14 +599,10 @@ function mostrarAdvertenciaTamaño() {
 document.addEventListener('DOMContentLoaded', function() {
     const btnGenerarPDF = document.getElementById('btnGenerarPDF');
     if (btnGenerarPDF) {
-        // Agregar evento de clic derecho para mostrar información
+        // Funcionalidad simplificada sin mensajes descriptivos
         btnGenerarPDF.addEventListener('contextmenu', function(e) {
             e.preventDefault();
-            mostrarAdvertenciaTamaño();
         });
-        
-        // Agregar tooltip
-        btnGenerarPDF.title = 'Clic normal: Generar PDF | Clic derecho: Ver información de tamaño';
     }
 });
 

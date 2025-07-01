@@ -404,27 +404,6 @@ async function generarPDFConFotos() {
                 if (typeof window.obtenerReportePDF === 'function') {
                     var estadisticas = window.obtenerReportePDF();
                     reporte = '_' + estadisticas.tamaño_final_mb + 'MB';
-                    
-                    // Mostrar información detallada al usuario
-                    if (typeof showMessage === 'function') {
-                        var mensaje = `✅ PDF GENERADO EXITOSAMENTE\n\n`;
-                        mensaje += `📊 Tamaño: ${estadisticas.tamaño_final_mb}MB (${estadisticas.porcentaje_usado}% del límite de 5MB)\n`;
-                        mensaje += `${estadisticas.estado_optimizacion}\n\n`;
-                        mensaje += `📷 Fotos procesadas: ${estadisticas.fotos_procesadas}\n`;
-                        mensaje += `🎯 Nivel de calidad: ${estadisticas.nivel_optimizacion}\n`;
-                        mensaje += `⚡ Promedio por foto: ${estadisticas.promedio_por_foto_kb}KB\n`;
-                        mensaje += `💾 Espacio restante: ${estadisticas.espacio_restante_mb}MB\n`;
-                        mensaje += `🏆 Aprovechamiento: ${estadisticas.eficiencia}\n\n`;
-                        mensaje += `${estadisticas.recomendacion}`;
-                        
-                        if (parseFloat(estadisticas.porcentaje_usado) < 80) {
-                            mensaje += `\n\n🔼 El sistema incrementó automáticamente la calidad para maximizar la claridad del documento.`;
-                        } else if (parseFloat(estadisticas.porcentaje_usado) > 90) {
-                            mensaje += `\n\n🔽 El sistema optimizó automáticamente la calidad para mantenerse dentro del límite de 5MB.`;
-                        }
-                        
-                        showMessage(mensaje);
-                    }
                 }
                 
                 pdf.save('Formato_Digitalizado_' + fechaActual + reporte + '.pdf');
