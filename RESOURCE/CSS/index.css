@@ -516,3 +516,10 @@ h1{
     z-index: 2000;
 
 }
+
+/*---------------ADVERTENCIA DE CAMPOS NO LLENOS -------------------------*/
+.campo__control--error {
+    border: 2px solid red;
+    background-color: #ffe6e6;
+}
+

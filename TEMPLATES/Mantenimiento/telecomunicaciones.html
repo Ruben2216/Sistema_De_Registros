@@ -29,7 +29,7 @@
                 </div>
             <div class="campo">
                 <label class="campo__etiqueta">FECHA DE PUBLICACIÓN:</label>
-                <input type="text" class="campo__control" id="fecha_publicacion" readonly> 
+                <input type="text" class="campo__control" id="fecha_publicacion" > 
             </div>
                 <div class="seccion">
                     <div class="campo">
@@ -52,66 +52,66 @@
                 <div class="campo">
                     <p class="campo__etiqueta">1. ¿Cuenta con tierra física?</p>
                     <div class="grupo-opciones">
-                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="limpieza_externa" type="radio" value="si"> Sí</label>
-                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="limpieza_externa" type="radio" value="no" onchange="mostrarInput('limpieza_externa')"> No</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="tierra_fisica" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="tierra_fisica" type="radio" value="no" onchange="mostrarInput('limpieza_externa')"> No</label>
                     </div>
-                    <input type="text" id="input_limpieza_externa" class="campo__control" style="display: none;" placeholder="Especifique motivo">
+                    <input type="text" id="input_tierra_fisica" class="campo__control" style="display: none;" placeholder="Especifique motivo">
                 </div>
                 <div class="campo">2. ¿Cuenta con equipos UPS?</p>
                     <div class="grupo-opciones">
-                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="pantalla" type="radio" value="si"> Sí</label>
-                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="pantalla" type="radio" value="no" onchange="mostrarInput('pantalla')"> No</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="UPS" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="UPS" type="radio" value="no" onchange="mostrarInput('pantalla')"> No</label>
                     </div>
-                    <input type="text" id="input_pantalla" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                    <input type="text" id="input_UPS" class="campo__control" style="display:none;" placeholder="Especifique motivo">
                 </div>
                 <div class="campo">3. ¿El tiempo de respaldo de la UPS es de al menos 30 minutos?</p>
                     <div class="grupo-opciones">
-                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="teclado" type="radio" value="si"> Sí</label>
-                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="teclado" type="radio" value="no" onchange="modtrarInput('teclado')"> No</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="respaldo" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="respaldo" type="radio" value="no" onchange="modtrarInput('teclado')"> No</label>
                     </div>
-                    <input type="text" id="input_teclado" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                    <input type="text" id="input_respaldo" class="campo__control" style="display:none;" placeholder="Especifique motivo">
                 </div>
                 <div class="campo">4. ¿El estado de las baterías es correcto?</p>
                     <div class="grupo-opciones">
-                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="conexiones" type="radio" value="si"> Sí</label>
-                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="conexiones" type="radio" value="no" onchange="mostrarInput('conexiones')"> No</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="bateria" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="bateria" type="radio" value="no" onchange="mostrarInput('conexiones')"> No</label>
                     </div>
-                    <input type="text" id="input_conexiones" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                    <input type="text" id="input_bateria" class="campo__control" style="display:none;" placeholder="Especifique motivo">
                 </div>
                 <div class="campo">5. ¿El voltaje es correcto? (±10% permitido)</p>
                     <div class="grupo-opciones">
-                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="despues_servicio" type="radio" value="si"> Sí</label>
-                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="despues_servicio" type="radio" value="no" onchange="mostrarInput('despues_servicio')"> No</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="voltaje" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="voltaje" type="radio" value="no" onchange="mostrarInput('despues_servicio')"> No</label>
                     </div>
-                    <input type="text" id="input_despues_servicio" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                    <input type="text" id="input_voltaje" class="campo__control" style="display:none;" placeholder="Especifique motivo">
                 </div>
                 <div class="campo">6. ¿Cuenta con control de acceso?</p>
                     <div class="grupo-opciones">
-                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="Antivirus" type="radio" value="si"> Sí</label>
-                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="Antivirus" type="radio" value="no" onchange="mostrarInput('Antivirus')"> No</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="control_acceso" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="control_acceso" type="radio" value="no" onchange="mostrarInput('Antivirus')"> No</label>
                     </div>
-                    <input type="text" id="input_Antivirus" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                    <input type="text" id="input_control_acceso" class="campo__control" style="display:none;" placeholder="Especifique motivo">
                 </div>
                 <div class="campo">7. ¿El edificio cuenta con seguridad física?</p>
                     <div class="grupo-opciones">
-                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="Defrag" type="radio" value="si"> Sí</label>
-                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="Defrag" type="radio" value="no" onchange="mostrarInput('Defrag')"> No</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="seguridad_fisica" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="seguridad_fisica" type="radio" value="no" onchange="mostrarInput('Defrag')"> No</label>
                     </div>
-                    <input type="text" id="input_Defrag" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                    <input type="text" id="input_seguridad_fisica" class="campo__control" style="display:none;" placeholder="Especifique motivo">
                 </div>
                 <div class="campo">8. ¿Se cuenta con aire acondicionado?</p>
                     <div class="grupo-opciones">
-                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="dominio" type="radio" value="si"> Sí</label>
-                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="dominio" type="radio" value="no" onchange="mostrarInput('doominio')"> No</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="aire" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="aire" type="radio" value="no" onchange="mostrarInput('doominio')"> No</label>
                     </div>
-                    <input type="text" id="input_dominio" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                    <input type="text" id="input_aire" class="campo__control" style="display:none;" placeholder="Especifique motivo">
                 </div>
                 <div class="campo">9. ¿Se encuantra operando normal el aire acondicionado?
                     <div class="grupo-opciones">
-                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="Windows_update" type="radio" value="si"> Sí</label>
-                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="Windows_update" type="radio" value="no" onchange="mostrarInput('Windows_update')"> No</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="aire_funcionando" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="aire_funcionando" type="radio" value="no" onchange="mostrarInput('Windows_update')"> No</label>
                     </div>
-                    <input type="text" id="input_Windows_update" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                    <input type="text" id="input_aire_funcionando" class="campo__control" style="display:none;" placeholder="Especifique motivo">
                 </div>
                 <div class="campo">10. ¿Se cuenta con bitácora de registro?
                     <div class="grupo-opciones">
@@ -129,38 +129,38 @@
                 </div>
                 <div class="campo">12. ¿Se cuenta con cableado de red estructurado etiquetado?
                     <div class="grupo-opciones">
-                        <label class="grupo-opciones__opcion"><input type="radio" class="grupo-opciones__control" name="orden_impieza" value="si">Sí</label>
-                        <label class="grupo-opciones__opcion"><input type="radio" class="grupo-opciones__control" name="orden_impieza" value="no" onchange="mostrarInput('limpieza_externa')">No</label>
+                        <label class="grupo-opciones__opcion"><input type="radio" class="grupo-opciones__control" name="etiquetado" value="si">Sí</label>
+                        <label class="grupo-opciones__opcion"><input type="radio" class="grupo-opciones__control" name="etiquetado" value="no" onchange="mostrarInput('limpieza_externa')">No</label>
                     </div>
-                    <input type="text" id="input_orden_impieza" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                    <input type="text" id="input_etiquetado" class="campo__control" style="display:none;" placeholder="Especifique motivo">
                 </div>
                 <div class="campo">13. ¿Switch se encuentra libre de polvo?
                     <div class="grupo-opciones">
-                        <label class="grupo-opciones__opcion"><input type="radio" class="grupo-opciones__control" name="orden_impieza" value="si">Sí</label>
-                        <label class="grupo-opciones__opcion"><input type="radio" class="grupo-opciones__control" name="orden_impieza" value="no" onchange="mostrarInput('limpieza_externa')">No</label>
+                        <label class="grupo-opciones__opcion"><input type="radio" class="grupo-opciones__control" name="polvo" value="si">Sí</label>
+                        <label class="grupo-opciones__opcion"><input type="radio" class="grupo-opciones__control" name="polvo" value="no" onchange="mostrarInput('limpieza_externa')">No</label>
                     </div>
-                    <input type="text" id="input_orden_impieza" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                    <input type="text" id="input_polvo" class="campo__control" style="display:none;" placeholder="Especifique motivo">
                 </div>
                 <div class="campo">14. ¿Los puntos de acceso que se conectan al switch de sala inspecciona, se encuentra correctamente instalados en plafón, pared o reck?
                     <div class="grupo-opciones">
-                        <label class="grupo-opciones__opcion"><input type="radio" class="grupo-opciones__control" name="orden_impieza" value="si">Sí</label>
-                        <label class="grupo-opciones__opcion"><input type="radio" class="grupo-opciones__control" name="orden_impieza" value="no" onchange="mostrarInput('limpieza_externa')">No</label>
+                        <label class="grupo-opciones__opcion"><input type="radio" class="grupo-opciones__control" name="switch" value="si">Sí</label>
+                        <label class="grupo-opciones__opcion"><input type="radio" class="grupo-opciones__control" name="switch" value="no" onchange="mostrarInput('limpieza_externa')">No</label>
                     </div>
-                    <input type="text" id="input_orden_impieza" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                    <input type="text" id="input_switch" class="campo__control" style="display:none;" placeholder="Especifique motivo">
                 </div>
                 <div class="campo">15. ¿Se encuentra operando el o los puntos de acceso (AP's)?
                     <div class="grupo-opciones">
-                        <label class="grupo-opciones__opcion"><input type="radio" class="grupo-opciones__control" name="orden_impieza" value="si">Sí</label>
-                        <label class="grupo-opciones__opcion"><input type="radio" class="grupo-opciones__control" name="orden_impieza" value="no" onchange="mostrarInput('limpieza_externa')">No</label>
+                        <label class="grupo-opciones__opcion"><input type="radio" class="grupo-opciones__control" name="APS" value="si">Sí</label>
+                        <label class="grupo-opciones__opcion"><input type="radio" class="grupo-opciones__control" name="APS" value="no" onchange="mostrarInput('limpieza_externa')">No</label>
                     </div>
-                    <input type="text" id="input_orden_impieza" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                    <input type="text" id="input_APS" class="campo__control" style="display:none;" placeholder="Especifique motivo">
                 </div>
 
                 
 
             <hr class="seccion__divisor">
             <div class="campo">
-                <label class="campo__etiqueta">REALIZÓ INSPECCIÓN</label>
+                <label class="campo__etiqueta">REALIZA INSPECCIÓN</label>
                 <input type="text" value="ING. LEYDEN ARIAS RUIZ" class="campo__control" id="realizo_servicio">
                 <div class="firma-area" id="firma-area-1">[Área para firma de quien realizó la inspección]<br>Hacer click aquí</div>
                 <input type="hidden" id="firma-input-1">
@@ -186,7 +186,7 @@
             </div>
 
 
-            <button type="button" class="boton boton--primario" onclick="generarPDF()">Generar PDF</button>
+            <button type="button" class="boton boton--primario" onclick="validarYGenerarPDF()">Generar PDF</button>
             <button type="button" class="boton boton--secundario">Guardar Borrador</button>
             <div class="boton boton--secundario boton--cancelar">
                 <a id="select-reset" href="/TEMPLATES/menu.html" class="boton--cancelar ">Cancelar</a>
