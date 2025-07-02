@@ -182,8 +182,7 @@
     <script src="/RESOURCE/JS/recorte_foto.js"></script>
     <script src="/RESOURCE/JS/envio_correo_camara.js"></script>
 
-    <!-- Script de depuración temporal para verificar checkboxes -->
-    <script src="/RESOURCE/JS/debug_checkboxes.js"></script>
+
 
     <!-- Sistema de notificaciones mejorado -->
     <script src="/RESOURCE/JS/sistema_notificaciones.js"></script>
@@ -209,7 +208,6 @@
         function configurarCallbacksOpenCV() {
             // Callback cuando OpenCV se carga exitosamente
             window.opencvLoader.onSuccess(function() {
-                console.log('✅ OpenCV.js está listo para usar');
                 
                 // Habilitar botones que dependen de OpenCV
                 const btnGenerarPDF = document.getElementById('btnGenerarPDF');
@@ -231,7 +229,6 @@
 
             // Callback cuando OpenCV falla al cargar
             window.opencvLoader.onError(function() {
-                console.warn('⚠️ OpenCV.js no pudo cargarse, activando modo básico');
                 
                 // Habilitar funcionalidades básicas
                 const btnGenerarPDF = document.getElementById('btnGenerarPDF');
@@ -256,7 +253,6 @@
         // Función mejorada de showMessage si no existe
         if (typeof showMessage === 'undefined') {
             window.showMessage = function(message) {
-                console.log('Mensaje del sistema:', message);
                 
                 // Crear un modal simple para mostrar mensajes
                 const modal = document.createElement('div');
