@@ -56,16 +56,18 @@ window.addEventListener('DOMContentLoaded', function() {
     if (btnVerImagenDia && modal && cerrar) {
         btnVerImagenDia.addEventListener('click', function(e) {
             e.preventDefault();
-            modal.style.display = 'flex';
+            modal.classList.add('activo');
             menuContenedor.classList.remove('activo');
+            // Eliminar el blur si existe
+            var blurDiv = document.getElementById('blur-fondo');
+            if (blurDiv) {
+                blurDiv.parentNode.removeChild(blurDiv);
+            }
+            menuContenedor.style.zIndex = '';
         });
         cerrar.addEventListener('click', function() {
-            modal.style.display = 'none';
+            modal.classList.remove('activo');
         });
-        modal.addEventListener('click', function(e) {
-            if (e.target === modal) {
-                modal.style.display = 'none';
-            }
-        });
+        // Eliminamos el event listener que cierra al hacer click fuera
     }
 });

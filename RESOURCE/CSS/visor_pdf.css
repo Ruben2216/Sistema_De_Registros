@@ -1,4 +1,3 @@
-
 .visor-pdf {
     display: none;
     position: fixed;
@@ -76,26 +75,54 @@
     transform: none;
 }
 
-
-.visor-pdf__boton--ir-pagina {
-    background-color: #007acc;
-    padding: 6px 12px;
+/* Botones de navegación con imágenes */
+.visor-pdf__boton--anterior,
+.visor-pdf__boton--siguiente {
+    position: fixed;
+    top: 30%;
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    width: 28px;
+    height: 28px;
+    z-index: 1001;
 }
 
-.visor-pdf__boton--ir-pagina:hover:not(:disabled) {
-    background-color: #005999;
+.visor-pdf__boton--anterior {
+    left: 20px;
 }
 
-.visor-pdf__boton--ir-fecha {
-    background-color: #28a745;
-    padding: 6px 12px;
+.visor-pdf__boton--siguiente {
+    right: 20px;
 }
 
-.visor-pdf__boton--ir-fecha:hover:not(:disabled) {
-    background-color: #1e7e34;
+.visor-pdf__boton--anterior:hover,
+.visor-pdf__boton--siguiente:hover,
+.visor-pdf__boton--anterior:focus,
+.visor-pdf__boton--siguiente:focus,
+.visor-pdf__boton--anterior:active,
+.visor-pdf__boton--siguiente:active {
+    background: transparent;
+    transform: none;
+    outline: none;
+    box-shadow: none;
 }
 
-/* Elemento: información de página */
+.visor-pdf__boton--anterior:disabled,
+.visor-pdf__boton--siguiente:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.visor-pdf__boton img {
+    width: 28px;
+    height: 28px;
+    display: block;
+    pointer-events: none;
+}
+
+
 .visor-pdf__info-pagina {
     font-weight: bold;
     white-space: nowrap;
@@ -112,18 +139,18 @@
 .visor-pdf__control-grupo {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 10px;
-    margin-left: 15px;
+    margin: 0 auto;
+    width: 100%;
 }
 
-/* Elemento: etiqueta */
 .visor-pdf__etiqueta {
     font-size: 14px;
     white-space: nowrap;
     margin: 0;
 }
 
-/* Elemento: entrada base */
 .visor-pdf__entrada {
     padding: 4px;
     border: 1px solid #ccc;
@@ -138,12 +165,6 @@
     box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.2);
 }
 
-/* Modificadores de entrada */
-.visor-pdf__entrada--numero {
-    width: 60px;
-}
-
-
 /* Elemento: contenido */
 .visor-pdf__contenido {
     flex: 1;
@@ -155,7 +176,6 @@
     overflow: auto;
 }
 
-/* Elemento: documento */
 .visor-pdf__documento {
     border: 1px solid #ccc;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -178,7 +198,7 @@
     }
     
     .visor-pdf__control-grupo {
-        margin-left: 0;
+        margin: 0 auto;
         justify-content: center;
         flex-wrap: wrap;
     }
@@ -203,7 +223,7 @@
 @media (max-width: 480px) {
     .visor-pdf__control-grupo {
         width: 100%;
-        justify-content: space-between;
+        justify-content: center;
     }
     
     .visor-pdf__etiqueta {
