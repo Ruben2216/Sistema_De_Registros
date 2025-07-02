@@ -1,5 +1,4 @@
-// Visor PDF integrado con navegación por fechas para formato_RIJ.html
-// Reemplaza la lógica anterior de redirección simple con un visor modal completo
+
 
 (function() {
     'use strict';
@@ -16,7 +15,7 @@
     
     // --- ELEMENTOS DEL DOM ---
     let modal, canvas, ctx, pageNumDisplay, pageCountDisplay, prevButton, nextButton;
-    let pageInput, goToPageButton, dateInput, goToDateButton;
+    let dateInput;
     
     /**
      * Inicializa las referencias a elementos del DOM
@@ -29,10 +28,7 @@
         pageCountDisplay = document.getElementById('page-count-rij');
         prevButton = document.getElementById('prev-page-rij');
         nextButton = document.getElementById('next-page-rij');
-        pageInput = document.getElementById('page-input-rij');
-        goToPageButton = document.getElementById('go-to-page-rij');
         dateInput = document.getElementById('date-input-rij');
-        goToDateButton = document.getElementById('go-to-date-rij');
     }
     
     /**
@@ -98,29 +94,74 @@
      * Renderiza una página específica del PDF en el canvas
      */
     function renderPage(num) {
+        // Si ya estamos renderizando, cancelar la operación pendiente y poner en cola
+        if (pageRendering) {
+            pageNumPending = num;
+            return;
+        }
+        
         pageRendering = true;
         
         pdfDoc.getPage(num).then(function(page) {
-            const viewport = page.getViewport({ scale: 1.2 });
-            canvas.height = viewport.height;
+            // Obtener dimensiones naturales de la página
+            const viewport = page.getViewport({ scale: 1.0 });
+            
+            // Asegurar que el canvas tenga el tamaño correcto
             canvas.width = viewport.width;
+            canvas.height = viewport.height;
+            
+            // Limpiar completamente el canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.save();
 
             const renderContext = {
                 canvasContext: ctx,
                 viewport: viewport
             };
-            const renderTask = page.render(renderContext);
 
-            renderTask.promise.then(function() {
+            // Cancelar cualquier renderizado anterior si existe
+            if (window.currentRenderTask) {
+                window.currentRenderTask.cancel();
+            }
+
+            // Crear nueva tarea de renderizado
+            window.currentRenderTask = page.render(renderContext);
+
+            window.currentRenderTask.promise.then(function() {
                 pageRendering = false;
-                if (pageNumPending !== null) {
-                    renderPage(pageNumPending);
-                    pageNumPending = null;
-                }
+                window.currentRenderTask = null;
+                
+                // Actualizar UI
                 pageNumDisplay.textContent = num;
-                pageInput.value = num;
                 updateButtons();
+                
+                // Procesar operación pendiente si existe
+                if (pageNumPending !== null) {
+                    const pendingNum = pageNumPending;
+                    pageNumPending = null;
+                    renderPage(pendingNum);
+                }
+            }).catch(function(error) {
+                pageRendering = false;
+                window.currentRenderTask = null;
+                
+                // Solo mostrar error si no fue cancelación
+                if (error.name !== 'RenderingCancelledException') {
+                    console.error('Error al renderizar página:', error);
+                }
+                
+                // Procesar operación pendiente si existe
+                if (pageNumPending !== null) {
+                    const pendingNum = pageNumPending;
+                    pageNumPending = null;
+                    renderPage(pendingNum);
+                }
+            }).finally(function() {
+                ctx.restore();
             });
+        }).catch(function(error) {
+            console.error('Error al obtener página:', error);
+            pageRendering = false;
         });
     }
     
@@ -143,11 +184,18 @@
             prevButton.disabled = (currentPageNum <= 1);
             nextButton.disabled = (currentPageNum >= pdfDoc.numPages);
             
-            // Actualizar estilos de botones deshabilitados
-            prevButton.style.opacity = prevButton.disabled ? '0.5' : '1';
-            nextButton.style.opacity = nextButton.disabled ? '0.5' : '1';
-            prevButton.style.cursor = prevButton.disabled ? 'not-allowed' : 'pointer';
-            nextButton.style.cursor = nextButton.disabled ? 'not-allowed' : 'pointer';
+            // Usar clases CSS en lugar de estilos inline
+            if (prevButton.disabled) {
+                prevButton.classList.add('visor-pdf__boton--deshabilitado');
+            } else {
+                prevButton.classList.remove('visor-pdf__boton--deshabilitado');
+            }
+            
+            if (nextButton.disabled) {
+                nextButton.classList.add('visor-pdf__boton--deshabilitado');
+            } else {
+                nextButton.classList.remove('visor-pdf__boton--deshabilitado');
+            }
         }
     }
     
@@ -207,6 +255,16 @@
      */
     function cerrarVisorPDF() {
         if (modal) {
+            // Cancelar cualquier renderizado en progreso
+            if (window.currentRenderTask) {
+                window.currentRenderTask.cancel();
+                window.currentRenderTask = null;
+            }
+            
+            // Resetear estado de renderizado
+            pageRendering = false;
+            pageNumPending = null;
+            
             modal.style.display = 'none';
         }
     }
@@ -216,6 +274,7 @@
      */
     function abrirVisorPDF() {
         if (!modal) {
+            console.error('Modal del visor PDF no encontrado');
             return;
         }
         
@@ -226,7 +285,6 @@
             pdfjsLib.getDocument(pdfUrl).promise.then(function(pdfDoc_) {
                 pdfDoc = pdfDoc_;
                 pageCountDisplay.textContent = pdfDoc.numPages;
-                pageInput.max = pdfDoc.numPages;
                 
                 // Determinar página inicial basada en la fecha actual
                 const fechaActual = obtenerFechaActual();
@@ -238,6 +296,8 @@
                 }
                 
                 currentPageNum = paginaInicial;
+                
+                // Renderizar directamente sin setTimeout para evitar problemas
                 renderPage(currentPageNum);
                 updateUrlHash(currentPageNum);
                 
@@ -261,6 +321,9 @@
                 }
                 alert("Error al cargar el PDF. Verifica que el archivo esté disponible.");
             });
+        } else {
+            // Si el PDF ya está cargado, renderizar la página actual sin setTimeout
+            renderPage(currentPageNum);
         }
     }
     
@@ -296,44 +359,12 @@
         if (prevButton) prevButton.addEventListener('click', onPrevPage);
         if (nextButton) nextButton.addEventListener('click', onNextPage);
         
-        // Ir a página específica
-        if (goToPageButton) {
-            goToPageButton.addEventListener('click', function() {
-                const pageNumber = parseInt(pageInput.value, 10);
-                goToPage(pageNumber);
-            });
-        }
-        
-        // Enter en input de página
-        if (pageInput) {
-            pageInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    const pageNumber = parseInt(pageInput.value, 10);
-                    goToPage(pageNumber);
-                }
-            });
-        }
-        
-        // Ir a fecha específica
-        if (goToDateButton) {
-            goToDateButton.addEventListener('click', function() {
+        // Búsqueda dinámica por fecha
+        if (dateInput) {
+            dateInput.addEventListener('change', function() {
                 const fechaSeleccionada = dateInput.value;
                 if (fechaSeleccionada) {
                     goToDate(fechaSeleccionada);
-                } else {
-                    alert('Por favor selecciona una fecha');
-                }
-            });
-        }
-        
-        // Enter en input de fecha
-        if (dateInput) {
-            dateInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    const fechaSeleccionada = dateInput.value;
-                    if (fechaSeleccionada) {
-                        goToDate(fechaSeleccionada);
-                    }
                 }
             });
         }
@@ -347,10 +378,29 @@
     }
     
     /**
+     * Asegura que todos los modales estén en su estado inicial correcto
+     */
+    function verificarEstadoInicial() {
+        // Ocultar modal del visor PDF si está visible
+        if (modal) {
+            modal.style.display = 'none';
+        }
+        
+        // Asegurar que campos con display:none estén ocultos
+        const camposOcultos = document.querySelectorAll('.campo__control--oculto');
+        camposOcultos.forEach(function(campo) {
+            campo.style.display = 'none';
+        });
+    }
+    
+    /**
      * Inicialización principal
      */
     function inicializar() {
         initializeElements();
+        
+        // Verificar estado inicial de modales y campos
+        verificarEstadoInicial();
         
         // Cargar índice de fechas
         cargarIndiceFechas().then(function() {
