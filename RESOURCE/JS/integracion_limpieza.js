@@ -52,10 +52,10 @@ function registrarActividadPagina() {
         return response.json();
     }).then(function(data) {
         if (data.success) {
-            console.log('[DEBUG] Usuario registrado en backend:', data.sid);
+            // Usuario registrado en backend
         }
     }).catch(function(error) {
-        console.log('[DEBUG] Error registrando actividad:', error);
+        // Error registrando actividad
     });
 }
 

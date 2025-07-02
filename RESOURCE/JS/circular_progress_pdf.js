@@ -3,7 +3,7 @@ function showMessage(message) {
     if (typeof alert !== 'undefined') {
         alert(message);
     } else {
-        console.log(message);
+        // Log eliminado
     }
 }
 
@@ -257,7 +257,7 @@ class CircularProgressPDF {
      */
     establecerFaseGuardado() {
         // Este método ahora es manejado automáticamente por iniciarFaseFinal()
-        console.log('establecerFaseGuardado() está deprecated - el progreso es automático');
+        // Log eliminado está deprecated - el progreso es automático');
     }
 
     /**
@@ -301,7 +301,7 @@ class CircularProgressPDF {
      */
     iniciarProgreso() {
         // DESHABILITADO: No usar sistema continuo para evitar oscilación
-        console.log('🔄 Iniciando progreso simple (sin modo continuo)');
+        // Log eliminado');
         
         // Establecer progreso inicial directamente
         this.actualizarProgreso(1);
@@ -427,7 +427,7 @@ class CircularProgressPDF {
      */
     iniciarFaseFinal(progresoDesde = 85) {
         // NO USAR modo continuo para evitar oscilación
-        console.log('🔄 Iniciando fase final desde', progresoDesde + '%');
+        // Log eliminado
         
         // Actualizar mensaje inmediatamente
         const subtitulo = document.querySelector('.pdf-progress-subtitle');
@@ -488,7 +488,7 @@ class CircularProgressPDF {
      */
     iniciarProgresoContinuo() {
         // SISTEMA DESHABILITADO: Causaba conflictos con actualizarProgreso()
-        console.log('⚠️ Modo continuo deshabilitado para evitar oscilación');
+        // Log eliminado
         this.esModoContinuo = false;
         return;
         
@@ -514,7 +514,7 @@ class CircularProgressPDF {
      */
     iniciarAnimacionContinua() {
         // SISTEMA DESHABILITADO: Causaba oscilación con actualizarProgreso()
-        console.log('⚠️ Sistema de animación continua deshabilitado para evitar oscilación');
+        // Log eliminado
         return;
         
         /* CÓDIGO ORIGINAL COMENTADO:

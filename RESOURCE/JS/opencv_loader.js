@@ -90,7 +90,7 @@ class OpenCVLoader {
         if (this.mensajeProgreso) {
             this.mensajeProgreso.textContent = mensaje;
         }
-        console.log(`[OpenCV Loader] ${mensaje}`);
+        // Mensaje actualizado
     }
 
     /**
@@ -131,7 +131,7 @@ class OpenCVLoader {
                 this.verificarCargaOpenCV();
             })
             .catch((error) => {
-                console.warn(`[OpenCV Loader] Error cargando desde ${fuente}:`, error);
+                // Error cargando desde fuente
                 this.manejarErrorCarga();
             });
     }
@@ -203,7 +203,7 @@ class OpenCVLoader {
                     this.manejarCargaExitosa();
                     return true;
                 } catch (e) {
-                    console.warn('[OpenCV Loader] OpenCV no está completamente inicializado:', e);
+                    // OpenCV no está completamente inicializado
                     return false;
                 }
             }
@@ -229,7 +229,7 @@ class OpenCVLoader {
 
             if (intentosVerificacion >= maxIntentosVerificacion) {
                 clearInterval(intervaloVerificacion);
-                console.warn('[OpenCV Loader] OpenCV no se inicializó completamente después de la verificación');
+                // OpenCV no se inicializó completamente después de la verificación
                 this.manejarErrorCarga();
             }
         }, 100);
@@ -243,7 +243,7 @@ class OpenCVLoader {
         const tiempoTotal = Date.now() - this.tiempoInicio;
         
         this.actualizarMensaje('¡OpenCV.js cargado exitosamente!');
-        console.log(`[OpenCV Loader] ✅ OpenCV.js cargado exitosamente en ${tiempoTotal}ms desde: ${this.fuentesOpenCV[this.fuenteActual]}`);
+        // OpenCV.js cargado exitosamente
         
         // Ocultar modal después de un breve momento
         setTimeout(() => {
@@ -255,7 +255,7 @@ class OpenCVLoader {
             try {
                 callback();
             } catch (e) {
-                console.error('[OpenCV Loader] Error ejecutando callback de éxito:', e);
+                // Error ejecutando callback de éxito
             }
         });
 
@@ -310,7 +310,7 @@ class OpenCVLoader {
         const tiempoTotal = Date.now() - this.tiempoInicio;
         
         this.actualizarMensaje('Error: No se pudo cargar OpenCV.js. Algunas funciones pueden no estar disponibles.');
-        console.error(`[OpenCV Loader] ❌ Fallo completo cargando OpenCV.js después de ${tiempoTotal}ms y ${this.intentosMaximos} intentos`);
+        // Fallo completo cargando OpenCV.js
         
         // Ocultar modal después de mostrar el error
         setTimeout(() => {
@@ -322,7 +322,7 @@ class OpenCVLoader {
             try {
                 callback();
             } catch (e) {
-                console.error('[OpenCV Loader] Error ejecutando callback de error:', e);
+                // Error ejecutando callback de error
             }
         });
 
@@ -358,7 +358,7 @@ class OpenCVLoader {
         script.async = true;
         
         script.onerror = () => {
-            console.warn(`[OpenCV Loader] Error cargando dependencia: ${src}`);
+            // Error cargando dependencia
         };
         
         document.head.appendChild(script);
@@ -378,12 +378,12 @@ class OpenCVLoader {
         // Definir función básica de showMessage si no existe
         if (typeof window.showMessage !== 'function') {
             window.showMessage = function(message) {
-                console.log('Mensaje:', message);
+                // Mostrar mensaje
                 alert(message);
             };
         }
 
-        console.warn('[OpenCV Loader] ⚠️ Modo básico activado - algunas funciones de procesamiento de imagen no estarán disponibles');
+        // Modo básico activado
     }
 
     /**
@@ -436,10 +436,10 @@ window.cargarPDFfotosJS = function() {
     script.src = '/RESOURCE/JS/pdf_fotos.js';
     script.async = true;
     script.onload = function() {
-        console.log('[OpenCV Loader] pdf_fotos.js cargado exitosamente');
+        // pdf_fotos.js cargado exitosamente
     };
     script.onerror = function() {
-        console.error('[OpenCV Loader] Error cargando pdf_fotos.js');
+        // Error cargando pdf_fotos.js
     };
     document.head.appendChild(script);
 };

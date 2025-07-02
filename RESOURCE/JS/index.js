@@ -4,8 +4,7 @@
     window.fetch = function(...args) {
         const url = args[0];
         if (typeof url === 'string' && (url.includes('null') || url.includes('undefined'))) {
-            console.error('⚠️ DETECTADA URL INVÁLIDA:', url);
-            console.trace('Stack trace de la petición inválida:');
+            // DETECTADA URL INVÁLIDA
             return Promise.reject(new Error('URL inválida detectada: ' + url));
         }
         return originalFetch.apply(this, args);
@@ -65,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 videoElement.onloadedmetadata = () => {
                     videoElement.play().catch(function(err) {
-                        console.error("Error al reproducir video:", err);
+                        // Error al reproducir video
                         statusElement.textContent = "Error al reproducir video.";
                     });
 
@@ -698,7 +697,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 img.setAttribute('data-mejorada', dataUrlProcesada);
                             }
                         } else {
-                            console.error('Error al generar versión:', versionActual.titulo);
+                            // Error al generar versión
                         }
                         
                         procesamientoIndex++;
@@ -772,7 +771,7 @@ document.addEventListener('DOMContentLoaded', () => {
         photoWrapper.appendChild(btnRecortar);        // Función para seleccionar versión y actualizar lógica
         function seleccionarVersion(tipo) {
             if (!versiones[tipo]) {
-                console.warn('Versión no disponible:', tipo);
+                // Versión no disponible
                 return;
             }
             
@@ -1140,7 +1139,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 img.setAttribute('data-mejorada', dataUrlProcesada);
                             }
                         } else {
-                            console.error('Error al generar versión:', versionProcesar.titulo);
+                            // Error al generar versión
                         }
                         
                         procesamientoIndex++;
@@ -1211,7 +1210,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Función para seleccionar versión
         function seleccionarVersion(tipo) {
             if (!versiones[tipo]) {
-                console.warn('Versión no disponible:', tipo);
+                // Versión no disponible
                 return;
             }
             

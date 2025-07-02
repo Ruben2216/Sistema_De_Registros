@@ -12,7 +12,7 @@ class MonitorRecuperacion {
     }
 
     iniciarMonitoreo() {
-        console.log('[Monitor] Iniciando monitoreo del sistema');
+        // Log eliminado
         
         // Verificación cada 5 segundos
         this.intervaloMonitoreo = setInterval(() => {
@@ -29,7 +29,7 @@ class MonitorRecuperacion {
         this.verificacionesRealizadas++;
         const tiempoTranscurrido = Date.now() - this.tiempoInicio;
         
-        console.log(`[Monitor] Verificación ${this.verificacionesRealizadas} - Tiempo: ${Math.round(tiempoTranscurrido/1000)}s`);
+        // Log eliminado}s`);
 
         // Verificar si OpenCV está disponible
         if (this.verificarOpenCVDisponible()) {
@@ -63,7 +63,7 @@ class MonitorRecuperacion {
             this.sistemaRecuperado = true;
             const tiempoTotal = Date.now() - this.tiempoInicio;
             
-            console.log(`[Monitor] ✅ Sistema listo en ${Math.round(tiempoTotal/1000)}s`);
+            // Log eliminado}s`);
             
             if (window.mostrarExito) {
                 window.mostrarExito('Sistema de cámara listo para usar');
@@ -75,7 +75,7 @@ class MonitorRecuperacion {
 
     intentarRecuperacionSuave() {
         this.intentosRecuperacion++;
-        console.log('[Monitor] 🔄 Intentando recuperación suave...');
+        // Log eliminado
         
         if (window.mostrarAdvertencia) {
             window.mostrarAdvertencia('Optimizando carga del sistema...');
@@ -92,7 +92,7 @@ class MonitorRecuperacion {
 
     intentarRecuperacionAgresiva() {
         this.intentosRecuperacion++;
-        console.log('[Monitor] ⚡ Intentando recuperación agresiva...');
+        // Log eliminado
         
         if (window.mostrarAdvertencia) {
             window.mostrarAdvertencia('Aplicando correcciones del sistema...');
@@ -111,7 +111,7 @@ class MonitorRecuperacion {
                 this.cargarLoaderScript();
             }
         } catch (error) {
-            console.error('[Monitor] Error creando nuevo loader:', error);
+            // Log eliminado
             this.cargarOpenCVDirecto();
         }
     }
@@ -120,13 +120,13 @@ class MonitorRecuperacion {
         const script = document.createElement('script');
         script.src = '/RESOURCE/JS/opencv_loader.js';
         script.onload = () => {
-            console.log('[Monitor] Loader script recargado');
+            // Log eliminado
             if (window.OpenCVLoader) {
                 window.opencvLoader = new window.OpenCVLoader();
             }
         };
         script.onerror = () => {
-            console.warn('[Monitor] Error recargando loader, usando método directo');
+            // Log eliminado
             this.cargarOpenCVDirecto();
         };
         document.head.appendChild(script);
@@ -159,7 +159,7 @@ class MonitorRecuperacion {
     }
 
     cargarOpenCVDirecto() {
-        console.log('[Monitor] Cargando OpenCV directamente...');
+        // Log eliminado
         
         const fuentes = [
             'https://docs.opencv.org/4.8.0/opencv.js',
@@ -187,7 +187,7 @@ class MonitorRecuperacion {
 
         script.onload = () => {
             clearTimeout(timeout);
-            console.log(`[Monitor] OpenCV cargado desde: ${fuente}`);
+            // Log eliminado
             
             // Configurar callback de inicialización
             if (window.cv) {
@@ -218,7 +218,7 @@ class MonitorRecuperacion {
         const script = document.createElement('script');
         script.src = '/RESOURCE/JS/pdf_fotos.js';
         script.onload = () => {
-            console.log('[Monitor] Dependencias de OpenCV cargadas');
+            // Log eliminado
             
             // Habilitar botones
             const btnGenerarPDF = document.getElementById('btnGenerarPDF');
@@ -236,7 +236,7 @@ class MonitorRecuperacion {
     }
 
     activarRecuperacionEmergencia() {
-        console.warn('[Monitor] ⚠️ Activando recuperación de emergencia');
+        // Log eliminado
         
         if (window.mostrarError) {
             window.mostrarError('El sistema tardó más de lo esperado en cargar. Activando modo de recuperación...');
@@ -246,7 +246,7 @@ class MonitorRecuperacion {
     }
 
     activarModoBasico() {
-        console.log('[Monitor] 🛟 Activando modo básico');
+        // Log eliminado
         
         // Ocultar todos los modales de carga
         if (window.ocultarModalProgreso) {
@@ -269,7 +269,7 @@ class MonitorRecuperacion {
         // Definir función básica de showMessage si no existe
         if (typeof window.showMessage !== 'function') {
             window.showMessage = function(mensaje) {
-                console.log('Mensaje:', mensaje);
+                // Log eliminado
                 if (window.sistemaNotificaciones) {
                     window.sistemaNotificaciones.mostrarNotificacion(mensaje, 'info');
                 } else {
@@ -292,7 +292,7 @@ class MonitorRecuperacion {
             this.timeoutEmergencia = null;
         }
         
-        console.log('[Monitor] Monitoreo finalizado');
+        // Log eliminado
     }
 }
 
