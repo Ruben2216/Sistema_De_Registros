@@ -192,12 +192,14 @@ async function generarPDF() {
     doc.text("NO", 120, y);
     doc.text("OBSERVACIONES", 153, y);
 
+    doc.text("1. PREPARACIÓN", 105, y + 6, "center");
+
     doc.setFont("helvetica", "normal");
     const pageWidth2 = doc.internal.pageSize.getWidth();
     const p = pageWidth2 - 23;
-    doc.rect(15, y-4, p, 122); // TABLA 3
-    const top = y - 4;
-    const bottom = y - 4 + 122;
+    doc.rect(15, y-4, p, 128); // TABLA 3
+    const top = y + 8;
+    const bottom = y - 4 + 128;
 
     doc.line(108, top, 108, bottom); // primera línea vertical
     doc.line(118, top, 118, bottom); // segunda línea vertical
@@ -206,8 +208,9 @@ async function generarPDF() {
     const w = pageWidth2 - 8;
 
     doc.line(15,y+2, w, y+2 );
+    doc.line(15, y+8, w, y+8);
 
-    y+=6;
+    y+=12;
     doc.text(`1. ¿Cuenta con tierra física?`, 16, y);
     doc.line(15,y+2, w, y+2 );
 
