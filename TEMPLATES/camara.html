@@ -156,28 +156,8 @@
         });
     </script>
 
-    <script>
-        // Temporizador para detectar si OpenCV.js tarda demasiado en cargar
-        var opencvTimeout = setTimeout(function() {
-            showMessage('Error: OpenCV.js no se ha cargado después de 30 segundos. Por favor, verifica tu conexión o recarga la página.');
-        }, 30000);
-
-        // Función para cargar pdf_fotos.js dinámicamente
-        function cargarPDFfotosJS() {
-            var script = document.createElement('script');
-            script.src = '/RESOURCE/JS/pdf_fotos.js';
-            script.onload = function() {
-                // Puedes poner aquí un mensaje de éxito si lo deseas
-            };
-            script.onerror = function() {
-                showMessage('Error: No se pudo cargar pdf_fotos.js');
-            };
-            document.body.appendChild(script);
-        }
-    </script>
-
-    <!-- Carga OpenCV.js (local) de forma síncrona y con onload/onerror -->
-    <script src="/RESOURCE/opencv/opencv.js" onload="clearTimeout(opencvTimeout); cargarPDFfotosJS();" onerror="showMessage('Error: No se pudo cargar OpenCV.js');"></script>
+    <!-- Sistema robusto de carga de OpenCV.js con reintentos automáticos -->
+    <script src="/RESOURCE/JS/opencv_loader.js"></script>
     
     <!-- Carga jsPDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -193,10 +173,128 @@
     <script src="/RESOURCE/JS/autoguardado_camara.js"></script>
     <script src="/RESOURCE/JS/rij_pdf_a_imagen.js"></script>
 
+    <!-- Sistema de monitoreo y recuperación automática -->
+    <script src="/RESOURCE/JS/monitor_recuperacion.js"></script>
+    
+    <!-- Scripts principales de la aplicación -->
     <script src="/RESOURCE/JS/index.js"></script>
     <script src="/RESOURCE/JS/editar_foto.js"></script>
     <script src="/RESOURCE/JS/recorte_foto.js"></script>
     <script src="/RESOURCE/JS/importar_imagenes.js?v=3"></script>
     <script src="/RESOURCE/JS/envio_correo_camara.js"></script>
+
+    <!-- Sistema de notificaciones mejorado -->
+    <script src="/RESOURCE/JS/sistema_notificaciones.js"></script>
+    
+    <!-- Script de inicialización cuando OpenCV esté listo -->
+    <script>
+        // Configurar la inicialización cuando OpenCV esté disponible
+        document.addEventListener('DOMContentLoaded', function() {
+            // Verificar si el loader ya está disponible
+            if (window.opencvLoader) {
+                configurarCallbacksOpenCV();
+            } else {
+                // Esperar a que el loader esté disponible
+                const esperarLoader = setInterval(() => {
+                    if (window.opencvLoader) {
+                        clearInterval(esperarLoader);
+                        configurarCallbacksOpenCV();
+                    }
+                }, 100);
+            }
+        });
+
+        function configurarCallbacksOpenCV() {
+            // Callback cuando OpenCV se carga exitosamente
+            window.opencvLoader.onSuccess(function() {
+                console.log('✅ OpenCV.js está listo para usar');
+                
+                // Habilitar botones que dependen de OpenCV
+                const btnGenerarPDF = document.getElementById('btnGenerarPDF');
+                if (btnGenerarPDF) {
+                    btnGenerarPDF.disabled = false;
+                    btnGenerarPDF.textContent = 'Generar PDF de fotos';
+                }
+
+                const btnEnviarCorreo = document.getElementById('btnEnviarCorreo');
+                if (btnEnviarCorreo) {
+                    btnEnviarCorreo.disabled = false;
+                }
+
+                // Inicializar otros sistemas que dependen de OpenCV
+                if (typeof inicializarSistemaFotos === 'function') {
+                    inicializarSistemaFotos();
+                }
+            });
+
+            // Callback cuando OpenCV falla al cargar
+            window.opencvLoader.onError(function() {
+                console.warn('⚠️ OpenCV.js no pudo cargarse, activando modo básico');
+                
+                // Habilitar funcionalidades básicas
+                const btnGenerarPDF = document.getElementById('btnGenerarPDF');
+                if (btnGenerarPDF) {
+                    btnGenerarPDF.disabled = false;
+                    btnGenerarPDF.textContent = 'Generar PDF (modo básico)';
+                    btnGenerarPDF.title = 'Algunas funciones de procesamiento no estarán disponibles';
+                }
+
+                // Mostrar mensaje informativo al usuario
+                if (typeof showMessage === 'function') {
+                    showMessage('Sistema cargado en modo básico. Algunas funciones de procesamiento de imagen pueden no estar disponibles.');
+                }
+            });
+        }
+
+        // Función de utilidad para verificar si OpenCV está disponible
+        function verificarOpenCVDisponible() {
+            return window.cv && window.cv.Mat && typeof window.cv.Mat === 'function';
+        }
+
+        // Función mejorada de showMessage si no existe
+        if (typeof showMessage === 'undefined') {
+            window.showMessage = function(message) {
+                console.log('Mensaje del sistema:', message);
+                
+                // Crear un modal simple para mostrar mensajes
+                const modal = document.createElement('div');
+                modal.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: white;
+                    padding: 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                    z-index: 10001;
+                    max-width: 400px;
+                    text-align: center;
+                    font-family: Arial, sans-serif;
+                `;
+                
+                modal.innerHTML = `
+                    <p style="margin: 0 0 15px 0; color: #333;">${message}</p>
+                    <button onclick="this.parentElement.remove()" style="
+                        background: #007cba;
+                        color: white;
+                        border: none;
+                        padding: 8px 16px;
+                        border-radius: 4px;
+                        cursor: pointer;
+                    ">Entendido</button>
+                `;
+                
+                document.body.appendChild(modal);
+                
+                // Auto-remover después de 5 segundos
+                setTimeout(() => {
+                    if (modal.parentElement) {
+                        modal.remove();
+                    }
+                }, 5000);
+            };
+        }
+    </script>
 </body>
 </html>

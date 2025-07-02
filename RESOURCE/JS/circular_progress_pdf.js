@@ -90,6 +90,23 @@ class CircularProgressPDF {
             this.progresoActual = 0;
             this.progresoObjetivo = 0;
             this.estaCompletando = false;
+            
+            // Reiniciar el estado del modal
+            this.esModoContinuo = false;
+            this.detenerProgresoContinuo();
+            this.detenerSimulacion();
+            
+            // Restaurar el mensaje inicial del subtítulo
+            const subtitulo = document.querySelector('.pdf-progress-subtitle');
+            if (subtitulo) {
+                subtitulo.textContent = 'Procesando imágenes, por favor espera...';
+            }
+            
+            // Remover la clase de completado del anillo si existe
+            if (this.anilloProgreso) {
+                this.anilloProgreso.classList.remove('complete');
+            }
+            
             this.actualizarProgresoInstantaneo(0); // Comenzar en 0%
         }
     }    
@@ -134,7 +151,7 @@ class CircularProgressPDF {
             this.anilloProgreso.classList.add('complete');
         }
     }    /**
-     * Actualiza el progreso del círculo con animación suave
+     * Actualiza el progreso del círculo de forma directa (sin conflictos de animación)
      * @param {number} porcentaje - Porcentaje de progreso (0-100)
      */
     actualizarProgreso(porcentaje) {
@@ -143,13 +160,22 @@ class CircularProgressPDF {
         // Asegurar que el porcentaje esté entre 0 y 100
         porcentaje = Math.max(0, Math.min(100, porcentaje));
         
-        // Establecer el objetivo
-        this.progresoObjetivo = porcentaje;
-        
-        // Iniciar animación suave si no está corriendo
-        if (!this.cuadroAnimacion) {
-            this.animarProgreso();
+        // EVITAR OSCILACIÓN: Solo actualizar si hay un cambio significativo
+        const diferencia = Math.abs(porcentaje - this.progresoActual);
+        if (diferencia < 0.5) {
+            return; // Ignorar cambios menores que pueden causar oscilación
         }
+        
+        // Detener cualquier animación en curso para evitar conflictos
+        if (this.cuadroAnimacion) {
+            cancelAnimationFrame(this.cuadroAnimacion);
+            this.cuadroAnimacion = null;
+        }
+        
+        // Actualizar directamente sin animación suave
+        this.progresoActual = porcentaje;
+        this.progresoObjetivo = porcentaje;
+        this.actualizarProgresoInstantaneo(porcentaje);
     }
 
     /**
@@ -271,10 +297,18 @@ class CircularProgressPDF {
         this.ocultar();
         this.reiniciar();
     }    /**
-     * Comienza el progreso con una pequeña animación inicial
+     * Comienza el progreso simple (sin sistema continuo para evitar oscilación)
      */
     iniciarProgreso() {
+        // DESHABILITADO: No usar sistema continuo para evitar oscilación
+        console.log('🔄 Iniciando progreso simple (sin modo continuo)');
+        
+        // Establecer progreso inicial directamente
+        this.actualizarProgreso(1);
+        
+        /* CÓDIGO ORIGINAL COMENTADO para evitar oscilación:
         this.iniciarProgresoContinuo(); // Iniciar el sistema continuo
+        */
     }    /**
      * Inicia una simulación de progreso gradual entre dos puntos
      * @param {number} progresoInicial - Progreso inicial
@@ -387,16 +421,13 @@ class CircularProgressPDF {
         
         // Establecer nuevo objetivo
         this.establecerObjetivoContinuo(progresoExacto);
-    }/**
-     * Ejecuta la fase final con progreso continuo
+    }    /**
+     * Ejecuta la fase final con progreso simple (sin oscilación)
      * @param {number} progresoDesde - Progreso actual (usualmente ~85%)
      */
     iniciarFaseFinal(progresoDesde = 85) {
-        // Cambiar a modo continuo si no está activo
-        if (!this.esModoContinuo) {
-            this.progresoObjetivoGlobal = progresoDesde;
-            this.iniciarProgresoContinuo();
-        }
+        // NO USAR modo continuo para evitar oscilación
+        console.log('🔄 Iniciando fase final desde', progresoDesde + '%');
         
         // Actualizar mensaje inmediatamente
         const subtitulo = document.querySelector('.pdf-progress-subtitle');
@@ -404,8 +435,8 @@ class CircularProgressPDF {
             subtitulo.textContent = 'Finalizando generación del PDF...';
         }
         
-        // Establecer objetivo de 90%
-        this.establecerObjetivoContinuo(90);
+        // Establecer progreso directamente sin animación continua
+        this.actualizarProgreso(Math.max(progresoDesde, 90));
         
         // Programar la fase de guardado
         setTimeout(() => {
@@ -414,7 +445,7 @@ class CircularProgressPDF {
     }
 
     /**
-     * Ejecuta la fase de guardado con progreso continuo
+     * Ejecuta la fase de guardado con progreso simple
      */
     iniciarFaseGuardado() {
         // Actualizar mensaje
@@ -423,8 +454,8 @@ class CircularProgressPDF {
             subtitulo.textContent = 'Guardando archivo PDF...';
         }
         
-        // Establecer objetivo de 95%
-        this.establecerObjetivoContinuo(95);
+        // Establecer progreso directamente
+        this.actualizarProgreso(95);
         
         // Programar la finalización
         setTimeout(() => {
@@ -433,11 +464,11 @@ class CircularProgressPDF {
     }
 
     /**
-     * Ejecuta la fase de finalización con progreso continuo
+     * Ejecuta la fase de finalización con progreso simple
      */
     iniciarFaseFinalizacion() {
-        // Establecer objetivo final de 100%
-        this.establecerObjetivoContinuo(100);
+        // Establecer progreso final de 100%
+        this.actualizarProgreso(100);
         
         // Actualizar mensaje un poco después
         setTimeout(() => {
@@ -451,14 +482,22 @@ class CircularProgressPDF {
         setTimeout(() => {
             this.ocultar();
         }, 1200);
-    }/**
+    }    /**
      * Inicia el modo de progreso continuo para eliminar saltos visuales
+     * DESHABILITADO para evitar oscilación
      */
     iniciarProgresoContinuo() {
+        // SISTEMA DESHABILITADO: Causaba conflictos con actualizarProgreso()
+        console.log('⚠️ Modo continuo deshabilitado para evitar oscilación');
+        this.esModoContinuo = false;
+        return;
+        
+        /* CÓDIGO ORIGINAL COMENTADO:
         this.esModoContinuo = true;
         this.detenerSimulacion(); // Detener simulaciones anteriores
         this.progresoObjetivoGlobal = 1; // Comenzar en 1%
         this.iniciarAnimacionContinua();
+        */
     }
 
     /**
@@ -471,8 +510,14 @@ class CircularProgressPDF {
         }
     }    /**
      * Ejecuta la animación continua del progreso
+     * DESHABILITADO para evitar oscilación con otros sistemas
      */
     iniciarAnimacionContinua() {
+        // SISTEMA DESHABILITADO: Causaba oscilación con actualizarProgreso()
+        console.log('⚠️ Sistema de animación continua deshabilitado para evitar oscilación');
+        return;
+        
+        /* CÓDIGO ORIGINAL COMENTADO:
         if (!this.esModoContinuo || !this.esVisible) return;
 
         const actualizarProgreso = () => {
@@ -513,7 +558,10 @@ class CircularProgressPDF {
 
         // Actualizar a 60fps para máxima suavidad
         this.intervaloContinuo = setInterval(actualizarProgreso, 16);
-    }    /**
+        */
+    }
+
+    /**
      * Detiene el modo de progreso continuo
      */
     detenerProgresoContinuo() {

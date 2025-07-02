@@ -1,5 +1,60 @@
 let opencvReady = false; // Variable global para controlar la carga de OpenCV
 
+
+function verificarOpenCVDisponible() {
+    return typeof cv !== 'undefined' && cv.Mat && typeof cv.Mat === 'function';
+}
+
+// Inicializar OpenCV cuando esté disponible
+function inicializarOpenCV() {
+    if (verificarOpenCVDisponible()) {
+        opencvReady = true;
+        console.log('✅ OpenCV.js está listo en pdf_fotos.js');
+        
+        // Habilitar botones
+        const btn = document.getElementById('btnGenerarPDF');
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = 'Generar PDF de fotos';
+        }
+        
+        // Notificar al sistema de envío de correo
+        if (typeof habilitarBotonEnvioCorreoCamara === 'function') {
+            habilitarBotonEnvioCorreoCamara();
+        }
+        
+        // Disparar evento personalizado
+        window.dispatchEvent(new CustomEvent('opencvReady', { detail: { ready: true } }));
+        
+        return;
+    }
+    
+    // Si no está disponible, intentar configurar el callback
+    if (typeof cv !== 'undefined' && cv.onRuntimeInitialized !== undefined) {
+        cv.onRuntimeInitialized = function() {
+            inicializarOpenCV();
+        };
+    } else {
+        // Reintentar después de un breve retardo
+        setTimeout(inicializarOpenCV, 100);
+    }
+}
+
+// Inicializar cuando el script se carga
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', inicializarOpenCV);
+} else {
+    inicializarOpenCV();
+}
+
+// También escuchar el evento personalizado del loader de OpenCV
+window.addEventListener('opencvReady', function() {
+    if (!opencvReady) {
+        inicializarOpenCV();
+    }
+});
+
+// CÓDIGO LEGACY - Mantener compatibilidad con el sistema anterior
 // Esto garantiza que todas las funciones de `cv` (como `cv.imread`) estén disponibles.
 if (typeof cv !== 'undefined') {
     cv.onRuntimeInitialized = function() {
@@ -58,10 +113,29 @@ if (typeof cv !== 'undefined') {
  * @param {function(string):void} callback - Función de retorno que recibe la imagen como Data URL.
  */
 function aplicarFiltroDocumento(img, calidad, maxLado, callback) {
-    if (!opencvReady) {
-        // Mostrar mensaje si OpenCV.js no está cargado
-        showMessage('OpenCV.js aún no está cargado. Por favor, espera y vuelve a intentarlo.');
-        callback(null); // Retornar null para indicar que el procesamiento falló
+    if (!opencvReady || !verificarOpenCVDisponible()) {
+        console.warn('OpenCV.js no está disponible, usando imagen original');
+        // En lugar de mostrar error, usar la imagen original
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Calcular dimensiones manteniendo el ratio
+        const ratio = img.naturalWidth / img.naturalHeight;
+        let nuevoAncho, nuevoAlto;
+        
+        if (img.naturalWidth > img.naturalHeight) {
+            nuevoAncho = Math.min(maxLado, img.naturalWidth);
+            nuevoAlto = nuevoAncho / ratio;
+        } else {
+            nuevoAlto = Math.min(maxLado, img.naturalHeight);
+            nuevoAncho = nuevoAlto * ratio;
+        }
+        
+        canvas.width = nuevoAncho;
+        canvas.height = nuevoAlto;
+        ctx.drawImage(img, 0, 0, nuevoAncho, nuevoAlto);
+        
+        callback(canvas.toDataURL('image/jpeg', calidad));
         return;
     }
 
@@ -158,9 +232,9 @@ function aplicarFiltroDocumento(img, calidad, maxLado, callback) {
  * Función principal para generar el PDF a partir de las fotos capturadas.
  */
 async function generarPDFConFotos() {
-    if (!opencvReady) {
-        showMessage('OpenCV.js aún no está cargado. Por favor, espera y vuelve a intentarlo.');
-        return;
+    if (!opencvReady || !verificarOpenCVDisponible()) {
+        console.warn('OpenCV.js no está disponible, generando PDF en modo básico');
+        // Continuar sin OpenCV, usando imágenes originales
     }
 
     var fotosWrappers = document.querySelectorAll('#photosContainer .photo-wrapper');
@@ -168,6 +242,27 @@ async function generarPDFConFotos() {
     if (fotosWrappers.length === 0) {
         showMessage('No hay fotos para procesar.');
         return;
+    }
+
+    // DIAGNÓSTICO: Verificar imágenes locales disponibles
+    console.log('🔍 DIAGNÓSTICO DE IMÁGENES LOCALES:');
+    var imgElementos = document.querySelectorAll('#photosContainer img.foto-principal');
+    imgElementos.forEach(function(imgEl, index) {
+        console.log('📸 Imagen', index + 1, ':');
+        console.log('  - src:', imgEl.src.substring(0, 50) + (imgEl.src.length > 50 ? '...' : ''));
+        console.log('  - es data URL:', imgEl.src.startsWith('data:'));
+        console.log('  - data-local-image:', !!imgEl.getAttribute('data-local-image'));
+        console.log('  - data-recortada:', !!imgEl.getAttribute('data-recortada'));
+        console.log('  - data-mejorada:', !!imgEl.getAttribute('data-mejorada'));
+        console.log('  - data-original-url:', imgEl.getAttribute('data-original-url') ? 'SÍ' : 'NO');
+    });
+    console.log('✅ Total de imágenes encontradas en el navegador:', imgElementos.length);
+
+    // OPTIMIZACIÓN: Garantizar que todas las imágenes tengan versiones locales
+    try {
+        await garantizarImagenesLocales();
+    } catch (error) {
+        console.warn('⚠️ Error al garantizar imágenes locales:', error);
     }
 
     // Mostrar el modal de progreso circular al inicio de la generación del PDF
@@ -216,39 +311,94 @@ async function generarPDFConFotos() {
         anchoCelda = anchoHoja / columnas;
         altoCelda = anchoCelda / aspectoFoto;
     }
-    // Obtener solo la versión seleccionada de cada foto (la que se muestra en grande)
+    // Obtener solo la versión seleccionada de cada foto PRIORIZANDO IMÁGENES LOCALES
     for (var i = 0; i < fotosWrappers.length; i++) {
         var imgSeleccionada = fotosWrappers[i].querySelector('img.foto-principal');
         var checkbox = fotosWrappers[i].querySelector('.checkbox-pantalla-completa');
         if (imgSeleccionada) {
-            imagenesSeleccionadas.push(imgSeleccionada.src);
+            // PRIORIZAR IMÁGENES LOCALES del navegador (evitar solicitudes al servidor)
+            var imagenAUsar = null;
+            
+            // 1. Si el src actual es un data URL, usarlo
+            if (imgSeleccionada.src.startsWith('data:')) {
+                imagenAUsar = imgSeleccionada.src;
+                console.log('📌 Usando src data URL para imagen', i + 1);
+            } else {
+                // 2. Buscar versiones locales almacenadas en atributos
+                imagenAUsar = imgSeleccionada.getAttribute('data-recortada') || 
+                             imgSeleccionada.getAttribute('data-mejorada') ||
+                             imgSeleccionada.getAttribute('data-contraste') ||
+                             imgSeleccionada.getAttribute('data-bordes') ||
+                             imgSeleccionada.getAttribute('data-color') ||
+                             imgSeleccionada.getAttribute('data-local-image');
+                
+                if (imagenAUsar && imagenAUsar.startsWith('data:')) {
+                    console.log('📌 Usando data URL almacenado para imagen', i + 1);
+                } else {
+                    // 3. Fallback: usar el src (URL del servidor)
+                    imagenAUsar = imgSeleccionada.src;
+                    console.warn('⚠️ No hay data URL local, usando URL del servidor para imagen', i + 1);
+                }
+            }
+            
+            imagenesSeleccionadas.push(imagenAUsar);
         }
     }
     // Eliminar duplicados exactos (por si alguna foto se repite)
     var imagenesUnicas = imagenesSeleccionadas.filter(function(value, index, self) {
         return self.indexOf(value) === index;
     });
+    
+    // DIAGNÓSTICO FINAL: Mostrar resumen de tipos de imagen
+    var imagenesLocales = 0;
+    var imagenesServidor = 0;
+    imagenesUnicas.forEach(function(imagen, index) {
+        if (imagen.startsWith('data:')) {
+            imagenesLocales++;
+            console.log('✅ Imagen', index + 1, ': LOCAL (data URL)');
+        } else {
+            imagenesServidor++;
+            console.log('🚨 Imagen', index + 1, ': SERVIDOR (URL)', imagen.substring(0, 50) + '...');
+        }
+    });
+    
+    console.log('📊 RESUMEN DE IMÁGENES PARA PDF:');
+    console.log('✅ Imágenes locales (rápidas):', imagenesLocales);
+    console.log('🚨 Imágenes del servidor (lentas):', imagenesServidor);
+    console.log('📈 Total de imágenes:', imagenesUnicas.length);
+    
+    if (imagenesServidor > 0) {
+        console.warn('⚠️ ATENCIÓN: Se están usando', imagenesServidor, 'imágenes del servidor. Esto es menos eficiente.');
+    } else {
+        console.log('🎉 ¡PERFECTO! Todas las imágenes son locales, generación rápida sin solicitudes al servidor.');
+    }
     // Revisar si el checkbox global está activado
     var pantallaCompletaGlobal = false;
     var chkGlobal = document.getElementById('pantallaCompletaPDF');
     if (chkGlobal) {
         pantallaCompletaGlobal = chkGlobal.checked;
     }
-    // Función para agregar una imagen al PDF con control de tamaño
+    // Función para agregar una imagen al PDF con control de tamaño - PRIORIZA IMÁGENES LOCALES
     function agregarImagenAlPDF(imagen, indiceImagen, totalImagenes, callback) {
+        console.log('🖼️ Procesando imagen:', indiceImagen + 1, 'de', totalImagenes);
+        console.log('📌 URL imagen:', imagen.substring(0, 100) + (imagen.length > 100 ? '...' : ''));
+        
         // Buscar si existe una versión local de la imagen en el DOM
         var imgElementos = document.querySelectorAll('#photosContainer img.foto-principal');
         var localDataURL = null;
+        var imagenEncontrada = false;
         
+        // PASO 1: Buscar imagen local en elementos del DOM
         for (var i = 0; i < imgElementos.length; i++) {
             var imgEl = imgElementos[i];
             
             // Verificar si esta imagen coincide con la que se va a procesar
-            // Puede coincidir por src directo o por ser una versión de la misma imagen
             var coincide = false;
             
             if (imgEl.src === imagen) {
                 coincide = true;
+                imagenEncontrada = true;
+                console.log('✅ Imagen encontrada por src directo');
             } else if (imagen.startsWith('data:')) {
                 // Si la imagen es un data URL, verificar si coincide con alguna versión almacenada
                 var originalUrl = imgEl.getAttribute('data-original-url');
@@ -262,35 +412,62 @@ async function generarPDFConFotos() {
                 if (imagen === mejorada || imagen === recortada || imagen === contraste || 
                     imagen === bordes || imagen === color || imagen === localImg) {
                     coincide = true;
+                    imagenEncontrada = true;
+                    console.log('✅ Imagen encontrada por data URL coincidente');
+                }
+            } else {
+                // Para URLs del servidor, buscar por data-original-url o similares
+                var originalUrl = imgEl.getAttribute('data-original-url');
+                if (originalUrl === imagen) {
+                    coincide = true;
+                    imagenEncontrada = true;
+                    console.log('✅ Imagen encontrada por data-original-url');
                 }
             }
             
             if (coincide) {
-                // Prioridad: la imagen que se está mostrando actualmente (imgEl.src)
-                // Si ya es un data URL, usarla directamente
+                // PRIORIDAD ABSOLUTA: usar imágenes locales del navegador
+                // 1. La imagen que se está mostrando actualmente (si es data URL)
                 if (imgEl.src.startsWith('data:')) {
                     localDataURL = imgEl.src;
+                    console.log('🎯 Usando imagen mostrada actualmente (data URL)');
                 } else {
-                    // Buscar versión local en orden de prioridad:
-                    // 1. Imagen recortada (más específica)
-                    // 2. Data URL local original
+                    // 2. Buscar versión local en orden de prioridad:
                     localDataURL = imgEl.getAttribute('data-recortada') || 
+                                  imgEl.getAttribute('data-mejorada') ||
+                                  imgEl.getAttribute('data-contraste') ||
+                                  imgEl.getAttribute('data-bordes') ||
+                                  imgEl.getAttribute('data-color') ||
                                   imgEl.getAttribute('data-local-image');
+                    
+                    if (localDataURL) {
+                        console.log('🎯 Usando versión local almacenada');
+                    }
                 }
                 break;
             }
         }
         
-        // Si encontramos una versión local, procesarla con control de tamaño
+        // PASO 2: Si no encontramos imagen local, pero la imagen ya es un data URL, usarla
+        if (!localDataURL && imagen.startsWith('data:')) {
+            localDataURL = imagen;
+            imagenEncontrada = true;
+            console.log('🎯 Usando data URL directo');
+        }
+        
+        // PASO 3: Procesar imagen local si está disponible
         if (localDataURL && localDataURL.startsWith('data:')) {
+            console.log('✅ Procesando imagen LOCAL del navegador (SIN solicitud al servidor)');
             var img = new window.Image();
             img.onload = function() {
                 // Usar el sistema de control de tamaño para procesar la imagen
                 if (typeof window.procesarImagenParaPDF === 'function') {
                     window.procesarImagenParaPDF(img, indiceImagen, totalImagenes, function(dataUrlProcesada) {
                         if (dataUrlProcesada) {
+                            console.log('✅ Imagen procesada con control de tamaño');
                             callback(dataUrlProcesada);
                         } else {
+                            console.log('⚠️ Control de tamaño falló, usando fallback');
                             // Fallback: usar método anterior con calidad reducida
                             var canvas = document.createElement('canvas');
                             canvas.width = Math.min(800, img.naturalWidth);
@@ -302,6 +479,7 @@ async function generarPDFConFotos() {
                         }
                     });
                 } else {
+                    console.log('📝 Usando procesamiento básico (sin control de tamaño)');
                     // Fallback si no está disponible el controlador
                     var canvas = document.createElement('canvas');
                     canvas.width = img.naturalWidth;
@@ -312,19 +490,82 @@ async function generarPDFConFotos() {
                     callback(webpDataUrl);
                 }
             };
+            img.onerror = function() {
+                console.error('❌ Error al cargar imagen local, intentando plan B');
+                usarPlanB();
+            };
             img.src = localDataURL;
             return;
         }
         
-        // Si la imagen ya es un data URL, procesarla con control de tamaño
+        // PLAN B: Solicitud al servidor (SOLO como último recurso)
+        function usarPlanB() {
+            console.warn('🚨 PLAN B: Haciendo solicitud al servidor (menos eficiente)');
+            console.warn('📡 URL del servidor:', imagen);
+            console.warn('💡 SUGERENCIA: Esta imagen debería tener una versión local para evitar esta solicitud');
+            
+            fetch(imagen, { credentials: 'include' })
+                .then(function(response) { 
+                    if (!response.ok) {
+                        throw new Error('Error en respuesta del servidor: ' + response.status);
+                    }
+                    return response.blob(); 
+                })
+                .then(function(blob) {
+                    console.log('📦 Blob recibido del servidor, tamaño:', blob.size, 'bytes');
+                    var reader = new FileReader();
+                    reader.onloadend = function() {
+                        var img = new window.Image();
+                        img.onload = function() {
+                            console.log('✅ Imagen del servidor cargada exitosamente');
+                            // Usar el sistema de control de tamaño
+                            if (typeof window.procesarImagenParaPDF === 'function') {
+                                window.procesarImagenParaPDF(img, indiceImagen, totalImagenes, callback);
+                            } else {
+                                // Fallback
+                                var canvas = document.createElement('canvas');
+                                canvas.width = img.naturalWidth;
+                                canvas.height = img.naturalHeight;
+                                var ctx = canvas.getContext('2d');
+                                ctx.drawImage(img, 0, 0);
+                                var webpDataUrl = canvas.toDataURL('image/webp', 0.9);
+                                callback(webpDataUrl);
+                            }
+                        };
+                        img.onerror = function() {
+                            console.error('❌ Error al procesar imagen del servidor');
+                            callback(null);
+                        };
+                        img.src = reader.result;
+                    };
+                    reader.onerror = function() {
+                        console.error('❌ Error al leer blob del servidor');
+                        callback(null);
+                    };
+                    reader.readAsDataURL(blob);
+                })
+                .catch(function(error) {
+                    console.error('❌ Error en fetch al servidor:', error);
+                    callback(null);
+                });
+        }
+        
+        // Si llegamos aquí, no encontramos imagen local, usar plan B
+        if (!imagenEncontrada) {
+            console.warn('⚠️ No se encontró imagen local en el navegador');
+            console.warn('🔍 Imagen buscada:', imagen.substring(0, 100) + (imagen.length > 100 ? '...' : ''));
+        } else {
+            console.warn('⚠️ Imagen encontrada pero sin data URL local válido');
+        }
+        
+        // Última verificación: si la imagen es data URL pero no la detectamos arriba
         if (imagen.startsWith('data:')) {
+            console.log('🎯 Procesando data URL directo (detección tardía)');
             var img = new window.Image();
             img.onload = function() {
-                // Usar el sistema de control de tamaño
                 if (typeof window.procesarImagenParaPDF === 'function') {
                     window.procesarImagenParaPDF(img, indiceImagen, totalImagenes, callback);
                 } else {
-                    // Fallback
                     var canvas = document.createElement('canvas');
                     canvas.width = img.naturalWidth;
                     canvas.height = img.naturalHeight;
@@ -334,50 +575,30 @@ async function generarPDFConFotos() {
                     callback(webpDataUrl);
                 }
             };
+            img.onerror = function() {
+                console.error('❌ Error con data URL directo, usando plan B');
+                usarPlanB();
+            };
             img.src = imagen;
-            return;
+        } else {
+            usarPlanB();
         }
-        
-        // Última opción: fetch al servidor con control de tamaño
-        fetch(imagen, { credentials: 'include' })
-            .then(function(response) { return response.blob(); })
-            .then(function(blob) {
-                var reader = new FileReader();
-                reader.onloadend = function() {
-                    var img = new window.Image();
-                    img.onload = function() {
-                        // Usar el sistema de control de tamaño
-                        if (typeof window.procesarImagenParaPDF === 'function') {
-                            window.procesarImagenParaPDF(img, indiceImagen, totalImagenes, callback);
-                        } else {
-                            // Fallback
-                            var canvas = document.createElement('canvas');
-                            canvas.width = img.naturalWidth;
-                            canvas.height = img.naturalHeight;
-                            var ctx = canvas.getContext('2d');
-                            ctx.drawImage(img, 0, 0);
-                            var webpDataUrl = canvas.toDataURL('image/webp', 0.9);
-                            callback(webpDataUrl);
-                        }
-                    };
-                    img.src = reader.result;
-                };
-                reader.readAsDataURL(blob);
-            })
-            .catch(function() {
-                callback(null);
-            });
     }    // Procesar imágenes según el modo global o por foto
     function procesarImagenes(indice, imagenesProcesadas, enMosaico, mosaicoPendiente) {        
-        if (indice >= imagenesUnicas.length) {            // Entrar en fase final de generación con progreso fluido
+        if (indice >= imagenesUnicas.length) {
+            // FASE FINAL: Compilación del PDF
+            console.log('📄 Iniciando fase final: compilación del PDF...');
+            
+            // Usar el sistema original de fase final
             if (window.pdfProgressManager) {
                 const progresoActual = window.pdfProgressManager.obtenerProgresoActual();
                 window.pdfProgressManager.iniciarFaseFinal(progresoActual);
             }
             
-            // Continuar con la generación del PDF sin delays adicionales
-            // (el progreso ya está siendo manejado automáticamente)
+            // Continuar con la generación del PDF
             setTimeout(() => {
+                console.log('📝 Agregando imágenes al PDF...');
+                
                 // Si quedan fotos en mosaico pendientes, agrégalas al final
                 if (!pantallaCompletaGlobal && enMosaico.length > 0) {
                     for (var j = 0; j < enMosaico.length; j++) {
@@ -390,7 +611,8 @@ async function generarPDFConFotos() {
                         if ((i + 1) % fotosPorHoja === 0 && j !== enMosaico.length - 1) {
                             pdf.addPage('letter', 'portrait');
                         }
-                    }                }
+                    }
+                }
                 
                 // Generar nombre con reporte de tamaño
                 var hoy = new Date();
@@ -406,20 +628,35 @@ async function generarPDFConFotos() {
                     reporte = '_' + estadisticas.tamaño_final_mb + 'MB';
                 }
                 
-                pdf.save('Formato_Digitalizado_' + fechaActual + reporte + '.pdf');
+                // MOSTRAR ESTADÍSTICAS DE OPTIMIZACIÓN
+                var stats = mostrarEstadisticasOptimizacion();
+                console.log('📄 PDF generado exitosamente con', stats.porcentajeOptimizado + '% de optimización');
                 
-                // Restaurar el botón (el modal se ocultará automáticamente)
-                const btn = document.getElementById('btnGenerarPDF');
-                if (btn) {
-                    btn.disabled = false;
-                    btn.textContent = 'Generar PDF de fotos';
-                }
+                // Esperar a que el modal complete su animación antes de descargar
+                setTimeout(() => {
+                    // Ejecutar la descarga
+                    pdf.save('Formato_Digitalizado_' + fechaActual + reporte + '.pdf');
+                    
+                    // Restaurar el botón después de un breve delay
+                    setTimeout(() => {
+                        const btn = document.getElementById('btnGenerarPDF');
+                        if (btn) {
+                            btn.disabled = false;
+                            btn.textContent = 'Generar PDF de fotos';
+                        }
+                        console.log('✅ Proceso de PDF completado exitosamente');
+                    }, 500);
+                    
+                }, 1000); // Esperar 1 segundo para que el modal termine su animación
                 
-            }, 200); // Pequeño delay solo para permitir que se vea la transición de fase
+            }, 200);
             return;
-        }        // Comenzar el procesamiento de esta imagen (progreso continuo)
+        }        // Comenzar el procesamiento de esta imagen (progreso controlado)
+        // Usar progreso manual en lugar del modo continuo para mayor control
         if (window.pdfProgressManager) {
-            window.pdfProgressManager.iniciarProcesamientoImagen(indice, imagenesUnicas.length);
+            // Calcular progreso basado en imagen que está por procesarse
+            var progresoInicio = (indice / imagenesUnicas.length) * 80; // 80% para imágenes
+            window.pdfProgressManager.actualizarProgreso(progresoInicio + 1);
         }
         
         agregarImagenAlPDF(imagenesUnicas[indice], indice, imagenesUnicas.length, function(dataUrl) {
@@ -433,9 +670,11 @@ async function generarPDFConFotos() {
                     enMosaico.push(dataUrl);
                 }                imagenesProcesadas.push(dataUrl);
             }
-              // Finalizar el progreso de esta imagen específica
+              // Actualizar progreso cuando la imagen se complete
             if (window.pdfProgressManager) {
-                window.pdfProgressManager.finalizarProcesamientoImagen(indice, imagenesUnicas.length);
+                // Usar actualizarProgresoDesdeImagenes para mantener el límite del 85%
+                window.pdfProgressManager.actualizarProgresoDesdeImagenes(indice, imagenesUnicas.length);
+                console.log('✅ Imagen', indice + 1, 'de', imagenesUnicas.length, 'procesada');
             }
             
             // Continuar procesando la siguiente imagen
@@ -1015,6 +1254,117 @@ function aplicarFiltroCorreccionColor(img, calidad, maxLado, callback) {
     }
 }
 
-//# sourceMappingURL=app.js.map
+// FUNCIÓN OPTIMIZACIÓN: Garantizar que todas las imágenes tengan versiones locales
+async function garantizarImagenesLocales() {
+    console.log('🔧 Verificando y corrigiendo imágenes para evitar solicitudes al servidor...');
+    
+    var imgElementos = document.querySelectorAll('#photosContainer img.foto-principal');
+    var promesasConversion = [];
+    
+    imgElementos.forEach(function(imgEl, index) {
+        // Verificar si ya tiene una versión local
+        var tieneVersionLocal = imgEl.src.startsWith('data:') ||
+                               imgEl.getAttribute('data-local-image') ||
+                               imgEl.getAttribute('data-recortada') ||
+                               imgEl.getAttribute('data-mejorada');
+        
+        if (!tieneVersionLocal) {
+            console.log('🔄 Convirtiendo imagen', index + 1, 'a versión local...');
+            
+            // Crear promesa para convertir esta imagen
+            var promesa = new Promise(function(resolve) {
+                // Si la imagen ya está cargada, convertirla inmediatamente
+                if (imgEl.complete && imgEl.naturalHeight !== 0) {
+                    convertirImagenALocal(imgEl, resolve);
+                } else {
+                    // Si no está cargada, esperar a que se cargue
+                    imgEl.onload = function() {
+                        convertirImagenALocal(imgEl, resolve);
+                    };
+                    imgEl.onerror = function() {
+                        console.warn('❌ Error al cargar imagen', index + 1, 'para conversión local');
+                        resolve();
+                    };
+                }
+            });
+            
+            promesasConversion.push(promesa);
+        } else {
+            console.log('✅ Imagen', index + 1, 'ya tiene versión local');
+        }
+    });
+    
+    if (promesasConversion.length > 0) {
+        console.log('⏳ Esperando conversión de', promesasConversion.length, 'imágenes...');
+        await Promise.all(promesasConversion);
+        console.log('✅ Todas las imágenes convertidas a versiones locales');
+    } else {
+        console.log('🎉 Todas las imágenes ya tenían versiones locales');
+    }
+}
+
+// Función auxiliar para convertir una imagen a data URL local
+function convertirImagenALocal(imgEl, callback) {
+    try {
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext('2d');
+        
+        canvas.width = imgEl.naturalWidth;
+        canvas.height = imgEl.naturalHeight;
+        
+        ctx.drawImage(imgEl, 0, 0);
+        
+        // Usar WEBP con alta calidad para mejor compresión
+        var dataURL = canvas.toDataURL('image/webp', 0.9);
+        
+        // Almacenar la versión local
+        imgEl.setAttribute('data-local-image', dataURL);
+        
+        console.log('✅ Imagen convertida a versión local exitosamente');
+        callback();
+    } catch (error) {
+        console.warn('❌ Error al convertir imagen a versión local:', error);
+        callback();
+    }
+}
+
+// ESTADÍSTICAS DE OPTIMIZACIÓN: Mostrar resumen de rendimiento
+function mostrarEstadisticasOptimizacion() {
+    var imagenesEncontradas = document.querySelectorAll('#photosContainer img.foto-principal').length;
+    var imagenesConVersionLocal = 0;
+    var imagenesSinVersionLocal = 0;
+    
+    document.querySelectorAll('#photosContainer img.foto-principal').forEach(function(imgEl) {
+        var tieneVersionLocal = imgEl.src.startsWith('data:') ||
+                               imgEl.getAttribute('data-local-image') ||
+                               imgEl.getAttribute('data-recortada') ||
+                               imgEl.getAttribute('data-mejorada');
+        
+        if (tieneVersionLocal) {
+            imagenesConVersionLocal++;
+        } else {
+            imagenesSinVersionLocal++;
+        }
+    });
+    
+    console.log('📊 ESTADÍSTICAS DE OPTIMIZACIÓN:');
+    console.log('📈 Total de imágenes:', imagenesEncontradas);
+    console.log('✅ Con versión local:', imagenesConVersionLocal);
+    console.log('🚨 Sin versión local:', imagenesSinVersionLocal);
+    console.log('🎯 Porcentaje optimizado:', Math.round((imagenesConVersionLocal / imagenesEncontradas) * 100) + '%');
+    
+    if (imagenesSinVersionLocal === 0) {
+        console.log('🎉 ¡PERFECTO! Todas las imágenes están optimizadas para generación rápida de PDF');
+    } else {
+        console.warn('⚠️ ATENCIÓN:', imagenesSinVersionLocal, 'imágenes requieren solicitudes al servidor');
+    }
+    
+    return {
+        total: imagenesEncontradas,
+        optimizadas: imagenesConVersionLocal,
+        sinOptimizar: imagenesSinVersionLocal,
+        porcentajeOptimizado: Math.round((imagenesConVersionLocal / imagenesEncontradas) * 100)
+    };
+}
 
 
