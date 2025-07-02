@@ -312,6 +312,9 @@ async function generarPDFConFotos() {
         altoCelda = anchoCelda / aspectoFoto;
     }
     // Obtener solo la versión seleccionada de cada foto PRIORIZANDO IMÁGENES LOCALES
+    // **NUEVO**: También obtener información de checkbox individual
+    var imagenesConEstado = []; // Array de objetos {imagen, pantallaCompleta, wrapper}
+    
     for (var i = 0; i < fotosWrappers.length; i++) {
         var imgSeleccionada = fotosWrappers[i].querySelector('img.foto-principal');
         var checkbox = fotosWrappers[i].querySelector('.checkbox-pantalla-completa');
@@ -341,7 +344,24 @@ async function generarPDFConFotos() {
                 }
             }
             
+            // **NUEVO**: Determinar si esta imagen específica debe ir en pantalla completa
+            var pantallaCompletaIndividual = false;
+            
+            if (checkbox && checkbox.checked) {
+                pantallaCompletaIndividual = true;
+                console.log('✅ Imagen', i + 1, 'marcada para pantalla completa individual');
+            } else if (pantallaCompletaGlobal) {
+                pantallaCompletaIndividual = true;
+                console.log('🌐 Imagen', i + 1, 'en pantalla completa por configuración global');
+            }
+            
             imagenesSeleccionadas.push(imagenAUsar);
+            imagenesConEstado.push({
+                imagen: imagenAUsar,
+                pantallaCompleta: pantallaCompletaIndividual,
+                wrapper: fotosWrappers[i],
+                indiceOriginal: i
+            });
         }
     }
     // Eliminar duplicados exactos (por si alguna foto se repite)
@@ -583,8 +603,8 @@ async function generarPDFConFotos() {
         } else {
             usarPlanB();
         }
-    }    // Procesar imágenes según el modo global o por foto
-    function procesarImagenes(indice, imagenesProcesadas, enMosaico, mosaicoPendiente) {        
+    }    // **MEJORADO**: Procesar imágenes según configuración individual y global
+    function procesarImagenes(indice, imagenesProcesadas, enMosaico, paginasCompletas) {        
         if (indice >= imagenesUnicas.length) {
             // FASE FINAL: Compilación del PDF
             console.log('📄 Iniciando fase final: compilación del PDF...');
@@ -597,20 +617,104 @@ async function generarPDFConFotos() {
             
             // Continuar con la generación del PDF
             setTimeout(() => {
-                console.log('📝 Agregando imágenes al PDF...');
+                console.log('📝 Construyendo PDF respetando orden original...');
                 
-                // Si quedan fotos en mosaico pendientes, agrégalas al final
-                if (!pantallaCompletaGlobal && enMosaico.length > 0) {
-                    for (var j = 0; j < enMosaico.length; j++) {
-                        var i = j;
-                        var col = i % columnas;
-                        var fila = Math.floor((i % fotosPorHoja) / columnas);
-                        var x = col * anchoCelda;
-                        var y = fila * altoCelda;
-                        pdf.addImage(enMosaico[j], 'WEBP', x, y, anchoCelda, altoCelda);
-                        if ((i + 1) % fotosPorHoja === 0 && j !== enMosaico.length - 1) {
+                // **NUEVO**: Construir PDF respetando el orden original de las imágenes
+                // Ordenar imágenes procesadas por su índice original
+                imagenesProcesadas.sort(function(a, b) {
+                    return a.indice - b.indice;
+                });
+                
+                var imagenesMosaico = [];
+                var paginaActualMosaico = 0;
+                var posicionEnPagina = 0;
+                var esPrimeraPagina = true; // Controlar si es la primera página del PDF
+                
+                console.log('� Procesando', imagenesProcesadas.length, 'imágenes en orden original...');
+                
+                for (var i = 0; i < imagenesProcesadas.length; i++) {
+                    var imagenInfo = imagenesProcesadas[i];
+                    
+                    if (imagenInfo.esPantallaCompleta) {
+                        // **CORREGIDO**: Agregar página completa en el momento correcto del orden
+                        console.log('📄 Agregando imagen', imagenInfo.indice + 1, 'en pantalla completa (orden correcto)');
+                        
+                        // Si hay imágenes de mosaico pendientes, completar la página de mosaico actual
+                        if (imagenesMosaico.length > 0) {
+                            console.log('�️ Completando página de mosaico antes de pantalla completa');
+                            // Si no es la primera página, agregar nueva página
+                            if (!esPrimeraPagina) {
+                                pdf.addPage('letter', 'portrait');
+                            }
+                            esPrimeraPagina = false;
+                            
+                            // Agregar imágenes del mosaico pendiente
+                            for (var j = 0; j < imagenesMosaico.length; j++) {
+                                var col = j % columnas;
+                                var fila = Math.floor(j / columnas);
+                                var x = col * anchoCelda;
+                                var y = fila * altoCelda;
+                                pdf.addImage(imagenesMosaico[j], 'WEBP', x, y, anchoCelda, altoCelda);
+                            }
+                            
+                            imagenesMosaico = []; // Limpiar mosaico
+                            posicionEnPagina = 0;
+                        }
+                        
+                        // Agregar nueva página para pantalla completa
+                        if (!esPrimeraPagina) {
                             pdf.addPage('letter', 'portrait');
                         }
+                        esPrimeraPagina = false;
+                        
+                        // Agregar imagen en pantalla completa
+                        pdf.addImage(imagenInfo.dataUrl, 'WEBP', 0, 0, anchoHoja, altoHoja);
+                        
+                    } else {
+                        // **CORREGIDO**: Agregar a mosaico respetando orden
+                        console.log('🔲 Agregando imagen', imagenInfo.indice + 1, 'a mosaico (posición', imagenesMosaico.length + 1, ')');
+                        imagenesMosaico.push(imagenInfo.dataUrl);
+                        
+                        // Si completamos una página de mosaico (9 imágenes), agregar la página
+                        if (imagenesMosaico.length === fotosPorHoja) {
+                            console.log('📄 Página de mosaico completa, agregando al PDF');
+                            
+                            // Si no es la primera página, agregar nueva página
+                            if (!esPrimeraPagina) {
+                                pdf.addPage('letter', 'portrait');
+                            }
+                            esPrimeraPagina = false;
+                            
+                            // Agregar todas las imágenes del mosaico a la página
+                            for (var k = 0; k < imagenesMosaico.length; k++) {
+                                var col = k % columnas;
+                                var fila = Math.floor(k / columnas);
+                                var x = col * anchoCelda;
+                                var y = fila * altoCelda;
+                                pdf.addImage(imagenesMosaico[k], 'WEBP', x, y, anchoCelda, altoCelda);
+                            }
+                            
+                            imagenesMosaico = []; // Limpiar para la siguiente página
+                        }
+                    }
+                }
+                
+                // **CORREGIDO**: Procesar imágenes de mosaico restantes al final
+                if (imagenesMosaico.length > 0) {
+                    console.log('🔄 Agregando', imagenesMosaico.length, 'imágenes restantes de mosaico');
+                    
+                    // Agregar nueva página si es necesario
+                    if (!esPrimeraPagina) {
+                        pdf.addPage('letter', 'portrait');
+                    }
+                    
+                    // Agregar imágenes restantes
+                    for (var m = 0; m < imagenesMosaico.length; m++) {
+                        var col = m % columnas;
+                        var fila = Math.floor(m / columnas);
+                        var x = col * anchoCelda;
+                        var y = fila * altoCelda;
+                        pdf.addImage(imagenesMosaico[m], 'WEBP', x, y, anchoCelda, altoCelda);
                     }
                 }
                 
@@ -632,6 +736,14 @@ async function generarPDFConFotos() {
                 var stats = mostrarEstadisticasOptimizacion();
                 console.log('📄 PDF generado exitosamente con', stats.porcentajeOptimizado + '% de optimización');
                 
+                // Contar páginas completas y de mosaico para el resumen
+                var paginasCompletasCount = imagenesProcesadas.filter(function(img) { return img.esPantallaCompleta; }).length;
+                var imagenesMosaicoCount = imagenesProcesadas.filter(function(img) { return !img.esPantallaCompleta; }).length;
+                var paginasMosaicoCount = Math.ceil(imagenesMosaicoCount / fotosPorHoja);
+                
+                console.log('📊 Resumen final: ' + paginasCompletasCount + ' páginas completas + ' + paginasMosaicoCount + ' páginas de mosaico (' + imagenesMosaicoCount + ' imágenes)');
+                console.log('✅ Orden original respetado correctamente');
+                
                 // Esperar a que el modal complete su animación antes de descargar
                 setTimeout(() => {
                     // Ejecutar la descarga
@@ -651,7 +763,8 @@ async function generarPDFConFotos() {
                 
             }, 200);
             return;
-        }        // Comenzar el procesamiento de esta imagen (progreso controlado)
+        }        
+        // Comenzar el procesamiento de esta imagen (progreso controlado)
         // Usar progreso manual en lugar del modo continuo para mayor control
         if (window.pdfProgressManager) {
             // Calcular progreso basado en imagen que está por procesarse
@@ -659,18 +772,27 @@ async function generarPDFConFotos() {
             window.pdfProgressManager.actualizarProgreso(progresoInicio + 1);
         }
         
+        // **NUEVO**: Obtener información de configuración de esta imagen específica
+        var estadoImagen = imagenesConEstado[indice];
+        var esPantallaCompleta = estadoImagen ? estadoImagen.pantallaCompleta : pantallaCompletaGlobal;
+        
+        console.log('🖼️ Procesando imagen', indice + 1, '- Pantalla completa:', esPantallaCompleta ? 'SÍ' : 'NO');
+        
         agregarImagenAlPDF(imagenesUnicas[indice], indice, imagenesUnicas.length, function(dataUrl) {
             if (dataUrl) {
-                if (pantallaCompletaGlobal) {
-                    pdf.addImage(dataUrl, 'WEBP', 0, 0, anchoHoja, altoHoja);
-                    if (indice !== imagenesUnicas.length - 1) {
-                        pdf.addPage('letter', 'portrait');
-                    }
-                } else {
-                    enMosaico.push(dataUrl);
-                }                imagenesProcesadas.push(dataUrl);
+                // **CORREGIDO**: NO agregar inmediatamente al PDF, mantener orden original
+                // Guardar información de la imagen procesada con su índice original
+                imagenesProcesadas.push({
+                    indice: indice,
+                    dataUrl: dataUrl,
+                    esPantallaCompleta: esPantallaCompleta,
+                    estadoImagen: estadoImagen
+                });
+                
+                console.log('✅ Imagen', indice + 1, 'procesada -', esPantallaCompleta ? 'Pantalla completa' : 'Mosaico');
             }
-              // Actualizar progreso cuando la imagen se complete
+              
+            // Actualizar progreso cuando la imagen se complete
             if (window.pdfProgressManager) {
                 // Usar actualizarProgresoDesdeImagenes para mantener el límite del 85%
                 window.pdfProgressManager.actualizarProgresoDesdeImagenes(indice, imagenesUnicas.length);
@@ -678,14 +800,16 @@ async function generarPDFConFotos() {
             }
             
             // Continuar procesando la siguiente imagen
-            procesarImagenes(indice + 1, imagenesProcesadas, enMosaico);
+            procesarImagenes(indice + 1, imagenesProcesadas, enMosaico, paginasCompletas);
         });}
       // Pequeño delay para que el usuario vea el 0% antes de empezar el procesamiento
     setTimeout(() => {        // Comenzar con 1% para dar feedback inmediato
         if (window.pdfProgressManager) {
             window.pdfProgressManager.iniciarProgreso();
         }
-        procesarImagenes(0, [], [], []);
+        
+        // **NUEVO**: Inicializar con array para mantener orden original
+        procesarImagenes(0, [], [], []); // [índice, imagenesProcesadas, enMosaico (no usado), paginasCompletas (no usado)]
     }, 150);
     
     } catch (error) {
