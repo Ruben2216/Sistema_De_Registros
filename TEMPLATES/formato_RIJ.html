@@ -36,7 +36,6 @@
             <h1 class="formulario-verificacion__titulo-principal">LISTA DE VERIFICACIÓN DE LA REUNIÓN DE INICIO DE JORNADA</h1>
             <p id="fecha_p" class="fecha_p"></p>
 
-
             <!--<div class="campo">
                 <label class="campo__etiqueta">División</label>            
                 <select  class="campo__control" id="division">
@@ -71,6 +70,7 @@
                 <div class="campo">
                     <label class="campo__etiqueta">DEPARTAMENTO Y/O COMPAÑÍA:</label>
                     <select class="campo__control" id="departamento">
+                        <option value="">Seleccione una opción</option> 
                         <option value="ADMINISTRACION-Administración">ADMINISTRACIÓN-Administración</option>
                         <option value="AGENCIA BENITO JUÁREZ-Comercial">AGENCIA BENITO JUÁREZ-Comercial</option>
                         <option value="AGENCIA CHIAPA DE CORZO-Comercial">AGENCIA CHIAPA DE CORZO-Comercial</option>
@@ -113,45 +113,43 @@
                         <option value="TI SIG Y JURÍDICO-TRABAJO-Trabajo">TI SIG Y JURÍDICO-TRABAJO-Trabajo</option>
                     </select>
                 </div>
-                <div class="campo">
-                </div>
-                <div class="campo">
-                    <label class="campo__etiqueta">CATEGORÍA MÁXIMA PRESENTE EN LA REUNIÓN:</label>
-                    <select class="campo__control" id="categoria_max">
-                        <option value="">Seleccione una opción</option>
-                        <option value="Auxiliar Administrativo">Auxiliar Administrativo</option>
-                        <option value="Auxiliar Especializado">Auxiliar Especializado</option>
-                        <option value="Auxiliar Técnico">Auxiliar Técnico</option>
-                        <option value="Ayudante de Liniero">Ayudante de Liniero</option>
-                        <option value="Coordinador Capacitación">Coordinador Capacitación</option>
-                        <option value="Ejecutivo Atención Especializada">Ejecutivo Atención Especializada</option>
-                        <option value="Ejecutivo Atención Regional">Ejecutivo Atención Regional</option>
-                        <option value="Electricista">Electricista</option>
-                        <option value="Electricista Ayudante">Electricista Ayudante</option>
-                        <option value="Encargado de Sección">Encargado de Sección</option>
-                        <option value="Gerente">Gerente</option>
-                        <option value="Jefe de Departamento">Jefe de Departamento</option>
-                        <option value="Jefe de Oficina">Jefe de Oficina</option>
-                        <option value="Liniero">Liniero</option>
-                        <option value="Liniero Encargado">Liniero Encargado</option>
-                        <option value="Liniero LV">Liniero LV</option>
-                        <option value="Maniobrista">Maniobrista</option>   
-                        <option value="Oficinista">Oficinista</option>
-                        <option value="Oficinista Comercial">Oficinista Comercial</option>
-                        <option value="Operador de Distribución">Operador de Distribución</option>
-                        <option value="Profesionista">Profesionista</option>
-                        <option value="Secretaria">Secretaria</option>
-                        <option value="Sobrestante">Sobrestante</option>
-                        <option value="Subgerente">Subgerente</option>
-                        <option value="Superintendente">Superintendente</option>
-                        <option value="Supervisor">Supervisor</option>
-                        <option value="Supervisor Divisional">Supervisor Divisional</option>
-                        <option value="Técnico">Técnico</option>
-                        <option value="Verificador Calibrador">Verificador Calibrador</option>
-                        <option value="Verificador I">Verificador I</option>
-
-                    </select>
-                </div>
+                <div class="seccion"> 
+                    <div class="campo">
+                        <label class="campo__etiqueta">CATEGORÍA MÁXIMA PRESENTE EN LA REUNIÓN:</label>
+                        <select class="campo__control" id="categoria_max">
+                            <option value="">Seleccione una opción</option>
+                            <option value="Auxiliar Administrativo">Auxiliar Administrativo</option>
+                            <option value="Auxiliar Especializado">Auxiliar Especializado</option>
+                            <option value="Auxiliar Técnico">Auxiliar Técnico</option>
+                            <option value="Ayudante de Liniero">Ayudante de Liniero</option>
+                            <option value="Coordinador Capacitación">Coordinador Capacitación</option>
+                            <option value="Ejecutivo Atención Especializada">Ejecutivo Atención Especializada</option>
+                            <option value="Ejecutivo Atención Regional">Ejecutivo Atención Regional</option>
+                            <option value="Electricista">Electricista</option>
+                            <option value="Electricista Ayudante">Electricista Ayudante</option>
+                            <option value="Encargado de Sección">Encargado de Sección</option>
+                            <option value="Gerente">Gerente</option>
+                            <option value="Jefe de Departamento">Jefe de Departamento</option>
+                            <option value="Jefe de Oficina">Jefe de Oficina</option>
+                            <option value="Liniero">Liniero</option>
+                            <option value="Liniero Encargado">Liniero Encargado</option>
+                            <option value="Liniero LV">Liniero LV</option>
+                            <option value="Maniobrista">Maniobrista</option>   
+                            <option value="Oficinista">Oficinista</option>
+                            <option value="Oficinista Comercial">Oficinista Comercial</option>
+                            <option value="Operador de Distribución">Operador de Distribución</option>
+                            <option value="Profesionista">Profesionista</option>
+                            <option value="Secretaria">Secretaria</option>
+                            <option value="Sobrestante">Sobrestante</option>
+                            <option value="Subgerente">Subgerente</option>
+                            <option value="Superintendente">Superintendente</option>
+                            <option value="Supervisor">Supervisor</option>
+                            <option value="Supervisor Divisional">Supervisor Divisional</option>
+                            <option value="Técnico">Técnico</option>
+                            <option value="Verificador Calibrador">Verificador Calibrador</option>
+                            <option value="Verificador I">Verificador I</option>
+                        </select>
+                    </div>
                 <div class="campo">
                     <label class="campo__etiqueta">NOMBRE:</label>
                     <input type="text" class="campo__control" id="nombre">
@@ -361,7 +359,7 @@
                 </div>
                 <div class="campo">
                     <label class="campo__etiqueta">R.P.E.:</label>
-                    <input type="text" class="campo__control">
+                    <input type="text" class="campo__control" id="rpe_conductor">
                 </div>
                 <div class="campo">
                     <label class="campo__etiqueta">FIRMA:</label>
@@ -468,9 +466,7 @@
         <script src="/RESOURCE/JS/formato_RIJ/fecha_reloj.js"></script>
         <script src="/RESOURCE/JS/firma.js"></script>
         <script src="/RESOURCE/JS/rij_pdf_a_imagen.js"></script>
-        <script src="/RESOURCE/JS/rij_integracion.js"></script>
         <script src="/RESOURCE/JS/validador_rij.js"></script>
-        <script src="/RESOURCE/JS/prueba_rij.js"></script>
         <script src="/RESOURCE/JS/formato_RIJ/desplegables.js"></script>
         <script src="/RESOURCE/JS/barra_progreso.js"></script>
         <script src="/RESOURCE/JS/formato_RIJ/campos_desplegables_RIJ.js"></script>
