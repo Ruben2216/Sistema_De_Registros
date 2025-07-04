@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Configuración PDF</title>
+</head>
+<body>
+    <h1>Test del Sistema de Control de Tamaño PDF</h1>
+    
+    <input type="file" id="fileInput" multiple accept="image/*">
+    <button onclick="procesarImagenes()">Procesar Imágenes</button>
+    
+    <div id="resultados"></div>
+    
+    <script src="configuracion_pdf.js"></script>
+    <script>
+        function procesarImagenes() {
+            const files = document.getElementById('fileInput').files;
+            if (files.length === 0) {
+                alert('Selecciona al menos una imagen');
+                return;
+            }
+            
+            console.log(`🚀 Iniciando procesamiento de ${files.length} imágenes`);
+            const resultados = document.getElementById('resultados');
+            resultados.innerHTML = '<h2>Procesando...</h2>';
+            
+            let procesadas = 0;
+            const imagenesProcesadas = [];
+            
+            // Reiniciar estadísticas
+            window.pdfSizeController.reiniciarEstadisticas();
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        console.log(`📸 Cargada imagen ${i + 1}: ${img.naturalWidth}x${img.naturalHeight}`);
+                        
+                        window.procesarImagenParaPDF(img, i, files.length, function(dataUrlProcesada) {
+                            console.log(`✅ Imagen ${i + 1} procesada exitosamente`);
+                            imagenesProcesadas.push({
+                                indice: i + 1,
+                                original: file.name,
+                                tamaño_original: file.size,
+                                dataUrl: dataUrlProcesada
+                            });
+                            
+                            procesadas++;
+                            
+                            if (procesadas === files.length) {
+                                // Todas las imágenes procesadas
+                                mostrarResultados(imagenesProcesadas);
+                            }
+                        });
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        function mostrarResultados(imagenes) {
+            const reporte = window.obtenerReportePDF();
+            
+            let html = '<h2>✅ Resultados del Procesamiento</h2>';
+            html += `<div><strong>Imágenes procesadas:</strong> ${reporte.fotos_procesadas}</div>`;
+            html += `<div><strong>Tamaño final:</strong> ${reporte.tamaño_final_mb} MB (${reporte.porcentaje_usado}%)</div>`;
+            html += `<div><strong>Dentro del límite:</strong> ${reporte.dentro_del_limite ? '✅ SÍ' : '❌ NO'}</div>`;
+            html += `<div><strong>Límite:</strong> ${reporte.limite_mb} MB</div>`;
+            
+            html += '<h3>Imágenes Procesadas:</h3>';
+            imagenes.forEach(img => {
+                html += `<div>
+                    <strong>Imagen ${img.indice}:</strong> ${img.original} 
+                    (Original: ${(img.tamaño_original/1024).toFixed(1)}KB)
+                    <br><img src="${img.dataUrl}" style="max-width: 100px; max-height: 100px; border: 1px solid #ccc; margin: 5px;">
+                </div>`;
+            });
+            
+            document.getElementById('resultados').innerHTML = html;
+            
+            console.log('🎉 Procesamiento completado!');
+            console.log('📊 Reporte final:', reporte);
+        }
+    </script>
+</body>
+</html>
