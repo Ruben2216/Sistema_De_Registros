@@ -72,10 +72,13 @@ function validarFormulario() {
     });
 
     if (esValido) {
-        generarPDF(); 
+        generarPDF();
     } else {
-        alert("Por favor, complete todos los campos obligatorios.");
-    }
+        const continuar = confirm("Hay campos vacíos. ¿Está seguro de que desea continuar?");
+        if (continuar) {
+            generarPDF();
+        }   // Si no confirma, no se genera el PDF y los campos vacíos ya están marcados en rojo
+}
 }
 
 async function generarPDF() {

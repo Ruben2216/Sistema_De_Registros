@@ -70,7 +70,7 @@
                 <div class="campo">
                     <label class="campo__etiqueta">DEPARTAMENTO Y/O COMPAÑÍA:</label>
                     <select class="campo__control" id="departamento">
-                        <option value="">Seleccione una opción</option> 
+                        <option value="seleccion_categoria">Seleccione una opción</option> 
                         <option value="ADMINISTRACION-Administración">ADMINISTRACIÓN-Administración</option>
                         <option value="AGENCIA BENITO JUÁREZ-Comercial">AGENCIA BENITO JUÁREZ-Comercial</option>
                         <option value="AGENCIA CHIAPA DE CORZO-Comercial">AGENCIA CHIAPA DE CORZO-Comercial</option>
@@ -153,10 +153,12 @@
                 <div class="campo">
                     <label class="campo__etiqueta">NOMBRE:</label>
                     <input type="text" class="campo__control" id="nombre">
+                    <span class="campo_vacio" id="mensajeError"></span><br>
                 </div>
                 <div class="campo">
                     <label class="campo__etiqueta">R.P.E.:</label>
                     <input type="text" class="campo__control" id="rpe">
+                    <span class="campo_vacio" id="mensajeError2"></span><br>
                 </div>
                 <div class="campo">
                     <label class="campo__etiqueta">FIRMA:</label>
@@ -171,6 +173,7 @@
                 <div class="campo">
                     <label class="campo__etiqueta">TÉRMINO:</label>
                     <input type="time" class="campo__control" id="hora_termino">
+                    <span class="campo_vacio" id="mensajeError4"></span><br>
                 </div>
             </div>
             <hr class="seccion__divisor">
@@ -196,6 +199,7 @@
                 <div class="campo">
                     <label class="campo__etiqueta">No. Participantes:</label>
                     <input type="number" min="0" class="campo__control" id="enumeracion">
+                    <span class="campo_vacio" id="mensajeError5"></span><br>
                 </div>
                 <div class="campo">
                     <p class="campo__etiqueta">3. ¿Se preguntó el estado de salud a los participantes?</p>
@@ -266,6 +270,7 @@
                 <div class="campo">
                     <label class="campo__etiqueta">Información (Especificar el nombre de los temas del cual se dio información):</label>
                     <textarea id= "extra_info" class="campo__control campo__control--area-texto"></textarea>
+                    <spam class="campo_vacio" id="mensajeError8"></span><br>
                 </div>
             </div>
             <div class="seccion seccion--desplegable">
@@ -336,6 +341,7 @@
                 <div class="campo">
                     <label class="campo__etiqueta">Actividad: (Especificar el nombre de las actividades de Seguridad que se realizaron)</label>
                     <textarea id="actividades_seguridad" class="campo__control campo__control--area-texto"></textarea>
+                    <span class="campo_vacio" id="mensajeError9"></span><br>
                 </div>
             </div>
             <div class="seccion"> 
@@ -348,6 +354,7 @@
                 <div class="campo"> 
                     <label class="campo__etiqueta">OBSERVACIONES: (Anotar las preguntas, inquietudes, sugerencias y/o acciones tomadas en caso de que las condiciones de salud del personal no sean adecuadas)</label>
                     <textarea id="observaciones" class="campo__control campo__control--area-texto"></textarea>
+                    <span class="campo_vacio" id="mensajeError10"></span><br>
                 </div>
             </div>
             <hr class="seccion__divisor">
@@ -356,10 +363,12 @@
                 <div class="campo">
                     <label class="campo__etiqueta">CONDUCTOR DE LA REUNIÓN:</label>
                     <input id="conductor" type="text" class="campo__control">
+                    <span class="campo_vacio" id="mensajeError6"></span><br>
                 </div>
                 <div class="campo">
                     <label class="campo__etiqueta">R.P.E.:</label>
                     <input type="text" class="campo__control" id="rpe_conductor">
+                    <span class="campo_vacio" id="mensajeError7"></span><br>
                 </div>
                 <div class="campo">
                     <label class="campo__etiqueta">FIRMA:</label>
