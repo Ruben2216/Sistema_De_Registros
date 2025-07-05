@@ -272,15 +272,21 @@ async function generarPDFConFotos() {
     
     let paginaActual = 1;
     
-    // **NUEVO**: Agregar imagen RIJ al principio si existe
+    // **NUEVO**: Agregar imagen RIJ al principio si existe y se puede cargar
     const identificador = localStorage.getItem('usuario_identificador_rij');
     if (identificador) {
         try {
-            await agregarImagenRIJalPDF(pdf, null);
-            pdf.addPage('letter', 'portrait');
-            paginaActual = 2;
+            const imagenRIJAgregada = await agregarImagenRIJalPDF(pdf, null);
+            if (imagenRIJAgregada) {
+                pdf.addPage('letter', 'portrait');
+                paginaActual = 2;
+                // Imagen RIJ agregada exitosamente, iniciando en página 2
+            } else {
+                // No se pudo cargar la imagen RIJ, continuar desde página 1
+                // Sin agregar página en blanco
+            }
         } catch (error) {
-            // Continuar sin imagen RIJ
+            // Error al intentar cargar imagen RIJ, continuar sin página adicional
         }
     }
 
@@ -301,6 +307,14 @@ async function generarPDFConFotos() {
         anchoCelda = anchoHoja / columnas;
         altoCelda = anchoCelda / aspectoFoto;
     }
+    
+    // **CORREGIDO**: Revisar si el checkbox global está activado ANTES del loop
+    var pantallaCompletaGlobal = false;
+    var chkGlobal = document.getElementById('pantallaCompletaPDF');
+    if (chkGlobal) {
+        pantallaCompletaGlobal = chkGlobal.checked;
+    }
+    
     // Obtener solo la versión seleccionada de cada foto PRIORIZANDO IMÁGENES LOCALES
     // **NUEVO**: También obtener información de checkbox individual
     var imagenesConEstado = []; // Array de objetos {imagen, pantallaCompleta, wrapper}
@@ -354,10 +368,22 @@ async function generarPDFConFotos() {
             });
         }
     }
-    // Eliminar duplicados exactos (por si alguna foto se repite)
-    var imagenesUnicas = imagenesSeleccionadas.filter(function(value, index, self) {
-        return self.indexOf(value) === index;
-    });
+    // **CORREGIDO**: Eliminar duplicados manteniendo la correspondencia con imagenesConEstado
+    var imagenesUnicas = [];
+    var imagenesConEstadoFiltradas = [];
+    var imagenesVistas = new Set();
+    
+    for (var i = 0; i < imagenesSeleccionadas.length; i++) {
+        var imagen = imagenesSeleccionadas[i];
+        if (!imagenesVistas.has(imagen)) {
+            imagenesVistas.add(imagen);
+            imagenesUnicas.push(imagen);
+            imagenesConEstadoFiltradas.push(imagenesConEstado[i]);
+        }
+    }
+    
+    // Actualizar imagenesConEstado para que coincida con imagenesUnicas
+    imagenesConEstado = imagenesConEstadoFiltradas;
     
     // DIAGNÓSTICO FINAL: Mostrar resumen de tipos de imagen
     var imagenesLocales = 0;
@@ -380,12 +406,7 @@ async function generarPDFConFotos() {
     } else {
         // ¡PERFECTO! Todas las imágenes son locales
     }
-    // Revisar si el checkbox global está activado
-    var pantallaCompletaGlobal = false;
-    var chkGlobal = document.getElementById('pantallaCompletaPDF');
-    if (chkGlobal) {
-        pantallaCompletaGlobal = chkGlobal.checked;
-    }
+    
     // Función para agregar una imagen al PDF con control de tamaño - PRIORIZA IMÁGENES LOCALES
     function agregarImagenAlPDF(imagen, indiceImagen, totalImagenes, callback) {
         // Procesando imagen
@@ -731,21 +752,54 @@ async function generarPDFConFotos() {
                 // Log eliminado');
                 // Log eliminado
                 
-                // Esperar a que el modal complete su animación antes de descargar
+                // Esperar a que el modal complete su animación antes de mostrar el modal de nombrar
                 setTimeout(() => {
-                    // Ejecutar la descarga
-                    pdf.save('Formato_Digitalizado_' + fechaActual + reporte + '.pdf');
-                    
-                    // Restaurar el botón después de un breve delay
-                    setTimeout(() => {
-                        const btn = document.getElementById('btnGenerarPDF');
-                        if (btn) {
-                            btn.disabled = false;
-                            btn.textContent = 'Generar PDF de fotos';
+                    // Usar el sistema existente de PDFNamingManager
+                    if (typeof PDFNamingManager !== 'undefined') {
+                        const namingManager = new PDFNamingManager();
+                        
+                        // Función para generar fecha formateada consistente para PDFs
+                        function formatearFechaParaPDF(fecha) {
+                            const dia = fecha.getDate().toString().padStart(2, '0');
+                            const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
+                            const ano = fecha.getFullYear();
+                            return `${dia}-${mes}-${ano}`;
                         }
-                        // Log eliminado
-                    }, 500);
-                    
+                        
+                        // Generar nombre por defecto usando la fecha actual con formato consistente
+                        const fechaActual = obtenerFecha ? obtenerFecha().replace(/\//g, '-') : 
+                                          formatearFechaParaPDF(new Date());
+                        const nombrePorDefecto = `Formato_RIJ_(${fechaActual})`;
+                        
+                        // Usar el método correcto showNamingModal
+                        // Pasar el nombre como numeroSerie para evitar la generación automática
+                        namingManager.showNamingModal(nombrePorDefecto, '', (nombreArchivo) => {
+                            // Callback cuando se confirma el nombre
+                            // El PDFNamingManager ya agrega la extensión .pdf automáticamente
+                            pdf.save(nombreArchivo);
+                            
+                            // Restaurar el botón después de un breve delay
+                            setTimeout(() => {
+                                const btn = document.getElementById('btnGenerarPDF');
+                                if (btn) {
+                                    btn.disabled = false;
+                                    btn.textContent = 'Generar PDF de fotos';
+                                }
+                            }, 500);
+                        });
+                    } else {
+                        // Fallback: descarga directa si el modal no está disponible
+                        pdf.save('Formato_Digitalizado_' + fechaActual + reporte + '.pdf');
+                        
+                        // Restaurar el botón después de un breve delay
+                        setTimeout(() => {
+                            const btn = document.getElementById('btnGenerarPDF');
+                            if (btn) {
+                                btn.disabled = false;
+                                btn.textContent = 'Generar PDF de fotos';
+                            }
+                        }, 500);
+                    }
                 }, 1000); // Esperar 1 segundo para que el modal termine su animación
                 
             }, 200);
@@ -818,7 +872,7 @@ async function agregarImagenRIJalPDF(pdf, urlImagen) {
         const imagenDisponible = localStorage.getItem('rij_imagen_url');
         
         if (!identificador && !imagenDisponible) {
-            resolve(); // No hay identificador, continuar sin imagen
+            resolve(false); // No hay identificador, no se agrega imagen
             return;
         }
 
@@ -827,20 +881,26 @@ async function agregarImagenRIJalPDF(pdf, urlImagen) {
         
         img.onload = function() {
             try {
+                // Verificar que la imagen se cargó correctamente
+                if (img.naturalWidth === 0 || img.naturalHeight === 0) {
+                    resolve(false); // Imagen no válida
+                    return;
+                }
+                
                 // Calcular dimensiones para ajustar a página completa
                 const anchoHoja = 216; // mm
                 const altoHoja = 279; // mm
                 
                 // Usar toda la página para la imagen RIJ
                 pdf.addImage(img, 'PNG', 0, 0, anchoHoja, altoHoja);
-                resolve();
+                resolve(true); // Imagen agregada exitosamente
             } catch (error) {
-                resolve(); // Continuar aunque falle
+                resolve(false); // Error al agregar imagen
             }
         };
         
         img.onerror = function() {
-            resolve(); // Continuar aunque no se pueda cargar
+            resolve(false); // No se pudo cargar la imagen
         };
         
         // Intentar diferentes rutas de imagen
@@ -853,7 +913,7 @@ async function agregarImagenRIJalPDF(pdf, urlImagen) {
         if (rutasImagen.length > 0) {
             img.src = rutasImagen[0];
         } else {
-            resolve(); // No hay rutas válidas
+            resolve(false); // No hay rutas válidas, no se puede agregar imagen
         }
     });
 }

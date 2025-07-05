@@ -474,13 +474,15 @@ class CircularProgressPDF {
         setTimeout(() => {
             const subtitulo = document.querySelector('.pdf-progress-subtitle');
             if (subtitulo) {
-                subtitulo.textContent = 'Descarga completada exitosamente';
+                subtitulo.textContent = 'PDF generado exitosamente';
             }
         }, 400);
         
-        // Ocultar modal después de llegar al 100%
+        // Ocultar modal de progreso y mostrar modal de nombrar archivo
         setTimeout(() => {
             this.ocultar();
+            // Disparar evento personalizado para indicar que el PDF está listo
+            window.dispatchEvent(new CustomEvent('pdfGeneracionCompleta'));
         }, 1200);
     }    /**
      * Inicia el modo de progreso continuo para eliminar saltos visuales

@@ -1,111 +1,75 @@
-// Guarda y recupera datos del formulario, firmas y fotos usando 
-
 (function() {
+    const BORRADOR_KEY = 'borrador_RIJ';
+    const EXPIRATION_TIME = 3 * 60 * 1000; 
+    var API_URL = 'https://192.168.1.18:8000/api/rij/autoguardado';
+    var backendDisponible = true;
 
-    var API_URL = 'https://192.168.100.30:8000/api/rij/autoguardado';
 
-
-    // Función para obtener todos los datos del formulario, incluyendo firmas
     function obtenerDatosFormulario() {
         var form = document.querySelector('.formulario-verificacion__formulario');
         var datos = {};
         var elementos = form.querySelectorAll('input, select, textarea');
-        for (var i = 0; i < elementos.length; i++) {
-            var el = elementos[i];
-            var key = el.name ? el.name : el.id;
-            if (!key) {
-                // Si no tiene name ni id, usar un identificador único por tipo y posición
-                key = el.tagName + '_' + i;
+        
+        elementos.forEach(function(el) {
+            var key = el.name || el.id;
+            if (!key) return;
+
+            if ((el.tagName === 'TEXTAREA' && el.readOnly) || el.id === 'hora_inicio') {
+                return;
             }
-            // No guardar el textarea readonly (meta del día)
-            if (el.tagName === 'TEXTAREA' && el.readOnly) {
-                continue;
-            }
-            // No guardar el campo hora_inicio (valor fijo de 08:00)
-            if (el.id === 'hora_inicio') {
-                continue;
-            }
+
             if (el.type === 'radio') {
                 if (el.checked) {
                     datos[key] = el.value;
-                } else if (!datos.hasOwnProperty(key)) {
-                    // Si ningún radio está seleccionado, guardar vacío
-                    datos[key] = '';
                 }
             } else if (el.type === 'checkbox') {
                 datos[key] = el.checked;
-            } else if (el.tagName === 'SELECT') {
-                datos[key] = el.value;
-            } else if (el.tagName === 'TEXTAREA') {
-                datos[key] = el.value;
             } else {
                 datos[key] = el.value;
             }
-        }
-        // Firmas (canvas en base64)
-        var firma1 = document.getElementById('firma-input-1');
-        var firma2 = document.getElementById('firma-input-2');
-        if (firma1) {
-            datos['firma1'] = firma1.value;        }
-        if (firma2) {
-            datos['firma2'] = firma2.value;
-        }
+        });
         return datos;
-    }    // Función para establecer valores por defecto
-    function establecerValoresPorDefecto() {
-        var divisionSelect = document.getElementById('division');
-        var zonaSelect = document.getElementById('zona');
-        
-        if (divisionSelect && divisionSelect.value === '') {
-            divisionSelect.value = 'Sureste';
-            
-            var event = new Event('change', { bubbles: true });
-            divisionSelect.dispatchEvent(event);
-            
-            // Esperar un poco para que se carguen las zonas y luego seleccionar Tuxtla
-            setTimeout(function() {
-                if (zonaSelect) {
-                    zonaSelect.value = 'Tuxtla';
-                }
-            }, 100);
-        }
     }
 
-    // Función para rellenar el formulario con datos
-    function rellenarFormulario(datos) {
-        if (!datos) {
-            // Si no hay datos guardados, establecer valores por defecto
-            establecerValoresPorDefecto();
-            return;
-        }
+
+    function limpiarFormulario() {
         var form = document.querySelector('.formulario-verificacion__formulario');
-        var elementos = form.querySelectorAll('input, select, textarea');
-        // Primero restaurar selects de nivel superior (como división) antes que los dependientes
-        // 1. Restaurar select de división
+        if (form) {
+            form.reset();
+        }
+
+        ['1', '2', '3'].forEach(function(num) {
+            var img = document.getElementById('firma-imagen-' + num);
+            var area = document.getElementById('firma-area-' + num);
+            var input = document.getElementById('firma-input-' + num);
+
+            if (img) {
+                img.src = '';
+                img.style.display = 'none';
+            }
+            if (area) area.style.display = 'flex';
+            if (input) input.value = '';
+        });
+
+        establecerValoresPorDefecto();
+    }
+
+    function rellenarFormulario(datos) {
+        if (!datos) return;
+        var form = document.querySelector('.formulario-verificacion__formulario');
+
         var divisionSelect = document.getElementById('division');
         if (divisionSelect && datos.hasOwnProperty('division')) {
             divisionSelect.value = datos['division'];
-            // Lanzar evento change para que el script de zonas actualice el select de zona
-            var event = new Event('change', { bubbles: true });
-            divisionSelect.dispatchEvent(event);
-        
+            divisionSelect.dispatchEvent(new Event('change', { bubbles: true }));
         }
-        // 2. Restaurar el resto de campos (incluyendo zona, que ya tendrá las opciones correctas)
-        for (var i = 0; i < elementos.length; i++) {
-            var el = elementos[i];
-            var key = el.name ? el.name : el.id;
-            if (!key) {
-                key = el.tagName + '_' + i;
-            }
-            // Saltar división porque ya se restauró arriba
-            if (el.id === 'division') {
-                continue;
-            }
-            // No restaurar el campo hora_inicio (mantener valor fijo de 08:00)
-            if (el.id === 'hora_inicio') {
-                continue;
-            }
-            if (datos.hasOwnProperty(key)) {
+
+        setTimeout(function() {
+            var elementos = form.querySelectorAll('input, select, textarea');
+            elementos.forEach(function(el) {
+                var key = el.name || el.id;
+                if (!key || !datos.hasOwnProperty(key)) return;
+
                 if (el.type === 'radio') {
                     if (el.value === datos[key]) {
                         el.checked = true;
@@ -115,133 +79,140 @@
                 } else {
                     el.value = datos[key];
                 }
-            }
-        }
-        // Restaurar firmas
-        if (datos.firma1) {
-            var img1 = document.getElementById('firma-imagen-1');
-            if (img1) {
-                img1.src = datos.firma1;
-                img1.style.display = 'block';
-            }
-            var input1 = document.getElementById('firma-input-1');
-            if (input1) {
-                input1.value = datos.firma1;
-            }
-        }
-        if (datos.firma2) {
-            var img2 = document.getElementById('firma-imagen-2');
-            if (img2) {
-                img2.src = datos.firma2;
-                img2.style.display = 'block';
-            }
-            var input2 = document.getElementById('firma-input-2');
-            if (input2) {
-                input2.value = datos.firma2;
-            }
+            });
+
+            ['1', '2', '3'].forEach(function(num) {
+                var firmaKey = 'firma-input-' + num;
+                var firmaData = datos[firmaKey] || datos['firma' + num];
+                if (firmaData) {
+                    var img = document.getElementById('firma-imagen-' + num);
+                    var area = document.getElementById('firma-area-' + num);
+                    if (img) {
+                        img.src = firmaData;
+                        img.style.display = 'block';
+                    }
+                    if (area) {
+                        area.style.display = 'none';
+                    }
+                }
+            });
+        }, 150);
+    }
+
+    function establecerValoresPorDefecto() {
+        var divisionSelect = document.getElementById('division');
+        var zonaSelect = document.getElementById('zona');
+        if (divisionSelect && !divisionSelect.value) {
+            divisionSelect.value = 'Sureste';
+            divisionSelect.dispatchEvent(new Event('change', { bubbles: true }));
+            setTimeout(function() {
+                if (zonaSelect) {
+                    zonaSelect.value = 'Tuxtla';
+                }
+            }, 100);
         }
     }
 
-    // Función para autoguardar (POST)
+    //borra el borrador de localStorage y limpia el formulario
+    function limpiarBorradorExpirado() {
+        console.log("Borrador expirado. Limpiando datos locales y el formulario.");
+        localStorage.removeItem(BORRADOR_KEY);
+        limpiarFormulario();
+    }
+
+    //guarda el objeto de datos en localStorage, con un timestamp
+    function guardarEnLocalStorage(datos) {
+        var wrapper = {
+            datos: datos,
+            timestamp: Date.now()
+        };
+        localStorage.setItem(BORRADOR_KEY, JSON.stringify(wrapper));
+    }
+
     function autoguardar() {
         var datos = obtenerDatosFormulario();
+        guardarEnLocalStorage(datos);
+
+        if (!backendDisponible) return;
+        
+        var datosSinFirmas = Object.assign({}, datos);
+        delete datosSinFirmas['firma-input-1'];
+        delete datosSinFirmas['firma-input-2'];
+        delete datosSinFirmas['firma-input-3'];
+
         fetch(API_URL, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(datos),
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(datosSinFirmas),
             credentials: 'include'
-        })
-        .then(function(res) {
-            if (!res.ok) {
-                throw new Error('Error al guardar');
-            }
-            return res.json();
-        })
-        .then(function(data) {
-        })
-        .catch(function(err) {
-            // Si hay error, puedes guardar en localStorage como respaldo
-            localStorage.setItem('borrador_RIJ', JSON.stringify(datos));
+        }).catch(function(err) {
+            console.warn("El backend no está disponible. Se guardó solo localmente.", err);
+            backendDisponible = false;
         });
-    }    // Función para restaurar (GET)
+    }
+
+    //se ejecuta al cargar la página para recuperar el trabajo no guardado
     function restaurar() {
-        fetch(API_URL, {
-            method: 'GET',
-            credentials: 'include'
-        })
-        .then(function(res) {
-            if (!res.ok) {
-                throw new Error('No hay datos guardados');
-            }
-            return res.json();
-        })
-        .then(function(datos) {
-            if (datos && Object.keys(datos).length > 0) {
-                rellenarFormulario(datos);
+        var borradorJSON = localStorage.getItem(BORRADOR_KEY);
+        
+        if (!borradorJSON) {
+            establecerValoresPorDefecto();
+            return;
+        }
+
+        try {
+            var wrapper = JSON.parse(borradorJSON);
+            
+            if (Date.now() - wrapper.timestamp > EXPIRATION_TIME) {
+                limpiarBorradorExpirado();
             } else {
-                // No hay datos guardados, establecer valores por defecto
-                establecerValoresPorDefecto();
+                console.log("Restaurando borrador válido desde localStorage.");
+                rellenarFormulario(wrapper.datos);
             }
-        })
-        .catch(function() {
-            // Si falla, intenta restaurar de localStorage
-            var borrador = localStorage.getItem('borrador_RIJ');
-            if (borrador) {
-                try {
-                    var datosLocalStorage = JSON.parse(borrador);
-                    if (datosLocalStorage && Object.keys(datosLocalStorage).length > 0) {
-                        rellenarFormulario(datosLocalStorage);
-                    } else {
-                        establecerValoresPorDefecto();
-                    }
-                } catch (e) {
-                    establecerValoresPorDefecto();
-                }
-            } else {
-                // No hay datos guardados en ningún lugar, establecer valores por defecto
-                establecerValoresPorDefecto();
-            }
-        });
-    }    // Detectar cambios en el formulario para autoguardar
+        } catch (e) {
+            console.error("Error al procesar el borrador local. Se procederá a limpiar.", e);
+            limpiarBorradorExpirado();
+        }
+    }
+
+    //configuración de los eventos 
+    var autoguardadoTimeout = null;
+    function autoguardarDebounced() {
+        if (autoguardadoTimeout) clearTimeout(autoguardadoTimeout);
+        autoguardadoTimeout = setTimeout(autoguardar, 500);
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         var form = document.querySelector('.formulario-verificacion__formulario');
         if (form) {
-            form.addEventListener('input', function() {
-                autoguardar();
-            });
-            form.addEventListener('change', function() {
-                autoguardar();
-            });
+            form.addEventListener('input', autoguardarDebounced);
+            form.addEventListener('change', autoguardarDebounced);
         }
-        // Retrasar la restauración para permitir que se establezcan los valores por defecto primero
-        setTimeout(function() {
-            restaurar();
-        }, 200);
+        
+        restaurar();
     });
 
-    // Forzar autoguardado antes de salir de la página
-    window.addEventListener('beforeunload', function() {
-        try {
-            autoguardar();
-        } catch (e) {
-            // Si falla, al menos guarda en localStorage
-            var datos = obtenerDatosFormulario();
-            localStorage.setItem('borrador_RIJ', JSON.stringify(datos));
+    // Proceso en segundo plano que comprueba la expiración cada 30 segundos.
+    setInterval(function() {
+        var borradorJSON = localStorage.getItem(BORRADOR_KEY);
+        if (borradorJSON) {
+            try {
+                var wrapper = JSON.parse(borradorJSON);
+                if (Date.now() - wrapper.timestamp > EXPIRATION_TIME) {
+                    localStorage.removeItem(BORRADOR_KEY);
+                    console.log("Borrador expirado y eliminado en segundo plano.");
+                }
+            } catch (e) {
+                localStorage.removeItem(BORRADOR_KEY);
+            }
         }
-    });
+    }, 30000);
 
-    // Exponer funciones para pruebas y depuración
     window.autoguardadoRIJ = {
-        autoguardar: autoguardar,
-        restaurar: restaurar,
         limpiarSesion: function() {
-            // Llama al endpoint y limpia localStorage
-            fetch('/api/rij/limpiar_sesion', {method: 'POST', credentials: 'include'})
-                .then(function() {
-                    localStorage.removeItem('borrador_RIJ');
-                });
+            fetch('/api/rij/limpiar_sesion', { method: 'POST', credentials: 'include' })
+                .finally(limpiarBorradorExpirado);
         }
     };
+
 })();

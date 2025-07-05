@@ -12,6 +12,7 @@
     <!-- Sistema de limpieza automática -->
     <script src="/RESOURCE/JS/limpieza_automatica.js"></script>
     <script src="/RESOURCE/JS/integracion_limpieza.js"></script>
+    <script src="/RESOURCE/JS/forzarCargaCSS.js"></script>
     
     <script>
         // Configurar PDF.js worker
@@ -19,7 +20,25 @@
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
         }
     </script>
-
+    
+    <style>
+        /* Mejorar comportamiento de botones en móviles - SOLO CLICK */
+        .boton {
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+            /* Deshabilitar todos los efectos visuales automáticos */
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* Solo feedback cuando el usuario mantenga presionado intencionalmente */
+        .boton:hover:active {
+            background-color: rgba(0, 123, 255, 0.8) !important;
+            transform: scale(0.98);
+            transition: all 0.1s ease;
+        }
+    </style>
 
 </head>
 <body>
@@ -180,6 +199,7 @@
     <script src="/RESOURCE/JS/index.js"></script>
     <script src="/RESOURCE/JS/editar_foto.js"></script>
     <script src="/RESOURCE/JS/recorte_foto.js"></script>
+    <script src="/RESOURCE/JS/pdfNombradoArchivos.js"></script>
     <script src="/RESOURCE/JS/envio_correo_camara.js"></script>
 
 
