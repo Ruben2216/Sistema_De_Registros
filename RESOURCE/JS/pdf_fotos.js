@@ -737,9 +737,17 @@ async function generarPDFConFotos() {
                     if (typeof PDFNamingManager !== 'undefined') {
                         const namingManager = new PDFNamingManager();
                         
-                        // Generar nombre por defecto usando la fecha actual
+                        // Función para generar fecha formateada consistente para PDFs
+                        function formatearFechaParaPDF(fecha) {
+                            const dia = fecha.getDate().toString().padStart(2, '0');
+                            const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
+                            const ano = fecha.getFullYear();
+                            return `${dia}-${mes}-${ano}`;
+                        }
+                        
+                        // Generar nombre por defecto usando la fecha actual con formato consistente
                         const fechaActual = obtenerFecha ? obtenerFecha().replace(/\//g, '-') : 
-                                          new Date().toLocaleDateString('es-ES').replace(/\//g, '-');
+                                          formatearFechaParaPDF(new Date());
                         const nombrePorDefecto = `Formato_RIJ_(${fechaActual})`;
                         
                         // Usar el método correcto showNamingModal
