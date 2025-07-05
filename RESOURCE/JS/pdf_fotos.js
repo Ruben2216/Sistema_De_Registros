@@ -731,21 +731,46 @@ async function generarPDFConFotos() {
                 // Log eliminado');
                 // Log eliminado
                 
-                // Esperar a que el modal complete su animación antes de descargar
+                // Esperar a que el modal complete su animación antes de mostrar el modal de nombrar
                 setTimeout(() => {
-                    // Ejecutar la descarga
-                    pdf.save('Formato_Digitalizado_' + fechaActual + reporte + '.pdf');
-                    
-                    // Restaurar el botón después de un breve delay
-                    setTimeout(() => {
-                        const btn = document.getElementById('btnGenerarPDF');
-                        if (btn) {
-                            btn.disabled = false;
-                            btn.textContent = 'Generar PDF de fotos';
-                        }
-                        // Log eliminado
-                    }, 500);
-                    
+                    // Usar el sistema existente de PDFNamingManager
+                    if (typeof PDFNamingManager !== 'undefined') {
+                        const namingManager = new PDFNamingManager();
+                        
+                        // Generar nombre por defecto usando la fecha actual
+                        const fechaActual = obtenerFecha ? obtenerFecha().replace(/\//g, '-') : 
+                                          new Date().toLocaleDateString('es-ES').replace(/\//g, '-');
+                        const nombrePorDefecto = `Formato_RIJ_(${fechaActual})`;
+                        
+                        // Usar el método correcto showNamingModal
+                        // Pasar el nombre como numeroSerie para evitar la generación automática
+                        namingManager.showNamingModal(nombrePorDefecto, '', (nombreArchivo) => {
+                            // Callback cuando se confirma el nombre
+                            // El PDFNamingManager ya agrega la extensión .pdf automáticamente
+                            pdf.save(nombreArchivo);
+                            
+                            // Restaurar el botón después de un breve delay
+                            setTimeout(() => {
+                                const btn = document.getElementById('btnGenerarPDF');
+                                if (btn) {
+                                    btn.disabled = false;
+                                    btn.textContent = 'Generar PDF de fotos';
+                                }
+                            }, 500);
+                        });
+                    } else {
+                        // Fallback: descarga directa si el modal no está disponible
+                        pdf.save('Formato_Digitalizado_' + fechaActual + reporte + '.pdf');
+                        
+                        // Restaurar el botón después de un breve delay
+                        setTimeout(() => {
+                            const btn = document.getElementById('btnGenerarPDF');
+                            if (btn) {
+                                btn.disabled = false;
+                                btn.textContent = 'Generar PDF de fotos';
+                            }
+                        }, 500);
+                    }
                 }, 1000); // Esperar 1 segundo para que el modal termine su animación
                 
             }, 200);

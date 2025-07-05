@@ -22,6 +22,9 @@ function obtenerFecha() {
     return fechaHoy;
 }
 
+// Hacer la función disponible globalmente
+window.obtenerFecha = obtenerFecha;
+
 function inicializarElementosGlobales() {
     elementosGlobales.fechaInput = document.getElementById('fecha');
     elementosGlobales.fechaElemento = document.getElementById('fecha1');
