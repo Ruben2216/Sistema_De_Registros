@@ -272,15 +272,21 @@ async function generarPDFConFotos() {
     
     let paginaActual = 1;
     
-    // **NUEVO**: Agregar imagen RIJ al principio si existe
+    // **NUEVO**: Agregar imagen RIJ al principio si existe y se puede cargar
     const identificador = localStorage.getItem('usuario_identificador_rij');
     if (identificador) {
         try {
-            await agregarImagenRIJalPDF(pdf, null);
-            pdf.addPage('letter', 'portrait');
-            paginaActual = 2;
+            const imagenRIJAgregada = await agregarImagenRIJalPDF(pdf, null);
+            if (imagenRIJAgregada) {
+                pdf.addPage('letter', 'portrait');
+                paginaActual = 2;
+                // Imagen RIJ agregada exitosamente, iniciando en página 2
+            } else {
+                // No se pudo cargar la imagen RIJ, continuar desde página 1
+                // Sin agregar página en blanco
+            }
         } catch (error) {
-            // Continuar sin imagen RIJ
+            // Error al intentar cargar imagen RIJ, continuar sin página adicional
         }
     }
 
@@ -866,7 +872,7 @@ async function agregarImagenRIJalPDF(pdf, urlImagen) {
         const imagenDisponible = localStorage.getItem('rij_imagen_url');
         
         if (!identificador && !imagenDisponible) {
-            resolve(); // No hay identificador, continuar sin imagen
+            resolve(false); // No hay identificador, no se agrega imagen
             return;
         }
 
@@ -875,20 +881,26 @@ async function agregarImagenRIJalPDF(pdf, urlImagen) {
         
         img.onload = function() {
             try {
+                // Verificar que la imagen se cargó correctamente
+                if (img.naturalWidth === 0 || img.naturalHeight === 0) {
+                    resolve(false); // Imagen no válida
+                    return;
+                }
+                
                 // Calcular dimensiones para ajustar a página completa
                 const anchoHoja = 216; // mm
                 const altoHoja = 279; // mm
                 
                 // Usar toda la página para la imagen RIJ
                 pdf.addImage(img, 'PNG', 0, 0, anchoHoja, altoHoja);
-                resolve();
+                resolve(true); // Imagen agregada exitosamente
             } catch (error) {
-                resolve(); // Continuar aunque falle
+                resolve(false); // Error al agregar imagen
             }
         };
         
         img.onerror = function() {
-            resolve(); // Continuar aunque no se pueda cargar
+            resolve(false); // No se pudo cargar la imagen
         };
         
         // Intentar diferentes rutas de imagen
@@ -901,7 +913,7 @@ async function agregarImagenRIJalPDF(pdf, urlImagen) {
         if (rutasImagen.length > 0) {
             img.src = rutasImagen[0];
         } else {
-            resolve(); // No hay rutas válidas
+            resolve(false); // No hay rutas válidas, no se puede agregar imagen
         }
     });
 }

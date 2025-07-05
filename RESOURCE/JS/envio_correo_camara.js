@@ -282,15 +282,21 @@ async function generarPDFParaCorreoCamara() {
         
         let paginaActual = 1;
         
-        // **NUEVO**: Agregar imagen RIJ al principio si existe (igual que pdf_fotos.js)
+        // **NUEVO**: Agregar imagen RIJ al principio si existe y se puede cargar
         const identificador = localStorage.getItem('usuario_identificador_rij');
         if (identificador) {
             try {
-                await agregarImagenRIJalPDFCorreo(pdf, null);
-                pdf.addPage('letter', 'portrait');
-                paginaActual = 2;
+                const imagenRIJAgregada = await agregarImagenRIJalPDFCorreo(pdf, null);
+                if (imagenRIJAgregada) {
+                    pdf.addPage('letter', 'portrait');
+                    paginaActual = 2;
+                    // Imagen RIJ agregada exitosamente al correo, iniciando en página 2
+                } else {
+                    // No se pudo cargar la imagen RIJ para correo, continuar desde página 1
+                    // Sin agregar página en blanco
+                }
             } catch (error) {
-                // Continuar sin imagen RIJ
+                // Error al intentar cargar imagen RIJ para correo, continuar sin página adicional
             }
         }
 
@@ -938,7 +944,7 @@ async function agregarImagenRIJalPDFCorreo(pdf, urlImagen) {
         
         if (!identificador && !imagenDisponible && !urlImagen) {
             clearTimeout(timeoutId);
-            resolve(); // No hay identificador, continuar sin imagen
+            resolve(false); // No hay identificador, no se agrega imagen
             return;
         }
 
@@ -948,6 +954,12 @@ async function agregarImagenRIJalPDFCorreo(pdf, urlImagen) {
         img.onload = function() {
             try {
                 clearTimeout(timeoutId);
+                
+                // Verificar que la imagen se cargó correctamente
+                if (img.naturalWidth === 0 || img.naturalHeight === 0) {
+                    resolve(false); // Imagen no válida
+                    return;
+                }
                 
                 // Calcular dimensiones para ajustar a página completa
                 const anchoHoja = 216; // mm
@@ -982,28 +994,28 @@ async function agregarImagenRIJalPDFCorreo(pdf, urlImagen) {
                 // Agregar imagen al PDF
                 try {
                     pdf.addImage(img.src, 'PNG', x, y + 10, anchoFinal, altoFinal - 10);
-                    resolve();
+                    resolve(true); // Imagen agregada exitosamente
                 } catch (addImageError) {
                     // Intentar con formato JPEG si PNG falla
                     try {
                         pdf.addImage(img.src, 'JPEG', x, y + 10, anchoFinal, altoFinal - 10);
-                        resolve();
+                        resolve(true); // Imagen agregada exitosamente con JPEG
                     } catch (jpegError) {
-                        // Continuar sin imagen RIJ
-                        resolve();
+                        // No se pudo agregar imagen
+                        resolve(false);
                     }
                 }
             } catch (error) {
                 clearTimeout(timeoutId);
-                // Continuar sin imagen RIJ en lugar de fallar
-                resolve();
+                // Error al procesar imagen RIJ para correo
+                resolve(false);
             }
         };
         
         img.onerror = function() {
             clearTimeout(timeoutId);
             // No se pudo cargar la imagen RIJ para correo
-            resolve();
+            resolve(false);
         };
         
         // Intentar diferentes rutas de imagen con fallbacks
@@ -1020,7 +1032,7 @@ async function agregarImagenRIJalPDFCorreo(pdf, urlImagen) {
             const intentarSiguienteRuta = () => {
                 if (indiceRuta >= rutasImagen.length) {
                     clearTimeout(timeoutId);
-                    resolve(); // No hay más rutas, continuar sin imagen
+                    resolve(false); // No hay más rutas, no se puede cargar imagen
                     return;
                 }
                 
@@ -1037,7 +1049,7 @@ async function agregarImagenRIJalPDFCorreo(pdf, urlImagen) {
             intentarSiguienteRuta();
         } else {
             clearTimeout(timeoutId);
-            resolve(); // No hay rutas válidas
+            resolve(false); // No hay rutas válidas, no se puede agregar imagen
         }
     });
 }
