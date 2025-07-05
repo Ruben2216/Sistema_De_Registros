@@ -301,6 +301,14 @@ async function generarPDFConFotos() {
         anchoCelda = anchoHoja / columnas;
         altoCelda = anchoCelda / aspectoFoto;
     }
+    
+    // **CORREGIDO**: Revisar si el checkbox global está activado ANTES del loop
+    var pantallaCompletaGlobal = false;
+    var chkGlobal = document.getElementById('pantallaCompletaPDF');
+    if (chkGlobal) {
+        pantallaCompletaGlobal = chkGlobal.checked;
+    }
+    
     // Obtener solo la versión seleccionada de cada foto PRIORIZANDO IMÁGENES LOCALES
     // **NUEVO**: También obtener información de checkbox individual
     var imagenesConEstado = []; // Array de objetos {imagen, pantallaCompleta, wrapper}
@@ -354,10 +362,22 @@ async function generarPDFConFotos() {
             });
         }
     }
-    // Eliminar duplicados exactos (por si alguna foto se repite)
-    var imagenesUnicas = imagenesSeleccionadas.filter(function(value, index, self) {
-        return self.indexOf(value) === index;
-    });
+    // **CORREGIDO**: Eliminar duplicados manteniendo la correspondencia con imagenesConEstado
+    var imagenesUnicas = [];
+    var imagenesConEstadoFiltradas = [];
+    var imagenesVistas = new Set();
+    
+    for (var i = 0; i < imagenesSeleccionadas.length; i++) {
+        var imagen = imagenesSeleccionadas[i];
+        if (!imagenesVistas.has(imagen)) {
+            imagenesVistas.add(imagen);
+            imagenesUnicas.push(imagen);
+            imagenesConEstadoFiltradas.push(imagenesConEstado[i]);
+        }
+    }
+    
+    // Actualizar imagenesConEstado para que coincida con imagenesUnicas
+    imagenesConEstado = imagenesConEstadoFiltradas;
     
     // DIAGNÓSTICO FINAL: Mostrar resumen de tipos de imagen
     var imagenesLocales = 0;
@@ -380,12 +400,7 @@ async function generarPDFConFotos() {
     } else {
         // ¡PERFECTO! Todas las imágenes son locales
     }
-    // Revisar si el checkbox global está activado
-    var pantallaCompletaGlobal = false;
-    var chkGlobal = document.getElementById('pantallaCompletaPDF');
-    if (chkGlobal) {
-        pantallaCompletaGlobal = chkGlobal.checked;
-    }
+    
     // Función para agregar una imagen al PDF con control de tamaño - PRIORIZA IMÁGENES LOCALES
     function agregarImagenAlPDF(imagen, indiceImagen, totalImagenes, callback) {
         // Procesando imagen

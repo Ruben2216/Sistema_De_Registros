@@ -365,10 +365,22 @@ async function generarPDFParaCorreoCamara() {
             }
         }
 
-        // Eliminar duplicados exactos
-        var imagenesUnicas = imagenesSeleccionadas.filter(function(value, index, self) {
-            return self.indexOf(value) === index;
-        });
+        // **CORREGIDO**: Eliminar duplicados manteniendo la correspondencia con imagenesConEstado
+        var imagenesUnicas = [];
+        var imagenesConEstadoFiltradas = [];
+        var imagenesVistas = new Set();
+        
+        for (var i = 0; i < imagenesSeleccionadas.length; i++) {
+            var imagen = imagenesSeleccionadas[i];
+            if (!imagenesVistas.has(imagen)) {
+                imagenesVistas.add(imagen);
+                imagenesUnicas.push(imagen);
+                imagenesConEstadoFiltradas.push(imagenesConEstado[i]);
+            }
+        }
+        
+        // Actualizar imagenesConEstado para que coincida con imagenesUnicas
+        imagenesConEstado = imagenesConEstadoFiltradas;
 
         if (imagenesUnicas.length === 0) {
             mostrarMensajeCamara('No se encontraron imágenes válidas.', 'error');
