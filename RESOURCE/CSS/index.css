@@ -614,8 +614,14 @@ h1{
 }
 
 /*---------------ADVERTENCIA DE CAMPOS NO LLENOS -------------------------*/
-.campo__control--error {
-    border: 2px solid red;
+.campo-error {
+    border: 2px solid red !important;
     background-color: #ffe6e6;
 }
+
+.campo_vacio {
+    color: red;
+    font-size: 12px;
+}
+
 

@@ -20,7 +20,7 @@
     </div>
     
     <div class="formulario-verificacion">
-        <form class = "formulario-verificacion__formulario">
+        <form id="miFormulario" class = "formulario-verificacion__formulario">
             <h1 class="formulario-verificacion__titulo-principal">FORMATO DE MANTENIMIENTO DE COMPUTO</h1>
             <div class="seccion">
                <!-- <div class="campo">
@@ -49,24 +49,24 @@
                 <div class="campo">
                     <label class="campo__etiqueta">ZONA</label>
                         <input type="text" value="TUXTLA" id="zona" class="campo__control"> 
+                        <span class="campo_vacio" id="mensajeError"></span><br>
+
                 </div>
             </div>
             <div class="campo">
                 <label class="campo__etiqueta">FOLIO</label>
                 <input type="text" class="campo__control" id="folio">
+                  <span class="campo_vacio" id="mensajeError2"></span><br>
+
             </div>
             <div class="campo">
                 <label class="campo__etiqueta">FECHA</label>
                 <input type="text" class="campo__control" id="fecha" readonly> <!-- Lo pase a text porque en generar_pdf_computo.js retorno una funcion de fecha pero no cumple con el yyy-mm-dd, mejor solo pongo el contenido en texto y no como formato de fecha, al final no se puede modificar-->
             </div>
-            <!-- Botón para imprimir el formato como PDF -->
-            <div class="campo">
-                <button type="button" id="btn_imprimir_formato">Imprimir Formato (PDF)</button>
-            </div>
             <div class="seccion">
                 <div class="campo">
                     <label class="campo__etiqueta">TIPO DE EQUIPO</label>
-                    <select class="campo__control" id="tipo_equipo">
+                    <select class="campo__control" id="tipo_equipo" required>
                         <option value="Seleccionar_Zona">Seleccione el tipo de equipo</option>
                         <option value="PC">PC</option>
                         <option value="Laptop">Laptop</option>
@@ -76,7 +76,7 @@
             <div class="seccion">
                 <div class="campo">
                     <label class="campo__etiqueta">SERVICIO</label>
-                    <select class="campo__control" id="servicio">
+                    <select class="campo__control" id="servicio" required>
                         <option value="Seleccionar_Tipo_servicio">Seleccione el tipo de servicio</option>
                         <option value="Preventivo">Preventivo</option>
                         <option value="Mantenimiento">Mantenimiento</option>
@@ -85,47 +85,57 @@
             </div>
             <div class="campo">
                 <label class="campo__etiqueta">HR. INICIO</label>
-                <input type="time" class="campo__control" id="hora_inicio">
+                <input type="time" class="campo__control" id="hora_inicio" required>
+                <span class="campo_vacio" id="mensajeError3"></span><br>
             </div>
             <div class="campo">
                 <label class="campo__etiqueta">HR. TÉRMINO</label>
-                <input type="time" class="campo__control" id="hora_termino">
+                <input type="time" class="campo__control" id="hora_termino" required>
+                <span class="campo_vacio" id="mensajeError4"></span><br>
             </div>
             
             <div class="campo">
                 <label for="inventario" class="campo__etiqueta">NÚMERO INVENTARIO</label>
                 <div class="search-container" data-param-name="inventario">
-                    <input type="text" inputmode="numeric" pattern="[0-9]*" class="campo__control" id="numero_inventario" name="inventario"> 
-                    <button type="button" id="search-button" class="search-button" data-url="/buscar_equipo">BUSCAR</button> 
+                    <input type="text" inputmode="numeric" pattern="[0-9]*" class="campo__control" id="numero_inventario" name="inventario" required> 
+                    <button type="button" id="search-button" class="search-button" data-url="/buscar_equipo">BUSCAR</button> <br>
                 </div>
+                <span class="campo_vacio" id="mensajeError5"></span><br>
             </div>
             <div class="campo">
                 <label for="division" class="campo__etiqueta">DIVISIÓN</label>
-                <input type="text" class="campo__control" id="division" name="division">
+                <input type="text" class="campo__control" id="division" name="division" required>
+                <span class="campo_vacio" id="mensajeError6"></span><br>            
             </div>
             <div class="campo" id="campo-centro-trabajo">
                 <label for="centro_trabajo" class="campo__etiqueta">CENTRO DE TRABAJO</label>
-                <input type="text" class="campo__control" id="centro_trabajo" name="centro_trabajo">
+                <input type="text" class="campo__control" id="centro_trabajo" name="centro_trabajo" required>
+                <span class="campo_vacio" id="mensajeError7"></span><br>
             </div>
             <div class="campo">
                 <label for="Numero_Serie" class="campo__etiqueta">NÚMERO DE SERIE</label>
-                <input type="text" class="campo__control" id="serie" name="serie">
+                <input type="text" class="campo__control" id="serie" name="serie" required>
+                <span class="campo_vacio" id="mensajeError8"></span><br>
             </div>
             <div class="campo">
                 <label for="usuario" class="campo__etiqueta">NOMBRE DEL USUARIO</label>
                 <input type="text" class="campo__control" id="usuario" name="usuario" >
+                <span class="campo_vacio" id="mensajeError9"></span><br>
             </div>
             <div class="campo">
                 <label for="marca" class="campo__etiqueta">MARCA</label>
                 <input type="text" class="campo__control" id="marca" name="marca">
+                <span class="campo_vacio" id="mensajeError10"></span>
             </div>
             <div class="campo">
                 <label for="modelo" class="campo__etiqueta">MODELO</label>
                 <input type="text" class="campo__control" id="modelo" name="modelo">
+                <span class="campo_vacio" id="mensajeError11"></span>
             </div>
             <div class="campo" id="campo-uso-trabajo">
                 <label for="uso" class="campo__etiqueta">USO QUE SE LE DA AL EQUIPO</label>
                 <input type="text" class="campo__control" id="tipo_uso" name="tipo_uso">
+                <span class="campo_vacio" id="mensajeError12"></span>
             </div>
 
             <!--SECCIÓN DE ELEMENTO-->
@@ -239,7 +249,7 @@
             </div>
             
         
-            <button type="button" class="boton boton--primario" onclick="validarYGenerarPDF()">Generar PDF</button>
+            <button type="button" class="boton boton--primario" onclick="validarFormulario()">Generar PDF</button>
             <div class="boton boton--secundario boton--cancelar">
                 <a id="select-reset" href="/TEMPLATES/menu.html" class="boton--cancelar ">Cancelar</a>
             </div>            </div>
@@ -258,6 +268,5 @@
     <script src="/RESOURCE/JS/firma.js"></script>
     <script src="/RESOURCE/JS/menu_amburguesa.js"></script>
     <script src="/RESOURCE/JS/regresar_Select.js"></script>
-    <!--<script src="/RESOURCE/JS/generar_pdf_computo.js"></script-->
 </body>
 </html>
