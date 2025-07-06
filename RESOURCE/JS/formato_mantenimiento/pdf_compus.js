@@ -6,10 +6,8 @@ document.addEventListener('DOMContentLoaded', function () {
 function validarFormulario() {
     const camposRequeridos = [
         { id: 'zona', errorId: 'mensajeError' },
-        { id: 'folio', errorId: 'mensajeError2' },
         { id: 'hora_inicio', errorId: 'mensajeError3' },
         { id: 'hora_termino', errorId: 'mensajeError4' },
-        { id: 'numero_inventario', errorId: 'mensajeError5' },
         { id: 'division', errorId: 'mensajeError6' },
         { id: 'centro_trabajo', errorId: 'mensajeError7' },
         { id: 'serie', errorId: 'mensajeError8' },

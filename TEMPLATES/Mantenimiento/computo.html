@@ -55,7 +55,6 @@
             <div class="campo">
                 <label class="campo__etiqueta">FOLIO</label>
                 <input type="text" class="campo__control" id="folio">
-                  <span class="campo_vacio" id="mensajeError2"></span><br>
 
             </div>
             <div class="campo">
@@ -84,7 +83,7 @@
             </div>
             <div class="campo">
                 <label class="campo__etiqueta">HR. INICIO</label>
-                <input type="time" class="campo__control" id="hora_inicio" required>
+                <input type="time" class="campo__control" id="hora_inicio" required value="08:00">
                 <span class="campo_vacio" id="mensajeError3"></span><br>
             </div>
             <div class="campo">
@@ -99,7 +98,6 @@
                     <input type="text" inputmode="numeric" pattern="[0-9]*" class="campo__control" id="numero_inventario" name="inventario" required> 
                     <button type="button" id="search-button" class="search-button" data-url="/buscar_equipo">BUSCAR</button> <br>
                 </div>
-                <span class="campo_vacio" id="mensajeError5"></span><br>
             </div>
             <div class="campo">
                 <label for="division" class="campo__etiqueta">DIVISIÓN</label>
@@ -113,9 +111,17 @@
             </div>
             <div class="campo">
                 <label for="Numero_Serie" class="campo__etiqueta">NÚMERO DE SERIE</label>
-                <input type="text" class="campo__control" id="serie" name="serie" required>
-                <span class="campo_vacio" id="mensajeError8"></span><br>
+                 <div class="search-container" data-param-name="serie">
+        <input type="text" class="campo__control" id="serie" name="serie" required>
+
+        <button type="button" class="search-button" data-url="/buscar_equipo">BUSCAR</button>
+
+        <div id="serie-sugerencias" class="sugerencias-container" style="display: none;"></div>
+
+    </div>
             </div>
+                                                    <span class="campo_vacio" id="mensajeError8"></span><br>
+
             <div class="campo">
                 <label for="usuario" class="campo__etiqueta">NOMBRE DEL USUARIO</label>
                 <input type="text" class="campo__control" id="usuario" name="usuario" >
