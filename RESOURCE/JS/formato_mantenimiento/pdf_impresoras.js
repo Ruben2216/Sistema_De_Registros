@@ -1,4 +1,87 @@
-function validarYGenerarPDF() {
+document.addEventListener('DOMContentLoaded', function () {
+    const btnGenerarPDF = document.querySelector('.boton--primario');
+    btnGenerarPDF.addEventListener('click', validarFormulario);
+});
+
+function validarFormulario() {
+    const camposRequeridos = [
+        { id: 'folio', errorId: 'mensajeError' },
+        { id: 'hrInicio', errorId: 'mensajeError2' },
+        { id: 'hrTermino', errorId: 'mensajeError3' },
+        { id: 'numero_inventario', errorId: 'mensajeError4' },
+        { id: 'serie', errorId: 'mensajeError5' },
+        { id: 'usuario', errorId: 'mensajeError6' },
+        { id: 'marca', errorId: 'mensajeError7' },
+        { id: 'modelo', errorId: 'mensajeError8' },
+        { id: 'tipo_equipo', errorId: 'mensajeError9' },
+        { id: 'division', errorId: 'mensajeError10' },
+    ];
+
+    let esValido = true;
+
+    camposRequeridos.forEach(campo => {
+        const input = document.getElementById(campo.id);
+        const mensaje = document.getElementById(campo.errorId);
+
+        if (!input.value.trim()) {
+            input.classList.add('campo-error');
+            mensaje.textContent = 'Este campo es obligatorio';
+            esValido = false;
+        } else {
+            input.classList.remove('campo-error');
+            mensaje.textContent = '';
+        }
+    });
+
+    // Validar selects
+    const centro = document.getElementById('centro_trabajo');
+    const servicio = document.getElementById('servicio');
+
+    if (centro.value === "") {
+        centro.classList.add('campo-error');
+        esValido = false;
+    } else {
+        centro.classList.remove('campo-error');
+    }
+
+    if (servicio.value === "") {
+        servicio.classList.add('campo-error');
+        esValido = false;
+    } else {
+        servicio.classList.remove('campo-error');
+    }
+
+    // Validar radios obligatorios
+    const radios = ['limpieza_interna', 'sopleteado', 'bandejas', 'fusion', 'papel', 'laser', 'consumibles', 'red', 'prueba',
+        'operando'
+    ];
+
+    radios.forEach(nombre => {
+        const opciones = document.getElementsByName(nombre);
+        const algunoSeleccionado = [...opciones].some(op => op.checked);
+
+        if (!algunoSeleccionado) {
+            const contenedor = opciones[0]?.closest('.campo');
+            if (contenedor) contenedor.classList.add('campo-error');
+            esValido = false;
+        } else {
+            const contenedor = opciones[0]?.closest('.campo');
+            if (contenedor) contenedor.classList.remove('campo-error');
+        }
+    });
+
+    if (esValido) {
+        generarPDF();
+    } else {
+        const continuar = confirm("Hay campos vacíos. ¿Está seguro de que desea continuar?");
+        if (continuar) {
+            generarPDF();
+        }   // Si no confirma, no se genera el PDF y los campos vacíos ya están marcados en rojo
+}
+}
+
+
+/*function validarYGenerarPDF() {
     let camposIncompletos = [];
 
     // Validar campos de texto visibles
@@ -31,7 +114,7 @@ function validarYGenerarPDF() {
         alert("Por favor, complete todos los campos obligatorios.");
     }        
     generarPDF();
-}
+}*/
     
    
 
@@ -41,12 +124,12 @@ async function generarPDF() {
     const doc = new jsPDF(); /*crea pdf vacio*/
 
     // DATOS DE FORMULARIO
-    const zona = document.querySelector('select[id="zona"]').value;
-    const centro = document.querySelector('input[id="centro_trabajo"]').value;
+    const zona = document.querySelector('input[id="zona"]').value;
+    const centro = document.querySelector('select[id="centro_trabajo"]').value;
     const folio = document.querySelector('input[id="folio"]').value;
     const fecha = document.querySelector('input[id="fecha"]').value;
     const usuario = document.querySelector('input[id="usuario"]').value;
-    const tipo_equipo = document.querySelector('select[id="tipo_equipo"]').value;
+    const tipo_equipo = document.querySelector('input[id="tipo_equipo"]').value;
     const marca = document.querySelector('input[id="marca"]').value;
     const modelo = document.querySelector('input[id="modelo"]').value;
     const serie = document.querySelector('input[id="serie"]').value;
@@ -461,16 +544,22 @@ async function generarPDF() {
     
     y += 8;
     doc.text(`Realizó servicio:`, 15, y);
+    doc.setFontSize(7);
     doc.text(realizo_servicio, 15, y + 21);
+    doc.setFontSize(10);
     doc.text(`Responsable del Equipo:`, 105, y, "center");
+    doc.setFontSize(7);
     doc.text(responsable, 80, y + 21);
+    doc.setFontSize(10);
     doc.text(`Visto Bueno:`, 145, y);
+    doc.setFontSize(7);
     doc.text(visto_bueno, 145, y + 21);
     y += 22;
     doc.line(15, y, 60, y);
     doc.line(80, y, 130, y);
     doc.line(145, y, 200, y);
     y += 5;
+    doc.setFontSize(10);
     doc.text("Nombre y firma", 20, y);
     doc.text("Nombre y firma", 95, y);
     doc.text("Nombre y firma", 165, y);

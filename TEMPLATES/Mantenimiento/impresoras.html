@@ -26,12 +26,13 @@
             <div class="campo">
                     <label class="campo__etiqueta">FOLIO</label>
                     <input type="text" class="campo__control" id="folio">
+                    <span class="campo_vacio" id="mensajeError"></span><br>
             </div>
             <div class="seccion">
                 <div class="campo">
                 <label class="campo__etiqueta">SERVICIO</label>
                 <select class="campo__control" id="servicio">
-                    <option value="Seleccionar_Zona">Seleccione el tipo de servicio</option>
+                    <option value=""></option>
                     <option value="Preventivo">Preventivo</option>
                     <option value="Mantenimiento">Mantenimiento</option>
                 </select>
@@ -40,10 +41,12 @@
             <div class="campo">
                 <label class="campo__etiqueta">HR. INICIO</label>
                 <input type="time" class="campo__control" id="hrInicio">
+                <span class="campo_vacio" id="mensajeError2"></span><br>
             </div>
             <div class="campo">
                 <label class="campo__etiqueta">HR. TÉRMINO</label>
                 <input type="time" class="campo__control" id="hrTermino">
+                <span class="campo_vacio" id="mensajeError3"></span><br>
             </div>
             
             <div class="campo">
@@ -52,40 +55,46 @@
                     <input type="text" inputmode="numeric" pattern="[0-9]*" class="campo__control" id="numero_inventario" name="inventario"> 
                     <button type="button" id="search-button" class="search-button" data-url="/buscar_equipo">BUSCAR</button> 
                 </div>
+                <span class="campo_vacio" id="mensajeError4"></span><br>
             </div>
             <div class="campo">
                 <label for="Numero_Serie" class="campo__etiqueta">NÚMERO DE SERIE</label>
                 <div class="search-container" data-param-name="serie">
                     <input type="text" class="campo__control" id="serie" name="serie" autocomplete="off"> 
-
                     <div id="serie-sugerencias" class="sugerencias-container"></div>
                 </div>
+                <span class="campo_vacio" id="mensajeError5"></span><br>
             </div>
             <div class="campo">
                 <label for="usuario" class="campo__etiqueta">NOMBRE DEL USUARIO</label>
                 <input type="text" class="campo__control" id="usuario" name="usuario">
+                <span class="campo_vacio" id="mensajeError6"></span><br>
             </div>
             <div class="campo">
                 <label for="marca" class="campo__etiqueta">MARCA</label>
                 <input type="text" class="campo__control" id="marca" name="marca">
+                <span class="campo_vacio" id="mensajeError7"></span><br>
             </div>
             <div class="campo">
                 <label for="modelo" class="campo__etiqueta">MODELO</label> 
                 <input type="text" class="campo__control" id="modelo" name="modelo">
+                <span class="campo_vacio" id="mensajeError8"></span><br>
             </div>
             <div class="campo">
                 <label class="campo__etiqueta">TIPO DE EQUIPO</label>
-                <input type="text" value="IMPRESORA" class="campo__control" id="modelo" name="modelo"> 
+                <input type="text" value="IMPRESORA" class="campo__control" id="tipo_equipo" name="modelo"> 
+                <span class="campo_vacio" id="mensajeError9"></span><br>
             </div>
             <div class="campo">
                 <label for="division" class="campo__etiqueta">DIVISIÓN</label>
                 <input type="text" class="campo__control" id="division" name="division">
+                <span class="campo_vacio" id="mensajeError10"></span><br>
             </div>
             <div class="seccion">
                 <div class="campo">
                     <label class="campo__etiqueta">CENTRO DE TRABAJO</label>
-                    <select class="campo__control" id="tipo_equipo">
-                        <option value="centro"></option>
+                    <select class="campo__control" id="centro_trabajo">
+                        <option value=""></option>
                         <option value="consumos">Integ de Consumos - AGENCIA MALPASO, ZONA TUXTLA</option>
                         <option value="comercial">Comercial Campo - AGENCIA BENITO JUAREZ</option>
                         <option value="comercial">Comercial Campo - COMERCIAL</option>
@@ -94,9 +103,6 @@
                         <option value="redes">Redes Aéreas - AREA BOCHIL</option>
                         <option value="zona_tux">DIS Zona Tuxtla - SUPERINTENDENCIA</option>
                         <option value="finanzas">Finanzas  - ADMINISTRACIÓN</option>
-                        
-
-
                     </select>
 
                 </div>
@@ -113,6 +119,7 @@
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="limpieza_interna" type="radio" value="no"> No</label>
                     </div>
                     <input type="text" id="input_limpieza_interna" style="display: none;" class="campo__control" maxlength="40"  placeholder="Especifique motivo">
+                    <small id="contador_letras_limpieza_interna" style="display: none;">0/40 caracteres</small>                
                 </div>
                 <div class="campo">2. Limpieza y sopleteado interna y externa del equipo</p>
                     <div class="grupo-opciones">
@@ -120,11 +127,13 @@
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="sopleteado" type="radio" value="no"> No</label>
                     </div>
                     <input type="text" id="input_sopleteado" style="display: none;" class="campo__control" maxlength="40" placeholder="Especifique motivo">
+                    <small id="contador_letras_sopleteado" style="display: none;">0/40 caracteres</small>                
                 </div>
                 <div class="campo">3. Limpieza de bandejas o charolas</p>
                     <div class="grupo-opciones">
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="bandejas" type="radio" value="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="bandejas" type="radio" value="no"> No</label>
+                        <small id="contador_letras_bandejas" style="display: none;">0/40 caracteres</small>  
                     </div>
                     <input type="text" id="input_bandejas" style="display: none;" class="campo__control" maxlength="40" placeholder="Especifique motivo">
                 </div>
@@ -134,13 +143,15 @@
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="papel" type="radio" value="no"> No</label>
                     </div>
                     <input type="text" id="input_papel" style="display: none;" class="campo__control" maxlength="40" placeholder="Especifique motivo">
+                    <small id="contador_letras_papel" style="display: none;">0/40 caracteres</small>  
                 </div>
                 <div class="campo">5. Limpieza y revisión de la unidad de fusión</p>
                     <div class="grupo-opciones">
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="fusion" type="radio" value="si"> Sí</label>
-                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="fusion" type="radio" value="no"> No</label>
+                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="fusion" type="radio" value="no"> No</label> 
                     </div>
                     <input type="text" id="input_fusion" style="display: none;" class="campo__control" maxlength="40"  placeholder="Especifique motivo">
+                    <small id="contador_letras_fusion" style="display: none;">0/40 caracteres</small> 
                 </div>
                 <div class="campo">6. Limpieza y revisión de la unidad lasér</p>
                     <div class="grupo-opciones">
@@ -148,6 +159,7 @@
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="laser" type="radio" value="no"> No</label>
                     </div>
                     <input type="text" id="input_laser" class="campo__control" style="display:none;" maxlength="40" placeholder="Especifique motivo">
+                    <small id="contador_letras_laser" style="display: none;">0/40 caracteres</small>
                 </div>
                 <div class="campo">7. Validar estado de consumibles</p>
                     <div class="grupo-opciones">
@@ -155,6 +167,7 @@
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="consumibles" type="radio" value="no"> No</label>
                     </div>
                     <input type="text" id="input_consumibles" class="campo__control" style="display:none;" maxlength="40" placeholder="Especifique motivo">
+                    <small id="contador_letras_consumibles" style="display: none;">0/40 caracteres</small>
                 </div>
                 <div class="campo">8. Equipo de red</p>
                     <div class="grupo-opciones">
@@ -162,6 +175,7 @@
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="red" type="radio" value="no"> No</label>
                     </div>
                     <input type="text" id="input_red" class="campo__control" style="display:none;" maxlength="40" placeholder="Especifique motivo">
+                    <small id="contador_letras_red" style="display: none;">0/40 caracteres</small>
                 </div>
                 <div class="campo">9. Realizar auto prueba</p>
                     <div class="grupo-opciones">
@@ -169,6 +183,7 @@
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="prueba" type="radio" value="no"> No</label>
                     </div>
                     <input type="text" id="input_prueba" class="campo__control" style="display:none;" maxlength="40" placeholder="Especifique motivo">
+                    <small id="contador_letras_prueba" style="display: none;">0/40 caracteres</small>
                 </div>
                 <div class="campo">10. Equipo operando después del servicio</p>
                     <div class="grupo-opciones">
@@ -176,6 +191,7 @@
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="operando" type="radio" value="no"> No</label>
                     </div>
                     <input type="text" id="input_operando" class="campo__control" style="display:none;" maxlength="40" placeholder="Especifique motivo">
+                    <small id="contador_letras_operando" style="display: none;">0/40 caracteres</small>
                 </div>
             </div>
             <hr class="seccion__divisor">
