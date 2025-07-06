@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="/RESOURCE/CSS/index.css">
 </head>
 <body>
+
         <div class="contenedor-barra">
         <div class="progreso">
             <div class="progreso-barra" id="progreso-barra" style="width: 0%;"></div>
@@ -22,40 +23,47 @@
                 <div class="campo">
                     <label class="campo__etiqueta">CLAVE DE DOCUMENTO:</label>
                     <input id="clave_documento" type="text" class="campo__control">
+                    <span id="mensajeError" class="campo_vacio"></span>
                 </div>
                 <div class="campo">
                     <label class="campo__etiqueta">NÚMERO DE VERSIÓN:</label>
                     <input id="NoVersion" type="text" class="campo__control">
+                    <span id="mensajeError2" class="campo_vacio"></span>
                 </div>
             <div class="campo">
                 <label class="campo__etiqueta">FECHA DE PUBLICACIÓN:</label>
                 <input type="text" class="campo__control" id="fecha_publicacion" > 
+                <span id="mensajeError3" class="campo_vacio"></span>
             </div>
                 <div class="seccion">
                     <div class="campo">
                         <label class="campo__etiqueta">ZONA:</label>
                         <input type="text" value="TUXTLA" id="zona" class="campo__control"> 
+                        <span id="mensajeError4" class="campo_vacio"></span>
                 </div>
             </div>
                 <div class="campo">
                     <label class="campo__etiqueta">UBICACIÓN DEL SITE:</label>
                     <input id="site" type="text" class="campo__control">
+                    <span id="mensajeError5" class="campo_vacio"></span>
                 </div>
                 <div class="campo">
                     <label class="campo__etiqueta">FECHA DE REALIZACIÓN:</label>
                     <input id="fecha_realizacion" type="text" class="campo__control">
+                    <span id="mensajeError6" class="campo_vacio"></span>
                 </div>
             </div>
             <hr class="seccion__divisor">
             <div class="seccion">
                 <h3 class="seccion__titulo">ELEMENTO</h3>
                 <div class="campo">
-                    <p class="campo__etiqueta">1. ¿Cuenta con tierra física?</p>
+                    <class="campo__etiqueta">1. ¿Cuenta con tierra física?</p>
                     <div class="grupo-opciones">
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="tierra_fisica" type="radio" value="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="tierra_fisica" type="radio" value="no" onchange="mostrarInput('limpieza_externa')"> No</label>
                     </div>
                     <input type="text" id="input_tierra_fisica" class="campo__control" style="display: none;" placeholder="Especifique motivo">
+                    <small id="contador_letras_tierra_fisica" style="display: none;">0/40 caracteres</small>                
                 </div>
                 <div class="campo">2. ¿Cuenta con equipos UPS?</p>
                     <div class="grupo-opciones">
@@ -63,6 +71,7 @@
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="UPS" type="radio" value="no" onchange="mostrarInput('pantalla')"> No</label>
                     </div>
                     <input type="text" id="input_UPS" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                    <small id="contador_letras_UPS" style="display: none;">0/40 caracteres</small>
                 </div>
                 <div class="campo">3. ¿El tiempo de respaldo de la UPS es de al menos 30 minutos?</p>
                     <div class="grupo-opciones">
@@ -70,6 +79,7 @@
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="respaldo" type="radio" value="no" onchange="modtrarInput('teclado')"> No</label>
                     </div>
                     <input type="text" id="input_respaldo" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                    <small id="contador_letras_respaldo" style="display: none;">0/40 caracteres</small>
                 </div>
                 <div class="campo">4. ¿El estado de las baterías es correcto?</p>
                     <div class="grupo-opciones">
@@ -77,6 +87,7 @@
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="bateria" type="radio" value="no" onchange="mostrarInput('conexiones')"> No</label>
                     </div>
                     <input type="text" id="input_bateria" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                    <small id="contador_letras_bateria" style="display: none;">0/40 caracteres</small>
                 </div>
                 <div class="campo">5. ¿El voltaje es correcto? (±10% permitido)</p>
                     <div class="grupo-opciones">
@@ -84,6 +95,7 @@
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="voltaje" type="radio" value="no" onchange="mostrarInput('despues_servicio')"> No</label>
                     </div>
                     <input type="text" id="input_voltaje" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                    <small id="contador_letras_voltaje" style="display: none;">0/40 caracteres</small>
                 </div>
                 <div class="campo">6. ¿Cuenta con control de acceso?</p>
                     <div class="grupo-opciones">
@@ -91,6 +103,7 @@
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="control_acceso" type="radio" value="no" onchange="mostrarInput('Antivirus')"> No</label>
                     </div>
                     <input type="text" id="input_control_acceso" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                    <small id="contador_letras_control_acceso" style="display: none;">0/40 caracteres</small>
                 </div>
                 <div class="campo">7. ¿El edificio cuenta con seguridad física?</p>
                     <div class="grupo-opciones">
@@ -98,6 +111,7 @@
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="seguridad_fisica" type="radio" value="no" onchange="mostrarInput('Defrag')"> No</label>
                     </div>
                     <input type="text" id="input_seguridad_fisica" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                    <small id="contador_letras_seguridad_fisica" style="display: none;">0/40 caracteres</small>
                 </div>
                 <div class="campo">8. ¿Se cuenta con aire acondicionado?</p>
                     <div class="grupo-opciones">
@@ -105,6 +119,7 @@
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="aire" type="radio" value="no" onchange="mostrarInput('doominio')"> No</label>
                     </div>
                     <input type="text" id="input_aire" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                    <small id="contador_letras_aire" style="display: none;">0/40 caracteres</small>
                 </div>
                 <div class="campo">9. ¿Se encuantra operando normal el aire acondicionado?
                     <div class="grupo-opciones">
@@ -112,6 +127,7 @@
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="aire_funcionando" type="radio" value="no" onchange="mostrarInput('Windows_update')"> No</label>
                     </div>
                     <input type="text" id="input_aire_funcionando" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                    <small id="contador_letras_aire_funcionando" style="display: none;">0/40 caracteres</small>
                 </div>
                 <div class="campo">10. ¿Se cuenta con bitácora de registro?
                     <div class="grupo-opciones">
@@ -119,6 +135,7 @@
                         <label class="grupo-opciones__opcion"><input type="radio" class="grupo-opciones__control" name="bitacora" value="no" onchange="mostrarInput('bitacora')">No</label>
                     </div>
                     <input type="text" id="input_bitacora" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                    <small id="contador_letras_bitacora" style="display: none;">0/40 caracteres</small>
                 </div>
                 <div class="campo">11. ¿Existe orden y limpieza en sala de Telecomunicaciones (5s)?
                     <div class="grupo-opciones">
@@ -126,6 +143,7 @@
                         <label class="grupo-opciones__opcion"><input type="radio" class="grupo-opciones__control" name="orden_impieza" value="no" onchange="mostrarInput('limpieza_externa')">No</label>
                     </div>
                     <input type="text" id="input_orden_impieza" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                    <small id="contador_letras_orden_impieza" style="display: none;">0/40 caracteres</small>
                 </div>
                 <div class="campo">12. ¿Se cuenta con cableado de red estructurado etiquetado?
                     <div class="grupo-opciones">
@@ -133,6 +151,7 @@
                         <label class="grupo-opciones__opcion"><input type="radio" class="grupo-opciones__control" name="etiquetado" value="no" onchange="mostrarInput('limpieza_externa')">No</label>
                     </div>
                     <input type="text" id="input_etiquetado" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                    <small id="contador_letras_etiquetado" style="display: none;">0/40 caracteres</small>
                 </div>
                 <div class="campo">13. ¿Switch se encuentra libre de polvo?
                     <div class="grupo-opciones">
@@ -140,6 +159,7 @@
                         <label class="grupo-opciones__opcion"><input type="radio" class="grupo-opciones__control" name="polvo" value="no" onchange="mostrarInput('limpieza_externa')">No</label>
                     </div>
                     <input type="text" id="input_polvo" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                    <small id="contador_letras_polvo" style="display: none;">0/40 caracteres</small>
                 </div>
                 <div class="campo">14. ¿Los puntos de acceso que se conectan al switch de sala inspecciona, se encuentra correctamente instalados en plafón, pared o reck?
                     <div class="grupo-opciones">
@@ -147,6 +167,7 @@
                         <label class="grupo-opciones__opcion"><input type="radio" class="grupo-opciones__control" name="switch" value="no" onchange="mostrarInput('limpieza_externa')">No</label>
                     </div>
                     <input type="text" id="input_switch" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                    <small id="contador_letras_switch" style="display: none;">0/40 caracteres</small>
                 </div>
                 <div class="campo">15. ¿Se encuentra operando el o los puntos de acceso (AP's)?
                     <div class="grupo-opciones">
@@ -154,6 +175,7 @@
                         <label class="grupo-opciones__opcion"><input type="radio" class="grupo-opciones__control" name="APS" value="no" onchange="mostrarInput('limpieza_externa')"> No</label>
                     </div>
                     <input type="text" id="input_APS" class="campo__control" style="display:none;" placeholder="Especifique motivo">
+                    <small id="contador_letras_APS" style="display: none;">0/40 caracteres</small>
                 </div>
 
             <hr class="seccion__divisor">
@@ -185,7 +207,7 @@
                 </div>
             </div>
 
-            <button type="button" class="boton boton--primario" onclick="validarYGenerarPDF()">Generar PDF</button>
+            <button type="button" class="boton boton--primario" onclick="validarFormulario()">Generar PDF</button>
             <button type="button" class="boton boton--secundario">Guardar Borrador</button>
             <div class="boton boton--secundario boton--cancelar">
                 <a id="select-reset" href="/TEMPLATES/menu.html" class="boton--cancelar ">Cancelar</a>
