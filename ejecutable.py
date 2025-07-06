@@ -734,7 +734,10 @@ def cargar_usuarios_activos():
                     if 'timestamp' in info:
                         info['timestamp'] = datetime.datetime.fromisoformat(info['timestamp'])
                 return data
-    except Exception as e:        return {}
+        return {}
+    except Exception as e:
+        print(f"[DEBUG] Error cargando usuarios activos: {e}")
+        return {}
 
 def guardar_usuarios_activos(usuarios):
     """Guarda el diccionario de usuarios activos en archivo"""
@@ -773,6 +776,14 @@ def registrar_actividad_usuario():
     
     with lock_usuarios:
         usuarios_activos = get_usuarios_activos()
+        
+        # Validar que usuarios_activos no sea None
+        if usuarios_activos is None:
+            print(f"[DEBUG] ADVERTENCIA: usuarios_activos es None, inicializando diccionario vacío")
+            usuarios_activos = {}
+        
+        print(f"[DEBUG] usuarios_activos tipo: {type(usuarios_activos)}")
+        print(f"[DEBUG] usuarios_activos keys: {list(usuarios_activos.keys()) if usuarios_activos else 'None'}")
         
         if not sid:
             sid = os.urandom(8).hex()
@@ -1039,8 +1050,17 @@ def ver_pdf_mantenimiento(nombre_archivo):
     Sirve un PDF de mantenimiento para visualización
     """
     try:
+        print(f"[DEBUG] ver_pdf_mantenimiento solicitado para: {nombre_archivo}")
+        
+        # Validar que nombre_archivo no sea None o vacío
+        if not nombre_archivo or nombre_archivo == 'None' or nombre_archivo == 'undefined':
+            print(f"[DEBUG] Nombre de archivo inválido en ver_pdf: {nombre_archivo}")
+            return jsonify({'error': 'Nombre de archivo no proporcionado'}), 400
+        
         # Sanitizar nombre del archivo
-        nombre_archivo = secure_filename(nombre_archivo)
+        nombre_archivo = secure_filename(str(nombre_archivo))
+        print(f"[DEBUG] Nombre sanitizado: {nombre_archivo}")
+        
         if not nombre_archivo.endswith('.pdf'):
             nombre_archivo += '.pdf'
         
@@ -1052,6 +1072,9 @@ def ver_pdf_mantenimiento(nombre_archivo):
         return send_from_directory(PDFS_MANTENIMIENTO_DIR, nombre_archivo)
         
     except Exception as e:
+        print(f"[DEBUG] Error en ver_pdf_mantenimiento: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/evidencia/guardar_pdf_mantenimiento', methods=['POST'])
@@ -1060,37 +1083,83 @@ def guardar_pdf_mantenimiento():
     Guarda un PDF de mantenimiento en el repositorio temporal
     """
     try:
-        data = request.get_json()
+        print(f"[DEBUG] Iniciando guardar_pdf_mantenimiento...")
         
-        if not data or 'pdf_base64' not in data or 'nombre_archivo' not in data:
+        data = request.get_json()
+        print(f"[DEBUG] Datos recibidos: {data is not None}")
+        
+        if not data:
+            print(f"[DEBUG] Error: No se recibieron datos")
+            return jsonify({
+                'success': False,
+                'error': 'No se recibieron datos'
+            }), 400
+        
+        print(f"[DEBUG] Claves en data: {list(data.keys()) if data else 'None'}")
+        
+        if 'pdf_base64' not in data or 'nombre_archivo' not in data:
+            print(f"[DEBUG] Error: Faltan campos requeridos")
+            print(f"[DEBUG] pdf_base64 presente: {'pdf_base64' in data}")
+            print(f"[DEBUG] nombre_archivo presente: {'nombre_archivo' in data}")
             return jsonify({
                 'success': False,
                 'error': 'Datos requeridos no proporcionados'
             }), 400
         
         pdf_base64 = data['pdf_base64']
-        nombre_archivo = secure_filename(data['nombre_archivo'])
+        nombre_archivo = data['nombre_archivo']
         tipo_mantenimiento = data.get('tipo_mantenimiento', 'general')
+        
+        print(f"[DEBUG] nombre_archivo original: {nombre_archivo}")
+        print(f"[DEBUG] tipo_mantenimiento: {tipo_mantenimiento}")
+        
+        # Validar que nombre_archivo no sea None
+        if nombre_archivo is None:
+            print(f"[DEBUG] Error: nombre_archivo es None")
+            return jsonify({
+                'success': False,
+                'error': 'Nombre de archivo no puede ser None'
+            }), 400
+        
+        # Aplicar secure_filename solo si el nombre es válido
+        try:
+            nombre_archivo_seguro = secure_filename(str(nombre_archivo))
+            print(f"[DEBUG] nombre_archivo_seguro: {nombre_archivo_seguro}")
+        except Exception as e:
+            print(f"[DEBUG] Error en secure_filename: {e}")
+            return jsonify({
+                'success': False,
+                'error': f'Error al procesar nombre de archivo: {str(e)}'
+            }), 400
         
         # Registrar actividad del usuario
         sid = registrar_actividad_usuario()
+        print(f"[DEBUG] SID usuario: {sid}")
         
         # Limpiar el base64
-        if pdf_base64.startswith('data:application/pdf;base64,'):
+        if pdf_base64 and pdf_base64.startswith('data:application/pdf;base64,'):
             pdf_base64 = pdf_base64.split(',')[1]
-        elif pdf_base64.startswith('data:'):
+        elif pdf_base64 and pdf_base64.startswith('data:'):
             comma_index = pdf_base64.find(',')
             if comma_index != -1:
                 pdf_base64 = pdf_base64[comma_index + 1:]
         
+        print(f"[DEBUG] PDF base64 limpio, longitud: {len(pdf_base64) if pdf_base64 else 0}")
+        
         # Decodificar PDF
         try:
+            if not pdf_base64:
+                raise Exception("PDF base64 está vacío")
+                
             pdf_data = base64.b64decode(pdf_base64)
             
             if not pdf_data.startswith(b'%PDF'):
                 raise Exception("El archivo no es un PDF válido")
+            
+            print(f"[DEBUG] PDF decodificado correctamente, tamaño: {len(pdf_data)} bytes")
                 
         except Exception as e:
+            print(f"[DEBUG] Error al decodificar PDF: {e}")
             return jsonify({
                 'success': False,
                 'error': f'Error al decodificar PDF: {str(e)}'
@@ -1101,9 +1170,20 @@ def guardar_pdf_mantenimiento():
         nombre_final = f"{tipo_mantenimiento}_{timestamp}_{sid[:8]}.pdf"
         ruta_archivo = os.path.join(PDFS_MANTENIMIENTO_DIR, nombre_final)
         
+        print(f"[DEBUG] Nombre final: {nombre_final}")
+        print(f"[DEBUG] Ruta archivo: {ruta_archivo}")
+        print(f"[DEBUG] Directorio existe: {os.path.exists(PDFS_MANTENIMIENTO_DIR)}")
+        
+        # Verificar que el directorio existe
+        if not os.path.exists(PDFS_MANTENIMIENTO_DIR):
+            print(f"[DEBUG] Creando directorio: {PDFS_MANTENIMIENTO_DIR}")
+            os.makedirs(PDFS_MANTENIMIENTO_DIR, exist_ok=True)
+        
         # Guardar PDF
         with open(ruta_archivo, 'wb') as f:
             f.write(pdf_data)
+        
+        print(f"[DEBUG] PDF guardado exitosamente")
         
         return jsonify({
             'success': True,
@@ -1113,7 +1193,9 @@ def guardar_pdf_mantenimiento():
         }), 200
         
     except Exception as e:
-        print(f"Error al guardar PDF de mantenimiento: {e}")
+        print(f"[DEBUG] Error general en guardar_pdf_mantenimiento: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({
             'success': False,
             'error': str(e)
@@ -1388,6 +1470,11 @@ def es_nombre_archivo_seguro(nombre):
     Verifica si un nombre de archivo es seguro sin modificarlo
     Permite letras, números, espacios, guiones, puntos y underscore
     """
+    # Validar que nombre no sea None o vacío
+    if nombre is None or not isinstance(nombre, str) or not nombre.strip():
+        print(f"[DEBUG] Nombre inválido en es_nombre_archivo_seguro: {nombre}")
+        return False
+    
     import re
     # Permitir caracteres seguros incluyendo espacios
     patron_permitido = re.compile(r'^[a-zA-Z0-9\s\-_\.]+$')
@@ -1400,6 +1487,11 @@ def descargar_pdf_evidencia(nombre_archivo):
     """
     try:
         print(f"[DEBUG] Descarga solicitada para: {nombre_archivo}")
+        
+        # Validar que nombre_archivo no sea None o vacío
+        if not nombre_archivo or nombre_archivo == 'None' or nombre_archivo == 'undefined':
+            print(f"[DEBUG] Nombre de archivo inválido: {nombre_archivo}")
+            return jsonify({'error': 'Nombre de archivo no proporcionado'}), 400
         
         # Decodificar URL (para manejar %20 -> espacio)
         from urllib.parse import unquote

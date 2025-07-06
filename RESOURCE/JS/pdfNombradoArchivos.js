@@ -212,9 +212,13 @@ class PDFNamingManager {
      * Confirma el nombrado y ejecuta el callback
      */
     confirmarNombrado() {
+        console.log('[DEBUG] confirmarNombrado iniciado');
+        
         // Obtener elemento del DOM
         const campoEntrada = document.getElementById('pdf-filename-input');
-        let nombreArchivo = campoEntrada.value.trim();
+        let nombreArchivo = campoEntrada ? campoEntrada.value.trim() : '';
+        
+        console.log('[DEBUG] nombreArchivo del input:', nombreArchivo);
 
         // Configuración
         const configuracion = {
@@ -222,19 +226,32 @@ class PDFNamingManager {
         };
 
         // Si no hay nombre, usar uno por defecto
-        if (nombreArchivo === '') {
+        if (nombreArchivo === '' || !nombreArchivo) {
             nombreArchivo = this.generateAutoFilename(this.currentSerieNumber, this.currentEquipmentType);
+            console.log('[DEBUG] nombreArchivo auto-generado:', nombreArchivo);
         }
 
         // Sanitizar el nombre final
         nombreArchivo = this.sanitizeFilename(nombreArchivo);
+        console.log('[DEBUG] nombreArchivo sanitizado:', nombreArchivo);
 
         // Agregar extensión PDF
         const nombreFinal = `${nombreArchivo}${configuracion.extension}`;
+        console.log('[DEBUG] nombreFinal con extensión:', nombreFinal);
+
+        // Validar que el nombre final no esté vacío
+        if (!nombreFinal || nombreFinal.trim() === '' || nombreFinal === '.pdf') {
+            console.error('[DEBUG] Error: nombreFinal está vacío o es inválido');
+            alert('Error: No se pudo generar un nombre válido para el archivo PDF');
+            return;
+        }
 
         // Ejecutar callback si existe
         if (this.onConfirmCallback && typeof this.onConfirmCallback === 'function') {
+            console.log('[DEBUG] Ejecutando callback con nombreFinal:', nombreFinal);
             this.onConfirmCallback(nombreFinal);
+        } else {
+            console.error('[DEBUG] Error: onConfirmCallback no está definido o no es una función');
         }
 
         // Ocultar modal

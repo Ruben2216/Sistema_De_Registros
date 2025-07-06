@@ -4,15 +4,39 @@
 // Función para guardar PDF en el repositorio de evidencia de mantenimiento
 async function guardarPDFEnRepositorioEvidencia(docPDF, nombreArchivo, tipoMantenimiento) {
     try {
+        console.log('[DEBUG] Iniciando guardarPDFEnRepositorioEvidencia');
+        console.log('[DEBUG] nombreArchivo:', nombreArchivo);
+        console.log('[DEBUG] tipoMantenimiento:', tipoMantenimiento);
+        console.log('[DEBUG] docPDF:', docPDF ? 'OK' : 'NULL');
+        
+        // Validar parámetros
+        if (!docPDF) {
+            console.error('[DEBUG] Error: docPDF es null o undefined');
+            return;
+        }
+        
+        if (!nombreArchivo || nombreArchivo.trim() === '') {
+            console.error('[DEBUG] Error: nombreArchivo está vacío');
+            return;
+        }
+        
+        if (!tipoMantenimiento) {
+            console.error('[DEBUG] Error: tipoMantenimiento está vacío, usando default');
+            tipoMantenimiento = 'general';
+        }
+        
         // Obtener el PDF como base64
         const pdfBase64 = docPDF.output('datauristring');
+        console.log('[DEBUG] PDF generado, longitud base64:', pdfBase64 ? pdfBase64.length : 0);
         
         // Datos para enviar al servidor
         const datosRepositorio = {
             pdf_base64: pdfBase64,
-            nombre_archivo: nombreArchivo,
+            nombre_archivo: nombreArchivo.trim(),
             tipo_mantenimiento: tipoMantenimiento
         };
+        
+        console.log('[DEBUG] Enviando datos al servidor...');
         
         // Enviar al servidor
         const response = await fetch('/api/evidencia/guardar_pdf_mantenimiento', {
@@ -23,7 +47,10 @@ async function guardarPDFEnRepositorioEvidencia(docPDF, nombreArchivo, tipoMante
             body: JSON.stringify(datosRepositorio)
         });
         
+        console.log('[DEBUG] Respuesta del servidor:', response.status);
+        
         const result = await response.json();
+        console.log('[DEBUG] Resultado:', result);
         
         if (result.success) {
             console.log('PDF guardado en repositorio de evidencia:', result.pdf_id);
@@ -191,6 +218,23 @@ function mostrarModalEvidencia(nombreArchivo) {
 
 // Función wrapper que se puede usar en todos los archivos de PDF
 function procesarPDFMantenimiento(docPDF, nombreArchivo, tipoMantenimiento, mostrarModal = true) {
+    console.log('[DEBUG] procesarPDFMantenimiento llamado');
+    console.log('[DEBUG] nombreArchivo:', nombreArchivo);
+    console.log('[DEBUG] tipoMantenimiento:', tipoMantenimiento);
+    
+    // Validar parámetros antes de procesar
+    if (!nombreArchivo || nombreArchivo.trim() === '') {
+        console.error('[DEBUG] Error: nombreArchivo está vacío en procesarPDFMantenimiento');
+        alert('Error: No se pudo determinar el nombre del archivo PDF');
+        return;
+    }
+    
+    if (!docPDF) {
+        console.error('[DEBUG] Error: docPDF es null en procesarPDFMantenimiento');
+        alert('Error: No se pudo generar el documento PDF');
+        return;
+    }
+    
     // Guardar el PDF normalmente (descarga)
     docPDF.save(nombreArchivo);
     
