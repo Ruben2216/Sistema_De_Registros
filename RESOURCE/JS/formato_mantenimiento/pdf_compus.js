@@ -82,14 +82,6 @@ function validarFormulario() {
 }
 
 async function generarPDF() {
-      const { jsPDF } = window.jspdf; 
-      const doc = new jsPDF(); /*crea pdf en blanco*/
-
-      doc.save("formulario.pdf"); 
-    }
-
-
-async function generarPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF(); /*crea pdf vacio*/
 
