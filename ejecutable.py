@@ -7,12 +7,20 @@ import datetime
 import threading
 import time
 import atexit
+import traceback
+import re
+import shutil
 from werkzeug.utils import secure_filename
 # --- INICIO LÓGICA DE backend (búsqueda de equipos en MySQL) ---
 from flask_cors import CORS 
 import mysql.connector 
 from mysql.connector import Error
 from dotenv import load_dotenv
+from kilometro_vida import bp_imgdia
+# --- IMPORTACIONES PARA CORREO ---
+from flask_mail import Mail, Message
+# --- IMPORTACIÓN PARA COMPRESIÓN DE PDF ---
+from comprimir_pdf import comprimir_pdf_base64, log_compresion
 from kilometro_vida import bp_imgdia
 # --- IMPORTACIONES PARA CORREO ---
 from flask_mail import Mail, Message
@@ -1156,7 +1164,7 @@ def guardar_pdf_mantenimiento():
             if not pdf_data.startswith(b'%PDF'):
                 raise Exception("El archivo no es un PDF válido")
             
-            print(f"[DEBUG] PDF decodificado correctamente, tamaño: {len(pdf_data)} bytes")
+            print(f"[DEBUG] PDF decodificado correctamente, tamaño original: {len(pdf_data)} bytes")
                 
         except Exception as e:
             print(f"[DEBUG] Error al decodificar PDF: {e}")
@@ -1164,6 +1172,45 @@ def guardar_pdf_mantenimiento():
                 'success': False,
                 'error': f'Error al decodificar PDF: {str(e)}'
             }), 400
+        
+        # COMPRIMIR PDF antes de guardarlo
+        estadisticas_compresion = {}  # Inicializar aquí para tener scope en toda la función
+        try:
+            print(f"[DEBUG] Iniciando compresión del PDF...")
+            
+            # Recodificar a base64 para la función de compresión
+            pdf_base64_para_compresion = base64.b64encode(pdf_data).decode('utf-8')
+            
+            # Comprimir con calidad baja para máxima compresión (30% de calidad de imagen)
+            pdf_comprimido_base64, estadisticas_compresion = comprimir_pdf_base64(
+                pdf_base64_para_compresion, 
+                calidad_imagen=30, 
+                reducir_metadatos=True
+            )
+            
+            # Registrar estadísticas de compresión
+            log_compresion(estadisticas_compresion, f"Mantenimiento_{tipo_mantenimiento}")
+            
+            # Usar el PDF comprimido
+            pdf_data_final = base64.b64decode(pdf_comprimido_base64)
+            
+            print(f"[DEBUG] Compresión completada:")
+            print(f"[DEBUG] - Tamaño original: {estadisticas_compresion.get('tamaño_original', 0)} bytes")
+            print(f"[DEBUG] - Tamaño comprimido: {estadisticas_compresion.get('tamaño_comprimido', 0)} bytes")
+            print(f"[DEBUG] - Reducción: {estadisticas_compresion.get('porcentaje_reduccion', 0)}%")
+            print(f"[DEBUG] - Método usado: {estadisticas_compresion.get('metodo_usado', 'N/A')}")
+            
+        except Exception as e:
+            print(f"[DEBUG] Error durante compresión, usando PDF original: {e}")
+            # En caso de error en compresión, usar el PDF original
+            pdf_data_final = pdf_data
+            estadisticas_compresion = {
+                'tamaño_original': len(pdf_data),
+                'tamaño_comprimido': len(pdf_data),
+                'porcentaje_reduccion': 0,
+                'metodo_usado': 'error_compresion',
+                'error': str(e)
+            }
         
         # Generar nombre único con timestamp y SID del usuario
         timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
@@ -1179,17 +1226,24 @@ def guardar_pdf_mantenimiento():
             print(f"[DEBUG] Creando directorio: {PDFS_MANTENIMIENTO_DIR}")
             os.makedirs(PDFS_MANTENIMIENTO_DIR, exist_ok=True)
         
-        # Guardar PDF
+        # Guardar PDF comprimido
         with open(ruta_archivo, 'wb') as f:
-            f.write(pdf_data)
+            f.write(pdf_data_final)
         
-        print(f"[DEBUG] PDF guardado exitosamente")
+        print(f"[DEBUG] PDF comprimido guardado exitosamente")
+        print(f"[DEBUG] Tamaño final del archivo: {len(pdf_data_final)} bytes")
         
         return jsonify({
             'success': True,
-            'message': 'PDF guardado correctamente',
+            'message': 'PDF guardado y comprimido correctamente',
             'pdf_id': nombre_final.replace('.pdf', ''),
-            'nombre_archivo': nombre_final
+            'nombre_archivo': nombre_final,
+            'compresion': {
+                'tamaño_original': estadisticas_compresion.get('tamaño_original', len(pdf_data_final)),
+                'tamaño_comprimido': estadisticas_compresion.get('tamaño_comprimido', len(pdf_data_final)),
+                'porcentaje_reduccion': estadisticas_compresion.get('porcentaje_reduccion', 0),
+                'metodo_usado': estadisticas_compresion.get('metodo_usado', 'sin_compresion')
+            }
         }), 200
         
     except Exception as e:
@@ -1635,6 +1689,111 @@ def obtener_estado_camara():
         }), 500
 
 # --- FIN RUTAS PARA SISTEMA DE EVIDENCIA DE MANTENIMIENTO ---
+
+@app.route('/api/evidencia/comprimir_y_descargar_pdf', methods=['POST'])
+def comprimir_y_descargar_pdf():
+    """
+    Comprime un PDF y lo retorna para descarga directa
+    """
+    try:
+        print(f"[DEBUG] Iniciando comprimir_y_descargar_pdf...")
+        
+        data = request.get_json()
+        
+        if not data or 'pdf_base64' not in data:
+            return jsonify({
+                'success': False,
+                'error': 'PDF base64 no proporcionado'
+            }), 400
+        
+        pdf_base64 = data['pdf_base64']
+        nombre_archivo = data.get('nombre_archivo', 'documento_comprimido.pdf')
+        
+        # Registrar actividad del usuario
+        sid = registrar_actividad_usuario()
+        print(f"[DEBUG] SID usuario: {sid}")
+        
+        # Limpiar el base64
+        if pdf_base64.startswith('data:application/pdf;base64,'):
+            pdf_base64 = pdf_base64.split(',')[1]
+        elif pdf_base64.startswith('data:'):
+            comma_index = pdf_base64.find(',')
+            if comma_index != -1:
+                pdf_base64 = pdf_base64[comma_index + 1:]
+        
+        # Decodificar PDF
+        try:
+            pdf_data = base64.b64decode(pdf_base64)
+            
+            if not pdf_data.startswith(b'%PDF'):
+                raise Exception("El archivo no es un PDF válido")
+                
+            print(f"[DEBUG] PDF original decodificado: {len(pdf_data)} bytes")
+                
+        except Exception as e:
+            return jsonify({
+                'success': False,
+                'error': f'Error al decodificar PDF: {str(e)}'
+            }), 400
+        
+        # Comprimir PDF
+        try:
+            # Recodificar a base64 para la función de compresión
+            pdf_base64_para_compresion = base64.b64encode(pdf_data).decode('utf-8')
+            
+            # Comprimir con máxima compresión
+            pdf_comprimido_base64, estadisticas_compresion = comprimir_pdf_base64(
+                pdf_base64_para_compresion, 
+                calidad_imagen=25,  # Compresión muy agresiva para descarga
+                reducir_metadatos=True
+            )
+            
+            # Obtener PDF comprimido como bytes
+            pdf_comprimido_data = base64.b64decode(pdf_comprimido_base64)
+            
+            print(f"[DEBUG] Compresión completada:")
+            print(f"[DEBUG] - Original: {len(pdf_data)} bytes")
+            print(f"[DEBUG] - Comprimido: {len(pdf_comprimido_data)} bytes")
+            print(f"[DEBUG] - Reducción: {estadisticas_compresion.get('porcentaje_reduccion', 0)}%")
+            
+            # Retornar PDF comprimido como base64 para descarga en el cliente
+            pdf_comprimido_b64_completo = base64.b64encode(pdf_comprimido_data).decode('utf-8')
+            
+            return jsonify({
+                'success': True,
+                'pdf_comprimido_base64': f"data:application/pdf;base64,{pdf_comprimido_b64_completo}",
+                'estadisticas': {
+                    'tamaño_original': len(pdf_data),
+                    'tamaño_comprimido': len(pdf_comprimido_data),
+                    'porcentaje_reduccion': estadisticas_compresion.get('porcentaje_reduccion', 0),
+                    'metodo_usado': estadisticas_compresion.get('metodo_usado', 'N/A')
+                },
+                'nombre_archivo': nombre_archivo
+            }), 200
+            
+        except Exception as e:
+            print(f"[DEBUG] Error durante compresión: {e}")
+            # En caso de error, retornar PDF original
+            pdf_original_b64 = base64.b64encode(pdf_data).decode('utf-8')
+            return jsonify({
+                'success': True,
+                'pdf_comprimido_base64': f"data:application/pdf;base64,{pdf_original_b64}",
+                'estadisticas': {
+                    'tamaño_original': len(pdf_data),
+                    'tamaño_comprimido': len(pdf_data),
+                    'porcentaje_reduccion': 0,
+                    'metodo_usado': 'sin_compresion',
+                    'error': str(e)
+                },
+                'nombre_archivo': nombre_archivo
+            }), 200
+        
+    except Exception as e:
+        print(f"[DEBUG] Error general en comprimir_y_descargar_pdf: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
 
 if __name__ == '__main__':
     # --- INICIO DE MODIFICACIONES PARA HTTPS ---

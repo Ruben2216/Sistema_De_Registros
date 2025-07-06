@@ -216,6 +216,170 @@ function mostrarModalEvidencia(nombreArchivo) {
     }, 10000);
 }
 
+// Nueva función para comprimir PDF antes de la descarga
+async function comprimirYDescargarPDF(docPDF, nombreArchivo, tipoMantenimiento, mostrarModal = true) {
+    try {
+        console.log('[DEBUG] Iniciando compresión y descarga de PDF...');
+        
+        // Mostrar indicador de carga
+        mostrarIndicadorCompresion(true);
+        
+        // Obtener el PDF como base64 
+        const pdfBase64Original = docPDF.output('datauristring');
+        console.log('[DEBUG] PDF original generado, tamaño:', pdfBase64Original.length);
+        
+        // Opción 1: Comprimir para descarga directa
+        const datosCompresionDescarga = {
+            pdf_base64: pdfBase64Original,
+            nombre_archivo: nombreArchivo.trim()
+        };
+        
+        console.log('[DEBUG] Enviando PDF para compresión y descarga...');
+        
+        const responseDescarga = await fetch('/api/evidencia/comprimir_y_descargar_pdf', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(datosCompresionDescarga)
+        });
+        
+        const resultDescarga = await responseDescarga.json();
+        console.log('[DEBUG] Resultado de compresión para descarga:', resultDescarga);
+        
+        if (resultDescarga.success && resultDescarga.pdf_comprimido_base64) {
+            // Mostrar estadísticas de compresión
+            if (resultDescarga.estadisticas) {
+                const stats = resultDescarga.estadisticas;
+                console.log('[DEBUG] Estadísticas de compresión:');
+                console.log('  - Tamaño original:', stats.tamaño_original, 'bytes');
+                console.log('  - Tamaño comprimido:', stats.tamaño_comprimido, 'bytes');
+                console.log('  - Reducción:', stats.porcentaje_reduccion + '%');
+                console.log('  - Método:', stats.metodo_usado);
+                
+                mostrarNotificacionCompresion(stats);
+            }
+            
+            // Descargar PDF comprimido
+            descargarPDFDesdBase64(resultDescarga.pdf_comprimido_base64, nombreArchivo);
+            
+            console.log('✅ PDF comprimido descargado exitosamente');
+            
+        } else {
+            console.warn('Compresión falló, usando descarga normal');
+            // Fallback: descarga normal si falla la compresión
+            docPDF.save(nombreArchivo);
+        }
+        
+        // Opción 2: Guardar en repositorio de evidencia (en paralelo)
+        try {
+            await guardarPDFEnRepositorioEvidencia(docPDF, nombreArchivo, tipoMantenimiento);
+        } catch (error) {
+            console.warn('Error al guardar en repositorio (no crítico):', error);
+        }
+        
+        // Mostrar modal de evidencia (opcional)
+        if (mostrarModal) {
+            setTimeout(() => {
+                mostrarModalEvidencia(nombreArchivo);
+            }, 1000); // Delay aumentado para dar tiempo a la compresión
+        }
+        
+    } catch (error) {
+        console.error('Error en proceso de compresión:', error);
+        // Fallback: descarga normal si hay error
+        docPDF.save(nombreArchivo);
+        
+        if (mostrarModal) {
+            setTimeout(() => {
+                mostrarModalEvidencia(nombreArchivo);
+            }, 500);
+        }
+    } finally {
+        // Ocultar indicador de carga
+        mostrarIndicadorCompresion(false);
+    }
+}
+
+// Función para descargar PDF desde base64
+function descargarPDFDesdBase64(pdfBase64, nombreArchivo) {
+    try {
+        console.log('[DEBUG] Iniciando descarga de PDF comprimido...');
+        
+        // Crear un enlace de descarga
+        const link = document.createElement('a');
+        link.href = pdfBase64;
+        link.download = nombreArchivo;
+        
+        // Agregar al DOM temporalmente y hacer clic
+        document.body.appendChild(link);
+        link.click();
+        
+        // Limpiar
+        document.body.removeChild(link);
+        
+        console.log('[DEBUG] Descarga de PDF comprimido iniciada');
+        
+    } catch (error) {
+        console.error('Error al descargar PDF comprimido:', error);
+        throw error;
+    }
+}
+
+// Función para mostrar/ocultar indicador de compresión
+function mostrarIndicadorCompresion(mostrar) {
+    let indicador = document.getElementById('indicador-compresion');
+    
+    if (!indicador && mostrar) {
+        indicador = document.createElement('div');
+        indicador.id = 'indicador-compresion';
+        indicador.innerHTML = `
+            <div style=""
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0, 0, 0, 0.8);
+                color: white;
+                padding: 20px 30px;
+                border-radius: 10px;
+                z-index: 10001;
+                text-align: center;
+                font-family: Arial, sans-serif;
+            ">
+                <div style="margin-bottom: 10px;">📄 Comprimiendo PDF...</div>
+                <div style="font-size: 12px; opacity: 0.8;">Optimizando tamaño del archivo</div>
+            </div>
+        `;
+        document.body.appendChild(indicador);
+    }
+    
+    if (indicador) {
+        indicador.style.display = mostrar ? 'block' : 'none';
+        if (!mostrar) {
+            setTimeout(() => {
+                if (indicador && indicador.parentNode) {
+                    indicador.parentNode.removeChild(indicador);
+                }
+            }, 300);
+        }
+    }
+}
+
+// Función para mostrar notificación de compresión
+function mostrarNotificacionCompresion(estadisticas) {
+    const porcentaje = estadisticas.porcentaje_reduccion || 0;
+    const tamaño_ahorrado = (estadisticas.tamaño_original - estadisticas.tamaño_comprimido) || 0;
+    const tamaño_kb = (tamaño_ahorrado / 1024).toFixed(1);
+    
+    let mensaje = `PDF optimizado`;
+    if (porcentaje > 0) {
+        mensaje += ` - Reducción: ${porcentaje}% (${tamaño_kb} KB ahorrados)`;
+    }
+    
+    mostrarNotificacionRepositorio(mensaje, porcentaje > 5 ? 'success' : 'info');
+}
+
 // Función wrapper que se puede usar en todos los archivos de PDF
 function procesarPDFMantenimiento(docPDF, nombreArchivo, tipoMantenimiento, mostrarModal = true) {
     console.log('[DEBUG] procesarPDFMantenimiento llamado');
@@ -235,16 +399,6 @@ function procesarPDFMantenimiento(docPDF, nombreArchivo, tipoMantenimiento, most
         return;
     }
     
-    // Guardar el PDF normalmente (descarga)
-    docPDF.save(nombreArchivo);
-    
-    // Guardar en repositorio de evidencia
-    guardarPDFEnRepositorioEvidencia(docPDF, nombreArchivo, tipoMantenimiento);
-    
-    // Mostrar modal de evidencia (opcional)
-    if (mostrarModal) {
-        setTimeout(() => {
-            mostrarModalEvidencia(nombreArchivo);
-        }, 500); // Delay para que se complete la descarga
-    }
+    // Nueva funcionalidad: Comprimir PDF antes de descarga
+    comprimirYDescargarPDF(docPDF, nombreArchivo, tipoMantenimiento, mostrarModal);
 }
