@@ -26,7 +26,7 @@ function validarFormulario() {
 
         if (!input.value.trim()) {
             input.classList.add('campo-error');
-            mensaje.textContent = 'Este campo es obligatorio';
+            mensaje.textContent = 'Olvidaste este campo?';
             esValido = false;
         } else {
             input.classList.remove('campo-error');
@@ -79,9 +79,128 @@ function validarFormulario() {
 }
 }
 
+async function convertirPNGtoJPEG(dataURL, calidad) {
+    const img = new Image();
+    img.src = dataURL;
+    await img.decode();
+    const canvas = document.createElement('canvas');
+    canvas.width = img.width;
+    canvas.height = img.height;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    return canvas.toDataURL('image/jpeg', calidad);
+}
+
+/**
+ * Función para añadir imagen al PDF con compresión y registro de logs.
+ */
+async function addCompressedImage(doc, dataURL, x, y, w, h, calidad, descripcion) {
+    const originalSizeKB = Math.round(((dataURL.length * 3 / 4) / 1024));
+    console.log(`Imagen ${descripcion} - tamaño original: ${originalSizeKB} KB`);
+    const jpegDataURL = await convertirPNGtoJPEG(dataURL, calidad);
+    const compressedSizeKB = Math.round(((jpegDataURL.length * 3 / 4) / 1024));
+    console.log(`Imagen ${descripcion} - tamaño después de compresión: ${compressedSizeKB} KB (calidad ${calidad})`);
+    doc.addImage(jpegDataURL, 'JPEG', x, y, w, h);
+}
+
+/**
+ * Asegura que PDFSizeController esté disponible cargando el script de configuración si es necesario.
+ */
+async function cargarConfiguracionPDF() {
+    if (typeof PDFSizeController === 'undefined') {
+        return new Promise(function(resolve, reject) {
+            var script = document.createElement('script');
+            script.src = '/RESOURCE/JS/configuracion_pdf.js';
+            script.onload = function() { console.log('configuracion_pdf.js cargado'); resolve(); };
+            script.onerror = function() { console.error('Error cargando configuracion_pdf.js'); reject(new Error('No se pudo cargar configuracion_pdf.js')); };
+            document.head.appendChild(script);
+        });
+    } else {
+        return Promise.resolve();
+    }
+}
+
+/**
+ * Convierte un Blob a DataURL.
+ */
+function blobAdataURL(blob) {
+    return new Promise(function(resolve, reject) {
+        var reader = new FileReader();
+        reader.onloadend = function() { resolve(reader.result); };
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+    });
+}
+
+/**
+ * Convierte una imagen (dataURL o URL) a JPEG con calidad dada, usando crossOrigin para evitar canvas taint.
+ */
+async function convertirPNGtoJPEG(dataSource, calidad) {
+    var dataURL;
+    if (dataSource.startsWith('data:')) {
+        dataURL = dataSource;
+    } else {
+        // Obtener blob desde URL
+        const response = await fetch(dataSource, { mode: 'cors' });
+        const blob = await response.blob();
+        dataURL = await blobAdataURL(blob);
+    }
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.src = dataURL;
+    await img.decode();
+    var canvas = document.createElement('canvas');
+    canvas.width = img.width;
+    canvas.height = img.height;
+    var ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    return canvas.toDataURL('image/jpeg', calidad);
+}
+
+/**
+ * Añade imagen al PDF with compresión y registro de logs, maneja URLs y dataURIs.
+ */
+async function addCompressedImage(doc, source, x, y, w, h, calidad, descripcion) {
+    // Para firmas, usar PNG original y conservar transparencia
+    if (descripcion && descripcion.startsWith('firma')) {
+        console.log(`Imagen ${descripcion} - usando PNG original sin compresión`);
+        doc.addImage(source, 'PNG', x, y, w, h);
+        return;
+    }
+    // Para logo, usar PNG original y conservar transparencia
+    if (descripcion === 'logo') {
+        console.log(`Imagen ${descripcion} - usando PNG original sin compresión`);
+        doc.addImage(source, 'PNG', x, y, w, h);
+        return;
+    }
+    var originalBytes = 0;
+    if (source.startsWith('data:')) {
+        // calcular bytes aproximados
+        originalBytes = Math.round((source.length * 3) / 4);
+    } else {
+        const resp = await fetch(source, { mode: 'cors' });
+        const blob = await resp.blob();
+        originalBytes = blob.size;
+    }
+    console.log(`Imagen ${descripcion} - tamaño original: ${Math.round(originalBytes / 1024)} KB`);
+    const jpegDataURL = await convertirPNGtoJPEG(source, calidad);
+    const compressedBytes = Math.round(((jpegDataURL.length * 3) / 4));
+    console.log(`Imagen ${descripcion} - tamaño después de compresión: ${Math.round(compressedBytes / 1024)} KB (calidad ${calidad})`);
+    doc.addImage(jpegDataURL, 'JPEG', x, y, w, h);
+}
+
 async function generarPDF() {
+    await cargarConfiguracionPDF();
     const { jsPDF } = window.jspdf;
-    const doc = new jsPDF(); /*crea pdf vacio*/
+
+    // Activar compresión de contenido en jsPDF
+    const doc = new jsPDF({ compress: true });
+
+    // Inicializar controlador de tamaño de PDF
+    const sizeController = new PDFSizeController();
+    const totalFotos = 4; // Logo + 3 firmas
+    const compConfig = sizeController.calcularConfiguracionInicial(totalFotos);
+    console.log('Configuración de compresión PDF:', compConfig);
 
     // DATOS DE FORMULARIO
     const zona = document.querySelector('input[id="zona"]').value;
@@ -114,18 +233,12 @@ async function generarPDF() {
     const firma1Base64 = document.getElementById("firma-input-1").value;
 
     // IMAGEN -- LOGO
-    await new Promise((resolve, reject) => {
-    const img = new Image(); // Este objeto representa la imagen que se va a insertar en el PDF
-    img.src = '/RESOURCE/IMG/Comisión_Federal_de_Electricidad_(logo)_.svg.png';
-    img.onload = function () { // esta función se ejecutará automáticamente cuando la imagen haya terminado de cargarse correctamente
-        const imgWidth = 40;
-        const imgHeight = 20;
-        doc.addImage(img, 'PNG', 15, 8, imgWidth, imgHeight);
-        resolve();
-    };
-    img.onerror = reject;
-    });
-    
+    // Añadir logo comprimido
+    const imgLogoUrl = '/RESOURCE/IMG/Comisión_Federal_de_Electricidad_(logo)_.svg.png';
+    const logoWidth = 40;
+    const logoHeight = 20;
+    await addCompressedImage(doc, imgLogoUrl, 15, 8, logoWidth, logoHeight, compConfig.calidad_webp, 'logo');
+
     // ENCABEZADO
     doc.setFont("helvetica"); /*tipo de letra y negritas*/
     doc.setFontSize(10);
@@ -497,16 +610,19 @@ async function generarPDF() {
      y += 55;
 
     // FIRMAS
-    y+=8;
-    if(firma1Base64)
-        doc.addImage(firma1Base64, 'PNG', 15, y, 30, 30 );
+    y += 8;
+    if (firma1Base64) {
+        await addCompressedImage(doc, firma1Base64, 15, y, 30, 30, compConfig.calidad_webp, 'firma1');
+    }
     
-    if(firma2Base64)
-        doc.addImage(firma2Base64, 'PNG', 105, y, 30, 30, "center" );
+    if (firma2Base64) {
+        await addCompressedImage(doc, firma2Base64, 105, y, 30, 30, compConfig.calidad_webp, 'firma2');
+    }
     
-    if(firma3Base64)
-        doc.addImage(firma3Base64, 'PNG', 145, y, 30, 30 );
-    
+    if (firma3Base64) {
+        await addCompressedImage(doc, firma3Base64, 145, y, 30, 30, compConfig.calidad_webp, 'firma3');
+    }
+
     y += 8;
     doc.text(`Realizó servicio:`, 15, y);
     doc.text(realizo_servicio, 15, y + 21);

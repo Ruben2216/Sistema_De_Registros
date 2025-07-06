@@ -1,0 +1,226 @@
+2025-07-06 15:29:41,261 - CompresorPDFEvidencia - DEBUG - Configuración para 1 imágenes: {'max_width': 2048, 'max_height': 1536, 'calidad': 90}
+2025-07-06 15:29:41,261 - CompresorPDFEvidencia - DEBUG - Configuración para 2 imágenes: {'max_width': 1920, 'max_height': 1440, 'calidad': 85}
+2025-07-06 15:29:41,261 - CompresorPDFEvidencia - DEBUG - Configuración para 4 imágenes: {'max_width': 1600, 'max_height': 1200, 'calidad': 80}
+2025-07-06 15:29:41,261 - CompresorPDFEvidencia - DEBUG - Configuración para 6 imágenes: {'max_width': 1400, 'max_height': 1050, 'calidad': 75}
+2025-07-06 15:29:41,262 - CompresorPDFEvidencia - DEBUG - Configuración para 8 imágenes: {'max_width': 1280, 'max_height': 960, 'calidad': 70}
+2025-07-06 15:29:41,262 - CompresorPDFEvidencia - DEBUG - Configuración para 12 imágenes: {'max_width': 1024, 'max_height': 768, 'calidad': 65}
+2025-07-06 15:29:41,262 - CompresorPDFEvidencia - DEBUG - Configuración para 20 imágenes: {'max_width': 800, 'max_height': 600, 'calidad': 60}
+2025-07-06 15:29:41,588 - CompresorPDFEvidencia - INFO - === INICIANDO COMPRESIÓN DE 4 IMÁGENES ===
+2025-07-06 15:29:41,588 - CompresorPDFEvidencia - INFO - === INICIANDO COMPRESIÓN DE 4 IMÁGENES ===
+2025-07-06 15:29:41,588 - CompresorPDFEvidencia - INFO - === INICIANDO COMPRESIÓN DE 4 IMÁGENES ===
+2025-07-06 15:29:41,589 - CompresorPDFEvidencia - INFO - Objetivo de tamaño: 15MB
+2025-07-06 15:29:41,589 - CompresorPDFEvidencia - INFO - Objetivo de tamaño: 15MB
+2025-07-06 15:29:41,589 - CompresorPDFEvidencia - INFO - Objetivo de tamaño: 15MB
+2025-07-06 15:29:41,589 - CompresorPDFEvidencia - INFO - Metadatos recibidos: {
+  "objetivo_movil": true,
+  "timestamp": "2025-07-06T15:29:41.588866",
+  "test_mode": true
+}
+2025-07-06 15:29:41,589 - CompresorPDFEvidencia - INFO - Metadatos recibidos: {
+  "objetivo_movil": true,
+  "timestamp": "2025-07-06T15:29:41.588866",
+  "test_mode": true
+}
+2025-07-06 15:29:41,589 - CompresorPDFEvidencia - INFO - Metadatos recibidos: {
+  "objetivo_movil": true,
+  "timestamp": "2025-07-06T15:29:41.588866",
+  "test_mode": true
+}
+2025-07-06 15:29:41,589 - CompresorPDFEvidencia - DEBUG - Configuración para 4 imágenes: {'max_width': 1600, 'max_height': 1200, 'calidad': 80}
+2025-07-06 15:29:41,589 - CompresorPDFEvidencia - DEBUG - Configuración para 4 imágenes: {'max_width': 1600, 'max_height': 1200, 'calidad': 80}
+2025-07-06 15:29:41,589 - CompresorPDFEvidencia - DEBUG - Configuración para 4 imágenes: {'max_width': 1600, 'max_height': 1200, 'calidad': 80}
+2025-07-06 15:29:41,589 - CompresorPDFEvidencia - INFO - Configuración inicial: {'max_width': 1600, 'max_height': 1200, 'calidad': 80}
+2025-07-06 15:29:41,589 - CompresorPDFEvidencia - INFO - Configuración inicial: {'max_width': 1600, 'max_height': 1200, 'calidad': 80}
+2025-07-06 15:29:41,589 - CompresorPDFEvidencia - INFO - Configuración inicial: {'max_width': 1600, 'max_height': 1200, 'calidad': 80}
+2025-07-06 15:29:41,589 - CompresorPDFEvidencia - INFO - --- Procesando imagen 1/4: Evidencia_Prueba_1.jpg ---
+2025-07-06 15:29:41,589 - CompresorPDFEvidencia - INFO - --- Procesando imagen 1/4: Evidencia_Prueba_1.jpg ---
+2025-07-06 15:29:41,589 - CompresorPDFEvidencia - INFO - --- Procesando imagen 1/4: Evidencia_Prueba_1.jpg ---
+2025-07-06 15:29:41,589 - CompresorPDFEvidencia - INFO - Tamaño original: 86.5 KB
+2025-07-06 15:29:41,589 - CompresorPDFEvidencia - INFO - Tamaño original: 86.5 KB
+2025-07-06 15:29:41,589 - CompresorPDFEvidencia - INFO - Tamaño original: 86.5 KB
+2025-07-06 15:29:41,590 - CompresorPDFEvidencia - INFO - Formato original: JPEG, Dimensiones: (2000, 1500)
+2025-07-06 15:29:41,590 - CompresorPDFEvidencia - INFO - Formato original: JPEG, Dimensiones: (2000, 1500)
+2025-07-06 15:29:41,590 - CompresorPDFEvidencia - INFO - Formato original: JPEG, Dimensiones: (2000, 1500)
+2025-07-06 15:29:41,604 - CompresorPDFEvidencia - INFO - Espacio objetivo para esta imagen: 3.8 MB
+2025-07-06 15:29:41,604 - CompresorPDFEvidencia - INFO - Espacio objetivo para esta imagen: 3.8 MB
+2025-07-06 15:29:41,604 - CompresorPDFEvidencia - INFO - Espacio objetivo para esta imagen: 3.8 MB
+2025-07-06 15:29:41,605 - CompresorPDFEvidencia - DEBUG - Probando nivel 1: Inicial
+2025-07-06 15:29:41,605 - CompresorPDFEvidencia - DEBUG - Probando nivel 1: Inicial
+2025-07-06 15:29:41,605 - CompresorPDFEvidencia - DEBUG - Probando nivel 1: Inicial
+2025-07-06 15:29:41,666 - CompresorPDFEvidencia - DEBUG - Nivel Inicial: 27.8 KB
+2025-07-06 15:29:41,666 - CompresorPDFEvidencia - DEBUG - Nivel Inicial: 27.8 KB
+2025-07-06 15:29:41,666 - CompresorPDFEvidencia - DEBUG - Nivel Inicial: 27.8 KB
+2025-07-06 15:29:41,666 - CompresorPDFEvidencia - INFO - Nivel seleccionado: Inicial (calidad 80%)
+2025-07-06 15:29:41,666 - CompresorPDFEvidencia - INFO - Nivel seleccionado: Inicial (calidad 80%)
+2025-07-06 15:29:41,666 - CompresorPDFEvidencia - INFO - Nivel seleccionado: Inicial (calidad 80%)
+2025-07-06 15:29:41,667 - CompresorPDFEvidencia - INFO - Resultado: 27.8 KB (67.9% reducción)
+2025-07-06 15:29:41,667 - CompresorPDFEvidencia - INFO - Resultado: 27.8 KB (67.9% reducción)
+2025-07-06 15:29:41,667 - CompresorPDFEvidencia - INFO - Resultado: 27.8 KB (67.9% reducción)
+2025-07-06 15:29:41,668 - CompresorPDFEvidencia - INFO - --- Procesando imagen 2/4: Evidencia_Prueba_2.jpg ---
+2025-07-06 15:29:41,668 - CompresorPDFEvidencia - INFO - --- Procesando imagen 2/4: Evidencia_Prueba_2.jpg ---
+2025-07-06 15:29:41,668 - CompresorPDFEvidencia - INFO - --- Procesando imagen 2/4: Evidencia_Prueba_2.jpg ---
+2025-07-06 15:29:41,669 - CompresorPDFEvidencia - INFO - Tamaño original: 86.5 KB
+2025-07-06 15:29:41,669 - CompresorPDFEvidencia - INFO - Tamaño original: 86.5 KB
+2025-07-06 15:29:41,669 - CompresorPDFEvidencia - INFO - Tamaño original: 86.5 KB
+2025-07-06 15:29:41,669 - CompresorPDFEvidencia - INFO - Formato original: JPEG, Dimensiones: (2000, 1500)
+2025-07-06 15:29:41,669 - CompresorPDFEvidencia - INFO - Formato original: JPEG, Dimensiones: (2000, 1500)
+2025-07-06 15:29:41,669 - CompresorPDFEvidencia - INFO - Formato original: JPEG, Dimensiones: (2000, 1500)
+2025-07-06 15:29:41,684 - CompresorPDFEvidencia - INFO - Espacio objetivo para esta imagen: 5.0 MB
+2025-07-06 15:29:41,684 - CompresorPDFEvidencia - INFO - Espacio objetivo para esta imagen: 5.0 MB
+2025-07-06 15:29:41,684 - CompresorPDFEvidencia - INFO - Espacio objetivo para esta imagen: 5.0 MB
+2025-07-06 15:29:41,685 - CompresorPDFEvidencia - DEBUG - Probando nivel 1: Inicial
+2025-07-06 15:29:41,685 - CompresorPDFEvidencia - DEBUG - Probando nivel 1: Inicial
+2025-07-06 15:29:41,685 - CompresorPDFEvidencia - DEBUG - Probando nivel 1: Inicial
+2025-07-06 15:29:41,740 - CompresorPDFEvidencia - DEBUG - Nivel Inicial: 27.8 KB
+2025-07-06 15:29:41,740 - CompresorPDFEvidencia - DEBUG - Nivel Inicial: 27.8 KB
+2025-07-06 15:29:41,740 - CompresorPDFEvidencia - DEBUG - Nivel Inicial: 27.8 KB
+2025-07-06 15:29:41,740 - CompresorPDFEvidencia - INFO - Nivel seleccionado: Inicial (calidad 80%)
+2025-07-06 15:29:41,740 - CompresorPDFEvidencia - INFO - Nivel seleccionado: Inicial (calidad 80%)
+2025-07-06 15:29:41,740 - CompresorPDFEvidencia - INFO - Nivel seleccionado: Inicial (calidad 80%)
+2025-07-06 15:29:41,741 - CompresorPDFEvidencia - INFO - Resultado: 27.8 KB (67.9% reducción)
+2025-07-06 15:29:41,741 - CompresorPDFEvidencia - INFO - Resultado: 27.8 KB (67.9% reducción)
+2025-07-06 15:29:41,741 - CompresorPDFEvidencia - INFO - Resultado: 27.8 KB (67.9% reducción)
+2025-07-06 15:29:41,742 - CompresorPDFEvidencia - INFO - --- Procesando imagen 3/4: Evidencia_Prueba_3.jpg ---
+2025-07-06 15:29:41,742 - CompresorPDFEvidencia - INFO - --- Procesando imagen 3/4: Evidencia_Prueba_3.jpg ---
+2025-07-06 15:29:41,742 - CompresorPDFEvidencia - INFO - --- Procesando imagen 3/4: Evidencia_Prueba_3.jpg ---
+2025-07-06 15:29:41,742 - CompresorPDFEvidencia - INFO - Tamaño original: 86.5 KB
+2025-07-06 15:29:41,742 - CompresorPDFEvidencia - INFO - Tamaño original: 86.5 KB
+2025-07-06 15:29:41,742 - CompresorPDFEvidencia - INFO - Tamaño original: 86.5 KB
+2025-07-06 15:29:41,742 - CompresorPDFEvidencia - INFO - Formato original: JPEG, Dimensiones: (2000, 1500)
+2025-07-06 15:29:41,742 - CompresorPDFEvidencia - INFO - Formato original: JPEG, Dimensiones: (2000, 1500)
+2025-07-06 15:29:41,742 - CompresorPDFEvidencia - INFO - Formato original: JPEG, Dimensiones: (2000, 1500)
+2025-07-06 15:29:41,755 - CompresorPDFEvidencia - INFO - Espacio objetivo para esta imagen: 7.5 MB
+2025-07-06 15:29:41,755 - CompresorPDFEvidencia - INFO - Espacio objetivo para esta imagen: 7.5 MB
+2025-07-06 15:29:41,755 - CompresorPDFEvidencia - INFO - Espacio objetivo para esta imagen: 7.5 MB
+2025-07-06 15:29:41,755 - CompresorPDFEvidencia - DEBUG - Probando nivel 1: Inicial
+2025-07-06 15:29:41,755 - CompresorPDFEvidencia - DEBUG - Probando nivel 1: Inicial
+2025-07-06 15:29:41,755 - CompresorPDFEvidencia - DEBUG - Probando nivel 1: Inicial
+2025-07-06 15:29:41,815 - CompresorPDFEvidencia - DEBUG - Nivel Inicial: 27.8 KB
+2025-07-06 15:29:41,815 - CompresorPDFEvidencia - DEBUG - Nivel Inicial: 27.8 KB
+2025-07-06 15:29:41,815 - CompresorPDFEvidencia - DEBUG - Nivel Inicial: 27.8 KB
+2025-07-06 15:29:41,815 - CompresorPDFEvidencia - INFO - Nivel seleccionado: Inicial (calidad 80%)
+2025-07-06 15:29:41,815 - CompresorPDFEvidencia - INFO - Nivel seleccionado: Inicial (calidad 80%)
+2025-07-06 15:29:41,815 - CompresorPDFEvidencia - INFO - Nivel seleccionado: Inicial (calidad 80%)
+2025-07-06 15:29:41,816 - CompresorPDFEvidencia - INFO - Resultado: 27.8 KB (67.9% reducción)
+2025-07-06 15:29:41,816 - CompresorPDFEvidencia - INFO - Resultado: 27.8 KB (67.9% reducción)
+2025-07-06 15:29:41,816 - CompresorPDFEvidencia - INFO - Resultado: 27.8 KB (67.9% reducción)
+2025-07-06 15:29:41,817 - CompresorPDFEvidencia - INFO - --- Procesando imagen 4/4: Evidencia_Prueba_4.jpg ---
+2025-07-06 15:29:41,817 - CompresorPDFEvidencia - INFO - --- Procesando imagen 4/4: Evidencia_Prueba_4.jpg ---
+2025-07-06 15:29:41,817 - CompresorPDFEvidencia - INFO - --- Procesando imagen 4/4: Evidencia_Prueba_4.jpg ---
+2025-07-06 15:29:41,817 - CompresorPDFEvidencia - INFO - Tamaño original: 86.5 KB
+2025-07-06 15:29:41,817 - CompresorPDFEvidencia - INFO - Tamaño original: 86.5 KB
+2025-07-06 15:29:41,817 - CompresorPDFEvidencia - INFO - Tamaño original: 86.5 KB
+2025-07-06 15:29:41,817 - CompresorPDFEvidencia - INFO - Formato original: JPEG, Dimensiones: (2000, 1500)
+2025-07-06 15:29:41,817 - CompresorPDFEvidencia - INFO - Formato original: JPEG, Dimensiones: (2000, 1500)
+2025-07-06 15:29:41,817 - CompresorPDFEvidencia - INFO - Formato original: JPEG, Dimensiones: (2000, 1500)
+2025-07-06 15:29:41,830 - CompresorPDFEvidencia - INFO - Espacio objetivo para esta imagen: 14.9 MB
+2025-07-06 15:29:41,830 - CompresorPDFEvidencia - INFO - Espacio objetivo para esta imagen: 14.9 MB
+2025-07-06 15:29:41,830 - CompresorPDFEvidencia - INFO - Espacio objetivo para esta imagen: 14.9 MB
+2025-07-06 15:29:41,830 - CompresorPDFEvidencia - DEBUG - Probando nivel 1: Inicial
+2025-07-06 15:29:41,830 - CompresorPDFEvidencia - DEBUG - Probando nivel 1: Inicial
+2025-07-06 15:29:41,830 - CompresorPDFEvidencia - DEBUG - Probando nivel 1: Inicial
+2025-07-06 15:29:41,893 - CompresorPDFEvidencia - DEBUG - Nivel Inicial: 27.8 KB
+2025-07-06 15:29:41,893 - CompresorPDFEvidencia - DEBUG - Nivel Inicial: 27.8 KB
+2025-07-06 15:29:41,893 - CompresorPDFEvidencia - DEBUG - Nivel Inicial: 27.8 KB
+2025-07-06 15:29:41,893 - CompresorPDFEvidencia - INFO - Nivel seleccionado: Inicial (calidad 80%)
+2025-07-06 15:29:41,893 - CompresorPDFEvidencia - INFO - Nivel seleccionado: Inicial (calidad 80%)
+2025-07-06 15:29:41,893 - CompresorPDFEvidencia - INFO - Nivel seleccionado: Inicial (calidad 80%)
+2025-07-06 15:29:41,894 - CompresorPDFEvidencia - INFO - Resultado: 27.8 KB (67.9% reducción)
+2025-07-06 15:29:41,894 - CompresorPDFEvidencia - INFO - Resultado: 27.8 KB (67.9% reducción)
+2025-07-06 15:29:41,894 - CompresorPDFEvidencia - INFO - Resultado: 27.8 KB (67.9% reducción)
+2025-07-06 15:29:41,896 - CompresorPDFEvidencia - INFO - === REPORTE FINAL DE COMPRESIÓN ===
+2025-07-06 15:29:41,896 - CompresorPDFEvidencia - INFO - === REPORTE FINAL DE COMPRESIÓN ===
+2025-07-06 15:29:41,896 - CompresorPDFEvidencia - INFO - === REPORTE FINAL DE COMPRESIÓN ===
+2025-07-06 15:29:41,896 - CompresorPDFEvidencia - INFO - Imágenes procesadas: 4
+2025-07-06 15:29:41,896 - CompresorPDFEvidencia - INFO - Imágenes procesadas: 4
+2025-07-06 15:29:41,896 - CompresorPDFEvidencia - INFO - Imágenes procesadas: 4
+2025-07-06 15:29:41,896 - CompresorPDFEvidencia - INFO - Tiempo total: 307ms
+2025-07-06 15:29:41,896 - CompresorPDFEvidencia - INFO - Tiempo total: 307ms
+2025-07-06 15:29:41,896 - CompresorPDFEvidencia - INFO - Tiempo total: 307ms
+2025-07-06 15:29:41,896 - CompresorPDFEvidencia - INFO - Tamaño original total: 346.1 KB
+2025-07-06 15:29:41,896 - CompresorPDFEvidencia - INFO - Tamaño original total: 346.1 KB
+2025-07-06 15:29:41,896 - CompresorPDFEvidencia - INFO - Tamaño original total: 346.1 KB
+2025-07-06 15:29:41,896 - CompresorPDFEvidencia - INFO - Tamaño comprimido total: 111.1 KB
+2025-07-06 15:29:41,896 - CompresorPDFEvidencia - INFO - Tamaño comprimido total: 111.1 KB
+2025-07-06 15:29:41,896 - CompresorPDFEvidencia - INFO - Tamaño comprimido total: 111.1 KB
+2025-07-06 15:29:41,896 - CompresorPDFEvidencia - INFO - Reducción total: 67.9%
+2025-07-06 15:29:41,896 - CompresorPDFEvidencia - INFO - Reducción total: 67.9%
+2025-07-06 15:29:41,896 - CompresorPDFEvidencia - INFO - Reducción total: 67.9%
+2025-07-06 15:29:41,897 - CompresorPDFEvidencia - INFO - Cumple objetivo móvil (15MB): ✅ SÍ
+2025-07-06 15:29:41,897 - CompresorPDFEvidencia - INFO - Cumple objetivo móvil (15MB): ✅ SÍ
+2025-07-06 15:29:41,897 - CompresorPDFEvidencia - INFO - Cumple objetivo móvil (15MB): ✅ SÍ
+2025-07-06 15:29:41,897 - CompresorPDFEvidencia - INFO - === DETALLE POR IMAGEN ===
+2025-07-06 15:29:41,897 - CompresorPDFEvidencia - INFO - === DETALLE POR IMAGEN ===
+2025-07-06 15:29:41,897 - CompresorPDFEvidencia - INFO - === DETALLE POR IMAGEN ===
+2025-07-06 15:29:41,897 - CompresorPDFEvidencia - INFO - 1. Evidencia_Prueba_1.jpg:
+2025-07-06 15:29:41,897 - CompresorPDFEvidencia - INFO - 1. Evidencia_Prueba_1.jpg:
+2025-07-06 15:29:41,897 - CompresorPDFEvidencia - INFO - 1. Evidencia_Prueba_1.jpg:
+2025-07-06 15:29:41,897 - CompresorPDFEvidencia - INFO -    Original: 86.5 KB
+2025-07-06 15:29:41,897 - CompresorPDFEvidencia - INFO -    Original: 86.5 KB
+2025-07-06 15:29:41,897 - CompresorPDFEvidencia - INFO -    Original: 86.5 KB
+2025-07-06 15:29:41,897 - CompresorPDFEvidencia - INFO -    Final: 27.8 KB
+2025-07-06 15:29:41,897 - CompresorPDFEvidencia - INFO -    Final: 27.8 KB
+2025-07-06 15:29:41,897 - CompresorPDFEvidencia - INFO -    Final: 27.8 KB
+2025-07-06 15:29:41,897 - CompresorPDFEvidencia - INFO -    Reducción: 67.9%
+2025-07-06 15:29:41,897 - CompresorPDFEvidencia - INFO -    Reducción: 67.9%
+2025-07-06 15:29:41,897 - CompresorPDFEvidencia - INFO -    Reducción: 67.9%
+2025-07-06 15:29:41,897 - CompresorPDFEvidencia - INFO -    Dimensiones: (2000, 1500) → (1200, 900)
+2025-07-06 15:29:41,897 - CompresorPDFEvidencia - INFO -    Dimensiones: (2000, 1500) → (1200, 900)
+2025-07-06 15:29:41,897 - CompresorPDFEvidencia - INFO -    Dimensiones: (2000, 1500) → (1200, 900)
+2025-07-06 15:29:41,898 - CompresorPDFEvidencia - INFO -    Calidad aplicada: 80%
+2025-07-06 15:29:41,898 - CompresorPDFEvidencia - INFO -    Calidad aplicada: 80%
+2025-07-06 15:29:41,898 - CompresorPDFEvidencia - INFO -    Calidad aplicada: 80%
+2025-07-06 15:29:41,898 - CompresorPDFEvidencia - INFO - 2. Evidencia_Prueba_2.jpg:
+2025-07-06 15:29:41,898 - CompresorPDFEvidencia - INFO - 2. Evidencia_Prueba_2.jpg:
+2025-07-06 15:29:41,898 - CompresorPDFEvidencia - INFO - 2. Evidencia_Prueba_2.jpg:
+2025-07-06 15:29:41,898 - CompresorPDFEvidencia - INFO -    Original: 86.5 KB
+2025-07-06 15:29:41,898 - CompresorPDFEvidencia - INFO -    Original: 86.5 KB
+2025-07-06 15:29:41,898 - CompresorPDFEvidencia - INFO -    Original: 86.5 KB
+2025-07-06 15:29:41,898 - CompresorPDFEvidencia - INFO -    Final: 27.8 KB
+2025-07-06 15:29:41,898 - CompresorPDFEvidencia - INFO -    Final: 27.8 KB
+2025-07-06 15:29:41,898 - CompresorPDFEvidencia - INFO -    Final: 27.8 KB
+2025-07-06 15:29:41,898 - CompresorPDFEvidencia - INFO -    Reducción: 67.9%
+2025-07-06 15:29:41,898 - CompresorPDFEvidencia - INFO -    Reducción: 67.9%
+2025-07-06 15:29:41,898 - CompresorPDFEvidencia - INFO -    Reducción: 67.9%
+2025-07-06 15:29:41,898 - CompresorPDFEvidencia - INFO -    Dimensiones: (2000, 1500) → (1200, 900)
+2025-07-06 15:29:41,898 - CompresorPDFEvidencia - INFO -    Dimensiones: (2000, 1500) → (1200, 900)
+2025-07-06 15:29:41,898 - CompresorPDFEvidencia - INFO -    Dimensiones: (2000, 1500) → (1200, 900)
+2025-07-06 15:29:41,898 - CompresorPDFEvidencia - INFO -    Calidad aplicada: 80%
+2025-07-06 15:29:41,898 - CompresorPDFEvidencia - INFO -    Calidad aplicada: 80%
+2025-07-06 15:29:41,898 - CompresorPDFEvidencia - INFO -    Calidad aplicada: 80%
+2025-07-06 15:29:41,899 - CompresorPDFEvidencia - INFO - 3. Evidencia_Prueba_3.jpg:
+2025-07-06 15:29:41,899 - CompresorPDFEvidencia - INFO - 3. Evidencia_Prueba_3.jpg:
+2025-07-06 15:29:41,899 - CompresorPDFEvidencia - INFO - 3. Evidencia_Prueba_3.jpg:
+2025-07-06 15:29:41,899 - CompresorPDFEvidencia - INFO -    Original: 86.5 KB
+2025-07-06 15:29:41,899 - CompresorPDFEvidencia - INFO -    Original: 86.5 KB
+2025-07-06 15:29:41,899 - CompresorPDFEvidencia - INFO -    Original: 86.5 KB
+2025-07-06 15:29:41,899 - CompresorPDFEvidencia - INFO -    Final: 27.8 KB
+2025-07-06 15:29:41,899 - CompresorPDFEvidencia - INFO -    Final: 27.8 KB
+2025-07-06 15:29:41,899 - CompresorPDFEvidencia - INFO -    Final: 27.8 KB
+2025-07-06 15:29:41,899 - CompresorPDFEvidencia - INFO -    Reducción: 67.9%
+2025-07-06 15:29:41,899 - CompresorPDFEvidencia - INFO -    Reducción: 67.9%
+2025-07-06 15:29:41,899 - CompresorPDFEvidencia - INFO -    Reducción: 67.9%
+2025-07-06 15:29:41,899 - CompresorPDFEvidencia - INFO -    Dimensiones: (2000, 1500) → (1200, 900)
+2025-07-06 15:29:41,899 - CompresorPDFEvidencia - INFO -    Dimensiones: (2000, 1500) → (1200, 900)
+2025-07-06 15:29:41,899 - CompresorPDFEvidencia - INFO -    Dimensiones: (2000, 1500) → (1200, 900)
+2025-07-06 15:29:41,899 - CompresorPDFEvidencia - INFO -    Calidad aplicada: 80%
+2025-07-06 15:29:41,899 - CompresorPDFEvidencia - INFO -    Calidad aplicada: 80%
+2025-07-06 15:29:41,899 - CompresorPDFEvidencia - INFO -    Calidad aplicada: 80%
+2025-07-06 15:29:41,899 - CompresorPDFEvidencia - INFO - 4. Evidencia_Prueba_4.jpg:
+2025-07-06 15:29:41,899 - CompresorPDFEvidencia - INFO - 4. Evidencia_Prueba_4.jpg:
+2025-07-06 15:29:41,899 - CompresorPDFEvidencia - INFO - 4. Evidencia_Prueba_4.jpg:
+2025-07-06 15:29:41,900 - CompresorPDFEvidencia - INFO -    Original: 86.5 KB
+2025-07-06 15:29:41,900 - CompresorPDFEvidencia - INFO -    Original: 86.5 KB
+2025-07-06 15:29:41,900 - CompresorPDFEvidencia - INFO -    Original: 86.5 KB
+2025-07-06 15:29:41,900 - CompresorPDFEvidencia - INFO -    Final: 27.8 KB
+2025-07-06 15:29:41,900 - CompresorPDFEvidencia - INFO -    Final: 27.8 KB
+2025-07-06 15:29:41,900 - CompresorPDFEvidencia - INFO -    Final: 27.8 KB
+2025-07-06 15:29:41,900 - CompresorPDFEvidencia - INFO -    Reducción: 67.9%
+2025-07-06 15:29:41,900 - CompresorPDFEvidencia - INFO -    Reducción: 67.9%
+2025-07-06 15:29:41,900 - CompresorPDFEvidencia - INFO -    Reducción: 67.9%
+2025-07-06 15:29:41,900 - CompresorPDFEvidencia - INFO -    Dimensiones: (2000, 1500) → (1200, 900)
+2025-07-06 15:29:41,900 - CompresorPDFEvidencia - INFO -    Dimensiones: (2000, 1500) → (1200, 900)
+2025-07-06 15:29:41,900 - CompresorPDFEvidencia - INFO -    Dimensiones: (2000, 1500) → (1200, 900)
+2025-07-06 15:29:41,900 - CompresorPDFEvidencia - INFO -    Calidad aplicada: 80%
+2025-07-06 15:29:41,900 - CompresorPDFEvidencia - INFO -    Calidad aplicada: 80%
+2025-07-06 15:29:41,900 - CompresorPDFEvidencia - INFO -    Calidad aplicada: 80%

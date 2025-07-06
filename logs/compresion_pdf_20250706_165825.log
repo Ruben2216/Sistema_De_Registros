@@ -1,0 +1,49 @@
+2025-07-06 16:58:25,982 - CompresorPDFEvidencia - INFO - === INICIANDO COMPRESIÓN DE 2 IMÁGENES ===
+2025-07-06 16:58:25,983 - CompresorPDFEvidencia - INFO - Objetivo de tamaño: 15MB
+2025-07-06 16:58:25,984 - CompresorPDFEvidencia - INFO - Metadatos recibidos: {
+  "imagenes_comprimidas": true,
+  "sistema_utilizado": "CompresorPDFEvidencia_Seguro",
+  "timestamp": "2025-07-06T22:58:25.502Z",
+  "objetivo_movil": true
+}
+2025-07-06 16:58:25,984 - CompresorPDFEvidencia - DEBUG - Configuración para 2 imágenes: {'max_width': 1920, 'max_height': 1440, 'calidad': 85}
+2025-07-06 16:58:25,985 - CompresorPDFEvidencia - INFO - Configuración inicial: {'max_width': 1920, 'max_height': 1440, 'calidad': 85}
+2025-07-06 16:58:25,986 - CompresorPDFEvidencia - INFO - --- Procesando imagen 1/2: Evidencia_Camara_1751842688476_3.jpg ---
+2025-07-06 16:58:25,997 - CompresorPDFEvidencia - INFO - Tamaño original: 1012.3 KB
+2025-07-06 16:58:26,042 - CompresorPDFEvidencia - INFO - Formato original: PNG, Dimensiones: (626, 1103)
+2025-07-06 16:58:26,085 - CompresorPDFEvidencia - INFO - Espacio objetivo para esta imagen: 7.5 MB
+2025-07-06 16:58:26,086 - CompresorPDFEvidencia - DEBUG - Probando nivel 1: Inicial
+2025-07-06 16:58:26,147 - CompresorPDFEvidencia - DEBUG - Nivel Inicial: 191.4 KB
+2025-07-06 16:58:26,147 - CompresorPDFEvidencia - INFO - Nivel seleccionado: Inicial (calidad 85%)
+2025-07-06 16:58:26,149 - CompresorPDFEvidencia - INFO - Resultado: 191.4 KB (81.1% reducción)
+2025-07-06 16:58:26,153 - CompresorPDFEvidencia - INFO - --- Procesando imagen 2/2: Evidencia_Camara_1751842688525_4.jpg ---
+2025-07-06 16:58:26,164 - CompresorPDFEvidencia - INFO - Tamaño original: 952.1 KB
+2025-07-06 16:58:26,165 - CompresorPDFEvidencia - INFO - Formato original: PNG, Dimensiones: (580, 1103)
+2025-07-06 16:58:26,202 - CompresorPDFEvidencia - INFO - Espacio objetivo para esta imagen: 14.8 MB
+2025-07-06 16:58:26,203 - CompresorPDFEvidencia - DEBUG - Probando nivel 1: Inicial
+2025-07-06 16:58:26,249 - CompresorPDFEvidencia - DEBUG - Nivel Inicial: 172.1 KB
+2025-07-06 16:58:26,249 - CompresorPDFEvidencia - INFO - Nivel seleccionado: Inicial (calidad 85%)
+2025-07-06 16:58:26,251 - CompresorPDFEvidencia - INFO - Resultado: 172.1 KB (81.9% reducción)
+2025-07-06 16:58:26,253 - CompresorPDFEvidencia - INFO - === REPORTE FINAL DE COMPRESIÓN ===
+2025-07-06 16:58:26,254 - CompresorPDFEvidencia - INFO - Imágenes procesadas: 2
+2025-07-06 16:58:26,254 - CompresorPDFEvidencia - INFO - Tiempo total: 271ms
+2025-07-06 16:58:26,255 - CompresorPDFEvidencia - INFO - Tamaño original total: 1.9 MB
+2025-07-06 16:58:26,255 - CompresorPDFEvidencia - INFO - Tamaño comprimido total: 363.5 KB
+2025-07-06 16:58:26,255 - CompresorPDFEvidencia - INFO - Reducción total: 81.5%
+2025-07-06 16:58:26,256 - CompresorPDFEvidencia - INFO - Cumple objetivo móvil (15MB): ✅ SÍ
+2025-07-06 16:58:26,257 - CompresorPDFEvidencia - INFO - === DETALLE POR IMAGEN ===
+2025-07-06 16:58:26,257 - CompresorPDFEvidencia - INFO - 1. Evidencia_Camara_1751842688476_3.jpg:
+2025-07-06 16:58:26,257 - CompresorPDFEvidencia - INFO -    Original: 1012.3 KB
+2025-07-06 16:58:26,258 - CompresorPDFEvidencia - INFO -    Final: 191.4 KB
+2025-07-06 16:58:26,258 - CompresorPDFEvidencia - INFO -    Reducción: 81.1%
+2025-07-06 16:58:26,258 - CompresorPDFEvidencia - INFO -    Dimensiones: (626, 1103) → (626, 1103)
+2025-07-06 16:58:26,259 - CompresorPDFEvidencia - INFO -    Calidad aplicada: 85%
+2025-07-06 16:58:26,259 - CompresorPDFEvidencia - INFO - 2. Evidencia_Camara_1751842688525_4.jpg:
+2025-07-06 16:58:26,259 - CompresorPDFEvidencia - INFO -    Original: 952.1 KB
+2025-07-06 16:58:26,260 - CompresorPDFEvidencia - INFO -    Final: 172.1 KB
+2025-07-06 16:58:26,260 - CompresorPDFEvidencia - INFO -    Reducción: 81.9%
+2025-07-06 16:58:26,260 - CompresorPDFEvidencia - INFO -    Dimensiones: (580, 1103) → (580, 1103)
+2025-07-06 16:58:26,260 - CompresorPDFEvidencia - INFO -    Calidad aplicada: 85%
+2025-07-06 16:58:26,909 - CompresorPDFEvidencia - INFO - Optimizando PDF final: C:\Users\RUBENC~1\AppData\Local\Temp\pdfs_mantenimiento\Evidencia_Computo 20250706 165735 0904Ed48_20250706_165826.pdf
+2025-07-06 16:58:26,910 - CompresorPDFEvidencia - INFO - Tamaño PDF original: 541.3 KB
+2025-07-06 16:58:27,013 - CompresorPDFEvidencia - ERROR - Error al optimizar PDF: save to original must be incremental
