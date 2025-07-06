@@ -7,6 +7,8 @@ import datetime
 import threading
 import time
 import atexit
+import sys
+import traceback
 from werkzeug.utils import secure_filename
 # --- INICIO LÓGICA DE backend (búsqueda de equipos en MySQL) ---
 from flask_cors import CORS 
@@ -18,6 +20,11 @@ from kilometro_vida import bp_imgdia
 from flask_mail import Mail, Message
 import io
 
+# Cargar variables de entorno según el entorno
+if os.path.exists('.env.production'):
+    load_dotenv('.env.production')  # Producción
+else:
+    load_dotenv()  # Desarrollo local
 
 # Rutas absolutas a las carpetas en el proyecto. Preferentemente, si se mueven los archivos, verificar aquí las rutas para evitar que se rompan
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -25,24 +32,38 @@ TEMPLATES_FOLDER = os.path.join(BASE_DIR, 'TEMPLATES')
 MANTENIMIENTO_FOLDER = os.path.join(TEMPLATES_FOLDER, 'Mantenimiento')
 RESOURCE_FOLDER = os.path.join(BASE_DIR, 'RESOURCE')
 
-app = Flask(__name__, static_url_path='', static_folder=TEMPLATES_FOLDER)
-app.secret_key = 'supersecretkey'  # Necesario para usar session
+app = Flask(__name__, 
+             static_url_path='', 
+             static_folder=TEMPLATES_FOLDER,
+             template_folder=TEMPLATES_FOLDER)
+app.secret_key = os.getenv('FLASK_SECRET_KEY', 'supersecretkey')
+
+# Configuración adicional para producción en PythonAnywhere
+app.config['SESSION_COOKIE_SECURE'] = False  # PythonAnywhere maneja HTTPS
+app.config['SESSION_COOKIE_HTTPONLY'] = True  # Prevenir XSS
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # Protección CSRF
 
 # --- CONFIGURACIÓN DE CORREO ---
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'sistemaregistrocfe@gmail.com'
-app.config['MAIL_PASSWORD'] = 'ytji fwik rftf njxw'  
-app.config['MAIL_DEFAULT_SENDER'] = 'sistemaregistrocfe@gmail.com'
+app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
+app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
+app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'True').lower() == 'true'
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME', 'sistemaregistrocfe@gmail.com')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD', 'ytji fwik rftf njxw')
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER', 'sistemaregistrocfe@gmail.com')
 
+# Inicializar Flask-Mail
 mail = Mail(app)
 
-# Aquí se define la ruta principal con el archivo HTML que se desplegará, como por ejemplo 'menu.html'.
+# Configuración adicional para producción en PythonAnywhere
+if not app.debug:
+    # PythonAnywhere maneja HTTPS automáticamente, no necesitamos forzarlo
+    pass
+
+# Aquí se define la ruta principal con el archivo HTML que se desplegará, como por ejemplo 'login.html'.
 @app.route('/')
 def index():
-    # Asegúrate de que 'menu.html' exista en la carpeta TEMPLATES
-    return send_from_directory(TEMPLATES_FOLDER, 'menu.html')
+    # Asegúrate de que 'login.html' exista en la carpeta TEMPLATES
+    return send_from_directory(TEMPLATES_FOLDER, 'login.html')
 
 @app.route('/TEMPLATES/<path:filename>')
 def templates_root(filename):
@@ -53,7 +74,12 @@ def templates_root(filename):
     
     # Registrar actividad automáticamente para páginas RIJ y cámara
     if 'formato_RIJ.html' in filename or 'camara.html' in filename:
-        registrar_actividad_usuario()
+        try:
+            registrar_actividad_usuario()
+        except Exception as e:
+            print(f"[ERROR] Error en registrar_actividad_usuario desde templates_root: {e}")
+            # Continuar sin fallar la página
+            pass
     
     return send_from_directory(TEMPLATES_FOLDER, filename)
 
@@ -602,7 +628,28 @@ def pagina_rij():
     else:
         mensaje_img = "No hay imagen disponible para el día de hoy."
     print(f"[DEBUG] Retornando render_template...")
-    return render_template('formato_RIJ.html', meta_para_mostrar=meta_del_dia, imagen_url=imagen_url, mensaje_img=mensaje_img) 
+    try:
+        return render_template('formato_RIJ.html', meta_para_mostrar=meta_del_dia, imagen_url=imagen_url, mensaje_img=mensaje_img)
+    except Exception as e:
+        print(f"[ERROR] Error al renderizar template formato_RIJ.html: {e}")
+        print(f"[DEBUG] Template folder configurado: {app.template_folder}")
+        print(f"[DEBUG] Verificando si archivo existe...")
+        
+        template_path = os.path.join(app.template_folder, 'formato_RIJ.html')
+        if os.path.exists(template_path):
+            print(f"[DEBUG] ✅ Archivo formato_RIJ.html existe en: {template_path}")
+        else:
+            print(f"[DEBUG] ❌ Archivo formato_RIJ.html NO existe en: {template_path}")
+            
+        # Listar archivos en template folder
+        try:
+            archivos = os.listdir(app.template_folder)
+            print(f"[DEBUG] Archivos en template folder: {archivos}")
+        except:
+            print(f"[DEBUG] No se pudo listar template folder")
+            
+        # Retornar error más amigable
+        return f"Error: No se puede cargar la página formato_RIJ.html. Error: {str(e)}", 500 
 
 # Redirección para acceder a formato_RIJ.html desde TEMPLATES que esta todo configurado para que se acceda desde la carpeta TEMPLATES
 # Esto permite que la lógica de obtener la meta se ejecute correctamente al acceder a la ruta, OSEA LA FUNCION DE MOSTRAR LA META DEL DÍA
@@ -728,13 +775,42 @@ def cargar_usuarios_activos():
     try:
         if os.path.exists(USUARIOS_ACTIVOS_FILE):
             with open(USUARIOS_ACTIVOS_FILE, 'r', encoding='utf-8') as f:
-                data = json.load(f)
+                content = f.read().strip()
+                if not content:  # Archivo vacío
+                    print(f"[DEBUG] Archivo usuarios activos vacío, retornando diccionario vacío")
+                    return {}
+                data = json.loads(content)
+                if not isinstance(data, dict):  # Verificar que sea un diccionario
+                    print(f"[DEBUG] Datos no son diccionario: {type(data)}, retornando vacío")
+                    return {}
                 # Convertir timestamps de string a datetime
+                usuarios_procesados = {}
                 for sid, info in data.items():
-                    if 'timestamp' in info:
-                        info['timestamp'] = datetime.datetime.fromisoformat(info['timestamp'])
-                return data
-    except Exception as e:        return {}
+                    if isinstance(info, dict) and 'timestamp' in info:
+                        try:
+                            info['timestamp'] = datetime.datetime.fromisoformat(info['timestamp'])
+                            usuarios_procesados[sid] = info
+                        except (ValueError, TypeError) as e:
+                            print(f"[DEBUG] Error al convertir timestamp para {sid}: {e}")
+                            continue
+                    else:
+                        print(f"[DEBUG] Datos inválidos para usuario {sid}: {info}")
+                        continue
+                print(f"[DEBUG] Usuarios activos cargados exitosamente: {len(usuarios_procesados)} usuarios")
+                return usuarios_procesados
+        else:
+            print(f"[DEBUG] Archivo usuarios activos no existe, retornando diccionario vacío")
+            return {}
+    except Exception as e:
+        print(f"[ERROR] Error al cargar usuarios activos: {e}")
+        # En caso de error, intentar limpiar archivo corrupto
+        try:
+            if os.path.exists(USUARIOS_ACTIVOS_FILE):
+                os.remove(USUARIOS_ACTIVOS_FILE)
+                print(f"[DEBUG] Archivo corrupto eliminado")
+        except:
+            pass
+        return {}
 
 def guardar_usuarios_activos(usuarios):
     """Guarda el diccionario de usuarios activos en archivo"""
@@ -753,7 +829,20 @@ def guardar_usuarios_activos(usuarios):
 
 def get_usuarios_activos():
     """Obtiene el diccionario actual de usuarios activos"""
-    return cargar_usuarios_activos()
+    try:
+        result = cargar_usuarios_activos()
+        # VERIFICACIÓN MÚLTIPLE DE SEGURIDAD
+        if result is None:
+            print(f"[WARNING] cargar_usuarios_activos retornó None, inicializando diccionario vacío")
+            return {}
+        elif not isinstance(result, dict):
+            print(f"[WARNING] cargar_usuarios_activos retornó tipo incorrecto: {type(result)}, inicializando diccionario vacío")
+            return {}
+        else:
+            return result
+    except Exception as e:
+        print(f"[ERROR] Error en get_usuarios_activos: {e}")
+        return {}
 
 def set_usuarios_activos(usuarios):
     """Actualiza el diccionario de usuarios activos"""
@@ -774,6 +863,21 @@ def registrar_actividad_usuario():
     with lock_usuarios:
         usuarios_activos = get_usuarios_activos()
         
+        # VERIFICACIÓN DE SEGURIDAD MÚLTIPLE: Asegurar que usuarios_activos es un diccionario válido
+        if usuarios_activos is None:
+            print(f"[ERROR] usuarios_activos es None, inicializando como diccionario vacío")
+            usuarios_activos = {}
+        elif not isinstance(usuarios_activos, dict):
+            print(f"[ERROR] usuarios_activos no es diccionario: {type(usuarios_activos)}, inicializando vacío")
+            usuarios_activos = {}
+        
+        # VERIFICACIÓN ADICIONAL: Asegurar que existe y es iterable antes de usar 'in'
+        try:
+            if not usuarios_activos:
+                usuarios_activos = {}
+        except:
+            usuarios_activos = {}
+        
         if not sid:
             sid = os.urandom(8).hex()
             session['sid'] = sid
@@ -788,10 +892,10 @@ def registrar_actividad_usuario():
                     'pdf_generado': True
                 }
                 set_usuarios_activos(usuarios_activos)
+                print(f"[DEBUG] Nuevo usuario registrado: {sid}")
             else:
-                pass
+                print(f"[DEBUG] Usuario ya existe en diccionario: {sid}")
         else:
-            pass
             # Verificar si está en el diccionario
             if sid in usuarios_activos:
                 print(f"[DEBUG] Usuario encontrado en diccionario activos")
@@ -806,6 +910,7 @@ def registrar_actividad_usuario():
                 }
                 set_usuarios_activos(usuarios_activos)
     
+    print(f"[DEBUG] === FIN REGISTRO ACTIVIDAD ===")
     return sid
 
 def limpiar_datos_usuario_completo(sid):
@@ -864,10 +969,21 @@ def tarea_limpieza_automatica():
         with lock_usuarios:
             usuarios_activos = get_usuarios_activos()
             
+            # VERIFICACIÓN DE SEGURIDAD: Asegurar que usuarios_activos es un diccionario
+            if usuarios_activos is None:
+                usuarios_activos = {}
+            elif not isinstance(usuarios_activos, dict):
+                usuarios_activos = {}
+            
             for sid, datos in usuarios_activos.items():
-                tiempo_transcurrido = tiempo_actual - datos['timestamp']
-                if tiempo_transcurrido >= tiempo_limite:
-                    usuarios_a_limpiar.append(sid)
+                if isinstance(datos, dict) and 'timestamp' in datos:
+                    try:
+                        tiempo_transcurrido = tiempo_actual - datos['timestamp']
+                        if tiempo_transcurrido >= tiempo_limite:
+                            usuarios_a_limpiar.append(sid)
+                    except (TypeError, KeyError) as e:
+                        # Si hay error con el timestamp, marcar para limpieza
+                        usuarios_a_limpiar.append(sid)
         
         # Limpiar usuarios fuera del lock para evitar bloqueos
         for sid in usuarios_a_limpiar:
@@ -962,7 +1078,195 @@ def endpoint_registrar_actividad():
             'error': str(e)
         }), 500
 
-# --- FIN SISTEMA DE LIMPIEZA AUTOMÁTICA ---
+# Endpoint de diagnóstico para verificar configuración
+@app.route('/debug/flask_config')
+def debug_flask_config():
+    """Endpoint para diagnosticar configuración de Flask"""
+    try:
+        info = {
+            'template_folder': app.template_folder,
+            'static_folder': app.static_folder,
+            'base_dir': BASE_DIR,
+            'templates_folder_var': TEMPLATES_FOLDER,
+            'template_folder_exists': os.path.exists(app.template_folder),
+            'templates_folder_exists': os.path.exists(TEMPLATES_FOLDER),
+        }
+        
+        # Verificar archivos en template folder
+        try:
+            if os.path.exists(app.template_folder):
+                archivos = os.listdir(app.template_folder)
+                info['archivos_en_template_folder'] = archivos
+                info['formato_rij_existe'] = 'formato_RIJ.html' in archivos
+            else:
+                info['archivos_en_template_folder'] = "Carpeta no existe"
+                info['formato_rij_existe'] = False
+        except Exception as e:
+            info['error_listando_archivos'] = str(e)
+        
+        return jsonify(info)
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# --- ENDPOINT DE LOGIN ---
+@app.route('/api/login', methods=['POST'])
+def login():
+    """
+    Endpoint para validar contraseñas usando la tabla usuario.
+    Solo valida contraseña, sin RPE/RTT.
+    """
+    try:
+        print(f"[LOGIN] Recibida petición de login")
+        
+        data = request.get_json()
+        if not data or 'password' not in data:
+            print(f"[LOGIN] Error: No se recibió contraseña en la petición")
+            return jsonify({
+                'success': False,
+                'message': 'Contraseña requerida'
+            }), 400
+        
+        password = data['password'].strip()
+        if not password:
+            print(f"[LOGIN] Error: Contraseña vacía")
+            return jsonify({
+                'success': False,
+                'message': 'La contraseña no puede estar vacía'
+            }), 400
+        
+        print(f"[LOGIN] Intentando validar contraseña...")
+        
+        # Conectar a la base de datos
+        conn = get_db_connection()
+        if conn is None:
+            print(f"[LOGIN] Error: No se pudo conectar a la base de datos")
+            return jsonify({
+                'success': False,
+                'message': 'Error de conexión a la base de datos'
+            }), 500
+        
+        try:
+            cursor = conn.cursor()
+            
+            # Probar diferentes esquemas de base de datos
+            queries_to_try = [
+                "SELECT password FROM sistema_registros.usuario WHERE password = %s",
+                "SELECT password FROM usuario WHERE password = %s",
+                "SELECT password FROM CFE$default.usuario WHERE password = %s"
+            ]
+            
+            resultado = None
+            query_usado = None
+            
+            for query in queries_to_try:
+                try:
+                    print(f"[LOGIN] Probando query: {query}")
+                    cursor.execute(query, (password,))
+                    resultado = cursor.fetchone()
+                    query_usado = query
+                    print(f"[LOGIN] Query exitosa: {query}")
+                    break
+                except Error as query_error:
+                    print(f"[LOGIN] Error en query '{query}': {query_error}")
+                    continue
+            
+            if resultado:
+                print(f"[LOGIN] Contraseña válida encontrada")
+                # Contraseña válida, registrar actividad del usuario
+                registrar_actividad_usuario()
+                
+                return jsonify({
+                    'success': True,
+                    'message': 'Acceso autorizado'
+                }), 200
+            else:
+                print(f"[LOGIN] Contraseña no encontrada en la base de datos")
+                return jsonify({
+                    'success': False,
+                    'message': 'Contraseña incorrecta'
+                }), 401
+                
+        except Error as e:
+            print(f"[LOGIN] Error en consulta de login: {e}")
+            return jsonify({
+                'success': False,
+                'message': 'Error interno del servidor'
+            }), 500
+            
+        finally:
+            if conn.is_connected():
+                cursor.close()
+                conn.close()
+                
+    except Exception as e:
+        print(f"[LOGIN] Error en endpoint login: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'message': 'Error interno del servidor'
+        }), 500
+
+# Endpoint de prueba para verificar base de datos
+@app.route('/api/test_db')
+def test_db():
+    """
+    Endpoint para probar la conexión a la base de datos
+    """
+    try:
+        print("[DB_TEST] Iniciando prueba de conexión a BD...")
+        
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({
+                'success': False,
+                'message': 'No se pudo conectar a la base de datos',
+                'db_config': {k: v if k != 'password' else '***' for k, v in DB_CONFIG.items()}
+            }), 500
+        
+        try:
+            cursor = conn.cursor()
+            
+            # Probar consultas básicas
+            queries_test = [
+                "SHOW TABLES",
+                "SELECT DATABASE()",
+                "SHOW DATABASES"
+            ]
+            
+            resultados = {}
+            
+            for query in queries_test:
+                try:
+                    cursor.execute(query)
+                    resultado = cursor.fetchall()
+                    resultados[query] = resultado
+                    print(f"[DB_TEST] Query '{query}' exitosa: {resultado}")
+                except Error as e:
+                    resultados[query] = f"Error: {e}"
+                    print(f"[DB_TEST] Error en query '{query}': {e}")
+            
+            return jsonify({
+                'success': True,
+                'message': 'Conexión a BD exitosa',
+                'results': resultados,
+                'db_config': {k: v if k != 'password' else '***' for k, v in DB_CONFIG.items()}
+            }), 200
+            
+        finally:
+            if conn.is_connected():
+                cursor.close()
+                conn.close()
+                
+    except Exception as e:
+        print(f"[DB_TEST] Error: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'message': f'Error en prueba de BD: {str(e)}'
+        }), 500
 
 # --- RUTAS PARA SISTEMA DE EVIDENCIA DE MANTENIMIENTO ---
 
@@ -1127,8 +1431,6 @@ def generar_pdf_con_evidencia():
     try:
         data = request.get_json()
         
-        print(f"[DEBUG] Datos recibidos: {data}")
-        
         if not data or 'pdfSeleccionado' not in data or 'imagenes' not in data:
             return jsonify({
                 'success': False,
@@ -1137,9 +1439,6 @@ def generar_pdf_con_evidencia():
         
         pdf_seleccionado = data['pdfSeleccionado']
         imagenes = data['imagenes']
-        
-        print(f"[DEBUG] PDF seleccionado: {pdf_seleccionado}")
-        print(f"[DEBUG] Número de imágenes: {len(imagenes)}")
         
         if not imagenes:
             return jsonify({
@@ -1154,20 +1453,10 @@ def generar_pdf_con_evidencia():
         nombre_pdf = pdf_seleccionado['id'] + '.pdf'
         ruta_pdf_original = os.path.join(PDFS_MANTENIMIENTO_DIR, nombre_pdf)
         
-        print(f"[DEBUG] Buscando PDF en: {ruta_pdf_original}")
-        print(f"[DEBUG] Archivo existe: {os.path.exists(ruta_pdf_original)}")
-        
-        # Listar archivos disponibles para debug
-        if os.path.exists(PDFS_MANTENIMIENTO_DIR):
-            archivos_disponibles = os.listdir(PDFS_MANTENIMIENTO_DIR)
-            print(f"[DEBUG] Archivos disponibles en directorio: {archivos_disponibles}")
-        else:
-            print(f"[DEBUG] Directorio no existe: {PDFS_MANTENIMIENTO_DIR}")
-        
         if not os.path.exists(ruta_pdf_original):
             return jsonify({
                 'success': False,
-                'error': f'PDF original no encontrado: {nombre_pdf}'
+                'error': 'PDF original no encontrado'
             }), 404
         
         # Generar PDF combinado
@@ -1186,77 +1475,46 @@ def generar_pdf_con_evidencia():
             # Copiar todas las páginas del PDF original
             doc_final.insert_pdf(doc_original)
             
-            # Añadir páginas con evidencias fotográficas (layout 2x3)
-            # Configuración del layout
-            imagenes_por_pagina = 6  # 2 columnas x 3 filas
-            margen_lateral = 57  # 2 cm en puntos (1 cm = 28.35 puntos)
-            margen_superior = 80
-            margen_inferior = 57
-            
-            # Calcular dimensiones disponibles
-            ancho_pagina = 595  # A4 ancho
-            alto_pagina = 842   # A4 alto
-            ancho_disponible = ancho_pagina - (2 * margen_lateral)
-            alto_disponible = alto_pagina - margen_superior - margen_inferior
-            
-            # Dimensiones por imagen
-            ancho_imagen = (ancho_disponible - 20) / 2  # 2 columnas con espacio entre ellas
-            alto_imagen = (alto_disponible - 40) / 3    # 3 filas con espacio entre ellas
-            espacio_horizontal = 20
-            espacio_vertical = 20
-            
-            # Procesar imágenes en grupos de 6
-            total_imagenes = len(imagenes)
-            for pagina_idx in range(0, total_imagenes, imagenes_por_pagina):
-                # Crear nueva página para evidencia
-                page = doc_final.new_page(width=595, height=842)
+            # Añadir páginas con evidencias fotográficas
+            for i, imagen in enumerate(imagenes):
+                # Decodificar imagen
+                img_data = imagen['data']
+                if img_data.startswith('data:image'):
+                    img_data = img_data.split(',')[1]
                 
-                # Título de la página
+                img_bytes = base64.b64decode(img_data)
+                
+                # Crear nueva página
+                page = doc_final.new_page(width=595, height=842)  # Tamaño A4
+                
+                # Título de la evidencia
                 page.insert_text(
                     (50, 50),
-                    "Evidencia Fotográfica",
+                    f"Evidencia Fotográfica {i + 1}",
                     fontsize=16,
                     color=(0, 0, 0)
                 )
                 
-                # Obtener imágenes para esta página
-                imagenes_pagina = imagenes[pagina_idx:pagina_idx + imagenes_por_pagina]
+                page.insert_text(
+                    (50, 80),
+                    f"Archivo: {imagen['nombre']}",
+                    fontsize=12,
+                    color=(0.3, 0.3, 0.3)
+                )
                 
-                # Posicionar imágenes en layout 2x3
-                for i, imagen in enumerate(imagenes_pagina):
-                    # Calcular posición en la grilla (columna, fila)
-                    columna = i % 2
-                    fila = i // 2
-                    
-                    # Calcular coordenadas
-                    x = margen_lateral + columna * (ancho_imagen + espacio_horizontal)
-                    y = margen_superior + fila * (alto_imagen + espacio_vertical)
-                    
-                    # Decodificar imagen
-                    img_data = imagen['data']
-                    if img_data.startswith('data:image'):
-                        img_data = img_data.split(',')[1]
-                    
-                    try:
-                        img_bytes = base64.b64decode(img_data)
-                        
-                        # Definir rectángulo para la imagen
-                        img_rect = fitz.Rect(x, y, x + ancho_imagen, y + alto_imagen)
-                        
-                        # Insertar imagen manteniendo proporción
-                        page.insert_image(img_rect, stream=img_bytes, keep_proportion=True)
-                        
-                    except Exception as img_error:
-                        print(f"Error al insertar imagen {i} en página {pagina_idx//imagenes_por_pagina + 1}: {img_error}")
-                        # En caso de error, mostrar un rectángulo con texto de error
-                        error_rect = fitz.Rect(x, y, x + ancho_imagen, y + alto_imagen)
-                        page.draw_rect(error_rect, color=(0.8, 0.8, 0.8), width=1)
-                        page.insert_text(
-                            (x + 10, y + alto_imagen/2),
-                            "Error al\ncargar imagen",
-                            fontsize=10,
-                            color=(0.8, 0, 0)
-                        )
+                # Insertar imagen centrada
+                try:
+                    img_rect = fitz.Rect(50, 100, 545, 750)  # Área para la imagen
+                    page.insert_image(img_rect, stream=img_bytes)
+                except Exception as img_error:
+                    print(f"Error al insertar imagen {i}: {img_error}")
+                    # Si falla la inserción de imagen, mostrar texto de error
+                    page.insert_text(
+                        (50, 400),
+                        f"Error al cargar imagen: {imagen['nombre']}",
+                        fontsize=12,
+                        color=(0.8, 0, 0)
+                    )
             
             # Guardar PDF final
             doc_final.save(ruta_pdf_final)
@@ -1268,85 +1526,47 @@ def generar_pdf_con_evidencia():
             from reportlab.pdfgen import canvas
             from reportlab.lib.pagesizes import A4
             from reportlab.lib.utils import ImageReader
-            from reportlab.lib import colors
             from reportlab.pdfgen.canvas import Canvas
             import shutil
             
             # Copiar PDF original como base
             shutil.copy2(ruta_pdf_original, ruta_pdf_final)
             
-            # Crear páginas adicionales con evidencias (layout 2x3)
+            # Crear páginas adicionales con evidencias
             pdf_evidencias = os.path.join(PDFS_MANTENIMIENTO_DIR, f"temp_evidencias_{sid}.pdf")
             c = canvas.Canvas(pdf_evidencias, pagesize=A4)
             width, height = A4
             
-            # Configuración del layout
-            imagenes_por_pagina = 6  # 2 columnas x 3 filas
-            margen_lateral = 57  # 2 cm en puntos
-            margen_superior = 80
-            margen_inferior = 57
-            
-            # Calcular dimensiones disponibles
-            ancho_disponible = width - (2 * margen_lateral)
-            alto_disponible = height - margen_superior - margen_inferior
-            
-            # Dimensiones por imagen
-            ancho_imagen = (ancho_disponible - 20) / 2  # 2 columnas con espacio
-            alto_imagen = (alto_disponible - 40) / 3    # 3 filas con espacio
-            espacio_horizontal = 20
-            espacio_vertical = 20
-            
-            # Procesar imágenes en grupos de 6
-            total_imagenes = len(imagenes)
-            pagina_actual = 0
-            
-            for pagina_idx in range(0, total_imagenes, imagenes_por_pagina):
-                if pagina_actual > 0:
+            for i, imagen in enumerate(imagenes):
+                # Nueva página para cada imagen
+                if i > 0:
                     c.showPage()
                 
-                # Título de la página
+                # Título
                 c.setFont("Helvetica-Bold", 16)
-                c.drawString(50, height - 50, "Evidencia Fotográfica")
+                c.drawString(50, height - 50, f"Evidencia Fotográfica {i + 1}")
                 
-                # Obtener imágenes para esta página
-                imagenes_pagina = imagenes[pagina_idx:pagina_idx + imagenes_por_pagina]
+                c.setFont("Helvetica", 12)
+                c.drawString(50, height - 80, f"Archivo: {imagen['nombre']}")
                 
-                # Posicionar imágenes en layout 2x3
-                for i, imagen in enumerate(imagenes_pagina):
-                    # Calcular posición en la grilla
-                    columna = i % 2
-                    fila = i // 2
+                # Intentar insertar imagen
+                try:
+                    img_data = imagen['data']
+                    if img_data.startswith('data:image'):
+                        img_data = img_data.split(',')[1]
                     
-                    # Calcular coordenadas (en reportlab Y=0 está abajo)
-                    x = margen_lateral + columna * (ancho_imagen + espacio_horizontal)
-                    y = height - margen_superior - (fila + 1) * (alto_imagen + espacio_vertical)
+                    img_bytes = base64.b64decode(img_data)
+                    img_reader = ImageReader(io.BytesIO(img_bytes))
                     
-                    try:
-                        img_data = imagen['data']
-                        if img_data.startswith('data:image'):
-                            img_data = img_data.split(',')[1]
-                        
-                        img_bytes = base64.b64decode(img_data)
-                        img_reader = ImageReader(io.BytesIO(img_bytes))
-                        
-                        # Insertar imagen en la posición calculada
-                        c.drawImage(
-                            img_reader, 
-                            x, y, 
-                            width=ancho_imagen, 
-                            height=alto_imagen, 
-                            preserveAspectRatio=True
-                        )
-                        
-                    except Exception as img_error:
-                        print(f"Error al insertar imagen {i} en página {pagina_actual + 1}: {img_error}")
-                        # Dibujar rectángulo de error
-                        c.setStrokeColor(colors.red)
-                        c.rect(x, y, ancho_imagen, alto_imagen, stroke=1, fill=0)
-                        c.setFont("Helvetica", 10)
-                        c.drawString(x + 10, y + alto_imagen/2, "Error al cargar imagen")
-                
-                pagina_actual += 1
+                    # Calcular dimensiones manteniendo proporción
+                    img_width = width - 100
+                    img_height = height - 200
+                    
+                    c.drawImage(img_reader, 50, 100, width=img_width, height=img_height, preserveAspectRatio=True)
+                    
+                except Exception as img_error:
+                    print(f"Error al insertar imagen {i}: {img_error}")
+                    c.drawString(50, height / 2, f"Error al cargar imagen: {imagen['nombre']}")
             
             c.save()
             
@@ -1356,16 +1576,6 @@ def generar_pdf_con_evidencia():
         
         # URL para descargar el PDF final
         url_descarga = f'/api/evidencia/descargar_pdf/{nombre_pdf_final}'
-        
-        print(f"[DEBUG] PDF generado exitosamente:")
-        print(f"[DEBUG] - Nombre archivo: {nombre_pdf_final}")
-        print(f"[DEBUG] - Ruta completa: {ruta_pdf_final}")
-        print(f"[DEBUG] - Archivo existe: {os.path.exists(ruta_pdf_final)}")
-        print(f"[DEBUG] - URL descarga: {url_descarga}")
-        
-        if os.path.exists(ruta_pdf_final):
-            stat = os.stat(ruta_pdf_final)
-            print(f"[DEBUG] - Tamaño: {stat.st_size} bytes")
         
         return jsonify({
             'success': True,
@@ -1383,194 +1593,29 @@ def generar_pdf_con_evidencia():
             'error': str(e)
         }), 500
 
-def es_nombre_archivo_seguro(nombre):
-    """
-    Verifica si un nombre de archivo es seguro sin modificarlo
-    Permite letras, números, espacios, guiones, puntos y underscore
-    """
-    import re
-    # Permitir caracteres seguros incluyendo espacios
-    patron_permitido = re.compile(r'^[a-zA-Z0-9\s\-_\.]+$')
-    return patron_permitido.match(nombre) is not None
-
-@app.route('/api/evidencia/descargar_pdf/<path:nombre_archivo>')
+@app.route('/api/evidencia/descargar_pdf/<nombre_archivo>')
 def descargar_pdf_evidencia(nombre_archivo):
     """
     Permite descargar un PDF con evidencia generado
     """
     try:
-        print(f"[DEBUG] Descarga solicitada para: {nombre_archivo}")
-        
-        # Decodificar URL (para manejar %20 -> espacio)
-        from urllib.parse import unquote
-        nombre_archivo_decodificado = unquote(nombre_archivo)
-        print(f"[DEBUG] Nombre decodificado: {nombre_archivo_decodificado}")
-        
-        # Validar seguridad sin modificar el nombre
-        if not es_nombre_archivo_seguro(nombre_archivo_decodificado):
-            print(f"[DEBUG] Nombre de archivo no seguro: {nombre_archivo_decodificado}")
-            return jsonify({'error': 'Nombre de archivo no válido'}), 400
-        
-        ruta_archivo = os.path.join(PDFS_MANTENIMIENTO_DIR, nombre_archivo_decodificado)
-        print(f"[DEBUG] Ruta completa: {ruta_archivo}")
-        print(f"[DEBUG] Archivo existe: {os.path.exists(ruta_archivo)}")
-        
-        # Listar archivos disponibles para debug
-        if os.path.exists(PDFS_MANTENIMIENTO_DIR):
-            archivos_disponibles = [f for f in os.listdir(PDFS_MANTENIMIENTO_DIR) if 'Evidencia_' in f]
-            print(f"[DEBUG] Archivos de evidencia disponibles:")
-            for archivo in archivos_disponibles:
-                print(f"[DEBUG]   - {archivo}")
+        nombre_archivo = secure_filename(nombre_archivo)
+        ruta_archivo = os.path.join(PDFS_MANTENIMIENTO_DIR, nombre_archivo)
         
         if not os.path.exists(ruta_archivo):
-            return jsonify({
-                'error': 'PDF no encontrado',
-                'nombre_buscado': nombre_archivo_decodificado,
-                'archivos_disponibles': archivos_disponibles
-            }), 404
+            return jsonify({'error': 'PDF no encontrado'}), 404
         
         return send_from_directory(
             PDFS_MANTENIMIENTO_DIR,
-            nombre_archivo_decodificado,
+            nombre_archivo,
             as_attachment=True,
-            download_name=nombre_archivo_decodificado
+            download_name=nombre_archivo
         )
         
     except Exception as e:
-        print(f"[DEBUG] Error en descarga: {e}")
-        import traceback
-        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
-
-@app.route('/api/evidencia/sincronizar_fotos_camara', methods=['POST'])
-def sincronizar_fotos_camara():
-    """
-    Sincroniza fotos del sistema de cámara con el sistema de evidencia
-    """
-    try:
-        data = request.get_json()
-        pdf_id = data.get('pdf_id')
-        
-        if not pdf_id:
-            return jsonify({
-                'success': False,
-                'error': 'ID del PDF no proporcionado'
-            }), 400
-        
-        # Registrar actividad del usuario
-        sid = registrar_actividad_usuario()
-        
-        # Obtener fotos del sistema RIJ
-        fotos_camara = session.get('rij_fotos', [])
-        
-        if not fotos_camara:
-            return jsonify({
-                'success': True,
-                'message': 'No hay fotos en la cámara para sincronizar',
-                'fotos_sincronizadas': 0
-            }), 200
-        
-        fotos_procesadas = []
-        fotos_exitosas = 0
-        
-        for i, foto_url in enumerate(fotos_camara):
-            try:
-                # Extraer nombre de archivo de la URL
-                nombre_archivo = foto_url.split('/')[-1]
-                ruta_foto = os.path.join(FOTOS_RIJ_DIR, nombre_archivo)
-                
-                if os.path.exists(ruta_foto):
-                    # Leer archivo y convertir a base64
-                    with open(ruta_foto, 'rb') as f:
-                        foto_data = f.read()
-                    
-                    foto_base64 = f"data:image/jpeg;base64,{base64.b64encode(foto_data).decode()}"
-                    
-                    # Información de la foto procesada
-                    foto_info = {
-                        'id': f"camara_{sid}_{i}_{int(time.time())}",
-                        'nombre': f"Evidencia_Camara_{i+1}.jpg",
-                        'tipo': 'image/jpeg',
-                        'tamaño': len(foto_data),
-                        'data': foto_base64,
-                        'fecha': datetime.datetime.now().isoformat(),
-                        'origen': 'camara'
-                    }
-                    
-                    fotos_procesadas.append(foto_info)
-                    fotos_exitosas += 1
-                    
-            except Exception as e:
-                print(f"Error al procesar foto {i}: {e}")
-                continue
-        
-        return jsonify({
-            'success': True,
-            'message': f'{fotos_exitosas} fotos sincronizadas correctamente',
-            'fotos_sincronizadas': fotos_exitosas,
-            'fotos': fotos_procesadas
-        }), 200
-        
-    except Exception as e:
-        print(f"Error al sincronizar fotos de cámara: {e}")
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
-
-@app.route('/api/evidencia/estado_camara', methods=['GET'])
-def obtener_estado_camara():
-    """
-    Obtiene el estado actual de las fotos en el sistema de cámara
-    """
-    try:
-        # Registrar actividad del usuario
-        registrar_actividad_usuario()
-        
-        fotos_camara = session.get('rij_fotos', [])
-        
-        return jsonify({
-            'success': True,
-            'total_fotos': len(fotos_camara),
-            'fotos_disponibles': len(fotos_camara),
-            'urls': fotos_camara
-        }), 200
-        
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
 
 # --- FIN RUTAS PARA SISTEMA DE EVIDENCIA DE MANTENIMIENTO ---
 
-if __name__ == '__main__':
-    # --- INICIO DE MODIFICACIONES PARA HTTPS ---
-    # Configuración para habilitar HTTPS en el servidor Flask.
+# --- ENDPOINTS PARA REGISTRAR ACTIVIDAD Y SISTEMA DE LIMPIEZA ---
 
-    # Inicializar sistema de limpieza automática
-    iniciar_sistema_limpieza()
-
-    # Rutas a tus archivos de certificado y clave privada
-    cert_path = os.path.join(BASE_DIR, 'cert.pem')
-    key_path = os.path.join(BASE_DIR, 'key.pem')
-
-    # Verificar si los archivos existen antes de intentar usarlos 
-    if not os.path.exists(cert_path):
-        print(f"Error: No se encontró el archivo del certificado en '{cert_path}'")
-        print("Asegúrate de haber ejecutado 'openssl req ...' correctamente.")
-        exit(1)
-    if not os.path.exists(key_path):
-        print(f"Error: No se encontró el archivo de la clave privada en '{key_path}'")
-        print("Asegúrate de haber ejecutado 'openssl genrsa ...' correctamente.")
-        exit(1)
-
-    # Crea el contexto SSL/TLS usando los archivos
-    ssl_context_tuple = (cert_path, key_path)
-    
-    # Define la IP donde Flask escuchará (0.0.0.0 para acceso desde otras IPs en tu red)
-    HOST_IP = '0.0.0.0'
-    PORT = 8000
-
-    # Ejecuta la aplicación Flask con el contexto SSL/TLS
-    app.run(host=HOST_IP, port=PORT, ssl_context=ssl_context_tuple, debug=False)

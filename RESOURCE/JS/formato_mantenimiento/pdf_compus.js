@@ -525,6 +525,7 @@ async function generarPDF() {
 
     // Usar el sistema de nombrado automático basado en número de serie
     requestPDFFilename((filename) => {
-        doc.save(filename);
+        // Usar la función helper para procesar el PDF
+        procesarPDFMantenimiento(doc, filename, 'computo');
     }, serie, 'COMPUTADORA');
 }

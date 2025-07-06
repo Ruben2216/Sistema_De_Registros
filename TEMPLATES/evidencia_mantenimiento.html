@@ -49,13 +49,33 @@
 
             <!-- Área de carga de imágenes -->
             <div class="area-carga">
+                <!-- Indicador de estado de cámara -->
+                <div id="estado-camara" class="estado-camara" style="display: none;">
+                    <div class="estado-info">
+                        <span id="icono-estado">📷</span>
+                        <span id="mensaje-estado">Verificando estado de la cámara...</span>
+                        <span id="contador-fotos" class="contador-fotos">0 fotos</span>
+                    </div>
+                </div>
+                
                 <div class="zona-arrastre" id="zona-arrastre">
                     <div class="icono-carga">📁</div>
-                    <p>Arrastra y suelta imágenes aquí o haz clic para seleccionar</p>
+                    <p>Arrastra y suelta imágenes aquí o selecciona una opción</p>
                     <input type="file" id="input-archivos" multiple accept="image/*" style="display: none;">
-                    <button class="btn-seleccionar" onclick="document.getElementById('input-archivos').click()">
-                        Seleccionar Imágenes
-                    </button>
+                    <div class="botones-carga">
+                        <button class="btn-seleccionar" onclick="document.getElementById('input-archivos').click()">
+                            📂 Seleccionar Imágenes
+                        </button>
+                        <button class="btn-camara" onclick="abrirCamara()">
+                            📷 Abrir Cámara
+                        </button>
+                        <button class="btn-importar-camara" onclick="importarFotosCamara()" id="btn-importar">
+                            📥 Importar de Cámara
+                        </button>
+                        <button class="btn-sincronizar" onclick="sincronizarFotosCamara()" id="btn-sincronizar" style="display: none;">
+                            🔄 Sincronizar Fotos
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -91,5 +111,6 @@
     </div>
 
     <script src="/RESOURCE/JS/evidencia_mantenimiento.js"></script>
+    <script src="/RESOURCE/JS/mejoras_camara_evidencia.js"></script>
 </body>
 </html>
