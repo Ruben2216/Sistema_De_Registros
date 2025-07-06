@@ -1,38 +1,61 @@
-function validarYGenerarPDF() {
-    // Busca los campos de tipo text 
-    const camposTexto = document.querySelectorAll('.campo__control[type="text"]:not([style*="display: none"])'); 
-    let camposIncompletos = [];
+document.addEventListener('DOMContentLoaded', function () {
+    const btnGenerarPDF = document.querySelector('.boton--primario');
+    btnGenerarPDF.addEventListener('click', validarFormulario);
+});
 
-    // Validar campos de texto visibles
-    camposTexto.forEach(campo => {
-        if (campo.value.trim() === "") {
-            camposIncompletos.push(campo);
-            campo.classList.add("campo__control--error");
-        } else {
-            campo.classList.remove("campo__control--error");
-        }
-    });
-
-    // Validar radios (1 por cada pregunta)
-    const radios = [
-        "tierra_fisica", "UPS", "respaldo", "bateria", "voltaje", "control_acceso",
-        "seguridad_fisica", "aire", "aire_funcionando", "bitacora", "orden_impieza",
-        "etiquetado", "polvo", "switch", "APS"
+function validarFormulario() {
+    const camposRequeridos = [
+        { id: 'clave_documento', errorId: 'mensajeError' },
+        { id: 'NoVersion', errorId: 'mensajeError2' },
+        { id: 'fecha_publicacion', errorId: 'mensajeError3' },
+        { id: 'zona', errorId: 'mensajeError4' },
+        { id: 'site', errorId: 'mensajeError5' },
+        { id: 'fecha_realizacion', errorId: 'mensajeError6' },
     ];
-    radios.forEach(name => {
-        const seleccionado = document.querySelector(`input[name="${name}"]:checked`);
-        if (!seleccionado) {
-            camposIncompletos.push(name);
+
+    let esValido = true;
+
+    camposRequeridos.forEach(campo => {
+        const input = document.getElementById(campo.id);
+        const mensaje = document.getElementById(campo.errorId);
+
+        if (!input.value.trim()) {
+            input.classList.add('campo-error');
+            mensaje.textContent = 'Este campo es obligatorio';
+            esValido = false;
+        } else {
+            input.classList.remove('campo-error');
+            mensaje.textContent = '';
         }
     });
 
-    if (camposIncompletos.length > 0) {
-        alert("Por favor, complete todos los campos obligatorios.");
-   
-            }        generarPDF();
-    
-}
+    // Validar radios obligatorios
+    const radios = ['tierra_fisica', 'UPS', 'respaldo', 'radio', 'bateria', 'voltaje', 'control_acceso', 'seguridad_fisica', 'aire', 'aire_funcionando',
+        'bitacora', 'orden_impieza', 'etiquetado', 'polvo', 'switch', 'APS'];
 
+    radios.forEach(nombre => {
+        const opciones = document.getElementsByName(nombre);
+        const algunoSeleccionado = [...opciones].some(op => op.checked);
+
+        if (!algunoSeleccionado) {
+            const contenedor = opciones[0]?.closest('.campo');
+            if (contenedor) contenedor.classList.add('campo-error');
+            esValido = false;
+        } else {
+            const contenedor = opciones[0]?.closest('.campo');
+            if (contenedor) contenedor.classList.remove('campo-error');
+        }
+    });
+
+    if (esValido) {
+        generarPDF();
+    } else {
+        const continuar = confirm("Hay campos vacíos. ¿Está seguro de que desea continuar?");
+        if (continuar) {
+            generarPDF();
+        }   // Si no confirma, no se genera el PDF y los campos vacíos ya están marcados en rojo
+}
+}
 
 async function generarPDF() {
     const { jsPDF } = window.jspdf;
@@ -117,7 +140,7 @@ async function generarPDF() {
 
     doc.setFont("helvetica", "normal");
     const tituloMedida = doc.getTextWidth(Titulo);
-    doc.text(`Formato Inspección de Salas de Telecomunicaciones`, 57 + tituloMedida, y );
+    doc.text(`Formato Inspección de Salas de Telecomunicaciones`, 58 + tituloMedida, y );
 
     doc.line(55, y+4, 201, y+4)
 

@@ -43,6 +43,7 @@
                 <div class="campo">
                     <label class="campo__etiqueta">ZONA</label>
                         <input type="text" value="TUXTLA" id="zona" class="campo__control"> 
+                        <span id="mensajeError" class="campo_vacio"></span>
                 </div>
             </div>
     </div>
@@ -57,12 +58,13 @@
             <div class="campo">
                     <label class="campo__etiqueta">FOLIO</label>
                     <input type="text" class="campo__control" id="folio">
+                    <span id="mensajeError2" class="campo_vacio"></span>
             </div>
             <div class="seccion">
                 <div class="campo">
                     <label class="campo__etiqueta">TIPO DE EQUIPO</label>
                     <select class="campo__control" id="tipo_equipo">
-                        <option value="Seleccionar_Zona">Seleccione el tipo de equipo</option>
+                        <option value="">Seleccione el tipo de equipo</option>
                         <option value="PC">PC</option>
                         <option value="Laptop">Laptop</option>
                         <option value="Impresora">Impresora</option>
@@ -73,7 +75,7 @@
                 <div class="campo">
                 <label class="campo__etiqueta">SERVICIO</label>
                 <select class="campo__control" id="servicio">
-                    <option value="Seleccionar_Zona">Seleccione el tipo de servicio</option>
+                    <option value="">Seleccione el tipo de servicio</option>
                     <option value="Preventivo">Preventivo</option>
                     <option value="Mantenimiento">Mantenimiento</option>
                 </select>
@@ -82,51 +84,61 @@
             <div class="campo">
                 <label class="campo__etiqueta">HR. INICIO</label>
                 <input type="time" class="campo__control" id="hrinicio">
+                <span id="mensajeError3" class="campo_vacio"></span>
             </div>
             <div class="campo">
                 <label class="campo__etiqueta">HR. TÉRMINO</label>
                 <input type="time" class="campo__control" id="hrtermino">
+                <span id="mensajeError4" class="campo_vacio"></span>
             </div>            
             <div class="campo">
                 <label for="Numero_Serie" class="campo__etiqueta">NÚMERO DE SERIE</label>
                 <div class="search-container" data-param-name="serie">
                     <input type="text" class="campo__control" id="serie" name="serie" autocomplete="off"> 
                     <button type="button" id="search-button-serie" class="search-button" data-url="/buscar_equipo">BUSCAR</button> 
-
                     <div id="serie-sugerencias" class="sugerencias-container"></div>
                 </div>
+                <span id="mensajeError5" class="campo_vacio"></span>
             </div>
             <div class="campo">
                 <label for="division" class="campo__etiqueta">DIVISIÓN</label>
-                <input type="text" class="campo__control" id="division" name="division" readonly>
+                <input type="text" class="campo__control" id="division" name="division" >
+                <span id="mensajeError6" class="campo_vacio"></span>
             </div>
             <div class="campo">
                 <label for="numero_inventario" class="campo__etiqueta">NÚMERO INVENTARIO</label>
-                <input type="text" class="campo__control" id="numero_inventario" name="numero_inventario" readonly>
+                <input type="text" class="campo__control" id="numero_inventario" name="numero_inventario" >
+                <span id="mensajeError7" class="campo_vacio"></span>
             </div>
             <div class="campo">
                 <label for="usuario" class="campo__etiqueta">NOMBRE DEL USUARIO</label>
-                <input type="text" class="campo__control" id="usuario" name="usuario" readonly>
+                <input type="text" class="campo__control" id="usuario" name="usuario" >
+                <span id="mensajeError8" class="campo_vacio"></span>
             </div>
             <div class="campo">
                 <label for="marca" class="campo__etiqueta">MARCA</label>
-                <input type="text" class="campo__control" id="marca" name="marca" readonly>
+                <input type="text" class="campo__control" id="marca" name="marca" >
+                <span id="mensajeError9" class="campo_vacio"></span>
             </div>
             <div class="campo">
                 <label for="modelo" class="campo__etiqueta">MODELO</label>
-                <input type="text" class="campo__control" id="modelo" name="modelo" readonly>
+                <input type="text" class="campo__control" id="modelo" name="modelo" >
+                <span id="mensajeError10" class="campo_vacio"></span>
             </div>
             <div class="campo" id="campo-uso-trabajo">
                 <label for="uso" class="campo__etiqueta">USO QUE SE LE DA AL EQUIPO</label>
-                <input type="text" class="campo__control" id="tipo_uso" name="tipo_uso" readonly>
+                <input type="text" class="campo__control" id="tipo_uso" name="tipo_uso" >
+                <span id="mensajeError11" class="campo_vacio"></span>
             </div>
             <div class="campo" id="campo-centro-trabajo">
                 <label for="centro_trabajo" class="campo__etiqueta">CENTRO DE TRABAJO</label>
-                <input type="text" class="campo__control" id="centro_trabajo" name="centro_trabajo" readonly>
+                <input type="text" class="campo__control" id="centro_trabajo" name="centro_trabajo" >
+                <span id="mensajeError12" class="campo_vacio"></span>
             </div>
             <div class="campo" id="campo-uso-trabajo">
                 <label for="uso" class="campo__etiqueta">Justificación del porque se realiza el mantenimiento fuera del periodo</label>
                 <input type="text" class="campo__control" id="justificacion" name="justificacion">
+                <span id="mensajeError13" class="campo_vacio"></span>
             </div>
 
             <!--SECCIÓN DE ELEMENTO-->
@@ -139,6 +151,7 @@
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="sopleteado" type="radio" value="no"> No</label>
                     </div>
                     <input type="text" id="input_sopleteado" style="display: none;" class="campo__control" maxlength="40"  placeholder="Especifique motivo">
+                    <small id="contador_letras_sopleteado" style="display: none;">0/40 caracteres</small>                
                 </div>
                 <div class="campo">2. Validar touch pantalla</p>
                     <div class="grupo-opciones">
@@ -146,6 +159,7 @@
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="touch" type="radio" value="no"> No</label>
                     </div>
                     <input type="text" id="input_touch" style="display: none;" class="campo__control" maxlength="40" placeholder="Especifique motivo">
+                    <small id="contador_letras_touch" style="display: none;">0/40 caracteres</small> 
                 </div>
                 <div class="campo">3. Revisión de batería</p>
                     <div class="grupo-opciones">
@@ -153,6 +167,7 @@
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="bateria" type="radio" value="no"> No</label>
                     </div>
                     <input type="text" id="input_bateria" style="display: none;" class="campo__control" maxlength="40" placeholder="Especifique motivo">
+                    <small id="contador_letras_bateria" style="display: none;">0/40 caracteres</small>
                 </div>
                 <div class="campo">4.  Verificar Sw institucional actualizado</p>
                     <div class="grupo-opciones">
@@ -160,6 +175,7 @@
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="Sw" type="radio" value="no"> No</label>
                     </div>
                     <input type="text" id="input_Sw" style="display: none;" class="campo__control" maxlength="40" placeholder="Especifique motivo">
+                    <small id="contador_letras_Sw" style="display: none;">0/40 caracteres</small>
                 </div>
                 <div class="campo">5. Verificar estado del conector de datos</p>
                     <div class="grupo-opciones">
@@ -167,6 +183,7 @@
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="conector" type="radio" value="no"> No</label>
                     </div>
                     <input type="text" id="input_conector" style="display: none;" class="campo__control" maxlength="40"  placeholder="Especifique motivo">
+                    <small id="contador_letras_conector" style="display: none;">0/40 caracteres</small>
                 </div>
                 <div class="campo">6. Validar estado del teclado</p>
                     <div class="grupo-opciones">
@@ -174,6 +191,7 @@
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="teclado" type="radio" value="no"> No</label>
                     </div>
                     <input type="text" id="input_teclado" class="campo__control" style="display:none;" maxlength="40" placeholder="Especifique motivo">
+                    <small id="contador_letras_teclado" style="display: none;">0/40 caracteres</small>
                 </div>
                 <div class="campo">7. Verificar funcionamiento del equipo después del servicio</p>
                     <div class="grupo-opciones">
@@ -181,6 +199,7 @@
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="verificar" type="radio" value="no"> No</label>
                     </div>
                     <input type="text" id="input_verificar" class="campo__control" style="display:none;" maxlength="40" placeholder="Especifique motivo">
+                    <small id="contador_letras_verificar" style="display: none;">0/40 caracteres</small>
                 </div>
             </div>
 

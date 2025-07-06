@@ -1,37 +1,85 @@
-function validarYGenerarPDF() {
-    // Busca los campos de tipo text 
-    const camposTexto = document.querySelectorAll('.campo__control[type="text"]:not([style*="display: none"])'); 
-    let camposIncompletos = [];
+document.addEventListener('DOMContentLoaded', function () {
+    const btnGenerarPDF = document.querySelector('.boton--primario');
+    btnGenerarPDF.addEventListener('click', validarFormulario);
+});
 
-    // Validar campos de texto visibles
-    camposTexto.forEach(campo => {
-        if (campo.value.trim() === "") {
-            camposIncompletos.push(campo);
-            campo.classList.add("campo__control--error");
-        } else {
-            campo.classList.remove("campo__control--error");
-        }
-    });
+function validarFormulario() {
+    const camposRequeridos = [
+        { id: 'zona', errorId: 'mensajeError' },
+        { id: 'folio', errorId: 'mensajeError2' },
+        { id: 'hora_inicio', errorId: 'mensajeError3' },
+        { id: 'hora_termino', errorId: 'mensajeError4' },
+        { id: 'numero_inventario', errorId: 'mensajeError5' },
+        { id: 'division', errorId: 'mensajeError6' },
+        { id: 'centro_trabajo', errorId: 'mensajeError7' },
+        { id: 'serie', errorId: 'mensajeError8' },
+        { id: 'usuario', errorId: 'mensajeError9' },
+        { id: 'marca', errorId: 'mensajeError10' },
+        { id: 'modelo', errorId: 'mensajeError11' },
+        { id: 'tipo_uso', errorId: 'mensajeError12' }
 
-    // Validar radios (1 por cada pregunta)
-    const radios = [
-        "inspeccion", "limpieza_cepillo", "limpieza_paño", "limpieza_cubierta", "sopleteado", "touch",
-        "bateria", "software", "conector", "alimentacion", "carga_comunicacion",
-        "teclado", "gps", "funcionamiento"
     ];
-    radios.forEach(name => {
-        const seleccionado = document.querySelector(`input[name="${name}"]:checked`);
-        if (!seleccionado) {
-            camposIncompletos.push(name);
+
+    let esValido = true;
+
+    camposRequeridos.forEach(campo => {
+        const input = document.getElementById(campo.id);
+        const mensaje = document.getElementById(campo.errorId);
+
+        if (!input.value.trim()) {
+            input.classList.add('campo-error');
+            mensaje.textContent = 'Este campo es obligatorio';
+            esValido = false;
+        } else {
+            input.classList.remove('campo-error');
+            mensaje.textContent = '';
         }
     });
 
-    if (camposIncompletos.length > 0) {
-        alert("Por favor, completa todos los campos obligatorios.");
-        generarPDF();
-    }
-}
+    // Validar selects
+    const tipoEquipo = document.getElementById('tipo_equipo');
+    const servicio = document.getElementById('servicio');
 
+    if (tipoEquipo.value === "Seleccionar_Zona") {
+        tipoEquipo.classList.add('campo-error');
+        esValido = false;
+    } else {
+        tipoEquipo.classList.remove('campo-error');
+    }
+
+    if (servicio.value === "Seleccionar_Tipo_servicio") {
+        servicio.classList.add('campo-error');
+        esValido = false;
+    } else {
+        servicio.classList.remove('campo-error');
+    }
+
+    // Validar radios obligatorios
+    const radios = ['limpieza_externa', 'pantalla', 'teclado', 'conexiones', 'despues_servicio', 'antivirus', 'defrag', 'dominio', 'Windows_update'];
+
+    radios.forEach(nombre => {
+        const opciones = document.getElementsByName(nombre);
+        const algunoSeleccionado = [...opciones].some(op => op.checked);
+
+        if (!algunoSeleccionado) {
+            const contenedor = opciones[0]?.closest('.campo');
+            if (contenedor) contenedor.classList.add('campo-error');
+            esValido = false;
+        } else {
+            const contenedor = opciones[0]?.closest('.campo');
+            if (contenedor) contenedor.classList.remove('campo-error');
+        }
+    });
+
+    if (esValido) {
+        generarPDF();
+    } else {
+        const continuar = confirm("Hay campos vacíos. ¿Está seguro de que desea continuar?");
+        if (continuar) {
+            generarPDF();
+        }   // Si no confirma, no se genera el PDF y los campos vacíos ya están marcados en rojo
+}
+}
 
 async function generarPDF() {
     const { jsPDF } = window.jspdf;

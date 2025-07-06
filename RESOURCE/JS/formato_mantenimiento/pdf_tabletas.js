@@ -1,38 +1,78 @@
-function validarYGenerarPDF() {
-    // Busca los campos de tipo text 
-    const camposTexto = document.querySelectorAll('.campo__control[type="text"]:not([style*="display: none"])'); 
-    let camposIncompletos = [];
+document.addEventListener('DOMContentLoaded', function () {
+    const btnGenerarPDF = document.querySelector('.boton--primario');
+    btnGenerarPDF.addEventListener('click', validarFormulario);
+});
 
-    // Validar campos de texto visibles
-    camposTexto.forEach(campo => {
-        if (campo.value.trim() === "") {
-            camposIncompletos.push(campo);
-            campo.classList.add("campo__control--error");
-        } else {
-            campo.classList.remove("campo__control--error");
-        }
-    });
-
-    // Validar radios (1 por cada pregunta)
-    const radios = [
-        "inspeccion", "limpieza_cepillo", "limpieza_paño", "limpieza_cubierta", "sopleteado", "touch",
-        "bateria", "software", "conector", "alimentacion", "carga_comunicacion",
-        "teclado", "gps", "funcionamiento"
+function validarFormulario() {
+    const camposRequeridos = [
+        { id: 'zona', errorId: 'mensajeError' },
+        { id: 'folio', errorId: 'mensajeError2' },
+        { id: 'hr.inicio', errorId: 'mensajeError3' },
+        { id: 'hr.termino', errorId: 'mensajeError4' },
+        { id: 'RPE', errorId: 'mensajeError5' },
+        { id: 'serie', errorId: 'mensajeError6' },
+        { id: 'division', errorId: 'mensajeError7' },
+        { id: 'numero_inventario', errorId: 'mensajeError8' },
+        { id: 'usuario', errorId: 'mensajeError9' },
+        { id: 'marca', errorId: 'mensajeError10' },
+        { id: 'modelo', errorId: 'mensajeError11' },
+        { id: 'centro_trabajo', errorId: 'mensajeError12' },
+        { id: 'procesos', errorId: 'mensajeError13' },
     ];
-    radios.forEach(name => {
-        const seleccionado = document.querySelector(`input[name="${name}"]:checked`);
-        if (!seleccionado) {
-            camposIncompletos.push(name);
+
+    let esValido = true;
+
+    camposRequeridos.forEach(campo => {
+        const input = document.getElementById(campo.id);
+        const mensaje = document.getElementById(campo.errorId);
+
+        if (!input.value.trim()) {
+            input.classList.add('campo-error');
+            mensaje.textContent = 'Este campo es obligatorio';
+            esValido = false;
+        } else {
+            input.classList.remove('campo-error');
+            mensaje.textContent = '';
         }
     });
 
-    if (camposIncompletos.length > 0) {
-        alert("Por favor, complete todos los campos obligatorios.");
-    } else {
-        generarPDF();
-    }
-}
+    // Validar selects
+    const servicio = document.getElementById('servicio');
 
+    if (servicio.value === "") {
+        servicio.classList.add('campo-error');
+        esValido = false;
+    } else {
+        servicio.classList.remove('campo-error');
+    }
+
+    // Validar radios obligatorios
+    const radios = ['inspeccion', 'limpieza_cepillo', 'limpieza_paño', 'limpieza_cubierta', 'sopleteado', 'touch', 'bateria', 'software', 'conector',
+        'alimentacion', 'carga_comunicacion', 'teclado', 'gps', 'funcionamiento'];
+
+    radios.forEach(nombre => {
+        const opciones = document.getElementsByName(nombre);
+        const algunoSeleccionado = [...opciones].some(op => op.checked);
+
+        if (!algunoSeleccionado) {
+            const contenedor = opciones[0]?.closest('.campo');
+            if (contenedor) contenedor.classList.add('campo-error');
+            esValido = false;
+        } else {
+            const contenedor = opciones[0]?.closest('.campo');
+            if (contenedor) contenedor.classList.remove('campo-error');
+        }
+    });
+
+    if (esValido) {
+        generarPDF();
+    } else {
+        const continuar = confirm("Hay campos vacíos. ¿Está seguro de que desea continuar?");
+        if (continuar) {
+            generarPDF();
+        }   // Si no confirma, no se genera el PDF y los campos vacíos ya están marcados en rojo
+}
+}
 
 async function generarPDF() {
     const { jsPDF } = window.jspdf;
@@ -539,21 +579,26 @@ async function generarPDF() {
         if(firma3Base64)
             doc.addImage(firma3Base64, 'PNG', 145, y, 30, 30 );
     
-        y += 8;
-        doc.text(`Realizó servicio:`, 15, y);
-        doc.text(realizo_servicio, 15, y + 21);
-        doc.text(`Responsable del Equipo:`, 105, y, "center");
-        doc.text(responsable, 80, y + 21);
-        doc.text(`Visto Bueno:`, 145, y);
-        doc.text(visto_bueno, 145, y + 21);
-        y += 22;
-        doc.line(15, y, 60, y);
-        doc.line(80, y, 130, y);
-        doc.line(145, y, 200, y);
-        y += 5;
-        doc.text("Nombre y firma", 20, y);
-        doc.text("Nombre y firma", 95, y);
-        doc.text("Nombre y firma", 165, y);
+    y += 8;
+    doc.text(`Realizó servicio:`, 15, y);
+    doc.setFontSize(7);
+    doc.text(realizo_servicio, 15, y + 21);
+    doc.setFontSize(10);
+    doc.text(`Responsable del Equipo:`, 105, y, "center");
+    doc.setFontSize(7);
+    doc.text(responsable, 80, y + 21);
+    doc.setFontSize(10);
+    doc.text(`Visto Bueno:`, 145, y);
+    doc.setFontSize(7);
+    doc.text(visto_bueno, 145, y + 21);
+    y += 22;
+    doc.line(15, y, 60, y);
+    doc.line(80, y, 130, y);
+    doc.line(145, y, 200, y);
+    y += 5;
+    doc.text("Nombre y firma", 20, y);
+    doc.text("Nombre y firma", 95, y);
+    doc.text("Nombre y firma", 165, y);
 
     // Usar el sistema de nombrado automático basado en número de serie
     requestPDFFilename((filename) => {

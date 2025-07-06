@@ -1,40 +1,84 @@
+document.addEventListener('DOMContentLoaded', function () {
+    const btnGenerarPDF = document.querySelector('.boton--primario');
+    btnGenerarPDF.addEventListener('click', validarFormulario);
+});
 
-function validarYGenerarPDF() {
-    // Busca los campos de tipo text 
-    const camposTexto = document.querySelectorAll('.campo__control[type="text"]:not([style*="display: none"])'); 
-    let camposIncompletos = [];
-
-    // Validar campos de texto visibles
-    camposTexto.forEach(campo => {
-        if (campo.value.trim() === "") {
-            camposIncompletos.push(campo);
-            campo.classList.add("campo__control--error");
-        } else {
-            campo.classList.remove("campo__control--error");
-        }
-    });
-
-    // Validar radios (1 por cada pregunta)
-    const radios = [
-        "inicio_jornada", "#personal", "salud", "ejercicio", "anomalias", "mantenimiento",
-        "operacion", "riesgo", "incidentes", "informacion_extra", "espejo", "prediccion_peligro",
-        "articulo", "experiencia", "actividades_relevantes", "reglas_vida", "politicas", "colaborador",
-        
+function validarFormulario() {
+    const camposRequeridos = [
+        { id: 'nombre', errorId: 'mensajeError' },
+        { id: 'rpe', errorId: 'mensajeError2' },
+        { id: 'hora_termino', errorId: 'mensajeError4' },
+        { id: 'enumeracion', errorId: 'mensajeError5'},
+        { id: 'conductor' , errorId: 'mensajeError6' },
+        { id: 'rpe_conductor' , errorId: 'mensajeError7' },
+        { id: 'extra_info', errorId: 'mensajeError8' },
+        { id: 'actividades_seguridad', errorId: 'mensajeError9' },
+        { id: 'observaciones', errorId: 'mensajeError10' },
     ];
-    radios.forEach(name => {
-        const seleccionado = document.querySelector(`input[name="${name}"]:checked`);
-        if (!seleccionado) {
-            camposIncompletos.push(name);
+
+    let esValido = true;
+
+    camposRequeridos.forEach(campo => {
+        const input = document.getElementById(campo.id);
+        const mensaje = document.getElementById(campo.errorId);
+
+        if (!input.value.trim()) {
+            input.classList.add('campo-error');
+            mensaje.textContent = 'Este campo es obligatorio';
+            esValido = false;
+        } else {
+            input.classList.remove('campo-error');
+            mensaje.textContent = '';
         }
     });
 
-    if (camposIncompletos.length > 0) {
-        alert("Por favor, complete todos los campos obligatorios.");
+    // Validar selects
+    const departamento = document.getElementById('departamento');
+    const categoria_max = document.getElementById('categoria_max');
+
+    if (departamento.value === "seleccion_categoria") {
+        departamento.classList.add('campo-error');
+        esValido = false;
     } else {
-        generarPDF();
+        departamento.classList.remove('campo-error');
     }
+
+    if (categoria_max.value === "") {
+        categoria_max.classList.add('campo-error');
+        esValido = false;
+    } else {
+        categoria_max.classList.remove('campo-error');
+    }
+
+    // Validar radios obligatorios
+    const radios = ['inicio_jornada', '#personal', 'salud', 'ejercicio', 'anomalias', 'mantenimiento', 'operacion', 'riesgo', 'incidentes',
+        'informacion_extra', 'espejo', 'prediccion_peligro', 'articulo', 'experiencia', 'actividades_relevantes', 'reglas_vida', 'politicas', 'colaborador', 
+    ];
+
+    radios.forEach(nombre => {
+        const opciones = document.getElementsByName(nombre);
+        const algunoSeleccionado = [...opciones].some(op => op.checked);
+
+        if (!algunoSeleccionado) {
+            const contenedor = opciones[0]?.closest('.campo');
+            if (contenedor) contenedor.classList.add('campo-error');
+            esValido = false;
+        } else {
+            const contenedor = opciones[0]?.closest('.campo');
+            if (contenedor) contenedor.classList.remove('campo-error');
+        }
+    });
+
+    if (esValido) {
+        generarPDF();
+    } else {
+        const continuar = confirm("Hay campos vacíos. ¿Está seguro de que desea continuar?");
+        if (continuar) {
+            generarPDF();
+        }   // Si no confirma, no se genera el PDF y los campos vacíos ya están marcados en rojo
 }
 
+}
 
 async function generarPDF() {
     const { jsPDF } = window.jspdf;
@@ -149,7 +193,7 @@ async function generarPDF() {
     doc.line(anchoFirma1 + 156, y, anchoFirma1 + 176, y);
 
      if(firma2Base64)
-        doc.addImage(firma1Base64, 'PNG', 165, y-19, 30, 20 );
+        doc.addImage(firma2Base64, 'PNG', 165, y-19, 30, 20 );
 
     y+=8;
     doc.setFont("helvetica", "bold");
