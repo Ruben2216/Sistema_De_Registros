@@ -193,7 +193,7 @@ async function generarPDF() {
     doc.line(anchoFirma1 + 156, y, anchoFirma1 + 176, y);
 
      if(firma2Base64)
-        doc.addImage(firma1Base64, 'PNG', 165, y-19, 30, 20 );
+        doc.addImage(firma2Base64, 'PNG', 165, y-19, 30, 20 );
 
     y+=8;
     doc.setFont("helvetica", "bold");
