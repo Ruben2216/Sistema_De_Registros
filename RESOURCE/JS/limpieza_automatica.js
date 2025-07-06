@@ -46,7 +46,7 @@
         const paginaActual = window.location.pathname;
         if (paginaActual.includes('formato_RIJ.html') || paginaActual.includes('camara.html')) {
             setTimeout(function() {
-                window.location.href = '/TEMPLATES/menu.html';
+                window.location.href = '/TEMPLATES/login.html';
             }, 1000);
         }
     }

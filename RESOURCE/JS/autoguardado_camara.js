@@ -1,8 +1,12 @@
 // Lógica de autoguardado y restauración para camara.html
 
 (function() {
-    // URL del backend Flask para autoguardado de fotos
-    var API_URL = 'https://192.168.100.30:8000/api/rij/fotos';    // Función para obtener todas las imágenes actualmente mostradas y su versión
+    // URL del backend Flask para autoguardado de fotos - DINÁMICO
+    var API_URL = window.API_CONFIG ? window.API_CONFIG.FOTOS : '/api/rij/fotos';
+    
+    console.log('📸 Autoguardado cámara iniciado con URL:', API_URL);
+    
+    // Función para obtener todas las imágenes actualmente mostradas y su versión
     function obtenerFotos() {
         var fotos = [];
         var contenedor = document.getElementById('photosContainer');

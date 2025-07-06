@@ -298,7 +298,9 @@ function abrirModalRecorte(img, url, callback) {
         }
         // Llamar a la función con la URL proporcionada
         window.addEventListener('load', function() {
-            const url = "https://192.168.100.30:8000/RESOURCE/IMG/Evidencias/rij_6c8eb7f585e34746_20250620031320234658.png";
+            // URL de ejemplo - en producción esto será dinámico
+            const baseUrl = window.API_CONFIG ? window.API_CONFIG.BASE : '';
+            const url = `${baseUrl}/RESOURCE/IMG/Evidencias/rij_6c8eb7f585e34746_20250620031320234658.png`;
             cargarImagenDesdeURL(url);
         });        document.getElementById('btn-confirmar-recorte').onclick = function() {
             var escala = tempImg.naturalWidth / canvas.width;

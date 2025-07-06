@@ -27,9 +27,9 @@ function despuesLimpieza() {
     });
     
     if (debeRedirigir) {
-        // Redirigir silenciosamente al menú después de 2 segundos
+        // Redirigir silenciosamente al login después de 2 segundos
         setTimeout(function() {
-            window.location.href = '/TEMPLATES/menu.html';
+            window.location.href = '/TEMPLATES/login.html';
         }, 2000);
     }
 }

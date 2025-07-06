@@ -1,8 +1,10 @@
 (function() {
     const BORRADOR_KEY = 'borrador_RIJ';
     const EXPIRATION_TIME = 3 * 60 * 1000; 
-    var API_URL = 'https://192.168.1.18:8000/api/rij/autoguardado';
+    var API_URL = window.API_CONFIG ? window.API_CONFIG.AUTOGUARDADO : '/api/rij/autoguardado';
     var backendDisponible = true;
+
+    console.log('📝 Autoguardado RIJ iniciado con URL:', API_URL);
 
 
     function obtenerDatosFormulario() {

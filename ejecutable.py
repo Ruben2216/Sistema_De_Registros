@@ -7,6 +7,8 @@ import datetime
 import threading
 import time
 import atexit
+import sys
+import traceback
 from werkzeug.utils import secure_filename
 # --- INICIO LÓGICA DE backend (búsqueda de equipos en MySQL) ---
 from flask_cors import CORS 
@@ -18,6 +20,11 @@ from kilometro_vida import bp_imgdia
 from flask_mail import Mail, Message
 import io
 
+# Cargar variables de entorno según el entorno
+if os.path.exists('.env.production'):
+    load_dotenv('.env.production')  # Producción
+else:
+    load_dotenv()  # Desarrollo local
 
 # Rutas absolutas a las carpetas en el proyecto. Preferentemente, si se mueven los archivos, verificar aquí las rutas para evitar que se rompan
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -25,24 +32,38 @@ TEMPLATES_FOLDER = os.path.join(BASE_DIR, 'TEMPLATES')
 MANTENIMIENTO_FOLDER = os.path.join(TEMPLATES_FOLDER, 'Mantenimiento')
 RESOURCE_FOLDER = os.path.join(BASE_DIR, 'RESOURCE')
 
-app = Flask(__name__, static_url_path='', static_folder=TEMPLATES_FOLDER)
-app.secret_key = 'supersecretkey'  # Necesario para usar session
+app = Flask(__name__, 
+             static_url_path='', 
+             static_folder=TEMPLATES_FOLDER,
+             template_folder=TEMPLATES_FOLDER)
+app.secret_key = os.getenv('FLASK_SECRET_KEY', 'supersecretkey')
+
+# Configuración adicional para producción en PythonAnywhere
+app.config['SESSION_COOKIE_SECURE'] = False  # PythonAnywhere maneja HTTPS
+app.config['SESSION_COOKIE_HTTPONLY'] = True  # Prevenir XSS
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # Protección CSRF
 
 # --- CONFIGURACIÓN DE CORREO ---
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'sistemaregistrocfe@gmail.com'
-app.config['MAIL_PASSWORD'] = 'ytji fwik rftf njxw'  
-app.config['MAIL_DEFAULT_SENDER'] = 'sistemaregistrocfe@gmail.com'
+app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
+app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
+app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'True').lower() == 'true'
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME', 'sistemaregistrocfe@gmail.com')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD', 'ytji fwik rftf njxw')
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER', 'sistemaregistrocfe@gmail.com')
 
+# Inicializar Flask-Mail
 mail = Mail(app)
 
-# Aquí se define la ruta principal con el archivo HTML que se desplegará, como por ejemplo 'menu.html'.
+# Configuración adicional para producción en PythonAnywhere
+if not app.debug:
+    # PythonAnywhere maneja HTTPS automáticamente, no necesitamos forzarlo
+    pass
+
+# Aquí se define la ruta principal con el archivo HTML que se desplegará, como por ejemplo 'login.html'.
 @app.route('/')
 def index():
-    # Asegúrate de que 'menu.html' exista en la carpeta TEMPLATES
-    return send_from_directory(TEMPLATES_FOLDER, 'menu.html')
+    # Asegúrate de que 'login.html' exista en la carpeta TEMPLATES
+    return send_from_directory(TEMPLATES_FOLDER, 'login.html')
 
 @app.route('/TEMPLATES/<path:filename>')
 def templates_root(filename):
@@ -53,7 +74,12 @@ def templates_root(filename):
     
     # Registrar actividad automáticamente para páginas RIJ y cámara
     if 'formato_RIJ.html' in filename or 'camara.html' in filename:
-        registrar_actividad_usuario()
+        try:
+            registrar_actividad_usuario()
+        except Exception as e:
+            print(f"[ERROR] Error en registrar_actividad_usuario desde templates_root: {e}")
+            # Continuar sin fallar la página
+            pass
     
     return send_from_directory(TEMPLATES_FOLDER, filename)
 
@@ -602,7 +628,28 @@ def pagina_rij():
     else:
         mensaje_img = "No hay imagen disponible para el día de hoy."
     print(f"[DEBUG] Retornando render_template...")
-    return render_template('formato_RIJ.html', meta_para_mostrar=meta_del_dia, imagen_url=imagen_url, mensaje_img=mensaje_img) 
+    try:
+        return render_template('formato_RIJ.html', meta_para_mostrar=meta_del_dia, imagen_url=imagen_url, mensaje_img=mensaje_img)
+    except Exception as e:
+        print(f"[ERROR] Error al renderizar template formato_RIJ.html: {e}")
+        print(f"[DEBUG] Template folder configurado: {app.template_folder}")
+        print(f"[DEBUG] Verificando si archivo existe...")
+        
+        template_path = os.path.join(app.template_folder, 'formato_RIJ.html')
+        if os.path.exists(template_path):
+            print(f"[DEBUG] ✅ Archivo formato_RIJ.html existe en: {template_path}")
+        else:
+            print(f"[DEBUG] ❌ Archivo formato_RIJ.html NO existe en: {template_path}")
+            
+        # Listar archivos en template folder
+        try:
+            archivos = os.listdir(app.template_folder)
+            print(f"[DEBUG] Archivos en template folder: {archivos}")
+        except:
+            print(f"[DEBUG] No se pudo listar template folder")
+            
+        # Retornar error más amigable
+        return f"Error: No se puede cargar la página formato_RIJ.html. Error: {str(e)}", 500 
 
 # Redirección para acceder a formato_RIJ.html desde TEMPLATES que esta todo configurado para que se acceda desde la carpeta TEMPLATES
 # Esto permite que la lógica de obtener la meta se ejecute correctamente al acceder a la ruta, OSEA LA FUNCION DE MOSTRAR LA META DEL DÍA
@@ -728,13 +775,42 @@ def cargar_usuarios_activos():
     try:
         if os.path.exists(USUARIOS_ACTIVOS_FILE):
             with open(USUARIOS_ACTIVOS_FILE, 'r', encoding='utf-8') as f:
-                data = json.load(f)
+                content = f.read().strip()
+                if not content:  # Archivo vacío
+                    print(f"[DEBUG] Archivo usuarios activos vacío, retornando diccionario vacío")
+                    return {}
+                data = json.loads(content)
+                if not isinstance(data, dict):  # Verificar que sea un diccionario
+                    print(f"[DEBUG] Datos no son diccionario: {type(data)}, retornando vacío")
+                    return {}
                 # Convertir timestamps de string a datetime
+                usuarios_procesados = {}
                 for sid, info in data.items():
-                    if 'timestamp' in info:
-                        info['timestamp'] = datetime.datetime.fromisoformat(info['timestamp'])
-                return data
-    except Exception as e:        return {}
+                    if isinstance(info, dict) and 'timestamp' in info:
+                        try:
+                            info['timestamp'] = datetime.datetime.fromisoformat(info['timestamp'])
+                            usuarios_procesados[sid] = info
+                        except (ValueError, TypeError) as e:
+                            print(f"[DEBUG] Error al convertir timestamp para {sid}: {e}")
+                            continue
+                    else:
+                        print(f"[DEBUG] Datos inválidos para usuario {sid}: {info}")
+                        continue
+                print(f"[DEBUG] Usuarios activos cargados exitosamente: {len(usuarios_procesados)} usuarios")
+                return usuarios_procesados
+        else:
+            print(f"[DEBUG] Archivo usuarios activos no existe, retornando diccionario vacío")
+            return {}
+    except Exception as e:
+        print(f"[ERROR] Error al cargar usuarios activos: {e}")
+        # En caso de error, intentar limpiar archivo corrupto
+        try:
+            if os.path.exists(USUARIOS_ACTIVOS_FILE):
+                os.remove(USUARIOS_ACTIVOS_FILE)
+                print(f"[DEBUG] Archivo corrupto eliminado")
+        except:
+            pass
+        return {}
 
 def guardar_usuarios_activos(usuarios):
     """Guarda el diccionario de usuarios activos en archivo"""
@@ -753,7 +829,20 @@ def guardar_usuarios_activos(usuarios):
 
 def get_usuarios_activos():
     """Obtiene el diccionario actual de usuarios activos"""
-    return cargar_usuarios_activos()
+    try:
+        result = cargar_usuarios_activos()
+        # VERIFICACIÓN MÚLTIPLE DE SEGURIDAD
+        if result is None:
+            print(f"[WARNING] cargar_usuarios_activos retornó None, inicializando diccionario vacío")
+            return {}
+        elif not isinstance(result, dict):
+            print(f"[WARNING] cargar_usuarios_activos retornó tipo incorrecto: {type(result)}, inicializando diccionario vacío")
+            return {}
+        else:
+            return result
+    except Exception as e:
+        print(f"[ERROR] Error en get_usuarios_activos: {e}")
+        return {}
 
 def set_usuarios_activos(usuarios):
     """Actualiza el diccionario de usuarios activos"""
@@ -774,6 +863,21 @@ def registrar_actividad_usuario():
     with lock_usuarios:
         usuarios_activos = get_usuarios_activos()
         
+        # VERIFICACIÓN DE SEGURIDAD MÚLTIPLE: Asegurar que usuarios_activos es un diccionario válido
+        if usuarios_activos is None:
+            print(f"[ERROR] usuarios_activos es None, inicializando como diccionario vacío")
+            usuarios_activos = {}
+        elif not isinstance(usuarios_activos, dict):
+            print(f"[ERROR] usuarios_activos no es diccionario: {type(usuarios_activos)}, inicializando vacío")
+            usuarios_activos = {}
+        
+        # VERIFICACIÓN ADICIONAL: Asegurar que existe y es iterable antes de usar 'in'
+        try:
+            if not usuarios_activos:
+                usuarios_activos = {}
+        except:
+            usuarios_activos = {}
+        
         if not sid:
             sid = os.urandom(8).hex()
             session['sid'] = sid
@@ -788,10 +892,10 @@ def registrar_actividad_usuario():
                     'pdf_generado': True
                 }
                 set_usuarios_activos(usuarios_activos)
+                print(f"[DEBUG] Nuevo usuario registrado: {sid}")
             else:
-                pass
+                print(f"[DEBUG] Usuario ya existe en diccionario: {sid}")
         else:
-            pass
             # Verificar si está en el diccionario
             if sid in usuarios_activos:
                 print(f"[DEBUG] Usuario encontrado en diccionario activos")
@@ -806,6 +910,7 @@ def registrar_actividad_usuario():
                 }
                 set_usuarios_activos(usuarios_activos)
     
+    print(f"[DEBUG] === FIN REGISTRO ACTIVIDAD ===")
     return sid
 
 def limpiar_datos_usuario_completo(sid):
@@ -864,10 +969,21 @@ def tarea_limpieza_automatica():
         with lock_usuarios:
             usuarios_activos = get_usuarios_activos()
             
+            # VERIFICACIÓN DE SEGURIDAD: Asegurar que usuarios_activos es un diccionario
+            if usuarios_activos is None:
+                usuarios_activos = {}
+            elif not isinstance(usuarios_activos, dict):
+                usuarios_activos = {}
+            
             for sid, datos in usuarios_activos.items():
-                tiempo_transcurrido = tiempo_actual - datos['timestamp']
-                if tiempo_transcurrido >= tiempo_limite:
-                    usuarios_a_limpiar.append(sid)
+                if isinstance(datos, dict) and 'timestamp' in datos:
+                    try:
+                        tiempo_transcurrido = tiempo_actual - datos['timestamp']
+                        if tiempo_transcurrido >= tiempo_limite:
+                            usuarios_a_limpiar.append(sid)
+                    except (TypeError, KeyError) as e:
+                        # Si hay error con el timestamp, marcar para limpieza
+                        usuarios_a_limpiar.append(sid)
         
         # Limpiar usuarios fuera del lock para evitar bloqueos
         for sid in usuarios_a_limpiar:
@@ -962,36 +1078,208 @@ def endpoint_registrar_actividad():
             'error': str(e)
         }), 500
 
+# Endpoint de diagnóstico para verificar configuración
+@app.route('/debug/flask_config')
+def debug_flask_config():
+    """Endpoint para diagnosticar configuración de Flask"""
+    try:
+        info = {
+            'template_folder': app.template_folder,
+            'static_folder': app.static_folder,
+            'base_dir': BASE_DIR,
+            'templates_folder_var': TEMPLATES_FOLDER,
+            'template_folder_exists': os.path.exists(app.template_folder),
+            'templates_folder_exists': os.path.exists(TEMPLATES_FOLDER),
+        }
+        
+        # Verificar archivos en template folder
+        try:
+            if os.path.exists(app.template_folder):
+                archivos = os.listdir(app.template_folder)
+                info['archivos_en_template_folder'] = archivos
+                info['formato_rij_existe'] = 'formato_RIJ.html' in archivos
+            else:
+                info['archivos_en_template_folder'] = "Carpeta no existe"
+                info['formato_rij_existe'] = False
+        except Exception as e:
+            info['error_listando_archivos'] = str(e)
+        
+        return jsonify(info)
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 # --- FIN SISTEMA DE LIMPIEZA AUTOMÁTICA ---
 
-if __name__ == '__main__':
-    # --- INICIO DE MODIFICACIONES PARA HTTPS ---
-    # Configuración para habilitar HTTPS en el servidor Flask.
+# --- ENDPOINT DE LOGIN ---
+@app.route('/api/login', methods=['POST'])
+def login():
+    """
+    Endpoint para validar contraseñas usando la tabla usuario.
+    Solo valida contraseña, sin RPE/RTT.
+    """
+    try:
+        print(f"[LOGIN] Recibida petición de login")
+        
+        data = request.get_json()
+        if not data or 'password' not in data:
+            print(f"[LOGIN] Error: No se recibió contraseña en la petición")
+            return jsonify({
+                'success': False,
+                'message': 'Contraseña requerida'
+            }), 400
+        
+        password = data['password'].strip()
+        if not password:
+            print(f"[LOGIN] Error: Contraseña vacía")
+            return jsonify({
+                'success': False,
+                'message': 'La contraseña no puede estar vacía'
+            }), 400
+        
+        print(f"[LOGIN] Intentando validar contraseña...")
+        
+        # Conectar a la base de datos
+        conn = get_db_connection()
+        if conn is None:
+            print(f"[LOGIN] Error: No se pudo conectar a la base de datos")
+            return jsonify({
+                'success': False,
+                'message': 'Error de conexión a la base de datos'
+            }), 500
+        
+        try:
+            cursor = conn.cursor()
+            
+            # Probar diferentes esquemas de base de datos
+            queries_to_try = [
+                "SELECT password FROM sistema_registros.usuario WHERE password = %s",
+                "SELECT password FROM usuario WHERE password = %s",
+                "SELECT password FROM CFE$default.usuario WHERE password = %s"
+            ]
+            
+            resultado = None
+            query_usado = None
+            
+            for query in queries_to_try:
+                try:
+                    print(f"[LOGIN] Probando query: {query}")
+                    cursor.execute(query, (password,))
+                    resultado = cursor.fetchone()
+                    query_usado = query
+                    print(f"[LOGIN] Query exitosa: {query}")
+                    break
+                except Error as query_error:
+                    print(f"[LOGIN] Error en query '{query}': {query_error}")
+                    continue
+            
+            if resultado:
+                print(f"[LOGIN] Contraseña válida encontrada")
+                # Contraseña válida, registrar actividad del usuario
+                registrar_actividad_usuario()
+                
+                return jsonify({
+                    'success': True,
+                    'message': 'Acceso autorizado'
+                }), 200
+            else:
+                print(f"[LOGIN] Contraseña no encontrada en la base de datos")
+                return jsonify({
+                    'success': False,
+                    'message': 'Contraseña incorrecta'
+                }), 401
+                
+        except Error as e:
+            print(f"[LOGIN] Error en consulta de login: {e}")
+            return jsonify({
+                'success': False,
+                'message': 'Error interno del servidor'
+            }), 500
+            
+        finally:
+            if conn.is_connected():
+                cursor.close()
+                conn.close()
+                
+    except Exception as e:
+        print(f"[LOGIN] Error en endpoint login: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'message': 'Error interno del servidor'
+        }), 500
 
+# Endpoint de prueba para verificar base de datos
+@app.route('/api/test_db')
+def test_db():
+    """
+    Endpoint para probar la conexión a la base de datos
+    """
+    try:
+        print("[DB_TEST] Iniciando prueba de conexión a BD...")
+        
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({
+                'success': False,
+                'message': 'No se pudo conectar a la base de datos',
+                'db_config': {k: v if k != 'password' else '***' for k, v in DB_CONFIG.items()}
+            }), 500
+        
+        try:
+            cursor = conn.cursor()
+            
+            # Probar consultas básicas
+            queries_test = [
+                "SHOW TABLES",
+                "SELECT DATABASE()",
+                "SHOW DATABASES"
+            ]
+            
+            resultados = {}
+            
+            for query in queries_test:
+                try:
+                    cursor.execute(query)
+                    resultado = cursor.fetchall()
+                    resultados[query] = resultado
+                    print(f"[DB_TEST] Query '{query}' exitosa: {resultado}")
+                except Error as e:
+                    resultados[query] = f"Error: {e}"
+                    print(f"[DB_TEST] Error en query '{query}': {e}")
+            
+            return jsonify({
+                'success': True,
+                'message': 'Conexión a BD exitosa',
+                'results': resultados,
+                'db_config': {k: v if k != 'password' else '***' for k, v in DB_CONFIG.items()}
+            }), 200
+            
+        finally:
+            if conn.is_connected():
+                cursor.close()
+                conn.close()
+                
+    except Exception as e:
+        print(f"[DB_TEST] Error: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'message': f'Error en prueba de BD: {str(e)}'
+        }), 500
+
+if __name__ == '__main__':
     # Inicializar sistema de limpieza automática
     iniciar_sistema_limpieza()
-
-    # Rutas a tus archivos de certificado y clave privada
-    cert_path = os.path.join(BASE_DIR, 'cert.pem')
-    key_path = os.path.join(BASE_DIR, 'key.pem')
-
-    # Verificar si los archivos existen antes de intentar usarlos 
-    if not os.path.exists(cert_path):
-        print(f"Error: No se encontró el archivo del certificado en '{cert_path}'")
-        print("Asegúrate de haber ejecutado 'openssl req ...' correctamente.")
-        exit(1)
-    if not os.path.exists(key_path):
-        print(f"Error: No se encontró el archivo de la clave privada en '{key_path}'")
-        print("Asegúrate de haber ejecutado 'openssl genrsa ...' correctamente.")
-        exit(1)
-
-    # Crea el contexto SSL/TLS usando los archivos
-    ssl_context_tuple = (cert_path, key_path)
     
-    # Define la IP donde Flask escuchará (0.0.0.0 para acceso desde otras IPs en tu red)
-    HOST_IP = '0.0.0.0'
-    PORT = 8000
-
-    # Ejecuta la aplicación Flask con el contexto SSL/TLS
-    app.run(host=HOST_IP, port=PORT, ssl_context=ssl_context_tuple, debug=False)
+    # Para desarrollo local solamente (NO para PythonAnywhere)
+    # PythonAnywhere maneja automáticamente el servidor web
+    print("🚀 Sistema RIJ iniciado correctamente")
+    print("🌐 Listo para producción en PythonAnywhere")
+    
+    # Ejecutar Flask en modo desarrollo local si es necesario
+    # En PythonAnywhere, este código no se ejecuta
+    app.run(host='0.0.0.0', port=5000, debug=False)
 

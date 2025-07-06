@@ -105,6 +105,18 @@ body {
     text-decoration: underline;
 }
 
+.login__mensaje-error {
+    background-color: #ffebee;
+    border: 1px solid #e57373;
+    color: #c62828;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 15px;
+    font-size: 0.9em;
+    font-weight: 500;
+    text-align: center;
+}
+
 .login__formulario--oculto {
     display: none;
 }
