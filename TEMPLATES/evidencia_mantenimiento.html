@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evidencia de Mantenimiento</title>
+    <link rel="stylesheet" href="/RESOURCE/CSS/globalPageLoadStyles.css">
+    <link rel="stylesheet" href="/RESOURCE/CSS/evidencia_mantenimiento.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="/RESOURCE/JS/forzarCargaCSS.js"></script>
+</head>
+<body>
+    <div class="contenedor-principal">
+        <!-- Encabezado -->
+        <header class="encabezado">
+            <div class="logo-container">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/8/8c/Logo_neutral_de_la_Comisi%C3%B3n_Federal_de_Electricidad.svg" 
+                     alt="Logo CFE" class="logo">
+            </div>
+            <h1 class="titulo-principal">Repositorio de Evidencia de Mantenimiento</h1>
+            <button class="btn-volver" onclick="window.location.href='/TEMPLATES/menu.html'">
+                ← Volver al Menú
+            </button>
+        </header>
+
+        <!-- Área de notificaciones -->
+        <div id="notificacion" class="notificacion oculto"></div>
+
+        <!-- Sección de PDFs de mantenimiento -->
+        <section class="seccion-pdfs">
+            <h2 class="subtitulo">PDFs de Mantenimiento Disponibles</h2>
+            <div id="lista-pdfs" class="lista-pdfs">
+                <div class="mensaje-vacio">
+                    <p>No hay PDFs de mantenimiento disponibles en este momento.</p>
+                    <p>Complete un formato de mantenimiento para ver los PDFs aquí.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección de evidencia fotográfica -->
+        <section class="seccion-evidencia" id="seccion-evidencia" style="display: none;">
+            <h2 class="subtitulo">Evidencia Fotográfica</h2>
+            
+            <!-- Información del PDF seleccionado -->
+            <div id="info-pdf-seleccionado" class="info-pdf">
+                <h3>PDF Seleccionado: <span id="nombre-pdf-seleccionado"></span></h3>
+                <p>Fecha: <span id="fecha-pdf-seleccionado"></span></p>
+            </div>
+
+            <!-- Área de carga de imágenes -->
+            <div class="area-carga">
+                <div class="zona-arrastre" id="zona-arrastre">
+                    <div class="icono-carga">📁</div>
+                    <p>Arrastra y suelta imágenes aquí o haz clic para seleccionar</p>
+                    <input type="file" id="input-archivos" multiple accept="image/*" style="display: none;">
+                    <button class="btn-seleccionar" onclick="document.getElementById('input-archivos').click()">
+                        Seleccionar Imágenes
+                    </button>
+                </div>
+            </div>
+
+            <!-- Lista de imágenes cargadas -->
+            <div class="lista-imagenes" id="lista-imagenes">
+                <h3>Imágenes de Evidencia</h3>
+                <div id="contenedor-imagenes" class="contenedor-imagenes">
+                    <!-- Las imágenes se mostrarán aquí dinámicamente -->
+                </div>
+            </div>
+
+            <!-- Botones de acción -->
+            <div class="botones-accion">
+                <button class="btn-primario" id="btn-generar-pdf" onclick="generarPDFConEvidencia()">
+                    📄 Generar PDF con Evidencia
+                </button>
+                <button class="btn-secundario" id="btn-limpiar" onclick="limpiarEvidencia()">
+                    🗑️ Limpiar Evidencia
+                </button>
+            </div>
+        </section>
+
+        <!-- Modal de vista previa de imagen -->
+        <div id="modal-imagen" class="modal" style="display: none;">
+            <div class="modal-contenido">
+                <span class="cerrar-modal" onclick="cerrarModal()">&times;</span>
+                <img id="imagen-modal" src="" alt="Vista previa">
+                <div class="modal-botones">
+                    <button class="btn-eliminar" onclick="eliminarImagenActual()">Eliminar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/RESOURCE/JS/evidencia_mantenimiento.js"></script>
+</body>
+</html>
