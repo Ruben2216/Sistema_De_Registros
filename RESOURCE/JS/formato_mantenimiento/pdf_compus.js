@@ -663,7 +663,7 @@ doc.setFont("zapfdingbats");
      y += 55;
 
     // FIRMAS
-    y += 8;
+    y += 6.5;
     if (firma1Base64) {
         await addCompressedImage(doc, firma1Base64, 17, y, 40, 20, compConfig.calidad_webp, 'firma1');
     }
@@ -676,7 +676,7 @@ doc.setFont("zapfdingbats");
         await addCompressedImage(doc, firma3Base64, 150, y, 40, 20, compConfig.calidad_webp, 'firma3');
     }
 
-    y += 8;
+    y += 5;
     doc.text(`Realizó servicio:`, 25, y-12);
     doc.setFontSize(7);
     
