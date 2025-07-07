@@ -617,6 +617,7 @@ async function generarPDF() {
      y += 55;
 
     // FIRMAS
+<<<<<<< HEAD
     y += 8;
     if (firma1Base64) {
         await addCompressedImage(doc, firma1Base64, 17, y, 40, 20, compConfig.calidad_webp, 'firma1');
@@ -631,6 +632,19 @@ async function generarPDF() {
     }
 
     y += 8;
+=======
+    y+=8;
+    if(firma1Base64)
+        doc.addImage(firma1Base64, 'PNG', 17, y, 40, 20 );
+    
+    if(firma2Base64)
+        doc.addImage(firma2Base64, 'PNG', 82, y, 40, 20);
+    
+    if(firma3Base64)
+        doc.addImage(firma3Base64, 'PNG', 150, y, 40, 20 );
+    
+    y += 8;
+>>>>>>> 2804e79f7647c524984e1566f1b74459e90316a4
     doc.text(`Realizó servicio:`, 15, y-12);
     doc.setFontSize(7);
     doc.text(realizo_servicio, 15, y + 21);

@@ -540,10 +540,10 @@ if (APS === "si") {
     doc.text(`Vo.Bo.`, 145, y);
 
     if(firma1Base64)
-        doc.addImage(firma1Base64, 'PNG', 21.5, y, 30, 30 );
+        doc.addImage(firma1Base64, 'PNG', 21.5, y, 30, 20 );
     
     if(firma2Base64)
-        doc.addImage(firma2Base64, 'PNG', 143.5, y, 30, 30, "center" );
+        doc.addImage(firma2Base64, 'PNG', 143.5, y, 30, 20, "center" );
     y += 30;
     doc.line(15, y, 88, y); 
     doc.line(122, y, 195, y);
