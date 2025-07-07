@@ -123,9 +123,11 @@ async function generarPDF() {
     const sizeController = new PDFSizeController();
     const compConfig = sizeController.calcularConfiguracionInicial(4);
     // IMAGEN LOGO
-    await addCompressedImage(doc, '/RESOURCE/IMG/Comisión_Federal_de_Electricidad_(logo)_.png', 15, 8, 40, 20, compConfig.calidad_webp, 'logo');
+    await addCompressedImage(doc, '/RESOURCE/IMG/Comisión_Federal_de_Electricidad_(logo)_.svg.png', 15, 8, 40, 20, compConfig.calidad_webp, 'logo');
     //CAPTURADO DE DATOS
     const zona = document.querySelector('input[id="zona"]').value;
+        const fecha = document.querySelector('input[id="fecha"]').value;
+
     const centro = document.querySelector('input[id="centro_trabajo"').value;
     const folio = document.querySelector('input[id="folio"]').value;
     const servicio = document.querySelector('select[id="servicio"]').value;
