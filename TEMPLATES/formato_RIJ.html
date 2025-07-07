@@ -184,9 +184,10 @@
                     <div class="grupo-opciones">
                         <label class="grupo-opciones__opcion">
                             <input class="grupo-opciones__control" type="radio" name="inicio_jornada" value="si"> Sí</label>
-                            <input class="grupo-opciones__control" type="radio" name="inicio_jornada" value="no" data-desplegar="no"> No</label>
+                            <label><input class="grupo-opciones__control" type="radio" name="inicio_jornada" value="no" data-desplegar="no"> No</label>
                     </div>
-                    <input type="text" name="input_inicio_jornada" class="campo__control campo__control--oculto" placeholder="Especifique motivo">
+                    <input type="text" id="input_inicio_jornada" class="campo__control campo__control--oculto" maxlength="40" placeholder="Especifique motivo">
+                    <span id="contador_letras_inicio_jornada" style="display: none;">0/40 caracteres</span>
                 </div>
                 <div class="campo">
                      <p class="campo__etiqueta">2. ¿Se enumeró el personal participante?</p>
@@ -194,7 +195,6 @@
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="#personal" type="radio" value="si" data-desplegar="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="#personal" type="radio" value="no"> No</label>
                     </div>
-                    <input type="text" id="input_personal" class="campo__control campo__control--oculto" placeholder="No. de participantes">
                 </div>
                 <div class="campo">
                     <label class="campo__etiqueta">No. Participantes:</label>
@@ -204,10 +204,12 @@
                 <div class="campo">
                     <p class="campo__etiqueta">3. ¿Se preguntó el estado de salud a los participantes?</p>
                     <div class="grupo-opciones">
-                        <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="salud" type="radio" value="si"> Sí</label>
+                        <label class="grupo-opciones__opcion">
+                            <input class="grupo-opciones__control" name="salud" type="radio" value="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="salud" type="radio" value="no" data-desplegar="no"> No</label>
                     </div>
-                    <input type="text" id="input_salud" class="campo__control campo__control--oculto" placeholder="Especifique motivo">
+                    <input type="text" id="input_salud" maxlength="40" class="campo__control campo__control--oculto" placeholder="Especifique motivo">
+                    <span id="contador_letras_salud" style="display: none;">0/40 caracteres</span>
                 </div>
                 <div class="campo">
                     <p class="campo__etiqueta">4. ¿Se realizaron los ejercicios?</p>
@@ -215,7 +217,8 @@
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="ejercicio" type="radio" value="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="ejercicio" type="radio" value="no" data-desplegar="no"> No</label>
                     </div>
-                    <input type="text" id="input_ejercicio" class="campo__control campo__control--oculto" placeholder="Especifique motivo">
+                    <input maxlength="40" type="text" id="input_ejercicio" class="campo__control campo__control--oculto" placeholder="Especifique motivo">
+                    <span id="contador_letras_ejercicio" style="display: none;">0/40 caracteres</span>
                 </div>
                 <div class="campo">
                     <p class="campo__etiqueta">4.1. ¿Se detectaron anomalías en el estado de salud?</p>
@@ -223,7 +226,8 @@
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="anomalias" type="radio" value="si" data-desplegar="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="anomalias" type="radio" value="no"> No</label>
                     </div>
-                    <input type="text" id="input_anomalias" class="campo__control campo__control--oculto" placeholder="Especifique anomalías">
+                    <input maxlength="40" type="text" id="input_anomalias" class="campo__control campo__control--oculto" placeholder="Especifique anomalías">
+                    <span id="contador_letras_anomalias" style="display: none;">0/40 caracteres</span>
                 </div>
             </div>
             <div class="seccion seccion--desplegable">
@@ -234,7 +238,8 @@
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="mantenimiento" type="radio" value="si" data-desplegar="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="mantenimiento" type="radio" value="no"> No</label>
                     </div>
-                    <input type="text" id="input_mantenimiento_relevante" class="campo__control campo__control--oculto" placeholder="Especifique trabajos de mantenimiento">
+                    <input maxlength="40" type="text" id="input_mantenimiento" class="campo__control campo__control--oculto" placeholder="Especifique trabajos de mantenimiento">
+                    <span id="contador_letras_mantenimiento" style="display: none;">0/40 caracteres</span>
                 </div>
                 <div class="campo">
                     <p class="campo__etiqueta">5.2. ¿Se comentaron trabajos de operación relevantes?</p>
@@ -242,7 +247,8 @@
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="operacion" type="radio" value="si" data-desplegar="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="operacion" type="radio" value="no"> No</label>
                     </div>
-                    <input type="text" id="input_operacion_relevante" class="campo__control campo__control--oculto" placeholder="Especifique trabajos de operación">
+                    <input maxlength="40" type="text" id="input_operacion" class="campo__control campo__control--oculto" placeholder="Especifique trabajos de operación">
+                    <span id="contador_letras_operacion" style="display: none;">0/40 caracteres</span>
                 </div>
                 <div class="campo">
                     <p class="campo__etiqueta">5.3. ¿Se comentaron trabajos con potencial de alto riesgo?</p>
@@ -250,7 +256,8 @@
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="riesgo" type="radio" value="si" data-desplegar="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input class="grupo-opciones__control" name="riesgo" type="radio" value="no"> No</label>
                     </div>
-                    <input type="text" id="input_riesgo" class="campo__control campo__control--oculto" placeholder="Especifique trabajos de alto riesgo">
+                    <input maxlength="40" type="text" id="input_riesgo" class="campo__control campo__control--oculto" placeholder="Especifique trabajos de alto riesgo">
+                    <span id="contador_letras_riesgo" style="display: none;">0/40 caracteres</span>
                 </div>
                  <div class="campo">
                     <p class="campo__etiqueta">5.4. ¿Se comentaron incidentes y/o accidentes ocurridos?</p>
@@ -258,7 +265,8 @@
                         <label class="grupo-opciones__opcion"><input name="incidentes" class="grupo-opciones__control" type="radio" value="si" data-desplegar="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input name="incidentes" class="grupo-opciones__control" type="radio" value="no"> No</label>
                     </div>
-                    <input type="text" id="input_incidentes" class="campo__control campo__control--oculto" placeholder="Especifique incidentes y/o accidentes">
+                    <input maxlength="40" type="text" id="input_incidentes" class="campo__control campo__control--oculto" placeholder="Especifique incidentes y/o accidentes">
+                    <span id="contador_letras_incidentes" style="display: none;">0/40 caracteres</span>
                 </div>
                 <div class="campo">
                     <p class="campo__etiqueta">5.5. Otra información</p>
@@ -281,7 +289,8 @@
                         <label class="grupo-opciones__opcion"><input name="espejo" class="grupo-opciones__control" type="radio" value="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input name="espejo" class="grupo-opciones__control" type="radio" value="no" data-desplegar="no"> No</label>
                     </div>
-                    <input type="text" id="input_espejo" class="campo__control campo__control--oculto" placeholder="Especifique motivo">
+                    <input type="text" id="input_espejo" maxlength="40" class="campo__control campo__control--oculto" placeholder="Especifique motivo">
+                    <span id="contador_letras_espejo" style="display: none;">0/40 caracteres</span>
                 </div>
                 <div class="campo">
                     <p class="campo__etiqueta">6.2. ¿Se realizó Actividad de Predicción de Peligro (APP)?</p>
@@ -289,7 +298,8 @@
                         <label class="grupo-opciones__opcion"><input name="prediccion_peligro" class="grupo-opciones__control" type="radio" value="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input name="prediccion_peligro" class="grupo-opciones__control" type="radio" value="no" data-desplegar="no"> No</label>
                     </div>
-                    <input type="text" id="input_prediccion_peligro" class="campo__control campo__control--oculto" placeholder="Especifique motivo">
+                    <input maxlength="40" type="text" id="input_prediccion_peligro" class="campo__control campo__control--oculto" placeholder="Especifique motivo">
+                    <span id="contador_letras_prediccion_peligro" style="display: none;">0/40 caracteres</span>
                 </div>
                 <div class="campo">
                      <p class="campo__etiqueta">6.3. ¿Se dio lectura a un artículo del Reglamento de Seguridad e Higiene o ficha tecnica de una regla de vida?</p>
@@ -297,7 +307,8 @@
                         <label class="grupo-opciones__opcion"><input name="articulo" class="grupo-opciones__control" type="radio" value="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input name="articulo" class="grupo-opciones__control" type="radio" value="no" data-desplegar="no"> No</label>
                     </div>
-                    <input type="text" id="input_articulo" class="campo__control campo__control--oculto" placeholder="Especifique motivo">
+                    <input maxlength="40" type="text" id="input_articulo" class="campo__control campo__control--oculto" placeholder="Especifique motivo">
+                    <span id="contador_letras_articulo" style="display: none;">0/40 caracteres</span>
                 </div>
                 <div class="campo">
                     <p class="campo__etiqueta">6.4. ¿Se relató una Experiencia de Sentir el Peligro (Susto)?</p>
@@ -305,7 +316,8 @@
                         <label class="grupo-opciones__opcion"><input name="experiencia" class="grupo-opciones__control" type="radio" value="si" data-desplegar="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input name="experiencia" class="grupo-opciones__control" type="radio" value="no"> No</label>
                     </div>
-                    <input type="text" id="input_experiencia" class="campo__control campo__control--oculto" placeholder="Especifique motivo">
+                    <input maxlength="40" type="text" id="input_experiencia" class="campo__control campo__control--oculto" placeholder="Especifique motivo">
+                    <span id="contador_letras_experiencia" style="display: none;">0/40 caracteres</span>
                 </div>
                 <div class="campo">
                     <p class="campo__etiqueta">6.5. Actividades relevantes posteriores (Inspecciones, Campañas, etc.)</p>
@@ -313,7 +325,8 @@
                         <label class="grupo-opciones__opcion"><input name="actividades_relevantes" class="grupo-opciones__control" type="radio" value="si" data-desplegar="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input name="actividades_relevantes" class="grupo-opciones__control" type="radio" value="no"> No</label>
                     </div>
-                    <input type="text" id="input_actividades" class="campo__control campo__control--oculto" placeholder="Especifique actividades relevantes">
+                    <input maxlength="40" type="text" id="input_actividades_relevantes" class="campo__control campo__control--oculto" placeholder="Especifique actividades relevantes">
+                    <span id="contador_letras_actividades" style="display: none;">0/40 caracteres</span>
                 </div>
                 <div class="campo">
                     <p class="campo__etiqueta">6.6. Lectura de las Reglas de Vida</p>
@@ -321,7 +334,8 @@
                         <label class="grupo-opciones__opcion"><input name="reglas_vida" class="grupo-opciones__control" type="radio" value="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input name="reglas_vida" class="grupo-opciones__control" type="radio" value="no" data-desplegar="no"> No</label>
                     </div>
-                    <input type="text" id="input_reglas_vida" class="campo__control campo__control--oculto" placeholder="Especifique motivo">
+                    <input maxlength="40" type="text" id="input_reglas_vida" class="campo__control campo__control--oculto" placeholder="Especifique motivo">
+                    <span id="contador_letras_reglas_vida" style="display: none;">0/40 caracteres</span>
                 </div>
                 <div class="campo">
                     <p class="campo__etiqueta">6.7. Lectura de las políticas.</p>
@@ -329,7 +343,8 @@
                         <label class="grupo-opciones__opcion"><input name="politicas" class="grupo-opciones__control" type="radio" value="si"> Sí</label>
                         <label class="grupo-opciones__opcion"><input name="politicas" class="grupo-opciones__control" type="radio" value="no" data-desplegar="no"> No</label>
                     </div>
-                    <input type="text" id="input_politicas" class="campo__control campo__control--oculto" placeholder="Especifique motivo">
+                    <input maxlength="40" type="text" id="input_politicas" class="campo__control campo__control--oculto" placeholder="Especifique motivo">
+                    <span id="contador_letras_politicas" style="display: none;">0/40 caracteres</span>
                 </div>
                 <div class="campo">
                     <p class="campo__etiqueta">6.8. Solicitar que un colaborador de un mensaje en materia de Seguridad</p>

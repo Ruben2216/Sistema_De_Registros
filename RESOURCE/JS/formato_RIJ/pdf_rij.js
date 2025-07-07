@@ -97,7 +97,7 @@ async function generarPDF() {
     const ejercicio = document.querySelector('input[name="ejercicio"]:checked').value;
     const anomalias = document.querySelector('input[name="anomalias"]:checked').value;
     const mantenimiento = document.querySelector('input[name="mantenimiento"]:checked').value;
-   // const enumeracion = document.querySelector('input[id="enumeracion"]').value;
+    const enumeracion = document.querySelector('input[id="enumeracion"]').value;
     const operacion = document.querySelector('input[name="operacion"]:checked').value;
     const riesgo = document.querySelector('input[name="riesgo"]:checked').value;
     const incidentes = document.querySelector('input[name="incidentes"]:checked').value;
@@ -265,6 +265,10 @@ async function generarPDF() {
             doc.setTextColor(255, 0, 0); // Rojo
             doc.text("x", 125.5, y);
     }
+    doc.setFontSize(9)
+    doc.setTextColor(0, 0, 0);
+    doc.text(`No. Personas: ${enumeracion}`, 135, y);
+    doc.line(155, y+1, 165, y+1);
     y+=6;
     doc.setTextColor(0, 0, 0); // Negro
     doc.setFontSize(8)
