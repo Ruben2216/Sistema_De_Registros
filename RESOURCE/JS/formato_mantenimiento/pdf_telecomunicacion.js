@@ -238,18 +238,24 @@ async function generarPDF() {
     y += 20;
     doc.setFont("helvetica", "bold");
     doc.text("Pasos", 16, y);
-    doc.text("SI", 110, y);
-    doc.text("NO", 120, y);
+            doc.line(128, y - 4, 128, y + 2);
+                        doc.line(118, y - 4, 118, y + 2);
+                        doc.line(108, y - 4, 108, y + 2);
+
+
+
+    doc.text("SI", 112, y);
+    doc.text("NO", 121, y);
     doc.text("OBSERVACIONES", 153, y);
 
     doc.text("1. PREPARACIÓN", 105, y + 6, "center");
 
     doc.setFont("helvetica", "normal");
-    const pageWidth2 = doc.internal.pageSize.getWidth();
+    const pageWidth2 = doc.internal.pageSize.getWidth(); //
     const p = pageWidth2 - 23;
-    doc.rect(15, y-4, p, 128); // TABLA 3
+    doc.rect(15, y-4, p, 121); 
     const top = y + 8;
-    const bottom = y - 4 + 128;
+    const bottom = y - 4 + 121;
 
     doc.line(108, top, 108, bottom); // primera línea vertical
     doc.line(118, top, 118, bottom); // segunda línea vertical
@@ -258,16 +264,22 @@ async function generarPDF() {
     const w = pageWidth2 - 8;
 
     doc.line(15,y+2, w, y+2 );
-    doc.line(15, y+8, w, y+8);
+    doc.line(15, y+8, w, y+8); 
 
     y+=12;
     doc.text(`1. ¿Cuenta con tierra física?`, 16, y);
     doc.line(15,y+2, w, y+2 );
 
     if (tierra_fisica === "si") {
-        doc.text("x", 112, y);
+        doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("3", 112, y); 
+    doc.setFont("helvetica");
         } else if (tierra_fisica === "no") {
-            doc.text("x", 122, y);
+            doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("7", 122, y);
+    doc.setFont("helvetica"); 
             const motivo = document.querySelector('input[id="input_tierra_fisica"]').value;
             if (motivo) {
                 doc.setFontSize(8); // tamaño más pequeño para caber
@@ -280,9 +292,15 @@ async function generarPDF() {
     doc.line(15,y+2, w, y+2 );
 
     if (UPS === "si") {
-        doc.text("x", 112, y);
+        doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("3", 112, y); 
+    doc.setFont("helvetica");
         } else if (UPS === "no") {
-            doc.text("x", 122, y);
+            doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("7", 122, y);
+    doc.setFont("helvetica"); 
             const motivo = document.querySelector('input[id="input_UPS"]').value;
             if (motivo) {
                 doc.setFontSize(8); // tamaño más pequeño para caber
@@ -301,9 +319,15 @@ async function generarPDF() {
     doc.line(15,y+6, w, y+6 );
 
     if (respaldo === "si") {
-        doc.text("x", 112, y);
+        doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("3", 112, y); 
+    doc.setFont("helvetica");
         } else if (respaldo === "no") {
-            doc.text("x", 122, y);
+            doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("7", 122, y);
+    doc.setFont("helvetica"); 
             const motivo = document.querySelector('input[id="input_respaldo"]').value;
             if (motivo) {
                 doc.setFontSize(8); // tamaño más pequeño para caber
@@ -317,9 +341,15 @@ async function generarPDF() {
     doc.line(15,y+2, w, y+2 );
 
     if (bateria === "si") {
-        doc.text("x", 112, y);
+        doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("3", 112, y); 
+    doc.setFont("helvetica");
         } else if (bateria === "no") {
-            doc.text("x", 122, y);
+            doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("7", 122, y);
+    doc.setFont("helvetica"); 
             const motivo = document.querySelector('input[id="input_bateria"]').value;
             if (motivo) {
                 doc.setFontSize(8); // tamaño más pequeño para caber
@@ -333,9 +363,15 @@ async function generarPDF() {
     doc.line(15,y+2, w, y+2 );
 
     if (voltaje === "si") {
-        doc.text("x", 112, y);
+        doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("3", 112, y); 
+    doc.setFont("helvetica");
         } else if (voltaje === "no") {
-            doc.text("x", 122, y);
+            doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("7", 122, y);
+    doc.setFont("helvetica"); 
             const motivo = document.querySelector('input[id="input_voltaje"]').value;
             if (motivo) {
                 doc.setFontSize(8); // tamaño más pequeño para caber
@@ -349,25 +385,15 @@ async function generarPDF() {
     doc.line(15,y+2, w, y+2 );
 
     if (control === "si") {
-        doc.text("x", 112, y);
+        doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("3", 112, y); 
+    doc.setFont("helvetica");
         } else if (control === "no") {
-            doc.text("x", 122, y);
-            const motivo = document.querySelector('input[id="input_voltaje"]').value;
-            if (motivo) {
-                doc.setFontSize(8); // tamaño más pequeño para caber
-                doc.text(motivo, 129, y); // dentro del cuadro OBSERVACIONES
-                doc.setFontSize(10); // regresar a tamaño normal
-            }
-        }
-
-    y+=6;
-    doc.text(`6. ¿Cuenta con control de acceso?`, 16, y);
-    doc.line(15,y+2, w, y+2 );
-
-    if (control === "si") {
-        doc.text("x", 112, y);
-        } else if (control === "no") {
-            doc.text("x", 122, y);
+            doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("7", 122, y);
+    doc.setFont("helvetica"); 
             const motivo = document.querySelector('input[id="input_voltaje"]').value;
             if (motivo) {
                 doc.setFontSize(8); // tamaño más pequeño para caber
@@ -381,9 +407,15 @@ async function generarPDF() {
     doc.text(`7. ¿El edificio cuenta con seguridad física?`, 16, y);
     doc.line(15, y + 2, w, y + 2);
     if (seguridad_fisica === "si") {
-        doc.text("x", 112, y);
+        doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("3", 112, y); 
+    doc.setFont("helvetica");
     } else if (seguridad_fisica === "no") {
-        doc.text("x", 122, y);
+        doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("7", 122, y);
+    doc.setFont("helvetica"); 
         const motivo = document.querySelector('#input_seguridad_fisica').value;
         if (motivo) {
             doc.setFontSize(8);
@@ -396,9 +428,15 @@ y += 6;
 doc.text(`8. ¿Se cuenta con aire acondicionado?`, 16, y);
 doc.line(15, y + 2, w, y + 2);
 if (aire === "si") {
-    doc.text("x", 112, y);
+    doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("3", 112, y); 
+    doc.setFont("helvetica");
 } else if (aire === "no") {
-    doc.text("x", 122, y);
+    doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("7", 122, y);
+    doc.setFont("helvetica"); 
     const motivo = document.querySelector('#input_aire').value;
     if (motivo) {
         doc.setFontSize(8);
@@ -412,9 +450,15 @@ y += 6;
 doc.text(`9. ¿Se encuentra operando normal el aire acondicionado?`, 16, y);
 doc.line(15, y + 2, w, y + 2);
 if (aire_funcionando === "si") {
-    doc.text("x", 112, y);
+    doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("3", 112, y); 
+    doc.setFont("helvetica");
 } else if (aire_funcionando === "no") {
-    doc.text("x", 122, y);
+    doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("7", 122, y);
+    doc.setFont("helvetica"); 
     const motivo = document.querySelector('#input_aire_funcionando').value;
     if (motivo) {
         doc.setFontSize(8);
@@ -428,9 +472,15 @@ y += 6;
 doc.text(`10. ¿Se cuenta con bitácora de registro?`, 16, y);
 doc.line(15, y + 2, w, y + 2);
 if (bitacora === "si") {
-    doc.text("x", 112, y);
+    doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("3", 112, y); 
+    doc.setFont("helvetica");
 } else if (bitacora === "no") {
-    doc.text("x", 122, y);
+    doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("7", 122, y);
+    doc.setFont("helvetica"); 
     const motivo = document.querySelector('#input_bitacora').value;
     if (motivo) {
         doc.setFontSize(8);
@@ -448,9 +498,15 @@ doc.text(textoDividido11, 16, y);
 doc.line(15, y + 6, w, y + 6);
 
 if (orden_impieza === "si") {
-    doc.text("x", 112, y);
+    doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("3", 112, y); 
+    doc.setFont("helvetica");
 } else if (orden_impieza === "no") {
-    doc.text("x", 122, y);
+    doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("7", 122, y);
+    doc.setFont("helvetica"); 
     const motivo = document.querySelector('#input_orden_impieza').value;
     if (motivo) {
         doc.setFontSize(8);
@@ -469,9 +525,15 @@ doc.text(textoDividido12, 16, y);
 doc.line(15, y + 6, w, y + 6);
 
 if (etiquetado === "si") {
-    doc.text("x", 112, y);
+    doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("3", 112, y); 
+    doc.setFont("helvetica");
 } else if (etiquetado === "no") {
-    doc.text("x", 122, y);
+    doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("7", 122, y);
+    doc.setFont("helvetica"); 
     const motivo = document.querySelector('#input_etiquetado').value;
     if (motivo) {
         doc.setFontSize(8);
@@ -485,9 +547,15 @@ y += 10;
 doc.text(`13. ¿Switch se encuentra libre de polvo?`, 16, y);
 doc.line(15, y + 2, w, y + 2);
 if (polvo === "si") {
-    doc.text("x", 112, y);
+    doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("3", 112, y); 
+    doc.setFont("helvetica");
 } else if (polvo === "no") {
-    doc.text("x", 122, y);
+    doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("7", 122, y);
+    doc.setFont("helvetica"); 
     const motivo = document.querySelector('#input_polvo').value;
     if (motivo) {
         doc.setFontSize(8);
@@ -505,9 +573,15 @@ doc.text(textoDividido14, 16, y);
 doc.line(15, y + 6, w, y + 6);
 
 if (switchAcceso === "si") {
-    doc.text("x", 112, y);
+    doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("3", 112, y); 
+    doc.setFont("helvetica");
 } else if (switchAcceso === "no") {
-    doc.text("x", 122, y);
+    doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("7", 122, y);
+    doc.setFont("helvetica"); 
     const motivo = document.querySelector('#input_switch').value;
     if (motivo) {
         doc.setFontSize(8);
@@ -519,14 +593,21 @@ if (switchAcceso === "si") {
 // Pregunta 15
 y += 10;
 const texto15 = "15. ¿Se encuentra operando el o los puntos de acceso (AP's)?";
-const textoDividido15 = doc.splitTextToSize(texto15, anchoMax);
+
+const textoDividido15 = doc.splitTextToSize(texto15, anchoMax );
 
 doc.text(textoDividido15, 16, y);
 
 if (APS === "si") {
-    doc.text("x", 112, y);
+    doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("3", 112, y); 
+    doc.setFont("helvetica");
 } else if (APS === "no") {
-    doc.text("x", 122, y);
+    doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("7", 122, y);
+    doc.setFont("helvetica"); 
     const motivo = document.querySelector('#input_APS').value;
     if (motivo) {
         doc.setFontSize(8);
@@ -537,7 +618,7 @@ if (APS === "si") {
 
 // FIRMAS    
     y += 25;
-    doc.text(`RALIZA INSPECCIÓN`, 15, y);
+    doc.text(`RALIZA INSPECCIÓN`, 29, y);
     doc.text(`Vo.Bo.`, 145, y);
 
     if(firma1Base64)
@@ -552,13 +633,13 @@ if (APS === "si") {
     doc.line(122, y, 195, y);
     y += 5;
     doc.setFontSize(9)
-    doc.text("MTIE. GIOVANI PEDRO CRUZ LAVARIEGA", 15, y);
-    doc.text("ENCARGADO DEL DEPARTAMENTO DE", 15, y+4);
-    doc.text("TECNOLOGIAS DE LA INFORMACIÓN", 15, y+8);
+    doc.text("MTIE. GIOVANI PEDRO CRUZ LAVARIEGA", 19, y);
+    doc.text("ENCARGADO DEL DEPARTAMENTO DE", 20, y+4);
+    doc.text("TECNOLOGIAS DE LA INFORMACIÓN", 21, y+8);
 
-    doc.text("MTIE. GIOVANI PEDRO CRUZ LAVARIEGA", 125, y);
-    doc.text("ENCARGADO DEL DEPARTAMENTO DE", 125, y+4);
-    doc.text("TECNOLOGIAS DE LA INFORMACIÓN", 125, y+8);
+    doc.text("MTIE. GIOVANI PEDRO CRUZ LAVARIEGA", 127, y);
+    doc.text("ENCARGADO DEL DEPARTAMENTO DE", 128, y+4);
+    doc.text("TECNOLOGIAS DE LA INFORMACIÓN", 129, y+8);
 
     
 

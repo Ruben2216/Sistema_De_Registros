@@ -432,7 +432,7 @@ async function generarPDF() {
     y += 25;
     doc.setFont("helvetica", "bold");
     doc.text("ACTIVIDADES", 16, y);
-    doc.text("SI", 114, y);
+    doc.text("SI", 117, y);
     doc.text("NO", 127, y);
     doc.text("OBSERVACIONES", 153, y);
 
@@ -457,9 +457,15 @@ async function generarPDF() {
     doc.line(15,y+2, w, y+2 );
 
     if (limpieza_interna === "si") {
-        doc.text("x", 117, y);
+        doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("3", 117, y); 
+    doc.setFont("helvetica");
     } else if (limpieza_interna === "no") {
-        doc.text("x", 129, y);
+        doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("7", 129, y);
+    doc.setFont("helvetica"); 
         const motivo = document.querySelector('input[id="input_limpieza_interna"]').value;
         if (motivo) {
             doc.setFontSize(8); // tamaño más pequeño para caber
@@ -472,9 +478,15 @@ async function generarPDF() {
     doc.text(`Limpieza y sopleteado interna y externa del equipo`, 16, y);
     doc.line(15,y+2, w, y+2 );
     if (sopleteado === "si") {
-        doc.text("x", 117, y);
+        doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("3", 117, y); 
+    doc.setFont("helvetica");
         } else if (sopleteado === "no") {
-            doc.text("x", 129, y);
+            doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("7", 129, y);
+    doc.setFont("helvetica"); 
             const motivo = document.querySelector('input[id="input_sopleteado"]').value;
             if(motivo){
                 doc.setFontSize(8);
@@ -486,9 +498,15 @@ async function generarPDF() {
     doc.text(`Limpieza de bandejas o charolas`, 16, y);
     doc.line(15,y+2, w, y+2 );
     if (bandejas === "si") {
-        doc.text("x", 117, y);
+        doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("3", 117, y); 
+    doc.setFont("helvetica");
         } else if (bandejas === "no") {
-            doc.text("x", 129, y);
+            doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("7", 129, y);
+    doc.setFont("helvetica"); 
             const motivo = document.querySelector('input[id="input_bandejas"]').value;
             if(motivo){
                 doc.setFontSize(8);
@@ -500,9 +518,15 @@ async function generarPDF() {
     doc.text(`Limpieza y revisión de mecanismo alimentación del papel`, 16, y);
     doc.line(15,y+2, w, y+2 );
     if (papel === "si") {
-        doc.text("x", 117, y);
+        doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("3", 117, y); 
+    doc.setFont("helvetica");
         } else if (papel === "no") {
-            doc.text("x", 129, y);
+            doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("7", 129, y);
+    doc.setFont("helvetica"); 
             const motivo = document.querySelector('input[id="input_papel"]').value;
             if(motivo){
                 doc.setFontSize(8);
@@ -514,9 +538,15 @@ async function generarPDF() {
     doc.text(`Limpieza y revisión de la unidad de fusión`, 16, y);
     doc.line(15,y+2, w, y+2 );
     if (fusion === "si") {
-        doc.text("x", 117, y);
+        doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("3", 117, y); 
+    doc.setFont("helvetica");
         } else if (fusion === "no") {
-            doc.text("x", 129, y);
+            doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("7", 129, y);
+    doc.setFont("helvetica"); 
             const motivo = document.querySelector('input[id="input_fusion"]').value;
             if(motivo){
                 doc.setFontSize(8);
@@ -528,9 +558,15 @@ async function generarPDF() {
     doc.text(`Limpieza y revisión de la unidad lasér`, 16, y);
     doc.line(15,y+2, w, y+2 );
     if (laser === "si") {
-        doc.text("x", 117, y);
+        doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("3", 117, y); 
+    doc.setFont("helvetica");
         } else if (laser === "no") {
-            doc.text("x", 129, y);
+            doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("7", 129, y);
+    doc.setFont("helvetica"); 
             const motivo = document.querySelector('input[id="input_laser"]').value;
             if(motivo){
                 doc.setFontSize(8);
@@ -542,9 +578,15 @@ async function generarPDF() {
     doc.text(`Validar estado de consumibles`, 16, y);
     doc.line(15,y+2, w, y+2 );
     if (consumibles === "si") {
-        doc.text("x", 117, y);
+        doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("3", 117, y); 
+    doc.setFont("helvetica");
         } else if (consumibles === "no") {
-            doc.text("x", 129, y);
+            doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("7", 129, y);
+    doc.setFont("helvetica"); 
             const motivo = document.querySelector('input[id="input_consumibles"]').value;
             if(motivo){
                 doc.setFontSize(8);
@@ -556,9 +598,15 @@ async function generarPDF() {
     doc.text(`Equipo de red`, 16, y);
     doc.line(15,y+2, w, y+2 );
     if (red === "si") {
-        doc.text("x", 117, y);
+        doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("3", 117, y); 
+    doc.setFont("helvetica");
         } else if (red === "no") {
-            doc.text("x", 129, y);
+            doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("7", 129, y);
+    doc.setFont("helvetica"); 
             const motivo = document.querySelector('input[id="input_red"]').value;
             if(motivo){
                 doc.setFontSize(8);
@@ -570,9 +618,15 @@ async function generarPDF() {
     doc.text(`Realizar auto prueba`, 16, y);
     doc.line(15,y+2, w, y+2 );
     if (prueba === "si") {
-        doc.text("x", 117, y);
+        doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("3", 117, y); 
+    doc.setFont("helvetica");
         } else if (prueba === "no") {
-            doc.text("x", 129, y);
+            doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("7", 129, y);
+    doc.setFont("helvetica"); 
             const motivo = document.querySelector('input[id="input_prueba"]').value;
             if(motivo){
                 doc.setFontSize(8);
@@ -583,9 +637,15 @@ async function generarPDF() {
     y+=6;
     doc.text(`Equipo operando después del servicio`, 16, y);
     if (operando === "si") {
-        doc.text("x", 117, y);
+    doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("3", 117, y); 
+    doc.setFont("helvetica");
         } else if (operando === "no") {
-            doc.text("x", 129, y);
+            doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("7", 129, y);
+    doc.setFont("helvetica"); 
             const motivo = document.querySelector('input[id="input_operando"]').value;
             if(motivo){
                 doc.setFontSize(8);
