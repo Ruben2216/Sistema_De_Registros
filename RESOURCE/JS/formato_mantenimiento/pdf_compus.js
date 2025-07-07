@@ -501,13 +501,13 @@ async function generarPDF() {
     // FIRMAS
     y+=8;
     if(firma1Base64)
-        doc.addImage(firma1Base64, 'PNG', 15, y, 30, 20 );
+        doc.addImage(firma1Base64, 'PNG', 17, y, 40, 20 );
     
     if(firma2Base64)
-        doc.addImage(firma2Base64, 'PNG', 105, y, 30, 20, "center" );
+        doc.addImage(firma2Base64, 'PNG', 82, y, 40, 20);
     
     if(firma3Base64)
-        doc.addImage(firma3Base64, 'PNG', 145, y, 30, 20 );
+        doc.addImage(firma3Base64, 'PNG', 150, y, 40, 20 );
     
     y += 8;
     doc.text(`Realizó servicio:`, 15, y);

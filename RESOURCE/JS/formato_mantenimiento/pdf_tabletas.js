@@ -86,6 +86,7 @@ async function generarPDF() {
     const hrinicio = document.querySelector('input[id="hr.inicio"]').value;
     const hora_termino = document.querySelector('input[id="hr.termino"]').value;
     const serie = document.querySelector('input[id="serie"]').value;
+    const fecha = document.querySelector('input[id="fecha"]').value;
     const inventario = document.querySelector('input[id="numero_inventario"]').value;
     const usuario = document.querySelector('input[id="usuario"]').value;
     const marca = document.querySelector('input[id="marca"]').value;
@@ -584,13 +585,13 @@ async function generarPDF() {
     doc.text(visto_bueno, 145, y + 21);
 
         if(firma1Base64)
-            doc.addImage(firma1Base64, 'PNG', 15, y, 30, 20 );
+            doc.addImage(firma1Base64, 'PNG', 17, y, 40, 20 );
     
         if(firma2Base64)
-        doc.addImage(firma2Base64, 'PNG', 105, y, 30, 20, "center" );
+        doc.addImage(firma2Base64, 'PNG', 82, y, 40, 20);
     
         if(firma3Base64)
-            doc.addImage(firma3Base64, 'PNG', 145, y, 30, 20 );
+            doc.addImage(firma3Base64, 'PNG', 150, y, 40, 20 );
     
     
     y += 22;
