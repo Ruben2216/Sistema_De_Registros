@@ -1,7 +1,4 @@
-// Mejoras adicionales para la integración cámara-evidencia
-// Este archivo contiene funcionalidades opcionales para mejorar la experiencia
 
-// === NOTIFICACIONES MEJORADAS ===
 function mostrarNotificacionCamara(mensaje, tipo = 'info', duracion = 5000) {
     const notificacion = document.getElementById('notificacion');
     if (!notificacion) return;

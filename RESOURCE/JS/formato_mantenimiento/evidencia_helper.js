@@ -1,5 +1,4 @@
-// Funciones auxiliares para el sistema de evidencia de mantenimiento
-// Este archivo contiene funciones reutilizables para todos los formularios de mantenimiento
+
 
 // Función para guardar PDF en el repositorio de evidencia de mantenimiento
 async function guardarPDFEnRepositorioEvidencia(docPDF, nombreArchivo, tipoMantenimiento) {
