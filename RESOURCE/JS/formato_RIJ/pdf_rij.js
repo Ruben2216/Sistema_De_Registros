@@ -80,12 +80,21 @@ function validarFormulario() {
 
 }
 
+    function obtenerFechaCorta() {
+        const fecha = new Date();
+        const dia = String(fecha.getDate()).padStart(2, '0');
+        const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+        const año = fecha.getFullYear();
+        return `${dia}/${mes}/${año}`;
+    }
+
 async function generarPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF(); /*crea pdf vacio*/
 
     //CAPTURADO DE DATOS
     const departamento = document.querySelector('select[id="departamento"]').value;
+    const fecha = obtenerFechaCorta();
     const categoria_max = document.querySelector('select[id="categoria_max"').value;
     const nombre = document.querySelector('input[id="nombre"]').value;
     const hora_inicio = document.querySelector('input[id="hora_inicio"]').value;
@@ -146,6 +155,10 @@ async function generarPDF() {
     doc.text(fech, 157, y);
     doc.line(fechWidth + 157, y + 1, fechWidth + 175, y + 1);
 
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(7);
+    doc.text(fecha, 158 + fechWidth, y);
+
     y+=8;
     doc.setFont("helvetica", "bold");
     doc.setFontSize(7);
@@ -191,8 +204,8 @@ async function generarPDF() {
     const anchoFirma1 = doc.getTextWidth(firma1);
     doc.line(anchoFirma1 + 155, y, anchoFirma1 + 176, y);
 
-     if(firma2Base64)
-        doc.addImage(firma2Base64, 'PNG', 165, y-19, 30, 20 );
+     if(firma1Base64)
+        doc.addImage(firma1Base64, 'PNG', 165, y-10, 20, 10 );
 
     y+=8;
     doc.setFont("helvetica", "bold");
@@ -648,10 +661,10 @@ async function generarPDF() {
     y+=1;
 
     const anchoFirma2 = doc.getTextWidth(firma);
-    doc.line(anchoFirma2 + 100, y, anchoFirma2 + 146, y);
+    doc.line(anchoFirma2 + 100, y, anchoFirma2 + 130, y);
 
      if(firma2Base64)
-        doc.addImage(firma2Base64, 'PNG', 115, y-19, 30, 20 );
+        doc.addImage(firma2Base64, 'PNG', 115, y-10, 20, 10 );
 
     // ENCABEZADO
     const pageHeight = doc.internal.pageSize.getHeight();

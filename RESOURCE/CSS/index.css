@@ -437,6 +437,11 @@ h1{
     box-shadow: 0 4px 16px rgba(0,0,0,0.3);
 
 }
+.menu-hamburguesa-flotante.oculto {
+    pointer-events: none;
+    opacity: 0.5;
+}
+
 .menu-hamburguesa-opciones {
     display: flex;
     flex-direction: column;
