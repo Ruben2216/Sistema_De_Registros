@@ -94,7 +94,7 @@ async function generarPDF() {
 
     //CAPTURADO DE DATOS
     const departamento = document.querySelector('select[id="departamento"]').value;
-    const fecha = obtenerFechaCorta();
+    const fechaCorta = obtenerFechaCorta();
     const categoria_max = document.querySelector('select[id="categoria_max"').value;
     const nombre = document.querySelector('input[id="nombre"]').value;
     const hora_inicio = document.querySelector('input[id="hora_inicio"]').value;

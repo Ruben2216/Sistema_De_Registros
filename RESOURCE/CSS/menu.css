@@ -131,7 +131,13 @@ select option{
 	position: fixed;
 	bottom: 40px;
 	right: 40px;
+    border:none;
 }
+.btn-flotante:active {
+    background-color: #005f3e;
+    transform: scale(0.90);
+}
+
 .btn-flotante img {
     margin-bottom: 0.5rem;
     width: 2rem;
