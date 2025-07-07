@@ -638,7 +638,10 @@ doc.setFont("zapfdingbats");
     doc.text("3", 112, y); 
     doc.setFont("helvetica"); 
     } else if(teclado === "no"){
-        doc.text("x", 122, y)
+        doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("7", 122, y);
+    doc.setFont("helvetica");
         const motivo = document.querySelector('input[id="input_teclado"]').value;
         if(motivo){
             doc.setFontSize(8);
@@ -656,7 +659,10 @@ doc.setFont("zapfdingbats");
     doc.text("3", 112, y); 
     doc.setFont("helvetica"); 
     } else if(gps === "no"){
-        doc.text("x", 122, y)
+        doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("7", 122, y);
+    doc.setFont("helvetica");
         const motivo = document.querySelector('input[id="input_gps"]').value;
         if(motivo){
             doc.setFontSize(8);

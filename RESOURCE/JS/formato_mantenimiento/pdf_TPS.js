@@ -418,9 +418,15 @@ async function generarPDF() {
     doc.line(15,y+2, w, y+2 );
 
     if (sopleteado === "si") {
-        doc.text("x", 112, y);
+        doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("3", 111, y); 
+    doc.setFont("helvetica");
     } else if (sopleteado === "no") {
-        doc.text("x", 120, y);
+        doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("7", 120, y);
+    doc.setFont("helvetica");
         const motivo = document.querySelector('input[id="input_sopleteado"]').value;
         if (motivo) {
             doc.setFontSize(8); // tamaño más pequeño para caber
@@ -433,9 +439,15 @@ async function generarPDF() {
     doc.line(15,y+2, w, y+2 );
 
     if (touch === "si") {
-        doc.text("x", 112, y);
+        doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("3", 111, y); 
+    doc.setFont("helvetica");
     } else if (touch === "no") {
-        doc.text("x", 120, y);
+        doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("7", 120, y);
+    doc.setFont("helvetica");
         const motivo = document.querySelector('input[id="input_sopleteado"]').value;
         if (motivo) {
             doc.setFontSize(8); // tamaño más pequeño para caber
@@ -449,9 +461,15 @@ async function generarPDF() {
     doc.line(15,y+2, w, y+2 );
 
     if (bateria === "si") {
-        doc.text("x", 112, y);
+        doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("3", 111, y); 
+    doc.setFont("helvetica");
     } else if (bateria === "no") {
-        doc.text("x", 120, y);
+        doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("7", 120, y);
+    doc.setFont("helvetica");
         const motivo = document.querySelector('input[id="input_bateria"]').value;
         if (motivo) {
             doc.setFontSize(8); // tamaño más pequeño para caber
@@ -465,9 +483,15 @@ async function generarPDF() {
     doc.line(15,y+2, w, y+2 );
 
     if (Sw === "si") {
-        doc.text("x", 112, y);
+        doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("3", 111, y); 
+    doc.setFont("helvetica");
     } else if (Sw === "no") {
-        doc.text("x", 120, y);
+        doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("7", 120, y);
+    doc.setFont("helvetica");
         const motivo = document.querySelector('input[id="input_Sw"]').value;
         if (motivo) {
             doc.setFontSize(8); // tamaño más pequeño para caber
@@ -481,9 +505,15 @@ async function generarPDF() {
     doc.line(15,y+2, w, y+2 );
 
     if (conector === "si") {
-        doc.text("x", 112, y);
+        doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("3", 111, y); 
+    doc.setFont("helvetica");
     } else if (conector === "no") {
-        doc.text("x", 120, y);
+        doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("7", 120, y);
+    doc.setFont("helvetica");
         const motivo = document.querySelector('input[id="input_conector"]').value;
         if (motivo) {
             doc.setFontSize(8); // tamaño más pequeño para caber
@@ -497,9 +527,15 @@ async function generarPDF() {
     doc.line(15,y+2, w, y+2 );
 
     if (teclado === "si") {
-        doc.text("x", 112, y);
+        doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("3", 111, y); 
+    doc.setFont("helvetica");
     } else if (teclado === "no") {
-        doc.text("x", 120, y);
+        doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("7", 120, y);
+    doc.setFont("helvetica");
         const motivo = document.querySelector('input[id="input_teclado"]').value;
         if (motivo) {
             doc.setFontSize(8); // tamaño más pequeño para caber
@@ -509,12 +545,19 @@ async function generarPDF() {
     }
 
     y+=6;
+    doc.setFontSize(10);
     doc.text(`Verificar funcionamiento del equipo después del servicio`, 16, y);
 
     if (verificar === "si") {
-        doc.text("x", 112, y);
+        doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("3", 111, y); 
+    doc.setFont("helvetica");
     } else if (verificar === "no") {
-        doc.text("x", 120, y);
+        doc.setFont("zapfdingbats");
+    doc.setFontSize(9);
+    doc.text("7", 120, y);
+    doc.setFont("helvetica");
         const motivo = document.querySelector('input[id="input_teclado"]').value;
         if (motivo) {
             doc.setFontSize(8); // tamaño más pequeño para caber
@@ -529,17 +572,17 @@ async function generarPDF() {
    
 
     y += 12;
-    doc.text(`Realizó servicio:`, 15, y-5);
+    doc.text(`Realizó servicio:`, 23, y-5);
     doc.setFontSize(7);
-    doc.text(realizo_servicio, 15, y + 30);
+    doc.text(realizo_servicio, 17, y + 30);
     doc.setFontSize(10);
     doc.text(`Responsable del Equipo:`, 105, y-5, "center");
     doc.setFontSize(7);
-    doc.text(responsable, 80, y + 30);
+    doc.text(responsable, 81, y + 30);
     doc.setFontSize(10);
-    doc.text(`Visto Bueno:`, 145, y-5);
+    doc.text(`Visto Bueno:`, 158, y-5);
     doc.setFontSize(7);
-    doc.text(visto_bueno, 145, y + 30);
+    doc.text(visto_bueno, 147, y + 30);
     y += 8;
      if (firma1Base64) await addCompressedImage(doc, firma1Base64, 15, y, 40, 20, compConfig.calidad_webp, 'firma1');
     if (firma2Base64) await addCompressedImage(doc, firma2Base64, 82, y, 40, 20, compConfig.calidad_webp, 'firma2');
@@ -551,9 +594,9 @@ async function generarPDF() {
     doc.line(145, y, 200, y);
     y += 5;
     doc.setFontSize(10);
-    doc.text("Nombre y firma", 20, y);
-    doc.text("Nombre y firma", 95, y);
-    doc.text("Nombre y firma", 165, y);
+    doc.text("Nombre y firma", 25, y);
+    doc.text("Nombre y firma", 93, y);
+    doc.text("Nombre y firma", 160, y);
 
     // Usar el sistema de nombrado automático basado en número de serie
     requestPDFFilename((filename) => {
