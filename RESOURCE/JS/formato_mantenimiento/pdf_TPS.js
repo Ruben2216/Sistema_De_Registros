@@ -578,7 +578,24 @@ async function generarPDF() {
     doc.setFontSize(10);
     doc.text(`Responsable del Equipo:`, 105, y-5, "center");
     doc.setFontSize(7);
-    doc.text(responsable, 81, y + 30);
+    
+    // Centrar el texto del responsable en la misma posición que la línea
+    const centerOriginal = 105; 
+    doc.text(responsable, centerOriginal, y + 30, null, null, "center");
+    
+    let lineStartX, lineEndX;
+    if (responsable && responsable.trim()) {
+        // Si hay contenido, centrar la línea desde el centro original
+        const responsableWidth = doc.getTextWidth(responsable);
+        const margin = 1; 
+        lineStartX = centerOriginal - (responsableWidth / 2) - margin;
+        lineEndX = centerOriginal + (responsableWidth / 2) + margin;
+    } else {
+        // Si no hay contenido, usar línea original fija
+        lineStartX = 80;
+        lineEndX = 130;
+    }
+    
     doc.setFontSize(10);
     doc.text(`Visto Bueno:`, 158, y-5);
     doc.setFontSize(7);
@@ -590,7 +607,7 @@ async function generarPDF() {
         y += 23;
 
     doc.line(15, y, 60, y);
-    doc.line(80, y, 130, y);
+    doc.line(lineStartX, y, lineEndX, y);
     doc.line(145, y, 200, y);
     y += 5;
     doc.setFontSize(10);
