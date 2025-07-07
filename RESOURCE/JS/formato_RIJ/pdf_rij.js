@@ -80,69 +80,9 @@ function validarFormulario() {
 
 }
 
-/** Carga dinámica de configuracion_pdf.js si es necesario */
-async function cargarConfiguracionPDF() {
-    if (typeof PDFSizeController === 'undefined') {
-        return new Promise((resolve, reject) => {
-            const script = document.createElement('script');
-            script.src = '/RESOURCE/JS/configuracion_pdf.js';
-            script.onload = resolve;
-            script.onerror = reject;
-            document.head.appendChild(script);
-        });
-    }
-    return Promise.resolve();
-}
-
-function blobAdataURL(blob) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
-    });
-}
-
-async function convertirPNGtoJPEG(dataSource, calidad) {
-    let dataURL = dataSource;
-    if (!dataSource.startsWith('data:')) {
-        const resp = await fetch(dataSource, { mode: 'cors' });
-        const blob = await resp.blob();
-        dataURL = await blobAdataURL(blob);
-    }
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.src = dataURL;
-    await img.decode();
-    const canvas = document.createElement('canvas');
-    canvas.width = img.width;
-    canvas.height = img.height;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(img, 0, 0);
-    return canvas.toDataURL('image/jpeg', calidad);
-}
-
-async function addCompressedImage(doc, source, x, y, w, h, calidad, descripcion) {
-    if (descripcion === 'logo' || descripcion.startsWith('firma')) {
-        doc.addImage(source, 'PNG', x, y, w, h);
-        return;
-    }
-    let dURL = source;
-    if (!source.startsWith('data:')) {
-        const resp = await fetch(source, { mode: 'cors' });
-        const blob = await resp.blob();
-        dURL = await blobAdataURL(blob);
-    }
-    const jpeg = await convertirPNGtoJPEG(dURL, calidad);
-    doc.addImage(jpeg, 'JPEG', x, y, w, h);
-}
-
 async function generarPDF() {
-    await cargarConfiguracionPDF();
     const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ compress: true });
-    const sizeController = new PDFSizeController();
-    const compConfig = sizeController.calcularConfiguracionInicial(4);
+    const doc = new jsPDF(); /*crea pdf vacio*/
 
     //CAPTURADO DE DATOS
     const departamento = document.querySelector('select[id="departamento"]').value;
@@ -157,7 +97,7 @@ async function generarPDF() {
     const ejercicio = document.querySelector('input[name="ejercicio"]:checked').value;
     const anomalias = document.querySelector('input[name="anomalias"]:checked').value;
     const mantenimiento = document.querySelector('input[name="mantenimiento"]:checked').value;
-   // const enumeracion = document.querySelector('input[id="enumeracion"]').value;
+    const enumeracion = document.querySelector('input[id="enumeracion"]').value;
     const operacion = document.querySelector('input[name="operacion"]:checked').value;
     const riesgo = document.querySelector('input[name="riesgo"]:checked').value;
     const incidentes = document.querySelector('input[name="incidentes"]:checked').value;
@@ -206,7 +146,6 @@ async function generarPDF() {
     doc.text(fech, 157, y);
     doc.line(fechWidth + 157, y + 1, fechWidth + 175, y + 1);
 
-
     y+=8;
     doc.setFont("helvetica", "bold");
     doc.setFontSize(7);
@@ -243,7 +182,7 @@ async function generarPDF() {
     doc.text(RPE, 101 + rpeWidth, y);
 
     doc.setFont("helvetica", "bold");
-     doc.setFontSize(7);
+    doc.setFontSize(7);
     const firma1 = "FIRMA: ";
     doc.text(firma1, 155, y);
 
@@ -279,9 +218,6 @@ async function generarPDF() {
     doc.text(hora_termino, 101 + terminoWidth, y);
     doc.line(terminoWidth + 100, y + 1, terminoWidth + 129, y + 1);
 
-    //ACTIVIDADES
-    /*y+=15;
-    doc.text("OBSERVACIONES", 153, y);*/
     y+=10;
     doc.setFontSize(8)
     doc.text("Si", 115, y);
@@ -329,6 +265,10 @@ async function generarPDF() {
             doc.setTextColor(255, 0, 0); // Rojo
             doc.text("x", 125.5, y);
     }
+    doc.setFontSize(9)
+    doc.setTextColor(0, 0, 0);
+    doc.text(`No. Personas: ${enumeracion}`, 135, y);
+    doc.line(155, y+1, 165, y+1);
     y+=6;
     doc.setTextColor(0, 0, 0); // Negro
     doc.setFontSize(8)
@@ -701,7 +641,6 @@ async function generarPDF() {
     doc.text(`R.P.E: ${RPE}`, 15, y+1);
     y+=1;
     doc.line(25, y+1, 50, y+1);
-
 
     const firma = "Firma: ";
     doc.text(firma, 105, y, "center");

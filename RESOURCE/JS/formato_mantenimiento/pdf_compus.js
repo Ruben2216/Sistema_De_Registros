@@ -612,24 +612,29 @@ async function generarPDF() {
     // FIRMAS
     y += 8;
     if (firma1Base64) {
-        await addCompressedImage(doc, firma1Base64, 15, y, 30, 30, compConfig.calidad_webp, 'firma1');
+        await addCompressedImage(doc, firma1Base64, 17, y, 40, 20, compConfig.calidad_webp, 'firma1');
     }
     
     if (firma2Base64) {
-        await addCompressedImage(doc, firma2Base64, 105, y, 30, 30, compConfig.calidad_webp, 'firma2');
+        await addCompressedImage(doc, firma2Base64, 82, y, 40, 20, compConfig.calidad_webp, 'firma2');
     }
     
     if (firma3Base64) {
-        await addCompressedImage(doc, firma3Base64, 145, y, 30, 30, compConfig.calidad_webp, 'firma3');
+        await addCompressedImage(doc, firma3Base64, 150, y, 40, 20, compConfig.calidad_webp, 'firma3');
     }
 
     y += 8;
-    doc.text(`Realizó servicio:`, 15, y);
+    doc.text(`Realizó servicio:`, 15, y-12);
+        doc.setFontSize(7);
     doc.text(realizo_servicio, 15, y + 21);
-    doc.text(`Responsable del Equipo:`, 105, y, "center");
+        doc.setFontSize(10);
+    doc.text(`Responsable del Equipo:`, 105, y-12, "center");
+        doc.setFontSize(7);
     doc.text(responsable, 80, y + 21);
-    doc.text(`Visto Bueno:`, 145, y);
+        doc.setFontSize(10);
+    doc.text(`Visto Bueno:`, 145, y-12);
     doc.text(visto_bueno, 145, y + 21);
+        doc.setFontSize(7);
     y += 22;
     doc.line(15, y, 60, y);
     doc.line(80, y, 130, y);
