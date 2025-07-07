@@ -719,7 +719,7 @@ doc.setFont("zapfdingbats");
 
     // Usar el sistema de nombrado automático basado en número de serie
     requestPDFFilename((filename) => {
-        doc.save(filename);
+        procesarPDFMantenimiento(doc, filename, 'TABLETA');
     }, serie, 'TABLETA');
 }
 
