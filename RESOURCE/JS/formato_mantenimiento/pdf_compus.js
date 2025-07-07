@@ -309,13 +309,13 @@ async function generarPDF() {
     let xFolioVal = 158 + (rectWidthSeccion4 - folioWidth) / 2;
     doc.text(folio, xFolioVal, y + 5);
 
-    doc.rect(15, y - 4, 55, 14); 
+    doc.rect(15, y - 4, 55, 12.5); 
     doc.line(15, y+.7, 70, y+.7);
-    doc.rect(73, y - 4, 46, 14); 
+    doc.rect(73, y - 4, 46, 12.5); 
     doc.line(73, y+.7, 119, y+.5);
-    doc.rect(122, y - 4, 33, 14);
+    doc.rect(122, y - 4, 33, 12.5);
     doc.line(122, y+.7, 155, y+.5);
-    doc.rect(158, y - 4, 44, 14);
+    doc.rect(158, y - 4, 44, 12.5);
     doc.line(158, y+.7, 202, y+.5);
 
     y += 15;
@@ -367,17 +367,16 @@ async function generarPDF() {
     let xTipoEquipoVal = 158 + (rectWidthSeccion4 - TipoEquipoWidth) / 2;
     doc.text(tipo_equipo, xTipoEquipoVal, y + 5);
 
-    doc.rect(15, y - 4, 55, 14); 
+    doc.rect(15, y - 4, 55, 12.5); 
     doc.line(15, y+.7, 70, y+.7);
-    doc.rect(73, y - 4, 46, 14); 
+    doc.rect(73, y - 4, 46, 12.5); 
     doc.line(73, y+.7, 119, y+.5);
-    doc.rect(122, y - 4, 33, 14);
+    doc.rect(122, y - 4, 33, 12.5);
     doc.line(122, y+.7, 155, y+.5);
-    doc.rect(158, y - 4, 44, 14);
+    doc.rect(158, y - 4, 44, 12.5);
     doc.line(158, y+.7, 202, y+.5);
 
     y += 15;
-
     // === USUARIO ===
     doc.setFont("helvetica", "normal", "bold");
     label = "Nombre del usuario:";
@@ -386,15 +385,9 @@ async function generarPDF() {
     doc.text(label, xUsuario, y);
 
     doc.setFont("helvetica", "normal");
-
-    // Dividir texto si es muy largo 
-    const maxWidth = rectWidthSeccion1 - 4; 
-    const lineasUsuario = doc.splitTextToSize(usuario, maxWidth);
-
-    const xTexto = 15 + 2; // margen izquierdo
-    const yTexto = y + 5;
-    doc.text(lineasUsuario, xTexto, yTexto);
-
+    let usuarioWidth = doc.getTextWidth(usuario);
+    let xUsuarioVal = 15 + (rectWidthSeccion1 - usuarioWidth) / 2;
+    doc.text(usuario, xUsuarioVal, y + 5);
 
     // === NUMERO DE SERIE ===
     doc.setFont("helvetica", "normal", "bold");
@@ -432,13 +425,13 @@ async function generarPDF() {
     let xServicioVal = 158 + (rectWidthSeccion4 - servicioWidth) / 2;
     doc.text(servicio, xServicioVal, y + 5);
  
-    doc.rect(15, y - 4, 55, 14); 
+    doc.rect(15, y - 4, 55, 12.5); 
     doc.line(15, y+.7, 70, y+.7);
-    doc.rect(73, y - 4, 46, 14); 
+    doc.rect(73, y - 4, 46, 12.5); 
     doc.line(73, y+.7, 119, y+.5);
-    doc.rect(122, y - 4, 33, 14);
+    doc.rect(122, y - 4, 33, 12.5);
     doc.line(122, y+.7, 155, y+.5);
-    doc.rect(158, y - 4, 44, 14);
+    doc.rect(158, y - 4, 44, 12.5);
     doc.line(158, y+.7, 202, y+.5);
     
     y+= 15;
@@ -617,7 +610,6 @@ async function generarPDF() {
      y += 55;
 
     // FIRMAS
-<<<<<<< HEAD
     y += 8;
     if (firma1Base64) {
         await addCompressedImage(doc, firma1Base64, 17, y, 40, 20, compConfig.calidad_webp, 'firma1');
@@ -632,32 +624,18 @@ async function generarPDF() {
     }
 
     y += 8;
-=======
-    y+=8;
-    if(firma1Base64)
-        doc.addImage(firma1Base64, 'PNG', 17, y, 40, 20 );
-    
-    if(firma2Base64)
-        doc.addImage(firma2Base64, 'PNG', 82, y, 40, 20);
-    
-    if(firma3Base64)
-        doc.addImage(firma3Base64, 'PNG', 150, y, 40, 20 );
-    
-    y += 8;
->>>>>>> 2804e79f7647c524984e1566f1b74459e90316a4
     doc.text(`Realizó servicio:`, 15, y-12);
-    doc.setFontSize(7);
+        doc.setFontSize(7);
     doc.text(realizo_servicio, 15, y + 21);
-    doc.setFontSize(10);
+        doc.setFontSize(10);
     doc.text(`Responsable del Equipo:`, 105, y-12, "center");
-    doc.setFontSize(7);
+        doc.setFontSize(7);
     doc.text(responsable, 80, y + 21);
-    doc.setFontSize(10);
+        doc.setFontSize(10);
     doc.text(`Visto Bueno:`, 145, y-12);
-    doc.setFontSize(7);
     doc.text(visto_bueno, 145, y + 21);
+        doc.setFontSize(7);
     y += 22;
-    doc.setFontSize(10);
     doc.line(15, y, 60, y);
     doc.line(80, y, 130, y);
     doc.line(145, y, 200, y);

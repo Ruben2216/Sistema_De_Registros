@@ -134,7 +134,6 @@ async function generarPDF() {
     const hrinicio = document.querySelector('input[id="hr.inicio"]').value;
     const hora_termino = document.querySelector('input[id="hr.termino"]').value;
     const serie = document.querySelector('input[id="serie"]').value;
-    const fecha = document.querySelector('input[id="fecha"]').value;
     const inventario = document.querySelector('input[id="numero_inventario"]').value;
     const usuario = document.querySelector('input[id="usuario"]').value;
     const marca = document.querySelector('input[id="marca"]').value;
@@ -610,6 +609,7 @@ async function generarPDF() {
     doc.text(`Realizó servicio:`, 15, y);
     doc.setFontSize(7);
     doc.text(realizo_servicio, 15, y + 21);
+
     doc.setFontSize(10);
     doc.text(`Responsable del Equipo:`, 105, y, "center");
     doc.setFontSize(7);
@@ -618,17 +618,14 @@ async function generarPDF() {
     doc.text(`Visto Bueno:`, 145, y);
     doc.setFontSize(7);
     doc.text(visto_bueno, 145, y + 21);
-
-        if(firma1Base64)
+    if(firma1Base64)
             doc.addImage(firma1Base64, 'PNG', 17, y, 40, 20 );
     
         if(firma2Base64)
-        doc.addImage(firma2Base64, 'PNG', 82, y, 40, 20);
+        doc.addImage(firma2Base64, 'PNG', 82, y, 40, 20,  );
     
         if(firma3Base64)
             doc.addImage(firma3Base64, 'PNG', 150, y, 40, 20 );
-    
-    
     y += 22;
     doc.line(15, y, 60, y);
     doc.line(80, y, 130, y);
