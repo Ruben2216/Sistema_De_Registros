@@ -141,10 +141,28 @@ async function generarPDF() {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(7);
     const fech = "FECHA: ";
-    //const fechaActual = new Date();
+    
+    // Obtener la fecha actual en formato dd/mm/yyyy usando la función global
+    var fechaActual;
+    if (typeof obtenerFecha === 'function') {
+        fechaActual = obtenerFecha();
+    } else {
+        // Función de respaldo si no está disponible la función global
+        var fecha = new Date();
+        var dia = fecha.getDate().toString().padStart(2, '0');
+        var mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
+        var anio = fecha.getFullYear();
+        fechaActual = dia + '/' + mes + '/' + anio;
+    }
+    
     const fechWidth = doc.getTextWidth(fech);
     doc.text(fech, 157, y);
-    doc.line(fechWidth + 157, y + 1, fechWidth + 175, y + 1);
+    
+    doc.setFont("helvetica", "normal");
+    doc.text(fechaActual, 157 + fechWidth, y);
+    
+    const fechaCompletaWidth = fechWidth + doc.getTextWidth(fechaActual);
+    doc.line(fechWidth + 157, y + 1, 157 + fechaCompletaWidth + 2, y + 1);
 
     y+=8;
     doc.setFont("helvetica", "bold");
