@@ -2,9 +2,24 @@ document.addEventListener('DOMContentLoaded', function() {
     // Configurar el formulario de login
     const formularioLogin = document.getElementById('formulario-login');
     const mensajeError = document.getElementById('mensaje-error');
+    const inputContrasena = document.getElementById('contrasena');
+    const checkboxMostrarContrasena = document.getElementById('mostrar-contrasena');
 
     // Verificar si ya hay una sesión activa
     verificarSesionExistente();
+
+    // Configurar funcionalidad para mostrar/ocultar contraseña
+    if (checkboxMostrarContrasena && inputContrasena) {
+        checkboxMostrarContrasena.addEventListener('change', function() {
+            if (this.checked) {
+                // Mostrar contraseña: cambiar tipo a 'text'
+                inputContrasena.type = 'text';
+            } else {
+                // Ocultar contraseña: cambiar tipo a 'password'
+                inputContrasena.type = 'password';
+            }
+        });
+    }
 
     if (formularioLogin) {
         formularioLogin.addEventListener('submit', function(evento) {

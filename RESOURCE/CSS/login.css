@@ -54,12 +54,27 @@ body {
     text-align: left;
 }
 
+.login__campo input[type="checkbox"] {
+    margin-right: 5px;
+    cursor: pointer;
+}
+
 .login__label {
     display: block;
     margin-bottom: 8px;
     font-weight: normal;
     color: #00724e;
     font-size: 1em;
+}
+
+.login__label-checkbox {
+    display: inline-block;
+    margin-left: 8px;
+    margin-bottom: 0;
+    font-weight: normal;
+    color: #00724e;
+    font-size: 0.9em;
+    cursor: pointer;
 }
 
 .login__input {
