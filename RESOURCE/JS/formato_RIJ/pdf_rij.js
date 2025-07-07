@@ -403,7 +403,7 @@ async function generarPDF() {
     doc.setFontSize(9)
     doc.setFont("helvetica", "normal");
     doc.text(`5.5. Otra información`, 15, y);
-    y+=7;
+    y+=5.5;
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
     const info = "Información:";
@@ -415,13 +415,37 @@ async function generarPDF() {
     const mas = "(Especificar el nombre de los temas de los cuales se dio información)"
     doc.text(mas, 14 + infoWidth, y);
 
-    y+=6;
-    doc.setFont("helvetica","normal")
-    doc.text(textArea1, 15, y);
-    y+=1;
-    doc.line(15, y, 195, y);
+    y+=4.2;
+        doc.line(15, y + 0.5, 195, y + 0.5);
 
-    y+=8;
+    doc.setFont("helvetica","normal")
+    
+    // Manejar el texto largo del campo extra_info con salto de línea
+    const anchoMaximo = 180; 
+    let lineasTextArea1 = doc.splitTextToSize(textArea1, anchoMaximo);
+    
+    // Si el texto requiere más de 2 líneas, reducir el tamaño de fuente a 7 para que no se rompa tanto por exceso de lienas
+    if (lineasTextArea1.length > 2) {
+        doc.setFontSize(7);
+        lineasTextArea1 = doc.splitTextToSize(textArea1, anchoMaximo);
+    } else {
+        doc.setFontSize(9); 
+    }
+    
+    // Escribir cada línea incrementando 
+    for (var i = 0; i < lineasTextArea1.length; i++) {
+        doc.text(lineasTextArea1[i], 15, y);
+        if (i < lineasTextArea1.length - 1) { // No incrementar y en la última línea
+            y += 4; 
+            doc.line(15, y + 0.5, 195, y + 0.5);
+        }
+    }
+    
+    // Restaurar tamaño
+    doc.setFontSize(9);
+    
+
+    y+=5.5;
     doc.setFont("helvetica", "bold");
     doc.setTextColor(0, 0, 0); // Negro
     doc.setFontSize(9)
