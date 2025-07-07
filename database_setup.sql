@@ -2,10 +2,9 @@
 -- SCRIPT DE BASE DE DATOS PARA PYTHONANYWHERE
 -- =====================================
 
--- Este script crea las tablas necesarias para tu sistema en MySQL
 -- Ejecuta estos comandos en la consola MySQL de PythonAnywhere
 
--- Usar la base de datos (ya viene creada como TU_USUARIO$default)
+-- Usar la base de datos
 USE CFE$default;
 
 -- Crear tabla de usuarios para autenticación simplificada
@@ -17,7 +16,6 @@ CREATE TABLE IF NOT EXISTS usuario (
   UNIQUE INDEX password_UNIQUE (password ASC)
 );
 
--- Crear tabla para manejar sesiones autenticadas
 CREATE TABLE IF NOT EXISTS sesiones_usuario (
   id INT NOT NULL AUTO_INCREMENT,
   session_token VARCHAR(255) NOT NULL,
@@ -32,7 +30,6 @@ CREATE TABLE IF NOT EXISTS sesiones_usuario (
   FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE CASCADE
 );
 
--- Insertar contraseñas de ejemplo para pruebas
 -- NOTA: En producción, usar contraseñas más seguras
 INSERT IGNORE INTO usuario (password) VALUES 
 ('Pass%word0dk040'),
@@ -43,5 +40,4 @@ INSERT IGNORE INTO usuario (password) VALUES
 ('evidencias'),
 ('registro');
 
--- Verificar que las contraseñas se insertaron correctamente
-SELECT * FROM usuario;
+
