@@ -570,16 +570,7 @@ async function generarPDF() {
     y+=5;
     // FIRMAS
         y+=8;
-        if(firma1Base64)
-            doc.addImage(firma1Base64, 'PNG', 15, y, 30, 30 );
-    
-        if(firma2Base64)
-        doc.addImage(firma2Base64, 'PNG', 105, y, 30, 30, "center" );
-    
-        if(firma3Base64)
-            doc.addImage(firma3Base64, 'PNG', 145, y, 30, 30 );
-    
-    y += 8;
+
     doc.text(`Realizó servicio:`, 15, y);
     doc.setFontSize(7);
     doc.text(realizo_servicio, 15, y + 21);
@@ -591,6 +582,17 @@ async function generarPDF() {
     doc.text(`Visto Bueno:`, 145, y);
     doc.setFontSize(7);
     doc.text(visto_bueno, 145, y + 21);
+
+        if(firma1Base64)
+            doc.addImage(firma1Base64, 'PNG', 15, y, 30, 20 );
+    
+        if(firma2Base64)
+        doc.addImage(firma2Base64, 'PNG', 105, y, 30, 20, "center" );
+    
+        if(firma3Base64)
+            doc.addImage(firma3Base64, 'PNG', 145, y, 30, 20 );
+    
+    
     y += 22;
     doc.line(15, y, 60, y);
     doc.line(80, y, 130, y);
