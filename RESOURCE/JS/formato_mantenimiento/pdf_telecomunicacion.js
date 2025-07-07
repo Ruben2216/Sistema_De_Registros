@@ -21,7 +21,7 @@ function validarFormulario() {
 
         if (!input.value.trim()) {
             input.classList.add('campo-error');
-            mensaje.textContent = 'Este campo es obligatorio';
+            mensaje.textContent = '¿Esta seguro en dejar este campo vacío?';
             esValido = false;
         } else {
             input.classList.remove('campo-error');
@@ -30,7 +30,7 @@ function validarFormulario() {
     });
 
     // Validar radios obligatorios
-    const radios = ['tierra_fisica', 'UPS', 'respaldo', 'radio', 'bateria', 'voltaje', 'control_acceso', 'seguridad_fisica', 'aire', 'aire_funcionando',
+    const radios = ['tierra_fisica', 'UPS', 'respaldo', 'bateria', 'voltaje', 'control_acceso', 'seguridad_fisica', 'aire', 'aire_funcionando',
         'bitacora', 'orden_impieza', 'etiquetado', 'polvo', 'switch', 'APS'];
 
     radios.forEach(nombre => {
@@ -460,6 +460,7 @@ if (orden_impieza === "si") {
 }
 
 // Pregunta 12
+
 y += 10;
 const texto12 = "12. ¿Se cuenta con cableado de red estructurado etiquetado?";
 const textoDividido12 = doc.splitTextToSize(texto12, anchoMax);
@@ -540,11 +541,11 @@ if (APS === "si") {
     doc.text(`Vo.Bo.`, 145, y);
 
     if(firma1Base64)
-        doc.addImage(firma1Base64, 'PNG', 21.5, y, 30, 20 );
+        doc.addImage(firma1Base64, 'PNG', 21.5, y+3, 40, 20 );
 
     
     if(firma2Base64)
-        doc.addImage(firma2Base64, 'PNG', 143.5, y, 30, 20, "center" );
+        doc.addImage(firma2Base64, 'PNG', 143.5, y+3, 40, 20, "center" );
 
     y += 30;
     doc.line(15, y, 88, y); 
