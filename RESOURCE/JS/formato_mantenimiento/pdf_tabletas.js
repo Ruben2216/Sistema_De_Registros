@@ -220,11 +220,11 @@ async function generarPDF() {
     let xFolioVal = 150 + (rectWidthSeccion3 - folioWidth) / 2;
     doc.text(folio, xFolioVal, y + 5);
 
-    doc.rect(15, y - 4, 65, 12.5); 
+    doc.rect(15, y - 4, 65, 14); 
     doc.line(15, y+.7, 80, y+.7);
-    doc.rect(82, y - 4, 65, 12.5,); 
+    doc.rect(82, y - 4, 65, 14); 
     doc.line(82, y+.7, 147, y+.5);
-    doc.rect(149, y - 4, 53, 12.5);
+    doc.rect(149, y - 4, 53, 14);
     doc.line(149, y+.7, 202, y+.5);
 
     y+=15;
@@ -265,11 +265,11 @@ async function generarPDF() {
     let xServicioVal = 150 + (rectWidthSeccion3 - servicioWidth) / 2;
     doc.text(servicio, xServicioVal, y + 5);
 
-    doc.rect(15, y - 4, 65, 12.5); 
+    doc.rect(15, y - 4, 65, 14); 
     doc.line(15, y+.7, 80, y+.7);
-    doc.rect(82, y - 4, 65, 12.5,); 
+    doc.rect(82, y - 4, 65, 14); 
     doc.line(82, y+.7, 147, y+.5);
-    doc.rect(149, y - 4, 53, 12.5);
+    doc.rect(149, y - 4, 53, 14);
     doc.line(149, y+.7, 202, y+.5);
 
     y+=15;
@@ -310,11 +310,11 @@ async function generarPDF() {
     let xHoraInicioVal = 150 + (rectWidthSeccion3 - HoraInicioWidth) / 2;
     doc.text(hrinicio, xHoraInicioVal, y + 5);
 
-    doc.rect(15, y - 4, 65, 12.5); 
+    doc.rect(15, y - 4, 65, 14); 
     doc.line(15, y+.7, 80, y+.7);
-    doc.rect(82, y - 4, 65, 12.5,); 
+    doc.rect(82, y - 4, 65, 14); 
     doc.line(82, y+.7, 147, y+.5);
-    doc.rect(149, y - 4, 53, 12.5);
+    doc.rect(149, y - 4, 53, 14);
     doc.line(149, y+.7, 202, y+.5);
 
     y+=15;
@@ -343,9 +343,9 @@ async function generarPDF() {
     let xHoraFinalVal = 150 + (rectWidthSeccion3 - horaFinalWidht) / 2;
     doc.text(hora_termino, xHoraFinalVal, y + 5);
 
-    doc.rect(82, y - 4, 65, 12.5,); 
+    doc.rect(82, y - 4, 65, 14); 
     doc.line(82, y+.7, 147, y+.5);
-    doc.rect(149, y - 4, 53, 12.5);
+    doc.rect(149, y - 4, 53, 14);
     doc.line(149, y+.7, 202, y+.5);
     
     const pageWidth = 210;
@@ -360,7 +360,7 @@ async function generarPDF() {
     doc.rect(15, y-4, anchoTotal + 7, 6);
 
     // TABLA DE ACTIVIDADES
-    y += 25;
+    y += 20;
     doc.setFont("helvetica", "bold");
     doc.text("ACTIVIDADES", 16, y);
     doc.text("SI", 110, y);
@@ -604,28 +604,28 @@ async function generarPDF() {
 
     y+=5;
     // FIRMAS
-        y+=8;
+        y+=20;
 
-    doc.text(`Realizó servicio:`, 15, y);
+    doc.text(`Realizó servicio:`, 15, y-8);
     doc.setFontSize(7);
     doc.text(realizo_servicio, 15, y + 21);
 
     doc.setFontSize(10);
-    doc.text(`Responsable del Equipo:`, 105, y, "center");
+    doc.text(`Responsable del Equipo:`, 105, y-8, "center");
     doc.setFontSize(7);
     doc.text(responsable, 80, y + 21);
     doc.setFontSize(10);
-    doc.text(`Visto Bueno:`, 145, y);
+    doc.text(`Visto Bueno:`, 145, y-8);
     doc.setFontSize(7);
     doc.text(visto_bueno, 145, y + 21);
     if(firma1Base64)
-            doc.addImage(firma1Base64, 'PNG', 17, y, 40, 20 );
+            doc.addImage(firma1Base64, 'PNG', 17, y-2, 40, 20 );
     
         if(firma2Base64)
-        doc.addImage(firma2Base64, 'PNG', 82, y, 40, 20,  );
+        doc.addImage(firma2Base64, 'PNG', 82, y-2, 40, 20,  );
     
         if(firma3Base64)
-            doc.addImage(firma3Base64, 'PNG', 150, y, 40, 20 );
+            doc.addImage(firma3Base64, 'PNG', 150, y-2, 40, 20 );
     y += 22;
     doc.line(15, y, 60, y);
     doc.line(80, y, 130, y);
