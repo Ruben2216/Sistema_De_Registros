@@ -320,7 +320,9 @@ function abrirModalRecorte(img, url, callback) {
             //NUEVO: Agrega la fecha después del recorte 
             var ctxCrop = cropCanvas.getContext('2d');
             var fecha = new Date();
-            var fechaTexto = fecha.toLocaleDateString('es-MX') + ' ' + fecha.getHours() + ':' + fecha.getMinutes();
+            var horas = fecha.getHours().toString().padStart(2, '0');
+            var minutos = fecha.getMinutes().toString().padStart(2, '0');
+            var fechaTexto = fecha.toLocaleDateString('es-MX') + ' ' + horas + ':' + minutos;
             var fontSize = 48;
             var padding = 10;
             ctxCrop.save();

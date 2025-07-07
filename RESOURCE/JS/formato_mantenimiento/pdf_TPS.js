@@ -629,9 +629,9 @@ async function generarPDF() {
         lineEndX3 = 200;
     }
     y += 8;
-     if (firma1Base64) await addCompressedImage(doc, firma1Base64, 15, y, 40, 20, compConfig.calidad_webp, 'firma1');
-    if (firma2Base64) await addCompressedImage(doc, firma2Base64, 82, y, 40, 20, compConfig.calidad_webp, 'firma2');
-    if (firma3Base64) await addCompressedImage(doc, firma3Base64, 147, y, 40, 20, compConfig.calidad_webp, 'firma3');
+     if (firma1Base64) await addCompressedImage(doc, firma1Base64, 15, y - 2, 40, 20, compConfig.calidad_webp, 'firma1');
+    if (firma2Base64) await addCompressedImage(doc, firma2Base64, 82, y - 2, 40, 20, compConfig.calidad_webp, 'firma2');
+    if (firma3Base64) await addCompressedImage(doc, firma3Base64, 151, y - 2, 40, 20, compConfig.calidad_webp, 'firma3');
         y += 23;
 
     doc.line(lineStartX1, y, lineEndX1, y);

@@ -443,7 +443,7 @@ h1{
 }
 
 .menu-hamburguesa-opciones {
-    display: flex;
+    display: none;
     flex-direction: column;
     gap: 12px;
     margin-bottom: 12px;
@@ -455,6 +455,7 @@ h1{
 
 }
 .menu-hamburguesa-flotante.activo .menu-hamburguesa-opciones {
+    display: flex;
     opacity: 1;
     pointer-events: auto; /*es para que los elementos dentro del menú sean interactivos */
     transform: translateY(0) scale(1);

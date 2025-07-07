@@ -128,8 +128,8 @@ async function generarPDF() {
 
     doc.setFontSize(11);
     doc.setFont("helvetica", "bold");
-    doc.text("LISTA DE VERIFICACIÓN DE LA REUNIÓN DIARIA DE INICIO DE JORNADA", 105, 15, null, null, "center");
-    doc.line(14, 17 , 199, 17);
+    doc.text("LISTA DE VERIFICACIÓN DE LA REUNIÓN DIARIA DE INICIO DE JORNADA", 105, 18.5, null, null, "center");
+    doc.line(14, 23 , 199, 23);
 
     // DATOS GENERALES
     y = 25;
@@ -150,10 +150,28 @@ async function generarPDF() {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(7);
     const fech = "FECHA: ";
-    //const fechaActual = new Date();
+    
+    // Obtener la fecha actual en formato dd/mm/yyyy usando la función global
+    var fechaActual;
+    if (typeof obtenerFecha === 'function') {
+        fechaActual = obtenerFecha();
+    } else {
+        // Función de respaldo si no está disponible la función global
+        var fecha = new Date();
+        var dia = fecha.getDate().toString().padStart(2, '0');
+        var mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
+        var anio = fecha.getFullYear();
+        fechaActual = dia + '/' + mes + '/' + anio;
+    }
+    
     const fechWidth = doc.getTextWidth(fech);
     doc.text(fech, 157, y);
-    doc.line(fechWidth + 157, y + 1, fechWidth + 175, y + 1);
+    
+    doc.setFont("helvetica", "normal");
+    doc.text(fechaActual, 157 + fechWidth, y);
+    
+    const fechaCompletaWidth = fechWidth + doc.getTextWidth(fechaActual);
+    doc.line(fechWidth + 157, y + 1, 157 + fechaCompletaWidth + 2, y + 1);
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(7);
@@ -461,7 +479,7 @@ async function generarPDF() {
     doc.setFontSize(9)
     doc.setFont("helvetica", "normal");
     doc.text(`5.5. Otra información`, 15, y);
-    y+=7;
+    y+=5.5;
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
     const info = "Información:";
@@ -473,13 +491,37 @@ async function generarPDF() {
     const mas = "(Especificar el nombre de los temas de los cuales se dio información)"
     doc.text(mas, 14 + infoWidth, y);
 
-    y+=6;
-    doc.setFont("helvetica","normal")
-    doc.text(textArea1, 15, y);
-    y+=1;
-    doc.line(15, y, 195, y);
+    y+=4.2;
+        doc.line(15, y + 0.5, 195, y + 0.5);
 
-    y+=8;
+    doc.setFont("helvetica","normal")
+    
+    // Manejar el texto largo del campo extra_info con salto de línea
+    const anchoMaximo = 180; 
+    let lineasTextArea1 = doc.splitTextToSize(textArea1, anchoMaximo);
+    
+    // Si el texto requiere más de 2 líneas, reducir el tamaño de fuente a 7 para que no se rompa tanto por exceso de lienas
+    if (lineasTextArea1.length > 2) {
+        doc.setFontSize(7);
+        lineasTextArea1 = doc.splitTextToSize(textArea1, anchoMaximo);
+    } else {
+        doc.setFontSize(9); 
+    }
+    
+    // Escribir cada línea incrementando 
+    for (var i = 0; i < lineasTextArea1.length; i++) {
+        doc.text(lineasTextArea1[i], 15, y);
+        if (i < lineasTextArea1.length - 1) { // No incrementar y en la última línea
+            y += 4; 
+            doc.line(15, y + 0.5, 195, y + 0.5);
+        }
+    }
+    
+    // Restaurar tamaño
+    doc.setFontSize(9);
+    
+
+    y+=5.5;
     doc.setFont("helvetica", "bold");
     doc.setTextColor(0, 0, 0); // Negro
     doc.setFontSize(9)

@@ -215,6 +215,29 @@ document.addEventListener('DOMContentLoaded', () => {
             // guardar imagen limpia antes de poner la fecha 
             var dataURLLimpia = canvasElement.toDataURL('image/png');
 
+            context.save();
+            var fecha = new Date();
+            var horas = fecha.getHours().toString().padStart(2, '0');
+            var minutos = fecha.getMinutes().toString().padStart(2, '0');
+            var fechaTexto = fecha.toLocaleDateString('es-MX') + ' ' + horas + ':' + minutos;
+            
+            var fontSize = 48;
+            var padding = 10;
+            
+            context.font = fontSize + 'px Arial';
+            context.textBaseline = 'bottom';
+            
+            var textWidth = context.measureText(fechaTexto).width;
+            var x = canvasElement.width - textWidth - padding;
+            var y = canvasElement.height - padding;
+            
+            context.fillStyle = 'rgba(0,0,0,0.48)';
+            context.fillRect(x - padding, y - fontSize - 4, textWidth + 2 * padding, fontSize + 8);
+            
+            context.fillStyle = 'white';
+            context.fillText(fechaTexto, x, y);
+            context.restore();
+
             // Pequeña pausa para mostrar el mensaje de procesamiento
             await new Promise(resolve => setTimeout(resolve, 800));
 
@@ -1170,6 +1193,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             img.src = dataUrlRecortada;
                             img.setAttribute('data-original-url', nuevaUrl);
                             
+
                             // OPTIMIZACIÓN: Guardar versión recortada como data URL local
                             img.setAttribute('data-local-image', dataUrlRecortada);
                             

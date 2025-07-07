@@ -33,7 +33,7 @@ function myFunc() {
     }
 
     var time = hora + ":" + minutos + ":" + segundos;
-    var aviso = " Se enviará con retraso";
+    var aviso = " Estas fuera de horario establecido";
 
     var relojElem = document.getElementById('reloj');
     var avisoElem = document.getElementById('aviso');
