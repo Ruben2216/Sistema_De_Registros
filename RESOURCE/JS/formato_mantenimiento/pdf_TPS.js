@@ -145,6 +145,37 @@ async function generarPDF() {
     const sizeController = new PDFSizeController();
     const compConfig = sizeController.calcularConfiguracionInicial(4);
 
+    const zona = document.querySelector('input[id="zona"').value;
+    const folio = document.querySelector('input[id="folio"').value;
+    const tipo_equipo = document.querySelector('select[id="tipo_equipo"').value;
+    const servicio = document.querySelector('select[id="servicio"').value;
+    const hora_inicio = document.querySelector('input[id="hrinicio"').value;
+    const hora_termino = document.querySelector('input[id="hrtermino"').value;
+    const serie = document.querySelector('input[id="serie"').value;
+    const fecha = document.querySelector('input[id="fecha"').value;
+    //const division = document.querySelector('input[id="division"').value;
+    //const numero_inventario = document.querySelector('input[id="numero_inventario"').value;
+    const usuario = document.querySelector('input[id="usuario"').value;
+    const marca = document.querySelector('input[id="marca"').value;
+    const modelo = document.querySelector('input[id="modelo"').value;
+    const uso = document.querySelector('input[id="tipo_uso"').value;
+    const centro = document.querySelector('input[id="centro_trabajo"').value;
+    //const justificacion = document.querySelector('input[id="justificacion"').value;
+    const sopleteado = document.querySelector('input[name="sopleteado"]:checked').value;
+    const touch = document.querySelector('input[name="touch"]:checked').value;
+    const bateria = document.querySelector('input[name="bateria"]:checked').value;
+    const Sw = document.querySelector('input[name="Sw"]:checked').value;
+    const conector = document.querySelector('input[name="conector"]:checked').value;
+    const teclado = document.querySelector('input[name="teclado"]:checked').value;
+    const verificar = document.querySelector('input[name="verificar"]:checked').value;
+    const realizo_servicio = document.querySelector('input[id="realizo_servicio"').value;
+    const responsable = document.querySelector('input[id="responsable"').value;
+    const visto_bueno = document.querySelector('input[id="visto_bueno"').value;
+    /*const firma3Base64 = document.getElementById("firma-input-3").value;
+    const firma2Base64 = document.getElementById("firma-input-2").value;
+    const firma1Base64 = document.getElementById("firma-input-1").value;*/
+
+
     // IMAGEN -- LOGO
     await addCompressedImage(doc, '/RESOURCE/IMG/Comisión_Federal_de_Electricidad_(logo)_.svg.png', 15, 8, 40, 20, compConfig.calidad_webp, 'logo');
 
@@ -218,13 +249,13 @@ async function generarPDF() {
     let xFolioVal = 158 + (rectWidthSeccion4 - folioWidth) / 2;
     doc.text(folio, xFolioVal, y + 5);
 
-    doc.rect(15, y - 4, 55, 12.5); 
+    doc.rect(15, y - 4, 55, 14); 
     doc.line(15, y+.7, 70, y+.7);
-    doc.rect(73, y - 4, 46, 12.5); 
+    doc.rect(73, y - 4, 46, 14); 
     doc.line(73, y+.7, 119, y+.5);
-    doc.rect(122, y - 4, 33, 12.5);
+    doc.rect(122, y - 4, 33, 14);
     doc.line(122, y+.7, 155, y+.5);
-    doc.rect(158, y - 4, 44, 12.5);
+    doc.rect(158, y - 4, 44, 14);
     doc.line(158, y+.7, 202, y+.5);
 
     y += 15;
@@ -276,13 +307,13 @@ async function generarPDF() {
     let xTipoEquipoVal = 158 + (rectWidthSeccion4 - TipoEquipoWidth) / 2;
     doc.text(tipo_equipo, xTipoEquipoVal, y + 5);
 
-    doc.rect(15, y - 4, 55, 12.5); 
+    doc.rect(15, y - 4, 55, 14); 
     doc.line(15, y+.7, 70, y+.7);
-    doc.rect(73, y - 4, 46, 12.5); 
+    doc.rect(73, y - 4, 46, 14); 
     doc.line(73, y+.7, 119, y+.5);
-    doc.rect(122, y - 4, 33, 12.5);
+    doc.rect(122, y - 4, 33, 14);
     doc.line(122, y+.7, 155, y+.5);
-    doc.rect(158, y - 4, 44, 12.5);
+    doc.rect(158, y - 4, 44, 14);
     doc.line(158, y+.7, 202, y+.5);
 
     y += 15;
@@ -334,13 +365,13 @@ async function generarPDF() {
     let xServicioVal = 158 + (rectWidthSeccion4 - servicioWidth) / 2;
     doc.text(servicio, xServicioVal, y + 5);
  
-    doc.rect(15, y - 4, 55, 12.5); 
+    doc.rect(15, y - 4, 55, 14); 
     doc.line(15, y+.7, 70, y+.7);
-    doc.rect(73, y - 4, 46, 12.5); 
+    doc.rect(73, y - 4, 46, 14); 
     doc.line(73, y+.7, 119, y+.5);
-    doc.rect(122, y - 4, 33, 12.5);
+    doc.rect(122, y - 4, 33, 14);
     doc.line(122, y+.7, 155, y+.5);
-    doc.rect(158, y - 4, 44, 12.5);
+    doc.rect(158, y - 4, 44, 14);
     doc.line(158, y+.7, 202, y+.5);
     
     y+= 15;
@@ -356,7 +387,7 @@ async function generarPDF() {
     let xUsoVal = 15 + (rectWidthSeccion1 - usoWidth) / 2;
     doc.text(uso, xUsoVal, y + 5);
 
-    doc.rect(15, y - 4, 55, 12.5); 
+    doc.rect(15, y - 4, 55, 14); 
     doc.line(15, y+.7, 70, y+.7);
 
     // TABLA DE ACTIVIDADES
@@ -478,11 +509,11 @@ async function generarPDF() {
     }
 
     y+=6;
-    doc.text(`Vaerificar funcionamiento del equipo después del servicio`, 16, y);
+    doc.text(`Verificar funcionamiento del equipo después del servicio`, 16, y);
 
-    if (teclado === "si") {
+    if (verificar === "si") {
         doc.text("x", 112, y);
-    } else if (teclado === "no") {
+    } else if (verificar === "no") {
         doc.text("x", 120, y);
         const motivo = document.querySelector('input[id="input_teclado"]').value;
         if (motivo) {
@@ -493,10 +524,10 @@ async function generarPDF() {
     }
 
     // FIRMAS
-    y+=55;
+    /*y+=55;
     if (firma1Base64) await addCompressedImage(doc, firma1Base64, x1, y1, w1, h1, compConfig.calidad_webp, 'firma1');
     if (firma2Base64) await addCompressedImage(doc, firma2Base64, x2, y2, w2, h2, compConfig.calidad_webp, 'firma2');
-
+*/
     y += 10;
     doc.text(`Realizó servicio:`, 15, y-5);
     doc.setFontSize(7);
@@ -514,6 +545,7 @@ async function generarPDF() {
     doc.line(80, y, 130, y);
     doc.line(145, y, 200, y);
     y += 5;
+    doc.setFontSize(10);
     doc.text("Nombre y firma", 20, y);
     doc.text("Nombre y firma", 95, y);
     doc.text("Nombre y firma", 165, y);
