@@ -80,9 +80,69 @@ function validarFormulario() {
 
 }
 
+/** Carga dinámica de configuracion_pdf.js si es necesario */
+async function cargarConfiguracionPDF() {
+    if (typeof PDFSizeController === 'undefined') {
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = '/RESOURCE/JS/configuracion_pdf.js';
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+        });
+    }
+    return Promise.resolve();
+}
+
+function blobAdataURL(blob) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+    });
+}
+
+async function convertirPNGtoJPEG(dataSource, calidad) {
+    let dataURL = dataSource;
+    if (!dataSource.startsWith('data:')) {
+        const resp = await fetch(dataSource, { mode: 'cors' });
+        const blob = await resp.blob();
+        dataURL = await blobAdataURL(blob);
+    }
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.src = dataURL;
+    await img.decode();
+    const canvas = document.createElement('canvas');
+    canvas.width = img.width;
+    canvas.height = img.height;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    return canvas.toDataURL('image/jpeg', calidad);
+}
+
+async function addCompressedImage(doc, source, x, y, w, h, calidad, descripcion) {
+    if (descripcion === 'logo' || descripcion.startsWith('firma')) {
+        doc.addImage(source, 'PNG', x, y, w, h);
+        return;
+    }
+    let dURL = source;
+    if (!source.startsWith('data:')) {
+        const resp = await fetch(source, { mode: 'cors' });
+        const blob = await resp.blob();
+        dURL = await blobAdataURL(blob);
+    }
+    const jpeg = await convertirPNGtoJPEG(dURL, calidad);
+    doc.addImage(jpeg, 'JPEG', x, y, w, h);
+}
+
 async function generarPDF() {
+    await cargarConfiguracionPDF();
     const { jsPDF } = window.jspdf;
-    const doc = new jsPDF(); /*crea pdf vacio*/
+    const doc = new jsPDF({ compress: true });
+    const sizeController = new PDFSizeController();
+    const compConfig = sizeController.calcularConfiguracionInicial(4);
 
     //CAPTURADO DE DATOS
     const departamento = document.querySelector('select[id="departamento"]').value;

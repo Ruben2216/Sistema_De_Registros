@@ -61,7 +61,7 @@ function mostrarListaPDFs(pdfs) {
                     📁 Seleccionar
                 </button>
                 <button class="btn-ver-pdf" onclick="verPDF('${pdf.ruta}')">
-                    👁️ Ver PDF
+                     Ver PDF
                 </button>
             </div>
         `;
@@ -132,7 +132,6 @@ function configurarEventosArrastre() {
         procesarArchivos(archivos);
     });
     
-    // Remover el click automático de la zona de arrastre para evitar el error
     // El usuario debe usar el botón específico "Seleccionar Imágenes"
 }
 
@@ -211,7 +210,7 @@ function actualizarVistaImagenes() {
                 <p class="nombre-imagen">${imagen.nombre}</p>
                 <p class="tamaño-imagen">${formatearTamaño(imagen.tamaño)}</p>
                 <button class="btn-eliminar-imagen" onclick="eliminarImagen('${imagen.id}')">
-                    🗑️ Eliminar
+                     Eliminar
                 </button>
             </div>
         `;
@@ -586,18 +585,19 @@ async function importarFotosCamara() {
         // Procesar cada foto con indicador de progreso
         for (let i = 0; i < data.fotos.length; i++) {
             const fotoUrl = data.fotos[i];
-            
+            // Indicar progreso
+            mensajeEstado.textContent = `Importando foto ${i + 1} de ${data.fotos.length}...`;
             try {
-                // Actualizar mensaje de estado
-                mensajeEstado.textContent = `Importando foto ${i + 1} de ${data.fotos.length}...`;
-                
-                // Descargar la imagen como blob
-                const responseImg = await fetch(fotoUrl);
-                const blob = await responseImg.blob();
-                
+                // Intentar descargar la imagen
+                const respImg = await fetch(fotoUrl, { mode: 'cors', credentials: 'include' });
+                if (!respImg.ok) {
+                    console.warn(`Foto no disponible (status ${respImg.status}): ${fotoUrl}`);
+                    erroresImportacion++;
+                    continue;
+                }
+                const blob = await respImg.blob();
                 // Convertir blob a base64
                 const base64 = await blobToBase64(blob);
-                
                 // Crear objeto de imagen para la evidencia
                 const nombreArchivo = `Evidencia_Camara_${Date.now()}_${fotosImportadas + 1}.jpg`;
                 const imagen = {
@@ -609,22 +609,21 @@ async function importarFotosCamara() {
                     fecha: new Date(),
                     origen: 'camara'
                 };
-                
                 imagenesEvidencia.push(imagen);
                 fotosImportadas++;
-                
             } catch (error) {
-                console.error('Error al procesar foto:', error);
+                console.warn(`No se pudo importar foto: ${fotoUrl}`, error);
                 erroresImportacion++;
+                continue;
             }
         }
         
         if (fotosImportadas > 0) {
             actualizarVistaImagenes();
             
-            let mensaje = `${fotosImportados} fotos importadas correctamente`;
+            let mensaje = `${fotosImportadas} fotos importadas correctamente`;
             if (erroresImportacion > 0) {
-                mensaje += ` (${erroresImportacion} errores)`;
+                mensaje += ` (${erroresImportacion} omitidas)`;
             }
             mostrarNotificacion(mensaje, 'success');
             
@@ -635,7 +634,6 @@ async function importarFotosCamara() {
         } else {
             mostrarNotificacion('No se pudieron importar las fotos', 'error');
         }
-        
     } catch (error) {
         console.error('Error al importar fotos de cámara:', error);
         mostrarNotificacion('Error al importar fotos desde la cámara: ' + error.message, 'error');

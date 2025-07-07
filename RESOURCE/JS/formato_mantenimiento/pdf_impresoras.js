@@ -118,56 +118,89 @@ function validarFormulario() {
     
    
 
+/** Carga configuracion_pdf.js si es necesario */
+async function cargarConfiguracionPDF() {
+    if (typeof PDFSizeController === 'undefined') {
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = '/RESOURCE/JS/configuracion_pdf.js';
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+        });
+    }
+    return Promise.resolve();
+}
+
+function blobAdataURL(blob) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+    });
+}
+
+async function convertirPNGtoJPEG(dataSource, calidad) {
+    let dataURL = dataSource;
+    if (!dataSource.startsWith('data:')) {
+        const resp = await fetch(dataSource, { mode: 'cors' });
+        const blob = await resp.blob();
+        dataURL = await blobAdataURL(blob);
+    }
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.src = dataURL;
+    await img.decode();
+    const canvas = document.createElement('canvas');
+    canvas.width = img.width;
+    canvas.height = img.height;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    return canvas.toDataURL('image/jpeg', calidad);
+}
+
+async function addCompressedImage(doc, source, x, y, w, h, calidad, descripcion) {
+    if (descripcion === 'logo' || descripcion.startsWith('firma')) {
+        doc.addImage(source, 'PNG', x, y, w, h);
+        return;
+    }
+    let dURL = source;
+    if (!source.startsWith('data:')) {
+        const resp = await fetch(source, { mode: 'cors' });
+        const blob = await resp.blob();
+        dURL = await blobAdataURL(blob);
+    }
+    const jpeg = await convertirPNGtoJPEG(dURL, calidad);
+    doc.addImage(jpeg, 'JPEG', x, y, w, h);
+}
 
 async function generarPDF() {
+    await cargarConfiguracionPDF();
     const { jsPDF } = window.jspdf;
-    const doc = new jsPDF(); /*crea pdf vacio*/
+    const doc = new jsPDF({ compress: true });
+    const sizeController = new PDFSizeController();
+    const compConfig = sizeController.calcularConfiguracionInicial(4);
 
     // DATOS DE FORMULARIO
     const zona = document.querySelector('input[id="zona"]').value;
-    const centro = document.querySelector('select[id="centro_trabajo"]').value;
     const folio = document.querySelector('input[id="folio"]').value;
     const fecha = document.querySelector('input[id="fecha"]').value;
-    const usuario = document.querySelector('input[id="usuario"]').value;
-    const tipo_equipo = document.querySelector('input[id="tipo_equipo"]').value;
-    const marca = document.querySelector('input[id="marca"]').value;
-    const modelo = document.querySelector('input[id="modelo"]').value;
-    const serie = document.querySelector('input[id="serie"]').value;
-    const servicio = document.querySelector('select[id="servicio"]').value;
     const hora_inicio = document.querySelector('input[id="hrInicio"]').value;
     const hora_termino = document.querySelector('input[id="hrTermino"]').value;
-
-    const limpieza_interna = document.querySelector('input[name="limpieza_interna"]:checked').value;
-    const sopleteado = document.querySelector('input[name="sopleteado"]:checked').value;
-    const bandejas = document.querySelector('input[name="bandejas"]:checked').value;
-    const papel = document.querySelector('input[name="papel"]:checked').value;
-    const fusion = document.querySelector('input[name="fusion"]:checked').value;
-    const laser = document.querySelector('input[name="laser"]:checked').value;
-    const consumibles = document.querySelector('input[name="consumibles"]:checked').value;
-    const red = document.querySelector('input[name="red"]:checked').value;
-    const prueba = document.querySelector('input[name="prueba"]:checked').value;
-    const operando = document.querySelector('input[name="operando"]:checked').value;
-
-    const realizo_servicio = document.querySelector('input[id="realizo_servicio"]').value;
-    const responsable = document.querySelector('input[id="responsable"]').value;
-    const visto_bueno = document.querySelector('input[id="visto_bueno"]').value;
-    const firma3Base64 = document.getElementById("firma-input-3").value;
-    const firma2Base64 = document.getElementById("firma-input-2").value;
-    const firma1Base64 = document.getElementById("firma-input-1").value;
+    const numero_inventario = document.querySelector('input[id="numero_inventario"]').value;
+    const serie = document.querySelector('input[id="serie"]').value;
+    const usuario = document.querySelector('input[id="usuario"]').value;
+    const marca = document.querySelector('input[id="marca"]').value;
+    const modelo = document.querySelector('input[id="modelo"]').value;
+    const tipo_equipo = document.querySelector('input[id="tipo_equipo"]').value;
+    const division = document.querySelector('input[id="division"]').value;
+    const centro = document.getElementById('centro_trabajo').value;
+    const servicio = document.getElementById('servicio').value;
 
     // IMAGEN -- LOGO
-    await new Promise((resolve, reject) => {
-    const img = new Image(); // Este objeto representa la imagen que se va a insertar en el PDF
-    img.src = '/RESOURCE/IMG/Comisión_Federal_de_Electricidad_(logo)_.svg.png';
-    img.onload = function () { // esta función se ejecutará automáticamente cuando la imagen haya terminado de cargarse correctamente
-        const imgWidth = 40;
-        const imgHeight = 20;
-        doc.addImage(img, 'PNG', 15, 8, imgWidth, imgHeight);
-        resolve();
-    };
-    img.onerror = reject;
-    });
-    
+    await addCompressedImage(doc, '/RESOURCE/IMG/Comisión_Federal_de_Electricidad_(logo)_.svg.png', 15, 8, 40, 20, compConfig.calidad_webp, 'logo');
+
     // ENCABEZADO
     doc.setFont("helvetica"); /*tipo de letra y negritas*/
     doc.setFontSize(10);
@@ -533,14 +566,9 @@ async function generarPDF() {
 
     // FIRMAS
     y+=65;
-    if(firma1Base64)
-        doc.addImage(firma1Base64, 'PNG', 15, y, 30, 30 );
-    
-    if(firma2Base64)
-        doc.addImage(firma2Base64, 'PNG', 105, y, 30, 30, "center" );
-    
-    if(firma3Base64)
-        doc.addImage(firma3Base64, 'PNG', 145, y, 30, 30 );
+    if(firma1Base64) await addCompressedImage(doc, firma1Base64, 15, y, 30, 30, compConfig.calidad_webp, 'firma1');
+    if(firma2Base64) await addCompressedImage(doc, firma2Base64, 105, y, 30, 30, compConfig.calidad_webp, 'firma2');
+    if(firma3Base64) await addCompressedImage(doc, firma3Base64, 145, y, 30, 30, compConfig.calidad_webp, 'firma3');
     
     y += 8;
     doc.text(`Realizó servicio:`, 15, y);

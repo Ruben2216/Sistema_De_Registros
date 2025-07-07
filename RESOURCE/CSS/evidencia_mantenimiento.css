@@ -601,6 +601,67 @@ body {
     background: #c82333;
 }
 
+/* Estilos personalizados para botones de carga y acción */
+.botones-carga button,
+.botones-accion button {
+    display: block;
+    width: 100%;
+    max-width: 300px;
+    margin: 6px auto;
+    padding: 12px 16px;
+    background-color: #00724e;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+.botones-carga button:hover,
+.botones-accion button:hover {
+    background-color: #005f3e;
+    transform: translateY(-2px);
+}
+.botones-accion .btn-secundario {
+    background-color: #eaf6f0;
+    color: #00724e;
+    border: 1px solid #00724e;
+}
+.botones-accion .btn-secundario:hover {
+    background-color: #d4f0df;
+}
+
+/* Estilos para botones en acciones-pdf */
+.acciones-pdf {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-start;
+}
+.acciones-pdf button {
+    padding: 6px 10px;
+    font-size: 0.9rem;
+    background-color: #00724e;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.acciones-pdf button:hover {
+    background-color: #005f3e;
+}
+/* Botón Ver PDF secundario */
+.acciones-pdf .btn-ver-pdf {
+    background-color: #eaf6f0;
+    color: #00724e;
+    border: 1px solid #00724e;
+}
+.acciones-pdf .btn-ver-pdf:hover {
+    background-color: #d4f0df;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .contenedor-principal {
@@ -652,5 +713,13 @@ body {
     .contador-fotos {
         margin-left: 0;
         align-self: center;
+    }
+}
+
+@media (max-width: 600px) {
+    .botones-carga button,
+    .botones-accion button {
+        font-size: 0.95rem;
+        padding: 14px 18px;
     }
 }

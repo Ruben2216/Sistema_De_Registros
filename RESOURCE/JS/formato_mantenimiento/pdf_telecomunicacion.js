@@ -57,9 +57,73 @@ function validarFormulario() {
 }
 }
 
+function blobAdataURL(blob) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+    });
+}
+
+async function convertirPNGtoJPEG(dataSource, calidad) {
+    let dataURL = dataSource;
+    if (!dataSource.startsWith('data:')) {
+        const resp = await fetch(dataSource, { mode: 'cors' });
+        const blob = await resp.blob();
+        dataURL = await blobAdataURL(blob);
+    }
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.src = dataURL;
+    await img.decode();
+    const canvas = document.createElement('canvas');
+    canvas.width = img.width;
+    canvas.height = img.height;
+    canvas.getContext('2d').drawImage(img, 0, 0);
+    return canvas.toDataURL('image/jpeg', calidad);
+}
+
+async function addCompressedImage(doc, source, x, y, w, h, calidad, descripcion) {
+    if (descripcion === 'logo' || descripcion.startsWith('firma')) {
+        doc.addImage(source, 'PNG', x, y, w, h);
+        return;
+    }
+    let dURL = source;
+    if (!source.startsWith('data:')) {
+        const r = await fetch(source, { mode: 'cors' });
+        const b = await r.blob();
+        dURL = await blobAdataURL(b);
+    }
+    const jpeg = await convertirPNGtoJPEG(dURL, calidad);
+    doc.addImage(jpeg, 'JPEG', x, y, w, h);
+}
+
+/** Carga configuracion_pdf.js si hace falta */
+async function cargarConfiguracionPDF() {
+    if (typeof PDFSizeController === 'undefined') {
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = '/RESOURCE/JS/configuracion_pdf.js';
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+        });
+    }
+}
+
 async function generarPDF() {
+    // Cargar configuración y preparar compresión
+    await cargarConfiguracionPDF();
     const { jsPDF } = window.jspdf;
-    const doc = new jsPDF(); /*crea pdf vacio*/
+    const doc = new jsPDF({ compress: true });
+    const controller = new PDFSizeController();
+    const compConfig = controller.calcularConfiguracionInicial(4);
+
+    // IMAGENES -- LOGOS
+    await addCompressedImage(doc, '/RESOURCE/IMG/Comisión_Federal_de_Electricidad_(logo)_.svg.png', 15, 8, 40, 20, compConfig.calidad_webp, 'logo');
+    await addCompressedImage(doc, '/RESOURCE/IMG/suterm.png', 155, 8, 40, 20, compConfig.calidad_webp, 'logo');
+    await addCompressedImage(doc, '/RESOURCE/IMG/SIG.jpeg', 17, 44, 35, 15, compConfig.calidad_webp, 'logo');
 
     //DATOS DEL FORMULARIO 
     const zona = document.querySelector('input[id="zona"]').value;
@@ -87,43 +151,6 @@ async function generarPDF() {
     const VoBo = document.querySelector('input[id="VoBo"]').value;
     const firma2Base64 = document.getElementById("firma-input-2").value;
     const firma1Base64 = document.getElementById("firma-input-1").value;
-
-    // IMAGEN -- LOGO
-    await new Promise((resolve, reject) => {
-    const img = new Image(); // Este objeto representa la imagen que se va a insertar en el PDF
-    img.src = '/RESOURCE/IMG/Comisión_Federal_de_Electricidad_(logo)_.svg.png';
-    img.onload = function () { // esta función se ejecutará automáticamente cuando la imagen haya terminado de cargarse correctamente
-        const imgWidth = 40;
-        const imgHeight = 20;
-        doc.addImage(img, 'PNG', 15, 8, imgWidth, imgHeight);
-        resolve();
-    };
-    img.onerror = reject;
-    });
-
-    await new Promise((resolve, reject) => {
-    const img = new Image(); // Este objeto representa la imagen que se va a insertar en el PDF
-    img.src = '/RESOURCE/IMG/suterm.png';
-    img.onload = function () { // esta función se ejecutará automáticamente cuando la imagen haya terminado de cargarse correctamente
-        const imgWidth = 40;
-        const imgHeight = 20;
-        doc.addImage(img, 'PNG', 155, 8, imgWidth, imgHeight);
-        resolve();
-    };
-    img.onerror = reject;
-    });
-
-    await new Promise((resolve, reject) => {
-    const img = new Image(); // Este objeto representa la imagen que se va a insertar en el PDF
-    img.src = '/RESOURCE/IMG/SIG.jpeg';
-    img.onload = function () { // esta función se ejecutará automáticamente cuando la imagen haya terminado de cargarse correctamente
-        const imgWidth = 35;
-        const imgHeight = 15;
-        doc.addImage(img, 'PNG', 17, 44, imgWidth, imgHeight);
-        resolve();
-    };
-    img.onerror = reject;
-    });
 
     // ENCABEZADO
     doc.setFont("helvetica"); /*tipo de letra y negritas*/
