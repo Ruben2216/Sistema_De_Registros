@@ -568,13 +568,27 @@ async function generarPDF() {
 
     // FIRMAS
     y+=55;
-
    
 
     y += 12;
     doc.text(`Realizó servicio:`, 23, y-5);
     doc.setFontSize(7);
-    doc.text(realizo_servicio, 17, y + 30);
+    
+    // Centrar el texto del realizo_servicio en la misma posición que la línea
+    const centerRealizoServicio = 37.5; 
+    doc.text(realizo_servicio, centerRealizoServicio, y + 30, null, null, "center");
+    
+    let lineStartX1, lineEndX1;
+    if (realizo_servicio && realizo_servicio.trim()) {
+        const realizoServicioWidth = doc.getTextWidth(realizo_servicio);
+        const margin = 1;
+        lineStartX1 = centerRealizoServicio - (realizoServicioWidth / 2) - margin;
+        lineEndX1 = centerRealizoServicio + (realizoServicioWidth / 2) + margin;
+    } else {
+        lineStartX1 = 15;
+        lineEndX1 = 60;
+    }
+    
     doc.setFontSize(10);
     doc.text(`Responsable del Equipo:`, 105, y-5, "center");
     doc.setFontSize(7);
@@ -599,16 +613,30 @@ async function generarPDF() {
     doc.setFontSize(10);
     doc.text(`Visto Bueno:`, 158, y-5);
     doc.setFontSize(7);
-    doc.text(visto_bueno, 147, y + 30);
+    
+    // Centrar el texto del visto_bueno en la misma posición que la línea
+    const centerVistoBueno = 172.5; // centro de la línea original
+    doc.text(visto_bueno, centerVistoBueno, y + 30, null, null, "center");
+    
+    let lineStartX3, lineEndX3;
+    if (visto_bueno && visto_bueno.trim()) {
+        const vistoBuenoWidth = doc.getTextWidth(visto_bueno);
+        const margin = 1;
+        lineStartX3 = centerVistoBueno - (vistoBuenoWidth / 2) - margin;
+        lineEndX3 = centerVistoBueno + (vistoBuenoWidth / 2) + margin;
+    } else {
+        lineStartX3 = 145;
+        lineEndX3 = 200;
+    }
     y += 8;
      if (firma1Base64) await addCompressedImage(doc, firma1Base64, 15, y, 40, 20, compConfig.calidad_webp, 'firma1');
     if (firma2Base64) await addCompressedImage(doc, firma2Base64, 82, y, 40, 20, compConfig.calidad_webp, 'firma2');
     if (firma3Base64) await addCompressedImage(doc, firma3Base64, 147, y, 40, 20, compConfig.calidad_webp, 'firma3');
         y += 23;
 
-    doc.line(15, y, 60, y);
+    doc.line(lineStartX1, y, lineEndX1, y);
     doc.line(lineStartX, y, lineEndX, y);
-    doc.line(145, y, 200, y);
+    doc.line(lineStartX3, y, lineEndX3, y);
     y += 5;
     doc.setFontSize(10);
     doc.text("Nombre y firma", 25, y);
