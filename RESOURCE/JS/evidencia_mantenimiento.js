@@ -55,8 +55,8 @@ function mostrarListaPDFs(pdfs) {
         const elementoPdf = document.createElement('div');
         elementoPdf.className = 'item-pdf';
         elementoPdf.innerHTML = `
-            <div class="info-pdf">
-                <h3>${pdf.nombre}</h3>
+            <div class="info-pdf" style="width:80vw;">
+                <h3 style="overflow:hidden;">${pdf.nombre}</h3>
                 <p>Fecha: ${formatearFecha(pdf.fecha)}</p>
                 <p>Tipo: ${pdf.tipo}</p>
             </div>

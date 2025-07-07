@@ -255,14 +255,18 @@ def iniciar_limpieza_sesiones():
     hilo_limpieza.start()
 
 def requiere_autenticacion(f):
-
+    """
+    Decorador para requerir autenticación en las rutas
+    """
     @wraps(f)
     def decorador(*args, **kwargs):
         token_sesion = session.get('session_token')
         
         if not token_sesion or not verificar_sesion_activa(token_sesion):
-            # Si es una petición AJAX, devolver JSON
-            if request.is_json or 'application/json' in request.headers.get('Content-Type', ''):
+            # Si es una petición AJAX o con Content-Type JSON, devolver JSON
+            if (request.is_json or 
+                'application/json' in request.headers.get('Content-Type', '') or
+                'application/json' in request.headers.get('Accept', '')):
                 return jsonify({
                     'success': False,
                     'error': 'Sesión expirada o no válida',
@@ -1219,10 +1223,11 @@ os.makedirs(PDFS_MANTENIMIENTO_DIR, exist_ok=True)
 EVIDENCIAS_MANTENIMIENTO_DIR = os.path.join(tempfile.gettempdir(), 'evidencias_mantenimiento')
 os.makedirs(EVIDENCIAS_MANTENIMIENTO_DIR, exist_ok=True)
 
-@app.route('/api/evidencia/listar_pdfs', methods=['GET'])
-def listar_pdfs_mantenimiento():
+@app.route('/api/evidencia/obtener_pdfs_mantenimiento', methods=['GET'])
+@requiere_autenticacion
+def obtener_pdfs_mantenimiento():
     """
-    Lista todos los PDFs de mantenimiento disponibles
+    Endpoint para obtener los PDFs de mantenimiento disponibles (ruta requerida por el JavaScript)
     """
     try:
         # Registrar actividad del usuario
@@ -1297,6 +1302,163 @@ def ver_pdf_mantenimiento(nombre_archivo):
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/evidencia/subir_pdf_mantenimiento', methods=['POST'])
+@requiere_autenticacion
+def subir_pdf_mantenimiento():
+    """
+    Endpoint para subir PDFs de mantenimiento
+    """
+    try:
+        registrar_actividad_usuario()
+        
+        if 'archivo' not in request.files:
+            return jsonify({
+                'success': False,
+                'error': 'No se proporcionó archivo'
+            }), 400
+        
+        archivo = request.files['archivo']
+        if archivo.filename == '':
+            return jsonify({
+                'success': False,
+                'error': 'No se seleccionó archivo'
+            }), 400
+        
+        if archivo and archivo.filename.lower().endswith('.pdf'):
+            # Generar nombre único para el archivo
+            timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+            nombre_archivo = f"{timestamp}_{secure_filename(archivo.filename)}"
+            ruta_archivo = os.path.join(PDFS_MANTENIMIENTO_DIR, nombre_archivo)
+            
+            # Guardar archivo
+            archivo.save(ruta_archivo)
+            
+            return jsonify({
+                'success': True,
+                'message': 'PDF subido correctamente',
+                'archivo': nombre_archivo
+            }), 200
+        else:
+            return jsonify({
+                'success': False,
+                'error': 'Solo se permiten archivos PDF'
+            }), 400
+            
+    except Exception as e:
+        print(f"Error al subir PDF: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/evidencia/subir_evidencia_fotografica', methods=['POST'])
+@requiere_autenticacion
+def subir_evidencia_fotografica():
+    """
+    Endpoint para subir evidencias fotográficas de mantenimiento
+    """
+    try:
+        # Registrar actividad del usuario
+        registrar_actividad_usuario()
+        
+        data = request.get_json()
+        if not data or 'imagen_base64' not in data:
+            return jsonify({
+                'success': False,
+                'error': 'No se proporcionó imagen'
+            }), 400
+        
+        imagen_base64 = data.get('imagen_base64')
+        nombre_equipo = data.get('nombre_equipo', 'equipo_sin_nombre')
+        tipo_evidencia = data.get('tipo_evidencia', 'general')
+        
+        # Validar formato de imagen
+        if not imagen_base64.startswith('data:image'):
+            return jsonify({
+                'success': False,
+                'error': 'Formato de imagen inválido'
+            }), 400
+        
+        # Extraer datos de la imagen
+        header, imagen_data = imagen_base64.split(',', 1)
+        extension = 'png' if 'png' in header else 'jpg'
+        
+        # Generar nombre único
+        timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+        nombre_archivo = f"evidencia_{nombre_equipo}_{tipo_evidencia}_{timestamp}.{extension}"
+        ruta_archivo = os.path.join(EVIDENCIAS_MANTENIMIENTO_DIR, nombre_archivo)
+        
+        # Guardar imagen
+        with open(ruta_archivo, 'wb') as f:
+            f.write(base64.b64decode(imagen_data))
+        
+        # URL para acceder a la imagen
+        url_imagen = f'/api/evidencia/ver_evidencia/{nombre_archivo}'
+        
+        return jsonify({
+            'success': True,
+            'message': 'Evidencia fotográfica guardada correctamente',
+            'url': url_imagen,
+            'archivo': nombre_archivo
+        }), 200
+        
+    except Exception as e:
+        print(f"Error al subir evidencia fotográfica: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/evidencia/ver_evidencia/<nombre_archivo>')
+def ver_evidencia_fotografica(nombre_archivo):
+    """
+    Sirve evidencias fotográficas para visualización
+    """
+    try:
+        nombre_archivo = secure_filename(nombre_archivo)
+        ruta_archivo = os.path.join(EVIDENCIAS_MANTENIMIENTO_DIR, nombre_archivo)
+        
+        if not os.path.exists(ruta_archivo):
+            return jsonify({'error': 'Evidencia no encontrada'}), 404
+        
+        return send_from_directory(EVIDENCIAS_MANTENIMIENTO_DIR, nombre_archivo)
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/evidencia/eliminar_pdf/<nombre_archivo>', methods=['DELETE'])
+@requiere_autenticacion
+def eliminar_pdf_mantenimiento(nombre_archivo):
+    """
+    Elimina un PDF de mantenimiento
+    """
+    try:
+        nombre_archivo = secure_filename(nombre_archivo)
+        if not nombre_archivo.endswith('.pdf'):
+            nombre_archivo += '.pdf'
+        
+        ruta_archivo = os.path.join(PDFS_MANTENIMIENTO_DIR, nombre_archivo)
+        
+        if not os.path.exists(ruta_archivo):
+            return jsonify({
+                'success': False,
+                'error': 'PDF no encontrado'
+            }), 404
+        
+        os.remove(ruta_archivo)
+        
+        return jsonify({
+            'success': True,
+            'message': 'PDF eliminado correctamente'
+        }), 200
+        
+    except Exception as e:
+        print(f"Error al eliminar PDF: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
 
 # --- FIN RUTAS PARA SISTEMA DE EVIDENCIA DE MANTENIMIENTO ---
 
