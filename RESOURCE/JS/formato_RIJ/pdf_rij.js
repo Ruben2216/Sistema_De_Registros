@@ -205,6 +205,10 @@ async function generarPDF() {
     const fechWidth = doc.getTextWidth(fech);
     doc.text(fech, 157, y);
     doc.line(fechWidth + 157, y + 1, fechWidth + 175, y + 1);
+<<<<<<< HEAD
+=======
+
+>>>>>>> 351eea873c32435b846321de0930bfdb1b36cb2c
 
     y+=8;
     doc.setFont("helvetica", "bold");
@@ -242,7 +246,11 @@ async function generarPDF() {
     doc.text(RPE, 101 + rpeWidth, y);
 
     doc.setFont("helvetica", "bold");
+<<<<<<< HEAD
     doc.setFontSize(7);
+=======
+     doc.setFontSize(7);
+>>>>>>> 351eea873c32435b846321de0930bfdb1b36cb2c
     const firma1 = "FIRMA: ";
     doc.text(firma1, 155, y);
 
@@ -701,6 +709,10 @@ async function generarPDF() {
     doc.text(`R.P.E: ${RPE}`, 15, y+1);
     y+=1;
     doc.line(25, y+1, 50, y+1);
+<<<<<<< HEAD
+=======
+
+>>>>>>> 351eea873c32435b846321de0930bfdb1b36cb2c
 
     const firma = "Firma: ";
     doc.text(firma, 105, y, "center");
