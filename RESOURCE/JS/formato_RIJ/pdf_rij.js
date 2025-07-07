@@ -132,7 +132,7 @@ async function generarPDF() {
     doc.line(14, 23 , 199, 23);
 
     // DATOS GENERALES
-    y = 25;
+    y = 30;
 
     // Texto en negritas
     doc.setFont("helvetica", "bold");
@@ -150,6 +150,19 @@ async function generarPDF() {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(7);
     const fech = "FECHA: ";
+    //const fechaActual = new Date();
+    const fechWidth = doc.getTextWidth(fech);
+    doc.text(fech, 157, y);
+    doc.line(fechWidth + 157, y + 1, fechWidth + 175, y + 1);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(7);
+    doc.text(fechaCorta, 158 + fechWidth, y);
+
+
+    /*doc.setFont("helvetica", "bold");
+    doc.setFontSize(7);
+    const fech = "FECHA: ";
     
     // Obtener la fecha actual en formato dd/mm/yyyy usando la función global
     var fechaActual;
@@ -162,20 +175,20 @@ async function generarPDF() {
         var mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
         var anio = fecha.getFullYear();
         fechaActual = dia + '/' + mes + '/' + anio;
-    }
+    }*/
     
-    const fechWidth = doc.getTextWidth(fech);
+    /*const fechWidth = doc.getTextWidth(fech);
     doc.text(fech, 157, y);
     
     doc.setFont("helvetica", "normal");
-    doc.text(fechaActual, 157 + fechWidth, y);
+    doc.text(fechaCorta, 157 + fechWidth, y);
     
     const fechaCompletaWidth = fechWidth + doc.getTextWidth(fechaActual);
     doc.line(fechWidth + 157, y + 1, 157 + fechaCompletaWidth + 2, y + 1);
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(7);
-    doc.text(fecha, 158 + fechWidth, y);
+    doc.text(fecha, 158 + fechWidth, y);*/
 
     y+=8;
     doc.setFont("helvetica", "bold");
@@ -286,7 +299,7 @@ async function generarPDF() {
         doc.setFontSize(8)
         doc.setTextColor(0, 0, 0);
         doc.text(`No. Personas: ${enumeracion}`, 135, y);
-        doc.line(155, y+1, 165, y+1);
+        doc.line(153, y+1, 165, y+1);
         } else if (personal === "no") {
             doc.setFontSize(13)
             doc.setTextColor(255, 0, 0); // Rojo
