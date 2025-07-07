@@ -9,6 +9,11 @@
     <link rel="stylesheet" href="\RESOURCE\CSS\index.css">
 </head>
 <body>
+    <div class="contenedor-barra">
+        <div class="progreso">
+            <div class="progreso-barra" id="progreso-barra" style="width: 0%;"></div>
+        </div>
+    </div>
     <div class="formulario-verificacion">
         <form class="formulario-verificacion__formulario">
             <h1 class="formulario-verificacion__titulo-principal">FORMATO MANTENIMIENTO PREVENTIVO TPS HONEYWELL</h1>
@@ -83,7 +88,7 @@
             </div>
             <div class="campo">
                 <label class="campo__etiqueta">HR. INICIO</label>
-                <input type="time" class="campo__control" id="hrinicio">
+                <input type="time" class="campo__control" id="hrinicio" value="08:00">
                 <span id="mensajeError3" class="campo_vacio"></span>
             </div>
             <div class="campo">

@@ -552,6 +552,12 @@ async function generarPDF() {
 
     // Usar el sistema de nombrado automático basado en número de serie
     requestPDFFilename((filename) => {
-        doc.save(filename);
+        // Procesar el PDF: descarga, guardar en repositorio y mostrar modal
+        procesarPDFMantenimiento(doc, filename, 'TPS_HONEYWELL');
     }, serie, 'TPS_HONEYWELL');
+}
+
+function validarYGenerarPDF() {
+    // Alias para compatibilidad con onclick en TPS_Honeywell.html
+    validarFormulario();
 }
