@@ -514,13 +514,17 @@ def enviar_pdf_correo():
         # Crear el mensaje de correo
         asunto = f"RIJ - Lista de Verificación - {datetime.datetime.now().strftime('%d/%m/%Y')}"
         
-        mensaje_texto = f"""
-        Ya carga la mmd,
-        
-{datetime.datetime.now().strftime('%d de %B de %Y')}. #dia actual pero ingles
-        
-
-        """         
+        # Mensaje de texto para el cuerpo del correo
+        mensaje_texto = (
+            "Hola,\n\n"
+            "Este mensaje ha sido enviado automáticamente desde el sistema de evidencias de CFE  "
+            "(sistemaregistrocfe@gmail.com).\n\n"
+            
+            "Si usted no solicitó este documento, por favor ignore este mensaje.\n\n"
+            
+            "Saludos cordiales,\n\n\n"
+            "Sistema de Evidencias CFE"
+        )
         
         msg = Message(
             subject=asunto,

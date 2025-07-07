@@ -47,7 +47,7 @@ function mostrarOverlayVideo(mensaje) {
     
     if (overlay) {
         if (mensajeElemento && mensaje) {
-            mensajeElemento.textContent = mensaje;
+            mensajeElemento.innerHTML = mensaje;
         }
         overlay.style.display = 'flex';
     }
@@ -58,7 +58,7 @@ function actualizarOverlayVideo(mensaje) {
     const mensajeElemento = overlay ? overlay.querySelector('.overlay-message') : null;
     
     if (mensajeElemento && mensaje) {
-        mensajeElemento.textContent = mensaje;
+        mensajeElemento.innerHTML = mensaje;
     }
 }
 

@@ -210,7 +210,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Actualizar overlay después del procesamiento de imagen
             if (typeof actualizarOverlayVideo === 'function') {
-                actualizarOverlayVideo('Procesando fotografía...');
+                // Reemplazar \n por <br> para mostrar saltos de línea en HTML
+                actualizarOverlayVideo('Procesando fotografía<br>No mueva la camara....');
             }
             // guardar imagen limpia antes de poner la fecha 
             var dataURLLimpia = canvasElement.toDataURL('image/png');
@@ -861,12 +862,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 var urlBlob = URL.createObjectURL(blob);
                 var link = document.createElement('a');
                 link.href = urlBlob;
-                link.download = 'pilin.png'; // Nombre fijo para descarga
+                link.download =  nombre;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
                 setTimeout(function() { URL.revokeObjectURL(urlBlob); }, 1000);
             }
+            
+            // Extraer el nombre del archivo desde la URL
+            var nombreArchivo = 'imagen.png'; // nombre por defecto
+            try {
+                var urlParts = img.src.split('/');
+                var ultimaParte = urlParts[urlParts.length - 1];
+                if (ultimaParte && ultimaParte.length > 0) {
+                    // Remover parámetros de consulta si existen
+                    nombreArchivo = ultimaParte.split('?')[0];
+                    // Si no tiene extensión, agregar .png
+                    if (!nombreArchivo.includes('.')) {
+                        nombreArchivo += '.png';
+                    }
+                }
+            } catch (e) {
+                nombreArchivo = 'imagen.png';
+            }
+            
             fetch(img.src, { credentials: 'include' })
                 .then(function(response) {
                     if (!response.ok) {
@@ -874,7 +893,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     return response.blob();
                 })
-                .then(function(blob) { descargarBlob(blob, 'pilin.png'); })
+                .then(function(blob) { descargarBlob(blob, nombreArchivo); })
                 .catch(function(err) {
                     alert('Error al descargar la imagen: ' + err);
                 });
