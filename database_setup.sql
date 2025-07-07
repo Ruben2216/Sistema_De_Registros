@@ -17,6 +17,21 @@ CREATE TABLE IF NOT EXISTS usuario (
   UNIQUE INDEX password_UNIQUE (password ASC)
 );
 
+-- Crear tabla para manejar sesiones autenticadas
+CREATE TABLE IF NOT EXISTS sesiones_usuario (
+  id INT NOT NULL AUTO_INCREMENT,
+  session_token VARCHAR(255) NOT NULL,
+  usuario_id INT,
+  fecha_inicio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  fecha_expiracion TIMESTAMP,
+  ip_cliente VARCHAR(45),
+  user_agent TEXT,
+  activa BOOLEAN DEFAULT TRUE,
+  PRIMARY KEY (id),
+  UNIQUE INDEX token_UNIQUE (session_token ASC),
+  FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE CASCADE
+);
+
 -- Insertar contraseñas de ejemplo para pruebas
 -- NOTA: En producción, usar contraseñas más seguras
 INSERT IGNORE INTO usuario (password) VALUES 

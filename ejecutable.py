@@ -8,6 +8,9 @@ import threading
 import time
 import atexit
 import re
+import hashlib
+import secrets
+from functools import wraps
 from werkzeug.utils import secure_filename
 # --- INICIO LÓGICA DE backend (búsqueda de equipos en MySQL) ---
 from flask_cors import CORS 
@@ -19,6 +22,9 @@ from kilometro_vida import bp_imgdia
 from flask_mail import Mail, Message
 import io
 
+# --- CONFIGURACIÓN DE AUTENTICACIÓN ---
+TIEMPO_SESION_MINUTOS = 30  # 30 minutos de sesión
+TIEMPO_ADVERTENCIA_MINUTOS = 25  # Advertencia a los 25 minutos (5 minutos antes)
 
 # Rutas absolutas a las carpetas en el proyecto. Preferentemente, si se mueven los archivos, verificar aquí las rutas para evitar que se rompan
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -39,9 +45,245 @@ app.config['MAIL_DEFAULT_SENDER'] = 'sistemaregistrocfe@gmail.com'
 
 mail = Mail(app)
 
+# --- FUNCIONES DE AUTENTICACIÓN (DEFINIDAS ANTES DE LAS RUTAS) ---
+
+def get_db_connection():
+    """Crea y devuelve una conexión a la base de datos MySQL."""
+    try:
+        conn = mysql.connector.connect(**DB_CONFIG)
+        return conn
+    except Error as e:
+        print(f"Error al conectar a MySQL: {e}")
+        return None
+
+def generar_token_sesion():
+    """Genera un token único y seguro para la sesión"""
+    return secrets.token_urlsafe(32)
+
+def hash_password(password):
+    """Genera un hash de la contraseña (para uso futuro)"""
+    return hashlib.sha256(password.encode()).hexdigest()
+
+def crear_sesion_usuario(password, ip_cliente, user_agent):
+    """
+    Crea una nueva sesión autenticada en la base de datos
+    Retorna el token de sesión si es exitoso, None si falla
+    """
+    try:
+        conn = get_db_connection()
+        if conn is None:
+            return None
+        
+        cursor = conn.cursor()
+        
+        # Primero verificar que la contraseña existe
+        query_verificar = "SELECT id FROM usuario WHERE password = %s"
+        cursor.execute(query_verificar, (password,))
+        resultado = cursor.fetchone()
+        
+        if not resultado:
+            return None
+        
+        usuario_id = resultado[0]
+        
+        # Generar token único
+        token_sesion = generar_token_sesion()
+        
+        # Calcular fecha de expiración
+        fecha_expiracion = datetime.datetime.now() + datetime.timedelta(minutes=TIEMPO_SESION_MINUTOS)
+        
+        # Insertar sesión en la base de datos
+        query_insertar = """
+        INSERT INTO sesiones_usuario (session_token, usuario_id, fecha_expiracion, ip_cliente, user_agent, activa)
+        VALUES (%s, %s, %s, %s, %s, TRUE)
+        """
+        cursor.execute(query_insertar, (token_sesion, usuario_id, fecha_expiracion, ip_cliente, user_agent))
+        conn.commit()
+        
+        return token_sesion
+        
+    except Error as e:
+        print(f"Error al crear sesión: {e}")
+        return None
+    finally:
+        if conn and conn.is_connected():
+            cursor.close()
+            conn.close()
+
+def verificar_sesion_activa(token_sesion):
+    """
+    Verifica si una sesión es válida y activa
+    Retorna True si es válida, False si no
+    """
+    try:
+        conn = get_db_connection()
+        if conn is None:
+            return False
+        
+        cursor = conn.cursor()
+        
+        # Verificar token y que no haya expirado
+        query = """
+        SELECT id, fecha_expiracion FROM sesiones_usuario 
+        WHERE session_token = %s AND activa = TRUE
+        """
+        cursor.execute(query, (token_sesion,))
+        resultado = cursor.fetchone()
+        
+        if not resultado:
+            return False
+        
+        sesion_id, fecha_expiracion = resultado
+        
+        # Verificar si la sesión ha expirado
+        if datetime.datetime.now() > fecha_expiracion:
+            # Marcar sesión como inactiva
+            query_inactivar = "UPDATE sesiones_usuario SET activa = FALSE WHERE id = %s"
+            cursor.execute(query_inactivar, (sesion_id,))
+            conn.commit()
+            return False
+        
+        return True
+        
+    except Error as e:
+        print(f"Error al verificar sesión: {e}")
+        return False
+    finally:
+        if conn and conn.is_connected():
+            cursor.close()
+            conn.close()
+
+def obtener_tiempo_restante_sesion(token_sesion):
+    """
+    Obtiene el tiempo restante de una sesión en minutos
+    Retorna None si la sesión no existe o ha expirado
+    """
+    try:
+        conn = get_db_connection()
+        if conn is None:
+            return None
+        
+        cursor = conn.cursor()
+        
+        query = """
+        SELECT fecha_expiracion FROM sesiones_usuario 
+        WHERE session_token = %s AND activa = TRUE
+        """
+        cursor.execute(query, (token_sesion,))
+        resultado = cursor.fetchone()
+        
+        if not resultado:
+            return None
+        
+        fecha_expiracion = resultado[0]
+        tiempo_restante = fecha_expiracion - datetime.datetime.now()
+        
+        if tiempo_restante.total_seconds() <= 0:
+            return 0
+        
+        return int(tiempo_restante.total_seconds() / 60)  # Retornar en minutos
+        
+    except Error as e:
+        print(f"Error al obtener tiempo restante: {e}")
+        return None
+    finally:
+        if conn and conn.is_connected():
+            cursor.close()
+            conn.close()
+
+def cerrar_sesion(token_sesion):
+    """Cierra una sesión específica"""
+    try:
+        conn = get_db_connection()
+        if conn is None:
+            return False
+        
+        cursor = conn.cursor()
+        
+        query = "UPDATE sesiones_usuario SET activa = FALSE WHERE session_token = %s"
+        cursor.execute(query, (token_sesion,))
+        conn.commit()
+        
+        return True
+        
+    except Error as e:
+        print(f"Error al cerrar sesión: {e}")
+        return False
+    finally:
+        if conn and conn.is_connected():
+            cursor.close()
+            conn.close()
+
+def limpiar_sesiones_expiradas():
+    """
+    Tarea de limpieza que marca como inactivas las sesiones expiradas
+    """
+    try:
+        conn = get_db_connection()
+        if conn is None:
+            return
+        
+        cursor = conn.cursor()
+        
+        query = """
+        UPDATE sesiones_usuario 
+        SET activa = FALSE 
+        WHERE fecha_expiracion < NOW() AND activa = TRUE
+        """
+        cursor.execute(query)
+        conn.commit()
+        
+    except Error as e:
+        print(f"Error al limpiar sesiones expiradas: {e}")
+    finally:
+        if conn and conn.is_connected():
+            cursor.close()
+            conn.close()
+
+def iniciar_limpieza_sesiones():
+    """Inicia la tarea de limpieza de sesiones en un hilo separado"""
+    def ejecutar_limpieza():
+        while True:
+            try:
+                limpiar_sesiones_expiradas()
+                time.sleep(300)  # Ejecutar cada 5 minutos
+            except Exception as e:
+                print(f"Error en limpieza de sesiones: {e}")
+                time.sleep(60)  # Esperar 1 minuto antes de reintentar
+    
+    hilo_limpieza = threading.Thread(target=ejecutar_limpieza, daemon=True)
+    hilo_limpieza.start()
+
+def requiere_autenticacion(f):
+
+    @wraps(f)
+    def decorador(*args, **kwargs):
+        token_sesion = session.get('session_token')
+        
+        if not token_sesion or not verificar_sesion_activa(token_sesion):
+            # Si es una petición AJAX, devolver JSON
+            if request.is_json or 'application/json' in request.headers.get('Content-Type', ''):
+                return jsonify({
+                    'success': False,
+                    'error': 'Sesión expirada o no válida',
+                    'redirect': '/TEMPLATES/login.html'
+                }), 401
+            
+            # Si es una petición normal, redirigir al login
+            return redirect('/TEMPLATES/login.html')
+        
+        return f(*args, **kwargs)
+    return decorador
+
+# --- FIN FUNCIONES DE AUTENTICACIÓN ---
+
 # Aquí se define la ruta principal con el archivo HTML que se desplegará, como por ejemplo 'menu.html'.
 @app.route('/')
 def index():
+    # Verificar autenticación manualmente
+    token_sesion = session.get('session_token')
+    if not token_sesion or not verificar_sesion_activa(token_sesion):
+        return redirect('/TEMPLATES/login.html')
     # Asegúrate de que 'menu.html' exista en la carpeta TEMPLATES
     return send_from_directory(TEMPLATES_FOLDER, 'menu.html')
 
@@ -52,6 +294,15 @@ def templates_root(filename):
         print(f"🚨 Intento de acceso a archivo inválido en TEMPLATES: '{filename}'")
         return jsonify({'error': 'Archivo no válido'}), 400
     
+    # Permitir acceso al login sin autenticación
+    if filename == 'login.html':
+        return send_from_directory(TEMPLATES_FOLDER, filename)
+    
+    # Todas las demás páginas requieren autenticación
+    token_sesion = session.get('session_token')
+    if not token_sesion or not verificar_sesion_activa(token_sesion):
+        return redirect('/TEMPLATES/login.html')
+    
     # Registrar actividad automáticamente para páginas RIJ y cámara
     if 'formato_RIJ.html' in filename or 'camara.html' in filename:
         registrar_actividad_usuario()
@@ -61,6 +312,10 @@ def templates_root(filename):
 # Archivos dentro de /TEMPLATES/Mantenimiento/
 @app.route('/TEMPLATES/Mantenimiento/<path:filename>')
 def mantenimiento(filename):
+    # Verificar autenticación manualmente
+    token_sesion = session.get('session_token')
+    if not token_sesion or not verificar_sesion_activa(token_sesion):
+        return redirect('/TEMPLATES/login.html')
     return send_from_directory(MANTENIMIENTO_FOLDER, filename)
 
 # Archivos dentro de /RESOURCE/ para obtener los archivos js, css o imágenes
@@ -510,15 +765,6 @@ DB_CONFIG = {
 }
 
 # conectar a la base de datos
-def get_db_connection():
-    """Crea y devuelve una conexión a la base de datos MySQL."""
-    try:
-        conn = mysql.connector.connect(**DB_CONFIG)
-        return conn
-    except Error as e:
-        print(f"Error al conectar a MySQL: {e}")
-        return None
-    
 # OBTENER LA META RIJ
 def obtener_meta_actual():
     meta_diaria = "No hay meta de seguridad programada para hoy." # Mensaje por defecto
@@ -724,41 +970,30 @@ def static_imagenes(filename):
 USUARIOS_ACTIVOS_FILE = os.path.join(tempfile.gettempdir(), 'rij_usuarios_activos.json')
 lock_usuarios = threading.Lock()
 
-def cargar_usuarios_activos():
-    """Carga el diccionario de usuarios activos desde archivo"""
+def get_usuarios_activos():
+    """
+    Obtiene la lista de usuarios activos desde el archivo JSON
+    """
     try:
         if os.path.exists(USUARIOS_ACTIVOS_FILE):
             with open(USUARIOS_ACTIVOS_FILE, 'r', encoding='utf-8') as f:
                 data = json.load(f)
-                # Convertir timestamps de string a datetime
-                for sid, info in data.items():
-                    if 'timestamp' in info:
-                        info['timestamp'] = datetime.datetime.fromisoformat(info['timestamp'])
-                return data
-    except Exception as e:        return {}
-
-def guardar_usuarios_activos(usuarios):
-    """Guarda el diccionario de usuarios activos en archivo"""
-    try:
-        # Convertir timestamps a string para serialización JSON
-        data_to_save = {}
-        for sid, info in usuarios.items():
-            data_to_save[sid] = dict(info)
-            if 'timestamp' in data_to_save[sid]:
-                data_to_save[sid]['timestamp'] = info['timestamp'].isoformat()
-        
-        with open(USUARIOS_ACTIVOS_FILE, 'w', encoding='utf-8') as f:
-            json.dump(data_to_save, f, indent=2)
+                if isinstance(data, dict):
+                    return data
+        return {}
     except Exception as e:
-        pass
+        print(f"Error al leer usuarios activos: {e}")
+        return {}
 
-def get_usuarios_activos():
-    """Obtiene el diccionario actual de usuarios activos"""
-    return cargar_usuarios_activos()
-
-def set_usuarios_activos(usuarios):
-    """Actualiza el diccionario de usuarios activos"""
-    guardar_usuarios_activos(usuarios)
+def set_usuarios_activos(usuarios_dict):
+    """
+    Guarda la lista de usuarios activos en el archivo JSON
+    """
+    try:
+        with open(USUARIOS_ACTIVOS_FILE, 'w', encoding='utf-8') as f:
+            json.dump(usuarios_dict, f, default=str, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print(f"Error al guardar usuarios activos: {e}")
 
 def registrar_actividad_usuario():
     """
@@ -789,10 +1024,10 @@ def registrar_actividad_usuario():
                     'pdf_generado': True
                 }
                 set_usuarios_activos(usuarios_activos)
+                print(f"[DEBUG] Nuevo usuario registrado: {sid}")
             else:
-                pass
+                print(f"[DEBUG] Usuario ya existe en diccionario: {sid}")
         else:
-            pass
             # Verificar si está en el diccionario
             if sid in usuarios_activos:
                 print(f"[DEBUG] Usuario encontrado en diccionario activos")
@@ -807,6 +1042,7 @@ def registrar_actividad_usuario():
                 }
                 set_usuarios_activos(usuarios_activos)
     
+    print(f"[DEBUG] === FIN REGISTRO ACTIVIDAD ===")
     return sid
 
 def limpiar_datos_usuario_completo(sid):
@@ -815,28 +1051,33 @@ def limpiar_datos_usuario_completo(sid):
     """
     try:
         # 1. Limpiar archivos temporales de fotos
-        fotos_tmp_path = os.path.join(tempfile.gettempdir(), 'rij_fotos', f'fotos_{sid}.json')
-        if os.path.exists(fotos_tmp_path):
-            os.remove(fotos_tmp_path)
+        fotos_path = os.path.join(FOTOS_TMP_DIR, f'fotos_{sid}.json')
+        if os.path.exists(fotos_path):
+            try:
+                os.remove(fotos_path)
+            except Exception:
+                pass
         
-        # 2. Limpiar todas las fotos físicas del usuario en carpeta de evidencias
-        if os.path.exists(FOTOS_RIJ_DIR):
-            for nombre_archivo in os.listdir(FOTOS_RIJ_DIR):
-                if (nombre_archivo.startswith(f"rij_{sid}_") or 
-                    nombre_archivo.startswith(f"importada_{sid}_")):
-                    ruta_archivo = os.path.join(FOTOS_RIJ_DIR, nombre_archivo)
+        # 2. Limpiar fotos físicas de evidencia
+        directorio_evidencias = FOTOS_RIJ_DIR
+        if os.path.exists(directorio_evidencias):
+            archivos = os.listdir(directorio_evidencias)
+            for archivo in archivos:
+                if f'rij_{sid}_' in archivo:
+                    ruta_archivo = os.path.join(directorio_evidencias, archivo)
                     if os.path.isfile(ruta_archivo):
                         try:
                             os.remove(ruta_archivo)
                         except Exception:
                             pass
         
-        # 3. Limpiar imágenes de PDF generadas en img RIJ
+        # 3. Limpiar imágenes RIJ generadas
         directorio_imagenes = os.path.join(RESOURCE_FOLDER, 'IMG', 'img RIJ')
         if os.path.exists(directorio_imagenes):
-            for nombre_archivo in os.listdir(directorio_imagenes):
-                if sid in nombre_archivo and nombre_archivo.endswith('.png'):
-                    ruta_archivo = os.path.join(directorio_imagenes, nombre_archivo)
+            archivos = os.listdir(directorio_imagenes)
+            for archivo in archivos:
+                if sid in archivo:
+                    ruta_archivo = os.path.join(directorio_imagenes, archivo)
                     if os.path.isfile(ruta_archivo):
                         try:
                             os.remove(ruta_archivo)
@@ -954,8 +1195,7 @@ def endpoint_registrar_actividad():
         sid = registrar_actividad_usuario()
         return jsonify({
             'success': True,
-            'sid': sid[:8] + '...',
-            'message': 'Actividad registrada correctamente'
+            'sid': sid[:8] + '...'  # Solo mostrar parte del SID por seguridad
         }), 200
     except Exception as e:
         return jsonify({
@@ -972,13 +1212,13 @@ PDFS_MANTENIMIENTO_DIR = os.path.join(tempfile.gettempdir(), 'pdfs_mantenimiento
 os.makedirs(PDFS_MANTENIMIENTO_DIR, exist_ok=True)
 
 # Directorio para evidencias fotográficas de mantenimiento
-EVIDENCIAS_MANTENIMIENTO_DIR = os.path.join(RESOURCE_FOLDER, 'IMG', 'Evidencias_Mantenimiento')
+EVIDENCIAS_MANTENIMIENTO_DIR = os.path.join(tempfile.gettempdir(), 'evidencias_mantenimiento')
 os.makedirs(EVIDENCIAS_MANTENIMIENTO_DIR, exist_ok=True)
 
-@app.route('/api/evidencia/obtener_pdfs_mantenimiento', methods=['GET'])
-def obtener_pdfs_mantenimiento():
+@app.route('/api/evidencia/listar_pdfs', methods=['GET'])
+def listar_pdfs_mantenimiento():
     """
-    Obtiene la lista de PDFs de mantenimiento disponibles para añadir evidencia
+    Lista todos los PDFs de mantenimiento disponibles
     """
     try:
         # Registrar actividad del usuario
@@ -986,17 +1226,16 @@ def obtener_pdfs_mantenimiento():
         
         pdfs_disponibles = []
         
-        # Buscar PDFs en el directorio temporal
         if os.path.exists(PDFS_MANTENIMIENTO_DIR):
-            for archivo in os.listdir(PDFS_MANTENIMIENTO_DIR):
+            archivos = os.listdir(PDFS_MANTENIMIENTO_DIR)
+            
+            for archivo in archivos:
                 if archivo.endswith('.pdf'):
                     ruta_archivo = os.path.join(PDFS_MANTENIMIENTO_DIR, archivo)
+                    stat = os.stat(ruta_archivo)
+                    fecha_creacion = datetime.datetime.fromtimestamp(stat.st_ctime)
                     
-                    # Obtener información del archivo
-                    stat_archivo = os.stat(ruta_archivo)
-                    fecha_creacion = datetime.datetime.fromtimestamp(stat_archivo.st_ctime)
-                    
-                    # Determinar tipo de mantenimiento desde el nombre del archivo
+                    # Determinar tipo de mantenimiento según el nombre
                     tipo_mantenimiento = "Mantenimiento General"
                     if "computo" in archivo.lower():
                         tipo_mantenimiento = "Equipo de Cómputo"
@@ -1055,520 +1294,145 @@ def ver_pdf_mantenimiento(nombre_archivo):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/evidencia/guardar_pdf_mantenimiento', methods=['POST'])
-def guardar_pdf_mantenimiento():
+# --- FIN RUTAS PARA SISTEMA DE EVIDENCIA DE MANTENIMIENTO ---
+
+# --- CONFIGURACIÓN DE INICIO ---
+
+# --- ENDPOINTS DE AUTENTICACIÓN ---
+
+@app.route('/api/login', methods=['POST'])
+def login():
     """
-    Guarda un PDF de mantenimiento en el repositorio temporal
+    Endpoint mejorado de login con gestión de sesiones en base de datos
     """
     try:
         data = request.get_json()
-        
-        if not data or 'pdf_base64' not in data or 'nombre_archivo' not in data:
+        if not data or 'password' not in data:
             return jsonify({
                 'success': False,
-                'error': 'Datos requeridos no proporcionados'
+                'message': 'Contraseña requerida'
             }), 400
         
-        pdf_base64 = data['pdf_base64']
-        nombre_archivo = secure_filename(data['nombre_archivo'])
-        tipo_mantenimiento = data.get('tipo_mantenimiento', 'general')
-        
-        # Registrar actividad del usuario
-        sid = registrar_actividad_usuario()
-        
-        # Limpiar el base64
-        if pdf_base64.startswith('data:application/pdf;base64,'):
-            pdf_base64 = pdf_base64.split(',')[1]
-        elif pdf_base64.startswith('data:'):
-            comma_index = pdf_base64.find(',')
-            if comma_index != -1:
-                pdf_base64 = pdf_base64[comma_index + 1:]
-        
-        # Decodificar PDF
-        try:
-            pdf_data = base64.b64decode(pdf_base64)
-            
-            if not pdf_data.startswith(b'%PDF'):
-                raise Exception("El archivo no es un PDF válido")
-                
-        except Exception as e:
+        password = data['password'].strip()
+        if not password:
             return jsonify({
                 'success': False,
-                'error': f'Error al decodificar PDF: {str(e)}'
+                'message': 'La contraseña no puede estar vacía'
             }), 400
         
-        # Usar el nombre de archivo proporcionado por el usuario, manteniendo solo caracteres seguros
-        nombre_base = nombre_archivo
-        if nombre_base.endswith('.pdf'):
-            nombre_base = nombre_base[:-4]
+        # Obtener información del cliente
+        ip_cliente = request.environ.get('HTTP_X_FORWARDED_FOR', request.environ.get('REMOTE_ADDR', 'unknown'))
+        user_agent = request.headers.get('User-Agent', 'unknown')
         
-        # Sanitizar el nombre base quitando solo caracteres problemáticos pero manteniendo espacios
-        nombre_base_limpio = re.sub(r'[<>:"/\\|?*]', '', nombre_base)
-        nombre_base_limpio = nombre_base_limpio.strip()
+        # Crear sesión autenticada
+        token_sesion = crear_sesion_usuario(password, ip_cliente, user_agent)
         
-        # Si después de la limpieza no queda nada válido, usar fallback
-        if not nombre_base_limpio or len(nombre_base_limpio) < 1:
-            timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-            nombre_base_limpio = f"{tipo_mantenimiento}_{timestamp}"
-        
-        # Generar nombre final único (agregar timestamp solo si ya existe)
-        nombre_final = f"{nombre_base_limpio}.pdf"
-        contador = 1
-        while os.path.exists(os.path.join(PDFS_MANTENIMIENTO_DIR, nombre_final)):
-            nombre_final = f"{nombre_base_limpio}_{contador}.pdf"
-            contador += 1
-        ruta_archivo = os.path.join(PDFS_MANTENIMIENTO_DIR, nombre_final)
-        
-        # Guardar PDF
-        with open(ruta_archivo, 'wb') as f:
-            f.write(pdf_data)
-        
-        return jsonify({
-            'success': True,
-            'message': 'PDF guardado correctamente',
-            'pdf_id': nombre_final.replace('.pdf', ''),
-            'nombre_archivo': nombre_final,
-            'nombre_guardado': nombre_final.replace('.pdf', '')  # Devolver el nombre exacto guardado
-        }), 200
-        
-    except Exception as e:
-        print(f"Error al guardar PDF de mantenimiento: {e}")
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
-
-@app.route('/api/evidencia/generar_pdf_con_evidencia', methods=['POST'])
-def generar_pdf_con_evidencia():
-    """
-    Genera un nuevo PDF combinando el PDF de mantenimiento con las evidencias fotográficas
-    """
-    try:
-        data = request.get_json()
-        
-        print(f"[DEBUG] Datos recibidos: {data}")
-        
-        if not data or 'pdfSeleccionado' not in data or 'imagenes' not in data:
-            return jsonify({
-                'success': False,
-                'error': 'Datos requeridos no proporcionados'
-            }), 400
-        
-        pdf_seleccionado = data['pdfSeleccionado']
-        imagenes = data['imagenes']
-        
-        print(f"[DEBUG] PDF seleccionado: {pdf_seleccionado}")
-        print(f"[DEBUG] Número de imágenes: {len(imagenes)}")
-        
-        if not imagenes:
-            return jsonify({
-                'success': False,
-                'error': 'Se requiere al menos una imagen de evidencia'
-            }), 400
-        
-        # Registrar actividad del usuario
-        sid = registrar_actividad_usuario()
-        
-        # Obtener el PDF original
-        nombre_pdf = pdf_seleccionado['id'] + '.pdf'
-        ruta_pdf_original = os.path.join(PDFS_MANTENIMIENTO_DIR, nombre_pdf)
-        
-        print(f"[DEBUG] Buscando PDF en: {ruta_pdf_original}")
-        print(f"[DEBUG] Archivo existe: {os.path.exists(ruta_pdf_original)}")
-        
-        # Listar archivos disponibles para debug
-        if os.path.exists(PDFS_MANTENIMIENTO_DIR):
-            archivos_disponibles = os.listdir(PDFS_MANTENIMIENTO_DIR)
-            print(f"[DEBUG] Archivos disponibles en directorio: {archivos_disponibles}")
-        else:
-            print(f"[DEBUG] Directorio no existe: {PDFS_MANTENIMIENTO_DIR}")
-        
-        if not os.path.exists(ruta_pdf_original):
-            return jsonify({
-                'success': False,
-                'error': f'PDF original no encontrado: {nombre_pdf}'
-            }), 404
-        
-        # Generar PDF combinado
-        timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-        nombre_pdf_final = f"Evidencia_{pdf_seleccionado['nombre']}_{timestamp}.pdf"
-        ruta_pdf_final = os.path.join(PDFS_MANTENIMIENTO_DIR, nombre_pdf_final)
-        
-        try:
-            # Intentar usar PyMuPDF para mejor calidad
-            import fitz
+        if token_sesion:
+            # Guardar token en la sesión de Flask
+            session['session_token'] = token_sesion
+            session['authenticated'] = True
+            session['login_time'] = datetime.datetime.now().isoformat()
             
-            # Abrir PDF original
-            doc_original = fitz.open(ruta_pdf_original)
-            doc_final = fitz.open()  # Documento nuevo
+            # También registrar en el sistema de limpieza de datos
+            registrar_actividad_usuario()
             
-            # Copiar todas las páginas del PDF original
-            doc_final.insert_pdf(doc_original)
-            
-            # Añadir páginas con evidencias fotográficas (layout 2x3)
-            # Configuración del layout
-            imagenes_por_pagina = 6  # 2 columnas x 3 filas
-            margen_lateral = 57  # 2 cm en puntos (1 cm = 28.35 puntos)
-            margen_superior = 80
-            margen_inferior = 57
-            
-            # Calcular dimensiones disponibles
-            ancho_pagina = 595  # A4 ancho
-            alto_pagina = 842   # A4 alto
-            ancho_disponible = ancho_pagina - (2 * margen_lateral)
-            alto_disponible = alto_pagina - margen_superior - margen_inferior
-            
-            # Dimensiones por imagen
-            ancho_imagen = (ancho_disponible - 20) / 2  # 2 columnas con espacio entre ellas
-            alto_imagen = (alto_disponible - 40) / 3    # 3 filas con espacio entre ellas
-            espacio_horizontal = 20
-            espacio_vertical = 20
-            
-            # Procesar imágenes en grupos de 6
-            total_imagenes = len(imagenes)
-            for pagina_idx in range(0, total_imagenes, imagenes_por_pagina):
-                # Crear nueva página para evidencia
-                page = doc_final.new_page(width=595, height=842)
-                
-                # Título de la página
-                page.insert_text(
-                    (50, 50),
-                    "Evidencia Fotográfica",
-                    fontsize=16,
-                    color=(0, 0, 0)
-                )
-                
-                # Obtener imágenes para esta página
-                imagenes_pagina = imagenes[pagina_idx:pagina_idx + imagenes_por_pagina]
-                
-                # Posicionar imágenes en layout 2x3
-                for i, imagen in enumerate(imagenes_pagina):
-                    # Calcular posición en la grilla (columna, fila)
-                    columna = i % 2
-                    fila = i // 2
-                    
-                    # Calcular coordenadas
-                    x = margen_lateral + columna * (ancho_imagen + espacio_horizontal)
-                    y = margen_superior + fila * (alto_imagen + espacio_vertical)
-                    
-                    # Decodificar imagen
-                    img_data = imagen['data']
-                    if img_data.startswith('data:image'):
-                        img_data = img_data.split(',')[1]
-                    
-                    try:
-                        img_bytes = base64.b64decode(img_data)
-                        
-                        # Definir rectángulo para la imagen
-                        img_rect = fitz.Rect(x, y, x + ancho_imagen, y + alto_imagen)
-                        
-                        # Insertar imagen manteniendo proporción
-                        page.insert_image(img_rect, stream=img_bytes, keep_proportion=True)
-                        
-                    except Exception as img_error:
-                        print(f"Error al insertar imagen {i} en página {pagina_idx//imagenes_por_pagina + 1}: {img_error}")
-                        # En caso de error, mostrar un rectángulo con texto de error
-                        error_rect = fitz.Rect(x, y, x + ancho_imagen, y + alto_imagen)
-                        page.draw_rect(error_rect, color=(0.8, 0.8, 0.8), width=1)
-                        page.insert_text(
-                            (x + 10, y + alto_imagen/2),
-                            "Error al\ncargar imagen",
-                            fontsize=10,
-                            color=(0.8, 0, 0)
-                        )
-            
-            # Guardar PDF final
-            doc_final.save(ruta_pdf_final)
-            doc_final.close()
-            doc_original.close()
-            
-        except ImportError:
-            # Fallback usando reportlab si PyMuPDF no está disponible
-            from reportlab.pdfgen import canvas
-            from reportlab.lib.pagesizes import A4
-            from reportlab.lib.utils import ImageReader
-            from reportlab.lib import colors
-            from reportlab.pdfgen.canvas import Canvas
-            import shutil
-            
-            # Copiar PDF original como base
-            shutil.copy2(ruta_pdf_original, ruta_pdf_final)
-            
-            # Crear páginas adicionales con evidencias (layout 2x3)
-            pdf_evidencias = os.path.join(PDFS_MANTENIMIENTO_DIR, f"temp_evidencias_{sid}.pdf")
-            c = canvas.Canvas(pdf_evidencias, pagesize=A4)
-            width, height = A4
-            
-            # Configuración del layout
-            imagenes_por_pagina = 6  # 2 columnas x 3 filas
-            margen_lateral = 57  # 2 cm en puntos
-            margen_superior = 80
-            margen_inferior = 57
-            
-            # Calcular dimensiones disponibles
-            ancho_disponible = width - (2 * margen_lateral)
-            alto_disponible = height - margen_superior - margen_inferior
-            
-            # Dimensiones por imagen
-            ancho_imagen = (ancho_disponible - 20) / 2  # 2 columnas con espacio
-            alto_imagen = (alto_disponible - 40) / 3    # 3 filas con espacio
-            espacio_horizontal = 20
-            espacio_vertical = 20
-            
-            # Procesar imágenes en grupos de 6
-            total_imagenes = len(imagenes)
-            pagina_actual = 0
-            
-            for pagina_idx in range(0, total_imagenes, imagenes_por_pagina):
-                if pagina_actual > 0:
-                    c.showPage()
-                
-                # Título de la página
-                c.setFont("Helvetica-Bold", 16)
-                c.drawString(50, height - 50, "Evidencia Fotográfica")
-                
-                # Obtener imágenes para esta página
-                imagenes_pagina = imagenes[pagina_idx:pagina_idx + imagenes_por_pagina]
-                
-                # Posicionar imágenes en layout 2x3
-                for i, imagen in enumerate(imagenes_pagina):
-                    # Calcular posición en la grilla
-                    columna = i % 2
-                    fila = i // 2
-                    
-                    # Calcular coordenadas (en reportlab Y=0 está abajo)
-                    x = margen_lateral + columna * (ancho_imagen + espacio_horizontal)
-                    y = height - margen_superior - (fila + 1) * (alto_imagen + espacio_vertical)
-                    
-                    try:
-                        img_data = imagen['data']
-                        if img_data.startswith('data:image'):
-                            img_data = img_data.split(',')[1]
-                        
-                        img_bytes = base64.b64decode(img_data)
-                        img_reader = ImageReader(io.BytesIO(img_bytes))
-                        
-                        # Insertar imagen en la posición calculada
-                        c.drawImage(
-                            img_reader, 
-                            x, y, 
-                            width=ancho_imagen, 
-                            height=alto_imagen, 
-                            preserveAspectRatio=True
-                        )
-                        
-                    except Exception as img_error:
-                        print(f"Error al insertar imagen {i} en página {pagina_actual + 1}: {img_error}")
-                        # Dibujar rectángulo de error
-                        c.setStrokeColor(colors.red)
-                        c.rect(x, y, ancho_imagen, alto_imagen, stroke=1, fill=0)
-                        c.setFont("Helvetica", 10)
-                        c.drawString(x + 10, y + alto_imagen/2, "Error al cargar imagen")
-                
-                pagina_actual += 1
-            
-            c.save()
-            
-            # Combinar PDFs (esto requeriría PyPDF2 o similar)
-            # Por simplicidad, usamos solo el PDF de evidencias
-            os.rename(pdf_evidencias, ruta_pdf_final)
-        
-        # URL para descargar el PDF final
-        url_descarga = f'/api/evidencia/descargar_pdf/{nombre_pdf_final}'
-        
-        print(f"[DEBUG] PDF generado exitosamente:")
-        print(f"[DEBUG] - Nombre archivo: {nombre_pdf_final}")
-        print(f"[DEBUG] - Ruta completa: {ruta_pdf_final}")
-        print(f"[DEBUG] - Archivo existe: {os.path.exists(ruta_pdf_final)}")
-        print(f"[DEBUG] - URL descarga: {url_descarga}")
-        
-        if os.path.exists(ruta_pdf_final):
-            stat = os.stat(ruta_pdf_final)
-            print(f"[DEBUG] - Tamaño: {stat.st_size} bytes")
-        
-        return jsonify({
-            'success': True,
-            'message': 'PDF con evidencia generado correctamente',
-            'urlPdf': url_descarga,
-            'nombreArchivo': nombre_pdf_final
-        }), 200
-        
-    except Exception as e:
-        print(f"Error al generar PDF con evidencia: {e}")
-        import traceback
-        traceback.print_exc()
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
-
-def es_nombre_archivo_seguro(nombre):
-    """
-    Verifica si un nombre de archivo es seguro sin modificarlo
-    Permite letras, números, espacios, guiones, puntos y underscore
-    """
-    import re
-    # Permitir caracteres seguros incluyendo espacios
-    patron_permitido = re.compile(r'^[a-zA-Z0-9\s\-_\.]+$')
-    return patron_permitido.match(nombre) is not None
-
-@app.route('/api/evidencia/descargar_pdf/<path:nombre_archivo>')
-def descargar_pdf_evidencia(nombre_archivo):
-    """
-    Permite descargar un PDF con evidencia generado
-    """
-    try:
-        print(f"[DEBUG] Descarga solicitada para: {nombre_archivo}")
-        
-        # Decodificar URL (para manejar %20 -> espacio)
-        from urllib.parse import unquote
-        nombre_archivo_decodificado = unquote(nombre_archivo)
-        print(f"[DEBUG] Nombre decodificado: {nombre_archivo_decodificado}")
-        
-        # Validar seguridad sin modificar el nombre
-        if not es_nombre_archivo_seguro(nombre_archivo_decodificado):
-            print(f"[DEBUG] Nombre de archivo no seguro: {nombre_archivo_decodificado}")
-            return jsonify({'error': 'Nombre de archivo no válido'}), 400
-        
-        ruta_archivo = os.path.join(PDFS_MANTENIMIENTO_DIR, nombre_archivo_decodificado)
-        print(f"[DEBUG] Ruta completa: {ruta_archivo}")
-        print(f"[DEBUG] Archivo existe: {os.path.exists(ruta_archivo)}")
-        
-        # Listar archivos disponibles para debug
-        if os.path.exists(PDFS_MANTENIMIENTO_DIR):
-            archivos_disponibles = [f for f in os.listdir(PDFS_MANTENIMIENTO_DIR) if 'Evidencia_' in f]
-            print(f"[DEBUG] Archivos de evidencia disponibles:")
-            for archivo in archivos_disponibles:
-                print(f"[DEBUG]   - {archivo}")
-        
-        if not os.path.exists(ruta_archivo):
-            return jsonify({
-                'error': 'PDF no encontrado',
-                'nombre_buscado': nombre_archivo_decodificado,
-                'archivos_disponibles': archivos_disponibles
-            }), 404
-        
-        return send_from_directory(
-            PDFS_MANTENIMIENTO_DIR,
-            nombre_archivo_decodificado,
-            as_attachment=True,
-            download_name=nombre_archivo_decodificado
-        )
-        
-    except Exception as e:
-        print(f"[DEBUG] Error en descarga: {e}")
-        import traceback
-        traceback.print_exc()
-        return jsonify({'error': str(e)}), 500
-
-@app.route('/api/evidencia/sincronizar_fotos_camara', methods=['POST'])
-def sincronizar_fotos_camara():
-    """
-    Sincroniza fotos del sistema de cámara con el sistema de evidencia
-    """
-    try:
-        data = request.get_json()
-        pdf_id = data.get('pdf_id')
-        
-        if not pdf_id:
-            return jsonify({
-                'success': False,
-                'error': 'ID del PDF no proporcionado'
-            }), 400
-        
-        # Registrar actividad del usuario
-        sid = registrar_actividad_usuario()
-        
-        # Obtener fotos del sistema RIJ
-        fotos_camara = session.get('rij_fotos', [])
-        
-        if not fotos_camara:
             return jsonify({
                 'success': True,
-                'message': 'No hay fotos en la cámara para sincronizar',
-                'fotos_sincronizadas': 0
+                'message': 'Acceso autorizado',
+                'tiempo_sesion_minutos': TIEMPO_SESION_MINUTOS
             }), 200
-        
-        fotos_procesadas = []
-        fotos_exitosas = 0
-        
-        for i, foto_url in enumerate(fotos_camara):
-            try:
-                # Extraer nombre de archivo de la URL
-                nombre_archivo = foto_url.split('/')[-1]
-                ruta_foto = os.path.join(FOTOS_RIJ_DIR, nombre_archivo)
-                
-                if os.path.exists(ruta_foto):
-                    # Leer archivo y convertir a base64
-                    with open(ruta_foto, 'rb') as f:
-                        foto_data = f.read()
-                    
-                    foto_base64 = f"data:image/jpeg;base64,{base64.b64encode(foto_data).decode()}"
-                    
-                    # Información de la foto procesada
-                    foto_info = {
-                        'id': f"camara_{sid}_{i}_{int(time.time())}",
-                        'nombre': f"Evidencia_Camara_{i+1}.jpg",
-                        'tipo': 'image/jpeg',
-                        'tamaño': len(foto_data),
-                        'data': foto_base64,
-                        'fecha': datetime.datetime.now().isoformat(),
-                        'origen': 'camara'
-                    }
-                    
-                    fotos_procesadas.append(foto_info)
-                    fotos_exitosas += 1
-                    
-            except Exception as e:
-                print(f"Error al procesar foto {i}: {e}")
-                continue
-        
-        return jsonify({
-            'success': True,
-            'message': f'{fotos_exitosas} fotos sincronizadas correctamente',
-            'fotos_sincronizadas': fotos_exitosas,
-            'fotos': fotos_procesadas
-        }), 200
-        
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'Contraseña incorrecta'
+            }), 401
+            
     except Exception as e:
-        print(f"Error al sincronizar fotos de cámara: {e}")
+        print(f"Error en login: {e}")
         return jsonify({
             'success': False,
-            'error': str(e)
+            'message': 'Error interno del servidor'
         }), 500
 
-@app.route('/api/evidencia/estado_camara', methods=['GET'])
-def obtener_estado_camara():
+@app.route('/api/verificar_sesion', methods=['GET'])
+def verificar_sesion_endpoint():
     """
-    Obtiene el estado actual de las fotos en el sistema de cámara
+    Verifica el estado actual de la sesión y devuelve información
     """
     try:
-        # Registrar actividad del usuario
-        registrar_actividad_usuario()
+        token_sesion = session.get('session_token')
         
-        fotos_camara = session.get('rij_fotos', [])
+        if not token_sesion:
+            return jsonify({
+                'success': False,
+                'autenticado': False,
+                'mensaje': 'No hay sesión activa'
+            }), 200
+        
+        # Verificar si la sesión sigue siendo válida
+        if verificar_sesion_activa(token_sesion):
+            tiempo_restante = obtener_tiempo_restante_sesion(token_sesion)
+            
+            return jsonify({
+                'success': True,
+                'autenticado': True,
+                'tiempo_restante_minutos': tiempo_restante,
+                'debe_mostrar_advertencia': tiempo_restante <= (TIEMPO_SESION_MINUTOS - TIEMPO_ADVERTENCIA_MINUTOS)
+            }), 200
+        else:
+            # Limpiar sesión local si ya expiró
+            session.clear()
+            return jsonify({
+                'success': False,
+                'autenticado': False,
+                'mensaje': 'Sesión expirada'
+            }), 200
+            
+    except Exception as e:
+        print(f"Error al verificar sesión: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Error interno del servidor'
+        }), 500
+
+@app.route('/api/logout', methods=['POST'])
+def logout():
+    """
+    Cierra la sesión del usuario
+    """
+    try:
+        token_sesion = session.get('session_token')
+        
+        if token_sesion:
+            # Cerrar sesión en la base de datos
+            cerrar_sesion(token_sesion)
+        
+        # Limpiar sesión local
+        session.clear()
         
         return jsonify({
             'success': True,
-            'total_fotos': len(fotos_camara),
-            'fotos_disponibles': len(fotos_camara),
-            'urls': fotos_camara
+            'message': 'Sesión cerrada correctamente'
         }), 200
         
     except Exception as e:
+        print(f"Error al cerrar sesión: {e}")
         return jsonify({
             'success': False,
-            'error': str(e)
+            'error': 'Error interno del servidor'
         }), 500
 
-# --- FIN RUTAS PARA SISTEMA DE EVIDENCIA DE MANTENIMIENTO ---
+# --- FIN ENDPOINTS DE AUTENTICACIÓN ---
 
 if __name__ == '__main__':
     # --- INICIO DE MODIFICACIONES PARA HTTPS ---
     # Configuración para habilitar HTTPS en el servidor Flask.
 
-    # Inicializar sistema de limpieza automática
+    # Inicializar sistema de limpieza automática original
     iniciar_sistema_limpieza()
+    
+    # Inicializar sistema de limpieza de sesiones autenticadas
+    iniciar_limpieza_sesiones()
 
     # Rutas a tus archivos de certificado y clave privada
     cert_path = os.path.join(BASE_DIR, 'cert.pem')
