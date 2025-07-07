@@ -81,6 +81,11 @@ function validarFormulario() {
 }
 
 
+function validarYGenerarPDF() {
+    // Alias para compatibilidad con onclick en impresoras.html
+    validarFormulario();
+}
+
 /*function validarYGenerarPDF() {
     let camposIncompletos = [];
 
@@ -197,6 +202,26 @@ async function generarPDF() {
     const division = document.querySelector('input[id="division"]').value;
     const centro = document.getElementById('centro_trabajo').value;
     const servicio = document.getElementById('servicio').value;
+
+    // Declarar variables de radios para evitar ReferenceError
+    const limpieza_interna = document.querySelector('input[name="limpieza_interna"]:checked').value;
+    const sopleteado = document.querySelector('input[name="sopleteado"]:checked').value;
+    const bandejas = document.querySelector('input[name="bandejas"]:checked').value;
+    const papel = document.querySelector('input[name="papel"]:checked').value;
+    const fusion = document.querySelector('input[name="fusion"]:checked').value;
+    const laser = document.querySelector('input[name="laser"]:checked').value;
+    const consumibles = document.querySelector('input[name="consumibles"]:checked').value;
+    const red = document.querySelector('input[name="red"]:checked').value;
+    const prueba = document.querySelector('input[name="prueba"]:checked').value;
+    const operando = document.querySelector('input[name="operando"]:checked').value;
+
+    // Declarar variables de firmas y datos finales
+    const firma1Base64 = document.getElementById("firma-input-1").value;
+    const firma2Base64 = document.getElementById("firma-input-2").value;
+    const firma3Base64 = document.getElementById("firma-input-3").value;
+    const realizo_servicio = document.getElementById("realizo_servicio").value;
+    const responsable = document.getElementById("responsable").value;
+    const visto_bueno = document.getElementById("visto_bueno").value;
 
     // IMAGEN -- LOGO
     await addCompressedImage(doc, '/RESOURCE/IMG/Comisión_Federal_de_Electricidad_(logo)_.svg.png', 15, 8, 40, 20, compConfig.calidad_webp, 'logo');
@@ -594,6 +619,7 @@ async function generarPDF() {
 
     // Usar el sistema de nombrado automático basado en número de serie
     requestPDFFilename((filename) => {
-        doc.save(filename);
+        // Procesar el PDF: descarga, guardar en repositorio y mostrar modal
+        procesarPDFMantenimiento(doc, filename, 'impresoras');
     }, serie, 'IMPRESORA');
 }
