@@ -309,13 +309,13 @@ async function generarPDF() {
     let xFolioVal = 158 + (rectWidthSeccion4 - folioWidth) / 2;
     doc.text(folio, xFolioVal, y + 5);
 
-    doc.rect(15, y - 4, 55, 12.5); 
+    doc.rect(15, y - 4, 55, 14); 
     doc.line(15, y+.7, 70, y+.7);
-    doc.rect(73, y - 4, 46, 12.5); 
+    doc.rect(73, y - 4, 46, 14); 
     doc.line(73, y+.7, 119, y+.5);
-    doc.rect(122, y - 4, 33, 12.5);
+    doc.rect(122, y - 4, 33, 14);
     doc.line(122, y+.7, 155, y+.5);
-    doc.rect(158, y - 4, 44, 12.5);
+    doc.rect(158, y - 4, 44, 14);
     doc.line(158, y+.7, 202, y+.5);
 
     y += 15;
@@ -367,16 +367,17 @@ async function generarPDF() {
     let xTipoEquipoVal = 158 + (rectWidthSeccion4 - TipoEquipoWidth) / 2;
     doc.text(tipo_equipo, xTipoEquipoVal, y + 5);
 
-    doc.rect(15, y - 4, 55, 12.5); 
+    doc.rect(15, y - 4, 55, 14); 
     doc.line(15, y+.7, 70, y+.7);
-    doc.rect(73, y - 4, 46, 12.5); 
+    doc.rect(73, y - 4, 46, 14); 
     doc.line(73, y+.7, 119, y+.5);
-    doc.rect(122, y - 4, 33, 12.5);
+    doc.rect(122, y - 4, 33, 14);
     doc.line(122, y+.7, 155, y+.5);
-    doc.rect(158, y - 4, 44, 12.5);
+    doc.rect(158, y - 4, 44, 14);
     doc.line(158, y+.7, 202, y+.5);
 
     y += 15;
+
     // === USUARIO ===
     doc.setFont("helvetica", "normal", "bold");
     label = "Nombre del usuario:";
@@ -385,9 +386,15 @@ async function generarPDF() {
     doc.text(label, xUsuario, y);
 
     doc.setFont("helvetica", "normal");
-    let usuarioWidth = doc.getTextWidth(usuario);
-    let xUsuarioVal = 15 + (rectWidthSeccion1 - usuarioWidth) / 2;
-    doc.text(usuario, xUsuarioVal, y + 5);
+
+    // Dividir texto si es muy largo 
+    const maxWidth = rectWidthSeccion1 - 4; 
+    const lineasUsuario = doc.splitTextToSize(usuario, maxWidth);
+
+    const xTexto = 15 + 2; // margen izquierdo
+    const yTexto = y + 5;
+    doc.text(lineasUsuario, xTexto, yTexto);
+
 
     // === NUMERO DE SERIE ===
     doc.setFont("helvetica", "normal", "bold");
@@ -425,13 +432,13 @@ async function generarPDF() {
     let xServicioVal = 158 + (rectWidthSeccion4 - servicioWidth) / 2;
     doc.text(servicio, xServicioVal, y + 5);
  
-    doc.rect(15, y - 4, 55, 12.5); 
+    doc.rect(15, y - 4, 55, 14); 
     doc.line(15, y+.7, 70, y+.7);
-    doc.rect(73, y - 4, 46, 12.5); 
+    doc.rect(73, y - 4, 46, 14); 
     doc.line(73, y+.7, 119, y+.5);
-    doc.rect(122, y - 4, 33, 12.5);
+    doc.rect(122, y - 4, 33, 14);
     doc.line(122, y+.7, 155, y+.5);
-    doc.rect(158, y - 4, 44, 12.5);
+    doc.rect(158, y - 4, 44, 14);
     doc.line(158, y+.7, 202, y+.5);
     
     y+= 15;
@@ -447,7 +454,7 @@ async function generarPDF() {
     let xUsoVal = 15 + (rectWidthSeccion1 - usoWidth) / 2;
     doc.text(uso, xUsoVal, y + 5);
 
-    doc.rect(15, y - 4, 55, 12.5); 
+    doc.rect(15, y - 4, 55, 14); 
     doc.line(15, y+.7, 70, y+.7);
 
     // TABLA DE ACTIVIDADES
