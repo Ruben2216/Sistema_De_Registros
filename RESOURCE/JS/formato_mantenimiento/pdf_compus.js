@@ -510,15 +510,15 @@ async function generarPDF() {
         doc.addImage(firma3Base64, 'PNG', 150, y, 40, 20 );
     
     y += 8;
-    doc.text(`Realizó servicio:`, 15, y);
+    doc.text(`Realizó servicio:`, 15, y-12);
     doc.setFontSize(7);
     doc.text(realizo_servicio, 15, y + 21);
     doc.setFontSize(10);
-    doc.text(`Responsable del Equipo:`, 105, y, "center");
+    doc.text(`Responsable del Equipo:`, 105, y-12, "center");
     doc.setFontSize(7);
     doc.text(responsable, 80, y + 21);
     doc.setFontSize(10);
-    doc.text(`Visto Bueno:`, 145, y);
+    doc.text(`Visto Bueno:`, 145, y-12);
     doc.setFontSize(7);
     doc.text(visto_bueno, 145, y + 21);
     y += 22;
