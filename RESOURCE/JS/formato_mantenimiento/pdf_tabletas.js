@@ -399,6 +399,7 @@ async function generarPDF() {
         }
 
     y+=6;
+    doc.setFontSize(8.3);
     doc.text(`Limpieza externa usando cepillo de cerdas suaves antiestáticas`, 16, y);
     doc.line(15,y+2, w, y+2 );
 
@@ -415,6 +416,7 @@ async function generarPDF() {
     }
 
     y+=6;
+    doc.setFontSize(8.3);
     doc.text(`Limpieza de touch con paño suave, sin detergentes o abrasivos`, 16, y);
     doc.line(15,y+2, w, y+2 );
     if (limpieza_paño === "si") {
@@ -430,6 +432,7 @@ async function generarPDF() {
     }
 
     y+=6;
+    doc.setFontSize(8.3);
     const texto = "La cubierta de franela o tela microfibra limpia y humedecida con líquido para limpieza de equipo de cómputo";
     const anchoMax = 90; // espacio antes de la línea vertical (108 - 16 - margen extra)
     const textoDividido = doc.splitTextToSize(texto, anchoMax);
@@ -605,17 +608,16 @@ async function generarPDF() {
     y+=5;
     // FIRMAS
         y+=20;
-
-    doc.text(`Realizó servicio:`, 15, y-8);
+    doc.setFontSize(10);
+    doc.text(`Realizó servicio:`, 25, y-8);
     doc.setFontSize(7);
     doc.text(realizo_servicio, 15, y + 21);
-
     doc.setFontSize(10);
     doc.text(`Responsable del Equipo:`, 105, y-8, "center");
     doc.setFontSize(7);
     doc.text(responsable, 80, y + 21);
     doc.setFontSize(10);
-    doc.text(`Visto Bueno:`, 145, y-8);
+    doc.text(`Visto Bueno:`, 155, y-8);
     doc.setFontSize(7);
     doc.text(visto_bueno, 145, y + 21);
     if(firma1Base64)
@@ -631,7 +633,7 @@ async function generarPDF() {
     doc.line(80, y, 130, y);
     doc.line(145, y, 200, y);
     y += 5;
-    doc.text("Nombre y firma", 20, y);
+    doc.text("Nombre y firma", 28, y);
     doc.text("Nombre y firma", 95, y);
     doc.text("Nombre y firma", 165, y);
 
