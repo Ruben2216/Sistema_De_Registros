@@ -7,6 +7,7 @@ import datetime
 import threading
 import time
 import atexit
+import re
 from werkzeug.utils import secure_filename
 # --- INICIO LÓGICA DE backend (búsqueda de equipos en MySQL) ---
 from flask_cors import CORS 
@@ -1012,7 +1013,7 @@ def obtener_pdfs_mantenimiento():
                     
                     pdfs_disponibles.append({
                         'id': archivo.replace('.pdf', ''),
-                        'nombre': archivo.replace('.pdf', '').replace('_', ' ').title(),
+                        'nombre': archivo.replace('.pdf', ''),  # Mantener el nombre exacto sin modificaciones
                         'fecha': fecha_creacion.isoformat(),
                         'tipo': tipo_mantenimiento,
                         'ruta': f'/api/evidencia/ver_pdf/{archivo}'
@@ -1096,9 +1097,26 @@ def guardar_pdf_mantenimiento():
                 'error': f'Error al decodificar PDF: {str(e)}'
             }), 400
         
-        # Generar nombre único con timestamp y SID del usuario
-        timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-        nombre_final = f"{tipo_mantenimiento}_{timestamp}_{sid[:8]}.pdf"
+        # Usar el nombre de archivo proporcionado por el usuario, manteniendo solo caracteres seguros
+        nombre_base = nombre_archivo
+        if nombre_base.endswith('.pdf'):
+            nombre_base = nombre_base[:-4]
+        
+        # Sanitizar el nombre base quitando solo caracteres problemáticos pero manteniendo espacios
+        nombre_base_limpio = re.sub(r'[<>:"/\\|?*]', '', nombre_base)
+        nombre_base_limpio = nombre_base_limpio.strip()
+        
+        # Si después de la limpieza no queda nada válido, usar fallback
+        if not nombre_base_limpio or len(nombre_base_limpio) < 1:
+            timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+            nombre_base_limpio = f"{tipo_mantenimiento}_{timestamp}"
+        
+        # Generar nombre final único (agregar timestamp solo si ya existe)
+        nombre_final = f"{nombre_base_limpio}.pdf"
+        contador = 1
+        while os.path.exists(os.path.join(PDFS_MANTENIMIENTO_DIR, nombre_final)):
+            nombre_final = f"{nombre_base_limpio}_{contador}.pdf"
+            contador += 1
         ruta_archivo = os.path.join(PDFS_MANTENIMIENTO_DIR, nombre_final)
         
         # Guardar PDF
@@ -1109,7 +1127,8 @@ def guardar_pdf_mantenimiento():
             'success': True,
             'message': 'PDF guardado correctamente',
             'pdf_id': nombre_final.replace('.pdf', ''),
-            'nombre_archivo': nombre_final
+            'nombre_archivo': nombre_final,
+            'nombre_guardado': nombre_final.replace('.pdf', '')  # Devolver el nombre exacto guardado
         }), 200
         
     except Exception as e:

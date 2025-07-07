@@ -1,10 +1,10 @@
-
-
 // Función para guardar PDF en el repositorio de evidencia de mantenimiento
 async function guardarPDFEnRepositorioEvidencia(docPDF, nombreArchivo, tipoMantenimiento) {
     try {
         // Obtener el PDF como base64
         const pdfBase64 = docPDF.output('datauristring');
+        
+        console.log('Enviando PDF al repositorio con nombre:', nombreArchivo);
         
         // Datos para enviar al servidor
         const datosRepositorio = {
@@ -26,10 +26,13 @@ async function guardarPDFEnRepositorioEvidencia(docPDF, nombreArchivo, tipoMante
         
         if (result.success) {
             console.log('PDF guardado en repositorio de evidencia:', result.pdf_id);
+            console.log('Nombre original enviado:', nombreArchivo);
+            console.log('Nombre guardado por el backend:', result.nombre_guardado || nombreArchivo);
+            console.log('Archivo PDF guardado como:', result.nombre_archivo);
             
             // Mostrar notificación al usuario
             mostrarNotificacionRepositorio(
-                `PDF guardado en repositorio. Puede añadir evidencia fotográfica desde el menú.`,
+                `PDF "${result.nombre_guardado || nombreArchivo}" guardado en repositorio. Puede añadir evidencia fotográfica desde el menú.`,
                 'success'
             );
         } else {
@@ -125,7 +128,7 @@ function mostrarModalEvidencia(nombreArchivo) {
                 text-align: center;
                 box-shadow: 0 8px 32px rgba(0,0,0,0.1);
             ">
-                <h3 style="color: #00724e; margin-bottom: 20px;">PDF Generado Exitosamente</h3>
+                <h3 style="color: #00724e; margin-bottom: 20px;">PDF Generado Exitosamente:  ${nombreArchivo}</h3>
                 <p style="margin-bottom: 25px; color: #333;">
                     Su PDF de mantenimiento ha sido guardado correctamente.
                     ¿Desea añadir evidencia fotográfica?

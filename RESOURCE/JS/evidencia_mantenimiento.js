@@ -31,6 +31,8 @@ async function cargarPDFsDisponibles() {
         const response = await fetch('/api/evidencia/obtener_pdfs_mantenimiento');
         const data = await response.json();
         
+        console.log('PDFs recibidos del servidor:', data.pdfs);
+        
         if (data.success && data.pdfs.length > 0) {
             mostrarListaPDFs(data.pdfs);
         } else {
@@ -48,6 +50,8 @@ function mostrarListaPDFs(pdfs) {
     listaPdfs.innerHTML = '';
     
     pdfs.forEach(pdf => {
+        console.log('Mostrando PDF:', pdf.nombre, 'ID:', pdf.id);
+        
         const elementoPdf = document.createElement('div');
         elementoPdf.className = 'item-pdf';
         elementoPdf.innerHTML = `
@@ -81,6 +85,11 @@ function mostrarMensajeVacio() {
 
 // Función para seleccionar un PDF
 function seleccionarPDF(idPdf, nombrePdf, fechaPdf) {
+    console.log('=== SELECCIONANDO PDF ===');
+    console.log('ID PDF:', idPdf);
+    console.log('Nombre PDF recibido:', nombrePdf);
+    console.log('Fecha PDF:', fechaPdf);
+    
     pdfSeleccionado = {
         id: idPdf,
         nombre: nombrePdf,
@@ -90,7 +99,15 @@ function seleccionarPDF(idPdf, nombrePdf, fechaPdf) {
     // Actualizar información del PDF seleccionado
     document.getElementById('nombre-pdf-seleccionado').textContent = nombrePdf;
     document.getElementById('fecha-pdf-seleccionado').textContent = formatearFecha(fechaPdf);
-    
+
+    // Actualizar título de la pestaña y encabezado principal con el nombre exacto del PDF
+    document.title = nombrePdf;
+    const encabezado = document.querySelector('.titulo-principal');
+    if (encabezado) {
+        console.log('Actualizando encabezado a:', nombrePdf);
+        encabezado.textContent = nombrePdf;
+    }
+
     // Mostrar sección de evidencia
     seccionEvidencia.style.display = 'block';
     

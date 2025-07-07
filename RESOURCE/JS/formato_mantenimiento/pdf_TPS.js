@@ -171,9 +171,9 @@ async function generarPDF() {
     const realizo_servicio = document.querySelector('input[id="realizo_servicio"').value;
     const responsable = document.querySelector('input[id="responsable"').value;
     const visto_bueno = document.querySelector('input[id="visto_bueno"').value;
-    /*const firma3Base64 = document.getElementById("firma-input-3").value;
+    const firma3Base64 = document.getElementById("firma-input-3").value;
     const firma2Base64 = document.getElementById("firma-input-2").value;
-    const firma1Base64 = document.getElementById("firma-input-1").value;*/
+    const firma1Base64 = document.getElementById("firma-input-1").value;
 
 
     // IMAGEN -- LOGO
@@ -524,11 +524,11 @@ async function generarPDF() {
     }
 
     // FIRMAS
-    /*y+=55;
-    if (firma1Base64) await addCompressedImage(doc, firma1Base64, x1, y1, w1, h1, compConfig.calidad_webp, 'firma1');
-    if (firma2Base64) await addCompressedImage(doc, firma2Base64, x2, y2, w2, h2, compConfig.calidad_webp, 'firma2');
-*/
-    y += 10;
+    y+=55;
+
+   
+
+    y += 12;
     doc.text(`Realizó servicio:`, 15, y-5);
     doc.setFontSize(7);
     doc.text(realizo_servicio, 15, y + 30);
@@ -540,7 +540,12 @@ async function generarPDF() {
     doc.text(`Visto Bueno:`, 145, y-5);
     doc.setFontSize(7);
     doc.text(visto_bueno, 145, y + 30);
-    y += 31;
+    y += 8;
+     if (firma1Base64) await addCompressedImage(doc, firma1Base64, 15, y, 40, 20, compConfig.calidad_webp, 'firma1');
+    if (firma2Base64) await addCompressedImage(doc, firma2Base64, 82, y, 40, 20, compConfig.calidad_webp, 'firma2');
+    if (firma3Base64) await addCompressedImage(doc, firma3Base64, 147, y, 40, 20, compConfig.calidad_webp, 'firma3');
+        y += 23;
+
     doc.line(15, y, 60, y);
     doc.line(80, y, 130, y);
     doc.line(145, y, 200, y);
