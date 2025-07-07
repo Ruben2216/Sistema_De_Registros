@@ -248,7 +248,14 @@
                 <input type="hidden" id="firma-input-3">
                 <img id="firma-imagen-3" class="firma-imagen"/>
             </div>
+            <button type="button" class="boton boton--primario" onclick="validarFormulario()">Generar PDF</button>
+            <div class="boton boton--secundario boton--cancelar">
+                <a id="select-reset" href="/TEMPLATES/menu.html" class="boton--cancelar ">Cancelar</a>
+            </div>            
+        </div>
+        </form>
 
+        
                 <!-- Modal para la firma digital -->
             <div id="modal-firma" class="firma-modal">
                 <div class="firma-modal__contenido">
@@ -261,13 +268,6 @@
                     </div>
                 </div>
             </div>
-            
-        
-            <button type="button" class="boton boton--primario" onclick="validarFormulario()">Generar PDF</button>
-            <div class="boton boton--secundario boton--cancelar">
-                <a id="select-reset" href="/TEMPLATES/menu.html" class="boton--cancelar ">Cancelar</a>
-            </div>            </div>
-        </form>
 
        <div class="menu-hamburguesa-flotante" id="menu-hamburguesa-flotante"> 
     <div class="menu-hamburguesa-opciones" id="menu-hamburguesa-opciones">

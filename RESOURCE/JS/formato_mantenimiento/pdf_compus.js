@@ -26,7 +26,7 @@ function validarFormulario() {
 
         if (!input.value.trim()) {
             input.classList.add('campo-error');
-            mensaje.textContent = 'Olvidaste este campo?';
+            mensaje.textContent = '¿Esta seguro en dejar este campo vacío?';
             esValido = false;
         } else {
             input.classList.remove('campo-error');
