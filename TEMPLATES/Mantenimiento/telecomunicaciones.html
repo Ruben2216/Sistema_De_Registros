@@ -194,7 +194,15 @@
                 <img id="firma-imagen-2" class="firma-imagen"/>
             </div>
 
-                <!-- Modal para la firma digital -->
+            <button type="button" class="boton boton--primario" onclick="validarFormulario()">Generar PDF</button>
+            <button type="button" class="boton boton--secundario">Guardar Borrador</button>
+            <div class="boton boton--secundario boton--cancelar">
+                <a id="select-reset" href="/TEMPLATES/menu.html" class="boton--cancelar ">Cancelar</a>
+            </div>
+
+        </form>
+
+        <!-- Modal para la firma digital -->
             <div id="modal-firma" class="firma-modal">
                 <div class="firma-modal__contenido">
                     <h3 class="firma-modal__titulo">Firme en el recuadro</h3>
@@ -206,14 +214,6 @@
                     </div>
                 </div>
             </div>
-
-            <button type="button" class="boton boton--primario" onclick="validarFormulario()">Generar PDF</button>
-            <button type="button" class="boton boton--secundario">Guardar Borrador</button>
-            <div class="boton boton--secundario boton--cancelar">
-                <a id="select-reset" href="/TEMPLATES/menu.html" class="boton--cancelar ">Cancelar</a>
-            </div>
-
-        </form>
 
     <!-- Menú hamburguesa flotante -->
     <div class="menu-hamburguesa-flotante" id="menu-hamburguesa-flotante">
