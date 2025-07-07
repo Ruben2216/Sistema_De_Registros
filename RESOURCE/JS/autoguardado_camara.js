@@ -1,5 +1,4 @@
 // Lógica de autoguardado y restauración para camara.html
-
 (function() {
     // URL del backend Flask para autoguardado de fotos - DINÁMICO
     var API_URL = window.API_CONFIG ? window.API_CONFIG.FOTOS : '/api/rij/fotos';
@@ -55,7 +54,7 @@
                     }
                 }
             }
-            
+            var imagenLimpia = img.getAttribute('data-imagen-limpia') || null;
             // IMPORTANTE: Usar URL como identificador único para evitar problemas con índices
             fotos.push({ 
                 id: url, // Identificador único basado en URL
@@ -64,7 +63,8 @@
                 mejorada: mejorada,
                 versiones: versiones,
                 recortada: recortada,  
-                recorteInfo: recorteInfo  
+                recorteInfo: recorteInfo,
+                imagenLimpia: imagenLimpia
             });
         }
         return fotos;
@@ -119,9 +119,9 @@
             }
             yaMostradas.add(foto.id || foto.url);            // Usar la función global para asegurar el botón borrar y lógica de versiones
             if (typeof window.agregarFotoRestaurada === 'function') {
-                window.agregarFotoRestaurada(foto.url, foto.version, foto.mejorada, foto.versiones, foto.recortada, foto.recorteInfo);            } else if (typeof window.agregarFotoAGaleria === 'function') {
+                window.agregarFotoRestaurada(foto.url, foto.version, foto.mejorada, foto.versiones, foto.recortada, foto.recorteInfo, foto.imagenLimpia);            } else if (typeof window.agregarFotoAGaleria === 'function') {
                 // Fallback a función original si la nueva no está disponible
-                window.agregarFotoAGaleria(foto.url, foto.version, foto.mejorada, foto.recortada, foto.recorteInfo);
+                window.agregarFotoAGaleria(foto.url, foto.version, foto.mejorada, foto.recortada, foto.recorteInfo, undefined, foto.imagenLimpia);
             }
         }        // Log para depuración
         if (fotos.length !== yaMostradas.size) {
@@ -222,7 +222,8 @@
             var claveRecorte = 'imagenRecortada_' + urlOriginal;
             var datosGuardados = localStorage.getItem(claveRecorte);
             if (datosGuardados) {
-                try {                    var datos = JSON.parse(datosGuardados);
+                try {                    
+                    var datos = JSON.parse(datosGuardados);
                     if (datos.imagen && datos.recorteInfo) {
                         img.src = datos.imagen;
                         img.setAttribute('data-recortada', datos.imagen);

@@ -212,23 +212,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (typeof actualizarOverlayVideo === 'function') {
                 actualizarOverlayVideo('Procesando fotografía...');
             }
-
-            // Agregar fecha/hora
-            var fecha = new Date();
-            var fechaTexto = fecha.toLocaleDateString('es-MX') + ' ' + fecha.getHours() + ':' + fecha.getMinutes();
-            var fontSize = 48;
-            var padding = 10;
-            context.save();
-            context.font = fontSize + 'px Arial';
-            context.textBaseline = 'bottom';
-            var textWidth = context.measureText(fechaTexto).width;
-            var x = canvasElement.width - textWidth - padding;
-            var y = canvasElement.height - padding;
-            context.fillStyle = 'rgba(0,0,0,0.48)';
-            context.fillRect(x - padding, y - fontSize - 4, textWidth + 2 * padding, fontSize + 8);
-            context.fillStyle = 'white';
-            context.fillText(fechaTexto, x, y);
-            context.restore();
+            // guardar imagen limpia antes de poner la fecha 
+            var dataURLLimpia = canvasElement.toDataURL('image/png');
 
             // Pequeña pausa para mostrar el mensaje de procesamiento
             await new Promise(resolve => setTimeout(resolve, 800));
@@ -241,7 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Subir la foto al servidor y actualizar galería
             if (typeof guardarFotoDesdeCanvas === 'function') {
-                guardarFotoDesdeCanvas(canvasElement);
+                guardarFotoDesdeCanvas(canvasElement, dataURLLimpia);
                 // Incrementar el contador de fotos al tomar una nueva
                 photosTakenCount++;
                 
@@ -385,7 +370,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Reiniciar la cámara para aplicar el nuevo modo de user o viceversa
         await startCamera();
     });    // Permite agregar una foto a la galería con versión seleccionada
-    window.agregarFotoAGaleria = function(url, version, mejorada, recortada, recorteInfo, localDataURL) {
+    window.agregarFotoAGaleria = function(url, version, mejorada, recortada, recorteInfo, localDataURL, imagenLimpia) {
         var contenedor = document.getElementById('photosContainer');
         if (!contenedor) {
             return;
@@ -729,9 +714,10 @@ document.addEventListener('DOMContentLoaded', () => {
         btnRecortar.style.touchAction = 'manipulation';        // --- Ajustar lógica de subida y recorte para asegurar URL correcta ---
         btnRecortar.addEventListener('click', function(e) {
             e.preventDefault();
-            abrirModalRecorte(img, url, function(dataUrlRecortada, infoRecorte) {
+            abrirModalRecorte(img, img.src, function(dataUrlRecortada, infoRecorte) {
                 if (dataUrlRecortada) {
-                    subirFotoBase64(dataUrlRecortada, function(err, nuevaUrl) {                        if (!err && nuevaUrl) {
+                    subirFotoBase64(dataUrlRecortada, function(err, nuevaUrl) {                        
+                        if (!err && nuevaUrl) {
                             // CORREGIDO: Mostrar la imagen recortada, no la nueva URL
                             img.src = dataUrlRecortada;
                             img.setAttribute('data-original-url', nuevaUrl);
@@ -744,6 +730,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 img.setAttribute('data-recortada', dataUrlRecortada);
                                 img.setAttribute('data-recorte-info', JSON.stringify(infoRecorte));
                             }
+                            img.setAttribute('data-imagen-limpia', nuevaUrl);
                             
                             // Actualizar la preferencia de pantalla completa si existe
                             var clavePreferencia = 'fotoPantallaCompleta_' + url;
@@ -928,7 +915,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         contenedor.appendChild(photoWrapper);
     }    // NUEVA: Función especial para agregar fotos restauradas conservando todas las versiones
-    window.agregarFotoRestaurada = function(url, version, mejorada, versionesGuardadas, recortada, recorteInfo) {
+    window.agregarFotoRestaurada = function(url, version, mejorada, versionesGuardadas, recortada, recorteInfo, imagenLimpia) {
         var contenedor = document.getElementById('photosContainer');
         if (!contenedor) {
             return;
@@ -939,9 +926,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Imagen principal mostrada
         var img = document.createElement('img');
+         img.src = url; 
+        img.alt = 'Foto restaurada'; 
         img.className = 'foto-principal';
         img.setAttribute('data-original-url', url);
-        img.setAttribute('data-version', version || 'original');
+        img.setAttribute('data-version', version);
         if (mejorada) {
             img.setAttribute('data-mejorada', mejorada);
         }
@@ -952,6 +941,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (recorteInfo) {
             img.setAttribute('data-recorte-info', JSON.stringify(recorteInfo));
+        }
+        if (imagenLimpia) {
+            img.setAttribute('data-imagen-limpia', imagenLimpia);
+        } else {
+            img.setAttribute('data-imagen-limpia', url); // fallback: usa la original si no hay limpia
         }
         
         // Configurar las versiones disponibles desde el guardado
@@ -1169,7 +1163,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btnRecortar.style.touchAction = 'manipulation';
           btnRecortar.addEventListener('click', function(e) {
             e.preventDefault();
-            abrirModalRecorte(img, url, function(dataUrlRecortada, infoRecorte) {
+            abrirModalRecorte(img, img.src, function(dataUrlRecortada, infoRecorte) {
                 if (dataUrlRecortada) {
                     subirFotoBase64(dataUrlRecortada, function(err, nuevaUrl) {                        if (!err && nuevaUrl) {
                             // CORREGIDO: Mostrar la imagen recortada, no la nueva URL

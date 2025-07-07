@@ -298,11 +298,10 @@ function abrirModalRecorte(img, url, callback) {
         }
         // Llamar a la función con la URL proporcionada
         window.addEventListener('load', function() {
-            // URL de ejemplo - en producción esto será dinámico
-            const baseUrl = window.API_CONFIG ? window.API_CONFIG.BASE : '';
-            const url = `${baseUrl}/RESOURCE/IMG/Evidencias/rij_6c8eb7f585e34746_20250620031320234658.png`;
+            const url = "https://192.168.1.18:8000/RESOURCE/IMG/Evidencias/rij_6c8eb7f585e34746_20250620031320234658.png";
             cargarImagenDesdeURL(url);
-        });        document.getElementById('btn-confirmar-recorte').onclick = function() {
+        });        
+        document.getElementById('btn-confirmar-recorte').onclick = function() {
             var escala = tempImg.naturalWidth / canvas.width;
             var cropCanvas = document.createElement('canvas');
             cropCanvas.width = recorte.w * escala;
@@ -317,6 +316,25 @@ function abrirModalRecorte(img, url, callback) {
                 recorte.w * escala,
                 recorte.h * escala
             );
+
+            //NUEVO: Agrega la fecha después del recorte 
+            var ctxCrop = cropCanvas.getContext('2d');
+            var fecha = new Date();
+            var fechaTexto = fecha.toLocaleDateString('es-MX') + ' ' + fecha.getHours() + ':' + fecha.getMinutes();
+            var fontSize = 48;
+            var padding = 10;
+            ctxCrop.save();
+            ctxCrop.font = fontSize + 'px Arial';
+            ctxCrop.textBaseline = 'bottom';
+            var textWidth = ctxCrop.measureText(fechaTexto).width;
+            var x = cropCanvas.width - textWidth - padding;
+            var y = cropCanvas.height - padding;
+            ctxCrop.fillStyle = 'rgba(0,0,0,0.48)';
+            ctxCrop.fillRect(x - padding, y - fontSize - 4, textWidth + 2 * padding, fontSize + 8);
+            ctxCrop.fillStyle = 'white';
+            ctxCrop.fillText(fechaTexto, x, y);
+            ctxCrop.restore();
+
             var dataUrl = cropCanvas.toDataURL('image/png');
             
             // NUEVO: Guardar información del recorte para poder regenerarlo
@@ -369,5 +387,5 @@ function abrirModalRecorte(img, url, callback) {
         //     cargarDesdeServidor(); // Intentar cargar desde el servidor
         // });
     };
-    tempImg.src = img.src;
+    tempImg.src = url; //CAMBIADO 
 }
