@@ -28,7 +28,7 @@ function validarFormulario() {
 
         if (!input.value.trim()) {
             input.classList.add('campo-error');
-            mensaje.textContent = 'Este campo es obligatorio';
+            mensaje.textContent = '¿Esta seguro en dejar este campo vacío?';
             esValido = false;
         } else {
             input.classList.remove('campo-error');
