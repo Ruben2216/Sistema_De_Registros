@@ -618,8 +618,8 @@ if (APS === "si") {
 
 // FIRMAS    
     y += 25;
-    doc.text(`RALIZA INSPECCIÓN`, 29, y);
-    doc.text(`Vo.Bo.`, 145, y);
+    doc.text(`RALIZA INSPECCIÓN`, 33, y);
+    doc.text(`Vo. Bo.`, 153, y);
 
     if(firma1Base64)
         doc.addImage(firma1Base64, 'PNG', 21.5, y+3, 40, 20 );
@@ -644,7 +644,8 @@ if (APS === "si") {
     
 
     requestPDFFilename((filename) => {
-        doc.save(filename);
+       
+        procesarPDFMantenimiento(doc, filename, 'telecomunicaciones');
     }, site, 'TELECOMUNICACIONES');
 }
 
