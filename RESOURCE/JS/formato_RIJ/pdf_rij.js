@@ -187,97 +187,97 @@ async function generarPDF() {
 
     // Texto en negritas
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(9);
+    doc.setFontSize(7);
     const dep = "DEPARTAMENTO Y/O COMPAÑIA: ";
     doc.text(dep, 15, y);
 
     // Texto normal justo después del anterior
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
+    doc.setFontSize(7);
     const depWidth = doc.getTextWidth(dep);
-    doc.text(departamento, 15 + depWidth, y);
-    doc.line(depWidth + 11, y + 1, depWidth + 43, y + 1);
+    doc.text(departamento, 17 + depWidth, y);
+    doc.line(depWidth + 17, y + 1, depWidth + 113, y + 1);
 
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(9);
+    doc.setFontSize(7);
     const fech = "FECHA: ";
     //const fechaActual = new Date();
     const fechWidth = doc.getTextWidth(fech);
-    doc.text(fech, 107, y, "center");
-    doc.line(fechWidth + 100, y + 1, fechWidth + 138, y + 1);
+    doc.text(fech, 157, y);
+    doc.line(fechWidth + 157, y + 1, fechWidth + 175, y + 1);
 
 
     y+=8;
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(9);
+    doc.setFontSize(7);
     const cate = "CATEGORÍA MÁXIMA PRESENTE EN LA REUNÓN:";
     doc.text(cate, 15, y);
 
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
+    doc.setFontSize(7);
     const catWidth = doc.getTextWidth(cate);
-    doc.line(catWidth + 10, y + 1, catWidth + 46, y + 1);
-    doc.text(categoria_max, 10 + catWidth, y);
+    doc.line(catWidth + 17, y + 1, catWidth + 48, y + 1);
+    doc.text(categoria_max, 18 + catWidth, y);
 
     y+=8;
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(9);
+    doc.setFontSize(7);
     const nom = "NOMBRE: ";
     doc.text(nom, 15, y);
 
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
+    doc.setFontSize(7);
     const nomWidth = doc.getTextWidth(nom);
-    doc.line(nomWidth + 16, y + 1, nomWidth + 46, y + 1);
-    doc.text(nombre, 15 + nomWidth, y);
+    doc.line(nomWidth + 15, y + 1, nomWidth + 46, y + 1);
+    doc.text(nombre, 16 + nomWidth, y);
 
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(9);
+    doc.setFontSize(7);
     const rpe = "R.P.E: ";
     doc.text(rpe, 100, y);
 
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
+    doc.setFontSize(7);
     const rpeWidth = doc.getTextWidth(rpe);
-    doc.line(rpeWidth + 101, y + 1, rpeWidth + 131, y + 1);
-    doc.text(RPE, 100 + rpeWidth, y);
+    doc.line(rpeWidth + 100, y + 1, rpeWidth + 131, y + 1);
+    doc.text(RPE, 101 + rpeWidth, y);
 
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(9);
-    const firma1 = "Firma: ";
+     doc.setFontSize(7);
+    const firma1 = "FIRMA: ";
     doc.text(firma1, 155, y);
 
     y+=1;
 
     const anchoFirma1 = doc.getTextWidth(firma1);
-    doc.line(anchoFirma1 + 156, y, anchoFirma1 + 176, y);
+    doc.line(anchoFirma1 + 155, y, anchoFirma1 + 176, y);
 
      if(firma2Base64)
         doc.addImage(firma2Base64, 'PNG', 165, y-19, 30, 20 );
 
     y+=8;
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(9);
+    doc.setFontSize(7);
     const inicio = "HR. INICIO: ";
     doc.text(inicio, 15, y);
     
-    doc.setFontSize(10);
+    doc.setFontSize(7);
     doc.setFont("helvetica", "normal");
     const inicioWidth = doc.getTextWidth(inicio);
-    doc.text(hora_inicio, 15 + inicioWidth, y);
-    doc.line(inicioWidth + 16, y + 1, inicioWidth + 46, y + 1);
+    doc.text(hora_inicio, 16 + inicioWidth, y);
+    doc.line(inicioWidth + 15, y + 1, inicioWidth + 46, y + 1);
 
 
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(9);
+    doc.setFontSize(7);
     const termino = "TÉRMINO: ";
     doc.text(termino, 100, y);
 
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
+    doc.setFontSize(7);
     const terminoWidth = doc.getTextWidth(termino);
-    doc.text(hora_termino, 100 + terminoWidth, y);
-    doc.line(terminoWidth + 101, y + 1, terminoWidth + 129, y + 1);
+    doc.text(hora_termino, 101 + terminoWidth, y);
+    doc.line(terminoWidth + 100, y + 1, terminoWidth + 129, y + 1);
 
     //ACTIVIDADES
     /*y+=15;
@@ -698,9 +698,10 @@ async function generarPDF() {
 
 //----------------------------------------------------------------
     y+=14;
-    doc.text(`R.P.E: ${RPE}`, 15, y);
+    doc.text(`R.P.E: ${RPE}`, 15, y+1);
     y+=1;
-    doc.line(27, y, 50, y);
+    doc.line(25, y+1, 50, y+1);
+
 
     const firma = "Firma: ";
     doc.text(firma, 105, y, "center");
@@ -708,7 +709,7 @@ async function generarPDF() {
     y+=1;
 
     const anchoFirma2 = doc.getTextWidth(firma);
-    doc.line(anchoFirma2 + 106, y, anchoFirma2 + 146, y);
+    doc.line(anchoFirma2 + 100, y, anchoFirma2 + 146, y);
 
      if(firma2Base64)
         doc.addImage(firma2Base64, 'PNG', 115, y-19, 30, 20 );
