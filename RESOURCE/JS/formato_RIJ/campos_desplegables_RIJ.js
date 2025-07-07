@@ -38,3 +38,6 @@ document.querySelectorAll('input[id^="input_"]').forEach(input => {
         }
     });
 });
+
+
+

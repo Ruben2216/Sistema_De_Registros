@@ -393,9 +393,9 @@ async function generarPDF() {
     doc.setFont("helvetica"); 
         } else if (inspeccion === "no") {
             doc.setFont("zapfdingbats");
-    doc.setFontSize(9);
-    doc.text("7", 122, y);
-    doc.setFont("helvetica"); 
+            doc.setFontSize(9);
+            doc.text("7", 122, y);
+            doc.setFont("helvetica"); 
             const motivo = document.querySelector('input[id="input_inspeccion"]').value;
             if (motivo) {
                 doc.setFontSize(8); // tamaño más pequeño para caber

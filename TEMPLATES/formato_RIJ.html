@@ -34,7 +34,7 @@
 
         <form class="formulario-verificacion__formulario">
             <h1 class="formulario-verificacion__titulo-principal">LISTA DE VERIFICACIÓN DE LA REUNIÓN DE INICIO DE JORNADA</h1>
-            <p id="fecha_p" class="fecha_p"></p>
+            <p id="fecha_p" id="fecha" class="fecha_p"></p>
 
             <!--<div class="campo">
                 <label class="campo__etiqueta">División</label>            
@@ -277,8 +277,9 @@
                 </div>
                 <div class="campo">
                     <label class="campo__etiqueta">Información (Especificar el nombre de los temas del cual se dio información):</label>
-                    <textarea id= "extra_info" class="campo__control campo__control--area-texto"></textarea>
-                    <spam class="campo_vacio" id="mensajeError8"></span><br>
+                    <textarea maxlength="100" id= "extra_info" class="campo__control campo__control--area-texto"></textarea>
+                    <span class="campo_vacio" id="mensajeError8"></span><br>
+                    
                 </div>
             </div>
             <div class="seccion seccion--desplegable">
@@ -355,7 +356,7 @@
                 </div>
                 <div class="campo">
                     <label class="campo__etiqueta">Actividad: (Especificar el nombre de las actividades de Seguridad que se realizaron)</label>
-                    <textarea id="actividades_seguridad" class="campo__control campo__control--area-texto"></textarea>
+                    <textarea id="actividades_seguridad" maxlength="125" class="campo__control campo__control--area-texto"></textarea>
                     <span class="campo_vacio" id="mensajeError9"></span><br>
                 </div>
             </div>
@@ -368,7 +369,7 @@
             <div class="seccion">
                 <div class="campo"> 
                     <label class="campo__etiqueta">OBSERVACIONES: (Anotar las preguntas, inquietudes, sugerencias y/o acciones tomadas en caso de que las condiciones de salud del personal no sean adecuadas)</label>
-                    <textarea id="observaciones" class="campo__control campo__control--area-texto"></textarea>
+                    <textarea id="observaciones" maxlength="125" class="campo__control campo__control--area-texto"></textarea>
                     <span class="campo_vacio" id="mensajeError10"></span><br>
                 </div>
             </div>
@@ -393,7 +394,7 @@
                 </div>
             </div>
             <div class="contenedor-botones">
-            <button type="button" class="boton boton--primario" onclick="validarYGenerarPDF()">Generar PDF</button>
+            <button type="button" class="boton boton--primario" onclick="validarFormulario()">Generar PDF</button>
             <div class="boton boton--secundario boton--cancelar">
                 <a href="/TEMPLATES/menu.html" class="boton--cancelar" id="btn-cancelar-formulario">Cancelar</a>
             </div>

@@ -24,7 +24,7 @@ function validarFormulario() {
 
         if (!input.value.trim()) {
             input.classList.add('campo-error');
-            mensaje.textContent = 'Este campo es obligatorio';
+            mensaje.textContent = '¿Esta seguro en dejar este campo vacío?';
             esValido = false;
         } else {
             input.classList.remove('campo-error');
@@ -80,12 +80,21 @@ function validarFormulario() {
 
 }
 
+    function obtenerFechaCorta() {
+        const fecha = new Date();
+        const dia = String(fecha.getDate()).padStart(2, '0');
+        const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+        const año = fecha.getFullYear();
+        return `${dia}/${mes}/${año}`;
+    }
+
 async function generarPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF(); /*crea pdf vacio*/
 
     //CAPTURADO DE DATOS
     const departamento = document.querySelector('select[id="departamento"]').value;
+    const fechaCorta = obtenerFechaCorta();
     const categoria_max = document.querySelector('select[id="categoria_max"').value;
     const nombre = document.querySelector('input[id="nombre"]').value;
     const hora_inicio = document.querySelector('input[id="hora_inicio"]').value;
@@ -141,6 +150,19 @@ async function generarPDF() {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(7);
     const fech = "FECHA: ";
+    //const fechaActual = new Date();
+    const fechWidth = doc.getTextWidth(fech);
+    doc.text(fech, 157, y);
+    doc.line(fechWidth + 157, y + 1, fechWidth + 175, y + 1);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(7);
+    doc.text(fechaCorta, 158 + fechWidth, y);
+
+
+    /*doc.setFont("helvetica", "bold");
+    doc.setFontSize(7);
+    const fech = "FECHA: ";
     
     // Obtener la fecha actual en formato dd/mm/yyyy usando la función global
     var fechaActual;
@@ -153,16 +175,20 @@ async function generarPDF() {
         var mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
         var anio = fecha.getFullYear();
         fechaActual = dia + '/' + mes + '/' + anio;
-    }
+    }*/
     
-    const fechWidth = doc.getTextWidth(fech);
+    /*const fechWidth = doc.getTextWidth(fech);
     doc.text(fech, 157, y);
     
     doc.setFont("helvetica", "normal");
-    doc.text(fechaActual, 157 + fechWidth, y);
+    doc.text(fechaCorta, 157 + fechWidth, y);
     
     const fechaCompletaWidth = fechWidth + doc.getTextWidth(fechaActual);
     doc.line(fechWidth + 157, y + 1, 157 + fechaCompletaWidth + 2, y + 1);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(7);
+    doc.text(fecha, 158 + fechWidth, y);*/
 
     y+=8;
     doc.setFont("helvetica", "bold");
@@ -209,8 +235,8 @@ async function generarPDF() {
     const anchoFirma1 = doc.getTextWidth(firma1);
     doc.line(anchoFirma1 + 155, y, anchoFirma1 + 176, y);
 
-     if(firma2Base64)
-        doc.addImage(firma2Base64, 'PNG', 165, y-19, 30, 20 );
+     if(firma1Base64)
+        doc.addImage(firma1Base64, 'PNG', 165, y-10, 20, 10 );
 
     y+=8;
     doc.setFont("helvetica", "bold");
@@ -250,6 +276,14 @@ async function generarPDF() {
             doc.setFontSize(13)
             doc.setTextColor(255, 0, 0); // Rojo
             doc.text("x", 125.5, y);
+
+            doc.setTextColor(0, 0, 0); 
+            const motivo = document.querySelector('input[id="input_inicio_jornada"]').value;
+            if (motivo) {
+                doc.setFontSize(8); // tamaño más pequeño para caber
+                doc.text(motivo, 135, y); // dentro del cuadro OBSERVACIONES
+                doc.setFontSize(10); // regresar a tamaño normal
+            }
     }
     y+=6;
     doc.setTextColor(0, 0, 0); // Negro
@@ -262,6 +296,10 @@ async function generarPDF() {
         doc.setFontSize(13)
         doc.setTextColor(255, 0, 0); // Rojo
         doc.text("x", 115.5, y);
+        doc.setFontSize(8)
+        doc.setTextColor(0, 0, 0);
+        doc.text(`No. Personas: ${enumeracion}`, 135, y);
+        doc.line(153, y+1, 165, y+1);
         } else if (personal === "no") {
             doc.setFontSize(13)
             doc.setTextColor(255, 0, 0); // Rojo
@@ -282,11 +320,15 @@ async function generarPDF() {
             doc.setFontSize(13)
             doc.setTextColor(255, 0, 0); // Rojo
             doc.text("x", 125.5, y);
+
+            doc.setTextColor(0, 0, 0); 
+            const motivo = document.querySelector('input[id="input_salud"]').value;
+            if (motivo) {
+                doc.setFontSize(8); 
+                doc.text(motivo, 135, y); 
+                doc.setFontSize(10); 
+            }
     }
-    doc.setFontSize(9)
-    doc.setTextColor(0, 0, 0);
-    doc.text(`No. Personas: ${enumeracion}`, 135, y);
-    doc.line(155, y+1, 165, y+1);
     y+=6;
     doc.setTextColor(0, 0, 0); // Negro
     doc.setFontSize(8)
@@ -302,6 +344,14 @@ async function generarPDF() {
             doc.setFontSize(13)
             doc.setTextColor(255, 0, 0); // Rojo
             doc.text("x", 125.5, y);
+
+            doc.setTextColor(0, 0, 0); 
+            const motivo = document.querySelector('input[id="input_ejercicio"]').value;
+            if (motivo) {
+                doc.setFontSize(8); 
+                doc.text(motivo, 135, y); 
+                doc.setFontSize(10); 
+            }
     }
     y+=6;
     doc.setTextColor(0, 0, 0); // Negro
@@ -309,7 +359,7 @@ async function generarPDF() {
     doc.text("Si", 115, y);
     doc.text("No", 125, y);
     doc.setFontSize(9)
-    doc.text(`4. ¿Se detectaron anomalías en el estado de salud?`, 15, y);
+    doc.text(`4.1 ¿Se detectaron anomalías en el estado de salud?`, 15, y);
     if (anomalias === "si") {
         doc.setFontSize(13)
         doc.setTextColor(255, 0, 0); // Rojo
@@ -318,6 +368,14 @@ async function generarPDF() {
             doc.setFontSize(13)
             doc.setTextColor(255, 0, 0); // Rojo
             doc.text("x", 125.5, y);
+
+            doc.setTextColor(0, 0, 0); 
+            const motivo = document.querySelector('input[id="input_anomalias"]').value;
+            if (motivo) {
+                doc.setFontSize(8); 
+                doc.text(motivo, 135, y); 
+                doc.setFontSize(10); 
+            }
     }
 
     y+=8;
@@ -342,6 +400,14 @@ async function generarPDF() {
             doc.setFontSize(13)
             doc.setTextColor(255, 0, 0); // Rojo
             doc.text("x", 125.5, y);
+
+            doc.setTextColor(0, 0, 0);
+            const motivo = document.querySelector('input[id="input_mantenimiento"]').value;
+            if (motivo) {
+                doc.setFontSize(8); // tamaño más pequeño para caber
+                doc.text(motivo, 135, y); // dentro del cuadro OBSERVACIONES
+                doc.setFontSize(10); // regresar a tamaño normal
+            }
     }
 
     y+=6;
@@ -360,6 +426,14 @@ async function generarPDF() {
             doc.setFontSize(13)
             doc.setTextColor(255, 0, 0); // Rojo
             doc.text("x", 125.5, y);
+
+            doc.setTextColor(0, 0, 0);
+            const motivo = document.querySelector('input[id="input_operacion"]').value;
+            if (motivo) {
+                doc.setFontSize(8); // tamaño más pequeño para caber
+                doc.text(motivo, 135, y); // dentro del cuadro OBSERVACIONES
+                doc.setFontSize(10); // regresar a tamaño normal
+            }
     }
 
     y+=6;
@@ -378,6 +452,14 @@ async function generarPDF() {
             doc.setFontSize(13)
             doc.setTextColor(255, 0, 0); // Rojo
             doc.text("x", 125.5, y);
+
+            doc.setTextColor(0, 0, 0);
+            const motivo = document.querySelector('input[id="input_riesgo"]').value;
+            if (motivo) {
+                doc.setFontSize(8); // tamaño más pequeño para caber
+                doc.text(motivo, 135, y); // dentro del cuadro OBSERVACIONES
+                doc.setFontSize(10); // regresar a tamaño normal
+            }
     }
 
     y+=6;
@@ -396,6 +478,13 @@ async function generarPDF() {
             doc.setFontSize(13)
             doc.setTextColor(255, 0, 0); // Rojo
             doc.text("x", 125.5, y);
+            doc.setTextColor(0, 0, 0);
+            const motivo = document.querySelector('input[id="input_incidentes"]').value;
+            if (motivo) {
+                doc.setFontSize(8); // tamaño más pequeño para caber
+                doc.text(motivo, 135, y); // dentro del cuadro OBSERVACIONES
+                doc.setFontSize(10); // regresar a tamaño normal
+            }
     }
 
     y+=6;
@@ -468,6 +557,14 @@ async function generarPDF() {
             doc.setFontSize(13)
             doc.setTextColor(255, 0, 0); // Rojo
             doc.text("x", 125.5, y);
+
+            doc.setTextColor(0, 0, 0);
+            const motivo = document.querySelector('input[id="input_espejo"]').value;
+            if (motivo) {
+                doc.setFontSize(8); // tamaño más pequeño para caber
+                doc.text(motivo, 135, y); // dentro del cuadro OBSERVACIONES
+                doc.setFontSize(10); // regresar a tamaño normal
+            }
     }
 
     y+=6;
@@ -486,6 +583,13 @@ async function generarPDF() {
             doc.setFontSize(13)
             doc.setTextColor(255, 0, 0); // Rojo
             doc.text("x", 125.5, y);
+            doc.setTextColor(0, 0, 0);
+            const motivo = document.querySelector('input[id="input_prediccion_peligro"]').value;
+            if (motivo) {
+                doc.setFontSize(8); // tamaño más pequeño para caber
+                doc.text(motivo, 135, y); // dentro del cuadro OBSERVACIONES
+                doc.setFontSize(10); // regresar a tamaño normal
+            }
     }
 
     y+=6;
@@ -509,6 +613,13 @@ async function generarPDF() {
             doc.setFontSize(13)
             doc.setTextColor(255, 0, 0); // Rojo
             doc.text("x", 125.5, y);
+            doc.setTextColor(0, 0, 0);
+            const motivo = document.querySelector('input[id="input_articulo"]').value;
+            if (motivo) {
+                doc.setFontSize(8); // tamaño más pequeño para caber
+                doc.text(motivo, 135, y); // dentro del cuadro OBSERVACIONES
+                doc.setFontSize(10); // regresar a tamaño normal
+            }
     }
 
     y+=9;
@@ -527,6 +638,13 @@ async function generarPDF() {
             doc.setFontSize(13)
             doc.setTextColor(255, 0, 0); // Rojo
             doc.text("x", 125.5, y);
+            doc.setTextColor(0, 0, 0);
+            const motivo = document.querySelector('input[id="input_experiencia"]').value;
+            if (motivo) {
+                doc.setFontSize(8); // tamaño más pequeño para caber
+                doc.text(motivo, 135, y); // dentro del cuadro OBSERVACIONES
+                doc.setFontSize(10); // regresar a tamaño normal
+            }
     }
 
     y+=6;
@@ -550,6 +668,13 @@ async function generarPDF() {
             doc.setFontSize(13)
             doc.setTextColor(255, 0, 0); // Rojo
             doc.text("x", 125.5, y);
+            doc.setTextColor(0, 0, 0);
+            const motivo = document.querySelector('input[id="input_actividades_relevantes"]').value;
+            if (motivo) {
+                doc.setFontSize(8); // tamaño más pequeño para caber
+                doc.text(motivo, 135, y); // dentro del cuadro OBSERVACIONES
+                doc.setFontSize(10); // regresar a tamaño normal
+            }
     }
 
     y+=9;
@@ -568,6 +693,13 @@ async function generarPDF() {
             doc.setFontSize(13)
             doc.setTextColor(255, 0, 0); // Rojo
             doc.text("x", 125.5, y);
+            doc.setTextColor(0, 0, 0);
+            const motivo = document.querySelector('input[id="input_reglas_vida"]').value;
+            if (motivo) {
+                doc.setFontSize(8); // tamaño más pequeño para caber
+                doc.text(motivo, 135, y); // dentro del cuadro OBSERVACIONES
+                doc.setFontSize(10); // regresar a tamaño normal
+            }
     }
 
     y+=6;
@@ -586,6 +718,13 @@ async function generarPDF() {
             doc.setFontSize(13)
             doc.setTextColor(255, 0, 0); // Rojo
             doc.text("x", 125.5, y);
+            doc.setTextColor(0, 0, 0);
+            const motivo = document.querySelector('input[id="input_politicas"]').value;
+            if (motivo) {
+                doc.setFontSize(8); // tamaño más pequeño para caber
+                doc.text(motivo, 135, y); // dentro del cuadro OBSERVACIONES
+                doc.setFontSize(10); // regresar a tamaño normal
+            }
     }
 
     y+=6;
@@ -623,10 +762,11 @@ async function generarPDF() {
     const actividadWidth = doc.getTextWidth(actividad);
     const more = "(Especificar el nombre de las actividades de Seguridad que se realizaron)"
     doc.text(more, 17 + actividadWidth, y);
-
-    y+=6;
+    y+=9;
     doc.setFont("helvetica", "normal");
-    doc.text(textArea2, 15, y);
+    const maxAnchoTextarea2 = 180;
+    const textArea2div = doc.splitTextToSize(textArea2, maxAnchoTextarea2);
+    doc.text(textArea2div, 15, y);
 
     y+=1;
     doc.line(15, y, 195, y);
@@ -665,12 +805,16 @@ async function generarPDF() {
 
     y+=9;
     doc.setFont("helvetica", "normal");
-    doc.text(textArea3, 15, y);
+    const maxAnchoTextarea1 = 180;
+    const textArea1div = doc.splitTextToSize(textArea3, maxAnchoTextarea1);
+    doc.text(textArea1div, 15, y);
 
     y+=1;
     doc.line(15, y, 195, y);
     y+=5;
     doc.line(15, y, 195, y);
+
+    
 //-----------------------------------------------------------------
     y+=8;
     doc.setTextColor(0,0,0)
@@ -690,10 +834,10 @@ async function generarPDF() {
     y+=1;
 
     const anchoFirma2 = doc.getTextWidth(firma);
-    doc.line(anchoFirma2 + 100, y, anchoFirma2 + 146, y);
+    doc.line(anchoFirma2 + 100, y, anchoFirma2 + 130, y);
 
      if(firma2Base64)
-        doc.addImage(firma2Base64, 'PNG', 115, y-19, 30, 20 );
+        doc.addImage(firma2Base64, 'PNG', 115, y-10, 20, 10 );
 
     // ENCABEZADO
     const pageHeight = doc.internal.pageSize.getHeight();
