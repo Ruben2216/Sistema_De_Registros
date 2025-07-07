@@ -119,8 +119,8 @@ async function generarPDF() {
 
     doc.setFontSize(11);
     doc.setFont("helvetica", "bold");
-    doc.text("LISTA DE VERIFICACIÓN DE LA REUNIÓN DIARIA DE INICIO DE JORNADA", 105, 15, null, null, "center");
-    doc.line(14, 17 , 199, 17);
+    doc.text("LISTA DE VERIFICACIÓN DE LA REUNIÓN DIARIA DE INICIO DE JORNADA", 105, 18.5, null, null, "center");
+    doc.line(14, 23 , 199, 23);
 
     // DATOS GENERALES
     y = 30;
