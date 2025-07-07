@@ -270,15 +270,30 @@ async function generarPDFConEvidencia() {
         mostrarNotificacion('Debe seleccionar un PDF primero', 'warning');
         return;
     }
-    
+
     if (imagenesEvidencia.length === 0) {
         mostrarNotificacion('Debe añadir al menos una imagen de evidencia', 'warning');
         return;
     }
-    
+
     try {
         mostrarNotificacion('Generando PDF con evidencia...', 'info');
-        
+        // Cargar lógica de compresión y configuración de PDF
+        await cargarConfiguracionPDF();
+        const sizeController = new PDFSizeController();
+        const compConfig = sizeController.calcularConfiguracionInicial(imagenesEvidencia.length);
+        console.log('Configuración de compresión para evidencia:', compConfig);
+        // Comprimir y redimensionar cada imagen
+        for (let imgObj of imagenesEvidencia) {
+            const originalBytes = Math.round((imgObj.data.length * 3) / 4);
+            console.log(`Imagen ${imgObj.nombre} original: ${Math.round(originalBytes/1024)} KB`);
+            const compressedData = await compressAndResizeImage(imgObj.data, compConfig.calidad_webp, compConfig.resolucion);
+            const newBytes = Math.round((compressedData.length * 3) / 4);
+            console.log(`Imagen ${imgObj.nombre} comprimida: ${Math.round(newBytes/1024)} KB`);
+            imgObj.data = compressedData;
+            imgObj.tamaño = newBytes;
+        }
+
         const datosEvidencia = {
             pdfSeleccionado: pdfSeleccionado,
             imagenes: imagenesEvidencia.map(img => ({
@@ -288,7 +303,7 @@ async function generarPDFConEvidencia() {
                 data: img.data
             }))
         };
-        
+
         const response = await fetch('/api/evidencia/generar_pdf_con_evidencia', {
             method: 'POST',
             headers: {
@@ -296,14 +311,14 @@ async function generarPDFConEvidencia() {
             },
             body: JSON.stringify(datosEvidencia)
         });
-        
+
         const result = await response.json();
-        
+
         if (result.success) {
             mostrarNotificacion('PDF con evidencia generado correctamente', 'success');
             // Descargar el PDF
             window.open(result.urlPdf, '_blank');
-            
+
             // Opcional: limpiar evidencia después de generar
             if (confirm('¿Desea limpiar la evidencia actual para empezar con un nuevo PDF?')) {
                 limpiarEvidencia();
@@ -317,6 +332,39 @@ async function generarPDFConEvidencia() {
         console.error('Error al generar PDF:', error);
         mostrarNotificacion('Error al generar el PDF con evidencia', 'error');
     }
+}
+
+/**
+ * Comprime y redimensiona una imagen para PDF manteniendo proporción.
+ */
+async function compressAndResizeImage(source, calidad, resolucion) {
+    // Obtener dataURL si es URL
+    let dataURL = source;
+    if (!source.startsWith('data:')) {
+        const resp = await fetch(source, { mode: 'cors' });
+        const blob = await resp.blob();
+        dataURL = await blobAdataURL(blob);
+    }
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.src = dataURL;
+    await img.decode();
+
+    let ancho = img.width;
+    let alto = img.height;
+    // Calcular escala si excede resolucion
+    const maxAncho = resolucion.ancho;
+    const maxAlto = resolucion.alto;
+    let escala = Math.min(maxAncho / ancho, maxAlto / alto, 1);
+    const nuevoAncho = Math.floor(ancho * escala);
+    const nuevoAlto = Math.floor(alto * escala);
+
+    const canvas = document.createElement('canvas');
+    canvas.width = nuevoAncho;
+    canvas.height = nuevoAlto;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, nuevoAncho, nuevoAlto);
+    return canvas.toDataURL('image/jpeg', calidad);
 }
 
 // Función para mostrar notificaciones
@@ -574,7 +622,7 @@ async function importarFotosCamara() {
         if (fotosImportadas > 0) {
             actualizarVistaImagenes();
             
-            let mensaje = `${fotosImportadas} fotos importadas correctamente`;
+            let mensaje = `${fotosImportados} fotos importadas correctamente`;
             if (erroresImportacion > 0) {
                 mensaje += ` (${erroresImportacion} errores)`;
             }
@@ -793,4 +841,63 @@ async function limpiarFotosCamara() {
     }
 }
 
-// Inicializar verificación cuando se selecciona un PDF (funcionalidad añadida en la función original)
+// === CÓDIGO PARA CARGA DE CONFIGURACIÓN Y COMPRESIÓN DE IMÁGENES === //
+
+/**
+ * Asegura que PDFSizeController esté disponible cargando script de configuración.
+ */
+async function cargarConfiguracionPDF() {
+    if (typeof PDFSizeController === 'undefined') {
+        return new Promise(function(resolve, reject) {
+            var script = document.createElement('script');
+            script.src = '/RESOURCE/JS/configuracion_pdf.js';
+            script.onload = function() { console.log('configuracion_pdf.js cargado para evidencia'); resolve(); };
+            script.onerror = function() { console.error('Error cargando configuracion_pdf.js'); reject(new Error('No se pudo cargar configuracion_pdf.js')); };
+            document.head.appendChild(script);
+        });
+    } else {
+        return Promise.resolve();
+    }
+}
+
+/**
+ * Convierte Blob a DataURL.
+ */
+function blobAdataURL(blob) {
+    return new Promise(function(resolve, reject) {
+        var reader = new FileReader();
+        reader.onloadend = function() { resolve(reader.result); };
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+    });
+}
+
+/**
+ * Convierte imagen (dataURL o URL) a JPEG con calidad.
+ */
+async function convertirPNGtoJPEG(dataSource, calidad) {
+    var dataURL;
+    if (dataSource.startsWith('data:')) {
+        dataURL = dataSource;
+    } else {
+        const resp = await fetch(dataSource, { mode: 'cors' });
+        const blob = await resp.blob();
+        dataURL = await blobAdataURL(blob);
+    }
+    var img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.src = dataURL;
+    await img.decode();
+    var canvas = document.createElement('canvas');
+    canvas.width = img.width;
+    canvas.height = img.height;
+    var ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    return canvas.toDataURL('image/jpeg', calidad);
+}
+
+// Cargar configuración de PDF al iniciar
+document.addEventListener('DOMContentLoaded', async function() {
+    await cargarConfiguracionPDF();
+    iniciarSincronizacionAutomatica();
+});
