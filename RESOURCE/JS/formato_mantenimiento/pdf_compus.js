@@ -678,21 +678,63 @@ doc.setFont("zapfdingbats");
 
     y += 8;
     doc.text(`Realizó servicio:`, 25, y-12);
-        doc.setFontSize(7);
-    doc.text(realizo_servicio, 15, y + 21);
-        doc.setFontSize(10);
+    doc.setFontSize(7);
+    
+    const centerRealizoServicio = 37.5;
+    doc.text(realizo_servicio, centerRealizoServicio, y + 21, null, null, "center");
+    
+    let lineStartX1, lineEndX1;
+    if (realizo_servicio && realizo_servicio.trim()) {
+        const realizoServicioWidth = doc.getTextWidth(realizo_servicio);
+        const margin = 1;
+        lineStartX1 = centerRealizoServicio - (realizoServicioWidth / 2) - margin;
+        lineEndX1 = centerRealizoServicio + (realizoServicioWidth / 2) + margin;
+    } else {
+        lineStartX1 = 15;
+        lineEndX1 = 60;
+    }
+    
+    doc.setFontSize(10);
     doc.text(`Responsable del Equipo:`, 105, y-12, "center");
-        doc.setFontSize(7);
-    doc.text(responsable, 80, y + 21);
-        doc.setFontSize(10);
+    doc.setFontSize(7);
+    
+    const centerOriginal = 105;
+    doc.text(responsable, centerOriginal, y + 21, null, null, "center");
+    
+    let lineStartX, lineEndX;
+    if (responsable && responsable.trim()) {
+        const responsableWidth = doc.getTextWidth(responsable);
+        const margin = 1;
+        lineStartX = centerOriginal - (responsableWidth / 2) - margin;
+        lineEndX = centerOriginal + (responsableWidth / 2) + margin;
+    } else {
+        lineStartX = 80;
+        lineEndX = 130;
+    }
+    
+    doc.setFontSize(10);
     doc.text(`Visto Bueno:`, 160, y-12);
-            doc.setFontSize(7);
-    doc.text(visto_bueno, 145, y + 21);
-        doc.setFontSize(10); //esto es para 
+    doc.setFontSize(7);
+    
+    const centerVistoBueno = 172.5;
+    doc.text(visto_bueno, centerVistoBueno, y + 21, null, null, "center");
+    
+    let lineStartX3, lineEndX3;
+    if (visto_bueno && visto_bueno.trim()) {
+        const vistoBuenoWidth = doc.getTextWidth(visto_bueno);
+        const margin = 1;
+        lineStartX3 = centerVistoBueno - (vistoBuenoWidth / 2) - margin;
+        lineEndX3 = centerVistoBueno + (vistoBuenoWidth / 2) + margin;
+    } else {
+        lineStartX3 = 145;
+        lineEndX3 = 200;
+    }
+    
+    doc.setFontSize(10); //esto es para 
     y += 22;
-    doc.line(15, y, 60, y);
-    doc.line(80, y, 130, y);
-    doc.line(145, y, 200, y);
+    doc.line(lineStartX1, y, lineEndX1, y);
+    doc.line(lineStartX, y, lineEndX, y);
+    doc.line(lineStartX3, y, lineEndX3, y);
     y += 5;
     doc.text("Nombre y firma", 25, y);
     doc.text("Nombre y firma", 95, y);
