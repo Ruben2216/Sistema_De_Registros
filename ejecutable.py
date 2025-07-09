@@ -13,7 +13,7 @@ import secrets
 import io
 import sys
 from functools import wraps
-from werkzeug.utils import secure_filename
+from werkzeug.utils import secure_filename #esto es para asegurar nombres de archivos seguros, se usa en la subida de archivos a Google Drive
 # --- INICIO LÓGICA DE backend (búsqueda de equipos en MySQL) ---
 from flask_cors import CORS 
 import mysql.connector 
@@ -1917,6 +1917,175 @@ def logout():
         }), 500
 
 # --- FIN ENDPOINTS DE AUTENTICACIÓN ---
+
+# --- INICIO ENDPOINTS PARA GOOGLE DRIVE ---
+try:
+    from SubirFormatos_Mantenimiento_Drive import (
+        subir_pdf_mantenimiento, 
+        obtener_estado_cola,
+        procesar_cola_pendientes,
+        verificar_conexion_internet,
+        verificar_configuracion_oauth
+    )
+    
+    @app.route('/api/drive/subir_pdf_mantenimiento', methods=['POST'])
+    def api_subir_pdf_drive():
+        """
+        Endpoint para subir PDFs de mantenimiento a Google Drive usando OAuth
+        """
+        try:
+            datos = request.get_json()
+            
+            if not datos:
+                return jsonify({
+                    'success': False,
+                    'error': 'No se recibieron datos'
+                }), 400
+            
+            archivo_pdf_relativo = datos.get('archivo_pdf')
+            nombre_personalizado = datos.get('nombre_personalizado')
+            
+            if not archivo_pdf_relativo:
+                return jsonify({
+                    'success': False,
+                    'error': 'Falta el parámetro archivo_pdf'
+                }), 400
+            
+            # Convertir ruta relativa a absoluta
+            archivo_pdf_absoluto = os.path.abspath(archivo_pdf_relativo)
+            
+            # Verificar que el archivo existe
+            if not os.path.exists(archivo_pdf_absoluto):
+                return jsonify({
+                    'success': False,
+                    'error': f'El archivo no existe: {archivo_pdf_absoluto}'
+                }), 400
+            
+            # Subir PDF usando OAuth
+            resultado = subir_pdf_mantenimiento(archivo_pdf_absoluto, nombre_personalizado)
+            
+            # Convertir formato de respuesta para compatibilidad
+            if resultado.get('exito'):
+                return jsonify({
+                    'success': True,
+                    'mensaje': resultado.get('mensaje'),
+                    'file_id': resultado.get('id_drive'),
+                    'file_name': resultado.get('nombre_final'),
+                    'file_link': resultado.get('enlace_drive'),
+                    'folder_id': resultado.get('carpeta_id')
+                })
+            else:
+                return jsonify({
+                    'success': False,
+                    'error': resultado.get('error'),
+                    'queued': resultado.get('agregado_a_cola', False)
+                })
+            
+        except Exception as e:
+            return jsonify({
+                'success': False,
+                'error': f'Error interno del servidor: {e}'
+            }), 500
+    
+    @app.route('/api/drive/estado_cola', methods=['GET'])
+    def api_estado_cola_drive():
+        """
+        Endpoint para obtener el estado de la cola de pendientes
+        """
+        try:
+            estado = obtener_estado_cola()
+            return jsonify({
+                'success': True,
+                'estado_cola': estado
+            })
+        except Exception as e:
+            return jsonify({
+                'success': False,
+                'error': f'Error interno del servidor: {e}'
+            }), 500
+    
+    @app.route('/api/drive/procesar_cola', methods=['POST'])
+    def api_procesar_cola_drive():
+        """
+        Endpoint para forzar el procesamiento de la cola de pendientes
+        """
+        try:
+            resultado = procesar_cola_pendientes()
+            return jsonify({
+                'success': True,
+                'resultado': resultado
+            })
+        except Exception as e:
+            return jsonify({
+                'success': False,
+                'error': f'Error interno del servidor: {e}'
+            }), 500
+    
+    @app.route('/api/drive/estado_conexion', methods=['GET'])
+    def api_estado_conexion():
+        """
+        Endpoint para verificar el estado de la conexión a internet
+        """
+        try:
+            tiene_conexion = verificar_conexion_internet()
+            return jsonify({
+                'success': True,
+                'tiene_conexion': tiene_conexion
+            })
+        except Exception as e:
+            return jsonify({
+                'success': False,
+                'error': f'Error interno del servidor: {e}'
+            }), 500
+    
+    @app.route('/api/drive/verificar_oauth', methods=['GET'])
+    def api_verificar_oauth():
+        """
+        Endpoint para verificar la configuración OAuth de Google Drive
+        """
+        try:
+            resultado = verificar_configuracion_oauth()
+            return jsonify({
+                'success': True,
+                'oauth_status': resultado
+            })
+        except Exception as e:
+            return jsonify({
+                'success': False,
+                'error': f'Error interno del servidor: {e}'
+            }), 500
+
+except ImportError as e:
+    # Endpoints de fallback que devuelven error
+    @app.route('/api/drive/subir_pdf_mantenimiento', methods=['POST'])
+    def api_subir_pdf_drive_fallback():
+        return jsonify({
+            'success': False,
+            'error': 'Módulo de Google Drive no disponible'
+        }), 503
+    
+    @app.route('/api/drive/estado_cola', methods=['GET'])
+    def api_estado_cola_drive_fallback():
+        return jsonify({
+            'success': False,
+            'error': 'Módulo de Google Drive no disponible'
+        }), 503
+    
+    @app.route('/api/drive/procesar_cola', methods=['POST'])
+    def api_procesar_cola_drive_fallback():
+        return jsonify({
+            'success': False,
+            'error': 'Módulo de Google Drive no disponible'
+        }), 503
+    
+    @app.route('/api/drive/estado_conexion', methods=['GET'])
+    def api_estado_conexion_fallback():
+        return jsonify({
+            'success': False,
+            'error': 'Módulo de Google Drive no disponible'
+        }), 503
+
+# --- FIN ENDPOINTS PARA GOOGLE DRIVE ---
 
 if __name__ == '__main__':
     # --- INICIO DE MODIFICACIONES PARA HTTPS ---

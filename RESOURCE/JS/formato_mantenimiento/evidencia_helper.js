@@ -191,18 +191,144 @@ function mostrarModalEvidencia(nombreArchivo) {
     }, 10000);
 }
 
-// Función wrapper que se puede usar en todos los archivos de PDF
-function procesarPDFMantenimiento(docPDF, nombreArchivo, tipoMantenimiento, mostrarModal = true) {
-    // Guardar el PDF normalmente (descarga)
+// Función principal para procesar y guardar PDF de mantenimiento
+async function procesarPDFMantenimiento(docPDF, nombreArchivo, tipoMantenimiento, mostrarModal = true) {
+    // Guardar el PDF localmente (descarga para el usuario)
     docPDF.save(nombreArchivo);
-    
-    // Guardar en repositorio de evidencia
-    guardarPDFEnRepositorioEvidencia(docPDF, nombreArchivo, tipoMantenimiento);
-    
+
+    // Guardar en el backend y luego subir a Google Drive usando la ruta/nombre devuelto
+    try {
+        // Obtener el PDF como base64
+        const pdfBase64 = docPDF.output('datauristring');
+        // Datos para enviar al servidor
+        const datosRepositorio = {
+            pdf_base64: pdfBase64,
+            nombre_archivo: nombreArchivo,
+            tipo_mantenimiento: tipoMantenimiento
+        };
+        // Guardar en backend
+        const response = await fetch('/api/evidencia/guardar_pdf_mantenimiento', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(datosRepositorio)
+        });
+        const result = await response.json();
+        if (result.success) {
+            // Notificación de guardado
+            mostrarNotificacionRepositorio(
+                `PDF "${result.nombre_guardado || nombreArchivo}" guardado en repositorio. Puede añadir evidencia fotográfica desde el menú.`,
+                'success'
+            );
+            // Subir a Google Drive usando el nombre/ruta devuelto
+            const rutaCompleta = `Evidencias_Mantenimiento/${result.nombre_archivo}`;
+            const datosDrive = {
+                archivo_pdf: rutaCompleta,
+                nombre_personalizado: nombreArchivo
+            };
+            const responseDrive = await fetch('/api/drive/subir_pdf_mantenimiento', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(datosDrive)
+            });
+            const resultDrive = await responseDrive.json();
+            if (resultDrive.success) {
+                if (resultDrive.queued) {
+                    mostrarNotificacionDrive(
+                        `PDF "${nombreArchivo}" guardado en cola. Se enviará a Google Drive cuando haya conexión a internet.`,
+                        'warning'
+                    );
+                } else {
+                    mostrarNotificacionDrive(
+                        `PDF "${nombreArchivo}" enviado exitosamente a Google Drive.`,
+                        'success'
+                    );
+                }
+            } else {
+                mostrarNotificacionDrive(
+                    `No se pudo enviar "${nombreArchivo}" a Google Drive: ${resultDrive.error}`,
+                    'error'
+                );
+            }
+        } else {
+            mostrarNotificacionRepositorio(
+                `Error al guardar PDF en repositorio: ${result.error}`,
+                'error'
+            );
+        }
+    } catch (error) {
+        mostrarNotificacionRepositorio(
+            `Error al comunicarse con el repositorio de evidencia: ${error.message}`,
+            'error'
+        );
+    }
+
     // Mostrar modal de evidencia (opcional)
     if (mostrarModal) {
         setTimeout(() => {
             mostrarModalEvidencia(nombreArchivo);
-        }, 500); // Delay para que se complete la descarga
+        }, 500);
     }
+}
+
+// Función para mostrar notificaciones específicas de Google Drive
+function mostrarNotificacionDrive(mensaje, tipo = 'info') {
+    // Crear elemento de notificación si no existe
+    let notificacion = document.getElementById('notificacion-drive');
+    
+    if (!notificacion) {
+        notificacion = document.createElement('div');
+        notificacion.id = 'notificacion-drive';
+        notificacion.style.cssText = `
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-family: Arial, sans-serif;
+            font-size: 13px;
+            max-width: 320px;
+            z-index: 10001;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            border-left: 4px solid #007bff;
+        `;
+        document.body.appendChild(notificacion);
+    }
+    
+    // Configurar estilos según el tipo
+    const estilos = {
+        success: 'background-color: #00724e; border-left-color: #28a745;',
+        error: 'background-color: #dc3545; border-left-color: #dc3545;',
+        info: 'background-color: #007bff; border-left-color: #007bff;',
+        warning: 'background-color: #fd7e14; border-left-color: #ffc107; color: #212529;'
+    };
+    
+    notificacion.style.cssText += estilos[tipo] || estilos.info;
+    
+    // Añadir icono según el tipo de situacion, se planea en caso de no conexioni o inestable se despliegue en ese contexto
+    const iconos = {
+        success: '☁️ ✓',
+        error: '☁️ ✗', 
+        info: '☁️ ℹ️',
+        warning: '☁️ ⚠️'
+    };
+    
+    notificacion.innerHTML = `<strong>${iconos[tipo] || iconos.info}</strong> ${mensaje}`;
+    
+    // Mostrar notificación
+    setTimeout(() => {
+        notificacion.style.transform = 'translateX(0)';
+    }, 100);
+    
+    // Ocultar después de 6 segundos
+    setTimeout(() => {
+        notificacion.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+            if (notificacion.parentNode) {
+                notificacion.parentNode.removeChild(notificacion);
+            }
+        }, 300);
+    }, 6000);
 }
