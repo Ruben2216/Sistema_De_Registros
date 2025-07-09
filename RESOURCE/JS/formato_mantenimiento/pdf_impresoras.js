@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const btnGenerarPDF = document.querySelector('.boton--primario');
+    const btnGenerarPDF = document.querySelector('.boton--PDF');
     btnGenerarPDF.addEventListener('click', validarFormulario);
 });
 
@@ -81,10 +81,7 @@ function validarFormulario() {
 }
 
 
-function validarYGenerarPDF() {
-    // Alias para compatibilidad con onclick en impresoras.html
-    validarFormulario();
-}
+
 
 /*function validarYGenerarPDF() {
     let camposIncompletos = [];

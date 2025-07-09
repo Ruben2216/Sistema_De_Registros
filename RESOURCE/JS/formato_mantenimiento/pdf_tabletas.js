@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const btnGenerarPDF = document.querySelector('.boton--primario');
+    const btnGenerarPDF = document.querySelector('.boton--PDF');
     btnGenerarPDF.addEventListener('click', validarFormulario);
 });
 

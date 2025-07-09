@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const btnGenerarPDF = document.querySelector('.boton--primario');
+    const btnGenerarPDF = document.querySelector('.boton--PDF');
     btnGenerarPDF.addEventListener('click', validarFormulario);
 });
 
@@ -648,9 +648,4 @@ async function generarPDF() {
         // Procesar el PDF: descarga, guardar en repositorio y mostrar modal
         procesarPDFMantenimiento(doc, filename, 'TPS_HONEYWELL');
     }, serie, 'TPS_HONEYWELL');
-}
-
-function validarYGenerarPDF() {
-    // Alias para compatibilidad con onclick en TPS_Honeywell.html
-    validarFormulario();
 }
