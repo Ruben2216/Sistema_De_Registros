@@ -14,3 +14,4 @@ key.pem
 # Ignorar archivos de configuración 
 
 credenciales/service_account.json
+credenciales/oauth_credentials.json
