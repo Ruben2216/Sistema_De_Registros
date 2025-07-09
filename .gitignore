@@ -16,3 +16,4 @@ key.pem
 credenciales/service_account.json
 credenciales/oauth_credentials.json
 credenciales/drive_token.pickle
+credenciales/
