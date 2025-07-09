@@ -1441,8 +1441,9 @@ def generar_pdf_con_evidencia():
             }), 404
         
         # Generar PDF combinado
-        timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-        nombre_pdf_final = f"Evidencia_{pdf_seleccionado['nombre']}_{timestamp}.pdf"
+        # Remover .pdf del nombre original si existe
+        nombre_base = pdf_seleccionado['nombre'].replace('.pdf', '')
+        nombre_pdf_final = f"{nombre_base}_Evidencias.pdf"
         ruta_pdf_final = os.path.join(PDFS_MANTENIMIENTO_DIR, nombre_pdf_final)
         
         try:
@@ -1671,7 +1672,7 @@ def descargar_pdf_evidencia(nombre_archivo):
         
         # Listar archivos disponibles para debug
         if os.path.exists(PDFS_MANTENIMIENTO_DIR):
-            archivos_disponibles = [f for f in os.listdir(PDFS_MANTENIMIENTO_DIR) if 'Evidencia_' in f]
+            archivos_disponibles = [f for f in os.listdir(PDFS_MANTENIMIENTO_DIR) if '_Evidencia.pdf' in f]
             for archivo in archivos_disponibles:
                 pass
         
