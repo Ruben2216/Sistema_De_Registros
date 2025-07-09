@@ -1181,8 +1181,8 @@ def endpoint_registrar_actividad():
 
 # --- RUTAS PARA SISTEMA DE EVIDENCIA DE MANTENIMIENTO ---
 
-# Directorio para almacenar PDFs de mantenimiento temporalmente
-PDFS_MANTENIMIENTO_DIR = os.path.join(tempfile.gettempdir(), 'pdfs_mantenimiento')
+# Directorio para almacenar PDFs de mantenimiento (persistente para producción)
+PDFS_MANTENIMIENTO_DIR = os.path.join('Evidencias_Mantenimiento')
 os.makedirs(PDFS_MANTENIMIENTO_DIR, exist_ok=True)
 
 # Directorio para evidencias fotográficas de mantenimiento
