@@ -24,15 +24,15 @@ function configurarAPIUrls() {
     if (esPythonAnywhere) {
         // Producción en PythonAnywhere
         baseUrl = `${protocolo}//${host}`;
-        console.log('🌐 Entorno detectado: PythonAnywhere');
+        console.log(' Entorno detectado: PythonAnywhere');
     } else if (esDesarrolloLocal) {
         // Desarrollo local
         baseUrl = `${protocolo}//${host}`;
-        console.log('🖥️ Entorno detectado: Desarrollo Local');
+        console.log(' Entorno detectado: Desarrollo Local');
     } else {
         // Fallback - usar el host actual
         baseUrl = `${protocolo}//${host}`;
-        console.log('🌍 Entorno detectado: Otro dominio');
+        console.log(' Entorno detectado: Otro dominio');
     }
     
     // URLs de API configuradas dinámicamente
@@ -107,5 +107,5 @@ window.API_CONFIG = API_CONFIG;
 window.construirURL = construirURL;
 window.fetchAPI = fetchAPI;
 
-console.log('✅ Configuración de API cargada correctamente');
-console.log(`🌐 Entorno: ${API_CONFIG.BASE}`);
+console.log(' Configuración de API cargada correctamente');
+console.log(` Entorno: ${API_CONFIG.BASE}`);

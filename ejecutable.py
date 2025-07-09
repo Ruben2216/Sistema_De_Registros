@@ -1063,7 +1063,7 @@ def tarea_limpieza_automatica():
     Ejecuta la limpieza automática de usuarios que han excedido el tiempo límite
     """
     try:
-        tiempo_limite = datetime.timedelta(minutes=5)
+        tiempo_limite = datetime.timedelta(minutes=30)  
         tiempo_actual = datetime.datetime.now()
         usuarios_a_limpiar = []
         
@@ -1071,7 +1071,12 @@ def tarea_limpieza_automatica():
             usuarios_activos = get_usuarios_activos()
             
             for sid, datos in usuarios_activos.items():
-                tiempo_transcurrido = tiempo_actual - datos['timestamp']
+                # Convertir timestamp de string a datetime si es necesario
+                timestamp_usuario = datos['timestamp']
+                if isinstance(timestamp_usuario, str):
+                    timestamp_usuario = datetime.datetime.fromisoformat(timestamp_usuario)
+                
+                tiempo_transcurrido = tiempo_actual - timestamp_usuario
                 if tiempo_transcurrido >= tiempo_limite:
                     usuarios_a_limpiar.append(sid)
         
@@ -1128,14 +1133,19 @@ def obtener_usuarios_activos():
         with lock_usuarios:
             usuarios_activos = get_usuarios_activos()
             for sid, datos in usuarios_activos.items():
-                tiempo_transcurrido = tiempo_actual - datos['timestamp']
+                # Convertir timestamp de string a datetime si es necesario
+                timestamp_usuario = datos['timestamp']
+                if isinstance(timestamp_usuario, str):
+                    timestamp_usuario = datetime.datetime.fromisoformat(timestamp_usuario)
+                
+                tiempo_transcurrido = tiempo_actual - timestamp_usuario
                 tiempo_restante = datetime.timedelta(minutes=1) - tiempo_transcurrido
                 
                 info_usuarios.append({
                     'sid': sid[:8] + '...',  # Solo mostrar parte del SID por seguridad
-                    'tiempo_transcurrido_minutos': int(tiempo_transcurrido.total_seconds() / 60),
-                    'tiempo_restante_minutos': max(0, int(tiempo_restante.total_seconds() / 60)),
-                    'estado': 'próximo_a_limpiar' if tiempo_restante.total_seconds() < 300 else 'activo'
+                    'tiempo_activo_minutos': tiempo_transcurrido.total_seconds() / 60,
+                    'tiempo_restante_minutos': max(0, tiempo_restante.total_seconds() / 60),
+                    'estado': 'próximo_a_limpiar' if tiempo_restante.total_seconds() < 60 else 'activo'
                 })
         
         return jsonify({

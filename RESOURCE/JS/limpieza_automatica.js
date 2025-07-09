@@ -2,8 +2,8 @@
 (function() {
     'use strict';
     
-    // Configuración
-    const TIEMPO_LIMITE_MS = 5 * 60 * 1000; // 1 minuto en milisegundos
+    // Configuración - CAMBIADO A 1 MINUTO PARA PRUEBAS
+    const TIEMPO_LIMITE_MS = 30 * 60 * 1000; 
     const CLAVE_TIMESTAMP = 'rij_timestamp_actividad';
     
     // Claves del localStorage que deben ser limpiadas
@@ -42,14 +42,7 @@
             localStorage.removeItem(clave);
         });
         
-        // Redirigir silenciosamente si estamos en página RIJ
-        const paginaActual = window.location.pathname;
-        if (paginaActual.includes('formato_RIJ.html') || paginaActual.includes('camara.html')) {
-            setTimeout(function() {
-                window.location.href = '/TEMPLATES/login.html';
-            }, 1000);
-        }
-    }
+    }       
     
     /**
      * Actualiza el timestamp de actividad del usuario
@@ -185,10 +178,10 @@
             }, { passive: true });
         });
         
-        // Verificar tiempo límite cada 5 minutos
+        // Verificar tiempo límite cada 1 minuto (CAMBIADO PARA PRUEBAS)
         setInterval(function() {
             verificarTiempoLimite();
-        }, 5 * 60 * 1000);
+        }, 1 * 60 * 1000);
         
         // Actualizar timestamp al salir de la página
         window.addEventListener('beforeunload', function() {
