@@ -55,7 +55,6 @@ def get_db_connection():
         conn = mysql.connector.connect(**DB_CONFIG)
         return conn
     except Error as e:
-        print(f"Error al conectar a MySQL: {e}")
         return None
 
 def generar_token_sesion():
@@ -105,7 +104,6 @@ def crear_sesion_usuario(password, ip_cliente, user_agent):
         return token_sesion
         
     except Error as e:
-        print(f"Error al crear sesión: {e}")
         return None
     finally:
         if conn and conn.is_connected():
@@ -148,7 +146,6 @@ def verificar_sesion_activa(token_sesion):
         return True
         
     except Error as e:
-        print(f"Error al verificar sesión: {e}")
         return False
     finally:
         if conn and conn.is_connected():
@@ -186,7 +183,6 @@ def obtener_tiempo_restante_sesion(token_sesion):
         return int(tiempo_restante.total_seconds() / 60)  # Retornar en minutos
         
     except Error as e:
-        print(f"Error al obtener tiempo restante: {e}")
         return None
     finally:
         if conn and conn.is_connected():
@@ -209,7 +205,6 @@ def cerrar_sesion(token_sesion):
         return True
         
     except Error as e:
-        print(f"Error al cerrar sesión: {e}")
         return False
     finally:
         if conn and conn.is_connected():
@@ -236,7 +231,7 @@ def limpiar_sesiones_expiradas():
         conn.commit()
         
     except Error as e:
-        print(f"Error al limpiar sesiones expiradas: {e}")
+        pass
     finally:
         if conn and conn.is_connected():
             cursor.close()
@@ -250,7 +245,6 @@ def iniciar_limpieza_sesiones():
                 limpiar_sesiones_expiradas()
                 time.sleep(300)  # Ejecutar cada 5 minutos
             except Exception as e:
-                print(f"Error en limpieza de sesiones: {e}")
                 time.sleep(60)  # Esperar 1 minuto antes de reintentar
     
     hilo_limpieza = threading.Thread(target=ejecutar_limpieza, daemon=True)
@@ -297,7 +291,6 @@ def index():
 def templates_root(filename):
     # Validar que el filename no sea null, vacío o inválido
     if not filename or filename.lower() in ['null', 'undefined', 'none', '']:
-        print(f"🚨 Intento de acceso a archivo inválido en TEMPLATES: '{filename}'")
         return jsonify({'error': 'Archivo no válido'}), 400
     
     # Permitir acceso al login sin autenticación
@@ -339,15 +332,11 @@ def autoguardado_rij():
         session['rij_datos'] = datos
         # Registrar actividad del usuario para sistema de limpieza
         registrar_actividad_usuario()
-        print(f"[POST] Guardando datos en sesión: {datos}", file=sys.stderr)
-        print(f"[POST] session.sid: {session.get('sid')}", file=sys.stderr)
         return jsonify({'ok': True, 'msg': 'Datos guardados temporalmente'}), 200
     else:
         datos = session.get('rij_datos')
         # Registrar actividad del usuario para sistema de limpieza
         registrar_actividad_usuario()
-        print(f"[GET] Recuperando datos de sesión: {datos}", file=sys.stderr)
-        print(f"[GET] session.sid: {session.get('sid')}", file=sys.stderr)
         if datos:
             return jsonify(datos), 200
         else:
@@ -556,7 +545,6 @@ def enviar_pdf_correo():
         }), 200
         
     except Exception as e:
-        print(f"Error al enviar correo: {str(e)}")
         return jsonify({
             'success': False, 
             'error': f'Error al enviar el correo: {str(e)}'
@@ -600,7 +588,6 @@ def guardar_imagen_rij():
         }), 200
         
     except Exception as e:
-        print(f"Error al guardar imagen RIJ: {str(e)}")
         return jsonify({
             'success': False, 
             'error': f'Error al guardar imagen: {str(e)}'
@@ -796,7 +783,6 @@ def obtener_meta_actual():
             meta_diaria = resultado[0] 
 
     except Error as e:
-        print(f"Error al obtener la meta del día: {e}")
         meta_diaria = "Error al consultar la meta del día."
         
     finally:
@@ -806,37 +792,15 @@ def obtener_meta_actual():
             
     return meta_diaria
 
-# Endpoint de prueba para debugging
-@app.route('/test_debug')
-def test_debug():
-    print(f"[TEST] === INICIO TEST DEBUG ===")
-    print(f"[TEST] Request: {request}")
-    print(f"[TEST] Session: {dict(session)}")
-    try:
-        print(f"[TEST] Llamando a registrar_actividad_usuario...")
-        sid = registrar_actividad_usuario()
-        print(f"[TEST] registrar_actividad_usuario completado, SID: {sid}")
-        return f"Test exitoso, SID: {sid}"
-    except Exception as e:
-        print(f"[TEST] ERROR: {e}")
-        import traceback
-        traceback.print_exc()
-        return f"Error: {e}"
-
 @app.route('/formato_RIJ.html')
 def pagina_rij():
-    print(f"[DEBUG] === ACCESO A PÁGINA RIJ ===")
     try:
         # Registrar actividad automáticamente
-        print(f"[DEBUG] Llamando a registrar_actividad_usuario...")
         sid = registrar_actividad_usuario()
-        print(f"[DEBUG] registrar_actividad_usuario completado, SID: {sid}")
     except Exception as e:
-        print(f"[DEBUG] ERROR en registrar_actividad_usuario: {e}")
         import traceback
         traceback.print_exc()
     
-    print(f"[DEBUG] Continuando con lógica de la página...")
     meta_del_dia = obtener_meta_actual()
     # --- Lógica para imagen del día ---
     from kilometro_vida import obtener_servicio_drive, buscar_archivo_por_fecha, descargar_archivo, CARPETA_ONEDRIVE, LOCAL_IMG_FOLDER
@@ -858,7 +822,6 @@ def pagina_rij():
             imagen_url = f"/static/imagenes/{nombre_archivo}"
     else:
         mensaje_img = "No hay imagen disponible para el día de hoy."
-    print(f"[DEBUG] Retornando render_template...")
     return render_template('formato_RIJ.html', meta_para_mostrar=meta_del_dia, imagen_url=imagen_url, mensaje_img=mensaje_img) 
 
 # Redirección para acceder a formato_RIJ.html desde TEMPLATES que esta todo configurado para que se acceda desde la carpeta TEMPLATES
@@ -897,7 +860,7 @@ def buscar_equipo():
             cursor.execute(query, (search_value,))
             equipo = cursor.fetchone()
     except Error as e:
-        print(f"Error en la consulta: {e}")
+        pass
     finally:
         if conn.is_connected():
             cursor.close()
@@ -954,7 +917,7 @@ def buscar_sugerencias_serie():
             })
 
     except Error as e:
-        print(f"Error en la consulta de sugerencias: {e}")
+        pass
     finally:
         if conn.is_connected():
             cursor.close()
@@ -992,7 +955,6 @@ def get_usuarios_activos():
                     return data
         return {}
     except Exception as e:
-        print(f"Error al leer usuarios activos: {e}")
         return {}
 
 def set_usuarios_activos(usuarios_dict):
@@ -1003,19 +965,14 @@ def set_usuarios_activos(usuarios_dict):
         with open(USUARIOS_ACTIVOS_FILE, 'w', encoding='utf-8') as f:
             json.dump(usuarios_dict, f, default=str, ensure_ascii=False, indent=2)
     except Exception as e:
-        print(f"Error al guardar usuarios activos: {e}")
+        pass
 
 def registrar_actividad_usuario():
     """
     Registra el inicio de sesión del usuario (NO actualiza el timestamp en actividades posteriores)
     """
-    print(f"[DEBUG] === INICIO REGISTRO ACTIVIDAD ===")
-    print(f"[DEBUG] Request endpoint: {request.endpoint}")
-    print(f"[DEBUG] Request path: {request.path}")
-    print(f"[DEBUG] Session antes: {dict(session)}")
     
     sid = session.get('sid')
-    print(f"[DEBUG] SID actual en session: {sid}")
     
     with lock_usuarios:
         usuarios_activos = get_usuarios_activos()
@@ -1034,15 +991,13 @@ def registrar_actividad_usuario():
                     'pdf_generado': True
                 }
                 set_usuarios_activos(usuarios_activos)
-                print(f"[DEBUG] Nuevo usuario registrado: {sid}")
             else:
-                print(f"[DEBUG] Usuario ya existe en diccionario: {sid}")
+                pass
         else:
             # Verificar si está en el diccionario
             if sid in usuarios_activos:
-                print(f"[DEBUG] Usuario encontrado en diccionario activos")
+                pass
             else:
-                print(f"[DEBUG] Usuario NO encontrado en diccionario activos, re-registrando...")
                 timestamp_inicio = datetime.datetime.now()
                 usuarios_activos[sid] = {
                     'timestamp': timestamp_inicio,
@@ -1052,7 +1007,6 @@ def registrar_actividad_usuario():
                 }
                 set_usuarios_activos(usuarios_activos)
     
-    print(f"[DEBUG] === FIN REGISTRO ACTIVIDAD ===")
     return sid
 
 def limpiar_datos_usuario_completo(sid):
@@ -1277,7 +1231,6 @@ def obtener_pdfs_mantenimiento():
         }), 200
         
     except Exception as e:
-        print(f"Error al obtener PDFs de mantenimiento: {e}")
         return jsonify({
             'success': False,
             'error': str(e)
@@ -1347,7 +1300,6 @@ def subir_pdf_mantenimiento():
             }), 400
             
     except Exception as e:
-        print(f"Error al subir PDF: {e}")
         return jsonify({
             'success': False,
             'error': str(e)
@@ -1431,7 +1383,6 @@ def guardar_pdf_mantenimiento():
         }), 200
         
     except Exception as e:
-        print(f"Error al guardar PDF de mantenimiento: {e}")
         return jsonify({
             'success': False,
             'error': str(e)
@@ -1445,8 +1396,6 @@ def generar_pdf_con_evidencia():
     try:
         data = request.get_json()
         
-        print(f"[DEBUG] Datos recibidos: {data}")
-        
         if not data or 'pdfSeleccionado' not in data or 'imagenes' not in data:
             return jsonify({
                 'success': False,
@@ -1455,9 +1404,6 @@ def generar_pdf_con_evidencia():
         
         pdf_seleccionado = data['pdfSeleccionado']
         imagenes = data['imagenes']
-        
-        print(f"[DEBUG] PDF seleccionado: {pdf_seleccionado}")
-        print(f"[DEBUG] Número de imágenes: {len(imagenes)}")
         
         if not imagenes:
             return jsonify({
@@ -1472,15 +1418,11 @@ def generar_pdf_con_evidencia():
         nombre_pdf = pdf_seleccionado['id'] + '.pdf'
         ruta_pdf_original = os.path.join(PDFS_MANTENIMIENTO_DIR, nombre_pdf)
         
-        print(f"[DEBUG] Buscando PDF en: {ruta_pdf_original}")
-        print(f"[DEBUG] Archivo existe: {os.path.exists(ruta_pdf_original)}")
-        
         # Listar archivos disponibles para debug
         if os.path.exists(PDFS_MANTENIMIENTO_DIR):
             archivos_disponibles = os.listdir(PDFS_MANTENIMIENTO_DIR)
-            print(f"[DEBUG] Archivos disponibles en directorio: {archivos_disponibles}")
         else:
-            print(f"[DEBUG] Directorio no existe: {PDFS_MANTENIMIENTO_DIR}")
+            pass
         
         if not os.path.exists(ruta_pdf_original):
             return jsonify({
@@ -1565,7 +1507,6 @@ def generar_pdf_con_evidencia():
                         page.insert_image(img_rect, stream=img_bytes, keep_proportion=True)
                         
                     except Exception as img_error:
-                        print(f"Error al insertar imagen {i} en página {pagina_idx//imagenes_por_pagina + 1}: {img_error}")
                         # En caso de error, mostrar un rectángulo con texto de error
                         error_rect = fitz.Rect(x, y, x + ancho_imagen, y + alto_imagen)
                         page.draw_rect(error_rect, color=(0.8, 0.8, 0.8), width=1)
@@ -1657,7 +1598,6 @@ def generar_pdf_con_evidencia():
                         )
                         
                     except Exception as img_error:
-                        print(f"Error al insertar imagen {i} en página {pagina_actual + 1}: {img_error}")
                         # Dibujar rectángulo de error
                         c.setStrokeColor(colors.red)
                         c.rect(x, y, ancho_imagen, alto_imagen, stroke=1, fill=0)
@@ -1675,15 +1615,8 @@ def generar_pdf_con_evidencia():
         # URL para descargar el PDF final
         url_descarga = f'/api/evidencia/descargar_pdf/{nombre_pdf_final}'
         
-        print(f"[DEBUG] PDF generado exitosamente:")
-        print(f"[DEBUG] - Nombre archivo: {nombre_pdf_final}")
-        print(f"[DEBUG] - Ruta completa: {ruta_pdf_final}")
-        print(f"[DEBUG] - Archivo existe: {os.path.exists(ruta_pdf_final)}")
-        print(f"[DEBUG] - URL descarga: {url_descarga}")
-        
         if os.path.exists(ruta_pdf_final):
             stat = os.stat(ruta_pdf_final)
-            print(f"[DEBUG] - Tamaño: {stat.st_size} bytes")
         
         return jsonify({
             'success': True,
@@ -1693,7 +1626,6 @@ def generar_pdf_con_evidencia():
         }), 200
         
     except Exception as e:
-        print(f"Error al generar PDF con evidencia: {e}")
         import traceback
         traceback.print_exc()
         return jsonify({
@@ -1717,28 +1649,21 @@ def descargar_pdf_evidencia(nombre_archivo):
     Permite descargar un PDF con evidencia generado
     """
     try:
-        print(f"[DEBUG] Descarga solicitada para: {nombre_archivo}")
-        
         # Decodificar URL (para manejar %20 -> espacio)
         from urllib.parse import unquote
         nombre_archivo_decodificado = unquote(nombre_archivo)
-        print(f"[DEBUG] Nombre decodificado: {nombre_archivo_decodificado}")
         
         # Validar seguridad sin modificar el nombre
         if not es_nombre_archivo_seguro(nombre_archivo_decodificado):
-            print(f"[DEBUG] Nombre de archivo no seguro: {nombre_archivo_decodificado}")
             return jsonify({'error': 'Nombre de archivo no válido'}), 400
         
         ruta_archivo = os.path.join(PDFS_MANTENIMIENTO_DIR, nombre_archivo_decodificado)
-        print(f"[DEBUG] Ruta completa: {ruta_archivo}")
-        print(f"[DEBUG] Archivo existe: {os.path.exists(ruta_archivo)}")
         
         # Listar archivos disponibles para debug
         if os.path.exists(PDFS_MANTENIMIENTO_DIR):
             archivos_disponibles = [f for f in os.listdir(PDFS_MANTENIMIENTO_DIR) if 'Evidencia_' in f]
-            print(f"[DEBUG] Archivos de evidencia disponibles:")
             for archivo in archivos_disponibles:
-                print(f"[DEBUG]   - {archivo}")
+                pass
         
         if not os.path.exists(ruta_archivo):
             return jsonify({
@@ -1755,7 +1680,6 @@ def descargar_pdf_evidencia(nombre_archivo):
         )
         
     except Exception as e:
-        print(f"[DEBUG] Error en descarga: {e}")
         import traceback
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
@@ -1819,7 +1743,6 @@ def sincronizar_fotos_camara():
                     fotos_exitosas += 1
                     
             except Exception as e:
-                print(f"Error al procesar foto {i}: {e}")
                 continue
         
         return jsonify({
@@ -1830,7 +1753,6 @@ def sincronizar_fotos_camara():
         }), 200
         
     except Exception as e:
-        print(f"Error al sincronizar fotos de cámara: {e}")
         return jsonify({
             'success': False,
             'error': str(e)
@@ -1912,7 +1834,6 @@ def login():
             }), 401
             
     except Exception as e:
-        print(f"Error en login: {e}")
         return jsonify({
             'success': False,
             'message': 'Error interno del servidor'
@@ -1953,7 +1874,6 @@ def verificar_sesion_endpoint():
             }), 200
             
     except Exception as e:
-        print(f"Error al verificar sesión: {e}")
         return jsonify({
             'success': False,
             'error': 'Error interno del servidor'
@@ -1980,7 +1900,6 @@ def logout():
         }), 200
         
     except Exception as e:
-        print(f"Error al cerrar sesión: {e}")
         return jsonify({
             'success': False,
             'error': 'Error interno del servidor'
@@ -2004,12 +1923,8 @@ if __name__ == '__main__':
 
     # Verificar si los archivos existen antes de intentar usarlos 
     if not os.path.exists(cert_path):
-        print(f"Error: No se encontró el archivo del certificado en '{cert_path}'")
-        print("Asegúrate de haber ejecutado 'openssl req ...' correctamente.")
         exit(1)
     if not os.path.exists(key_path):
-        print(f"Error: No se encontró el archivo de la clave privada en '{key_path}'")
-        print("Asegúrate de haber ejecutado 'openssl genrsa ...' correctamente.")
         exit(1)
 
     # Crea el contexto SSL/TLS usando los archivos
