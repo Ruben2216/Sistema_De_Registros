@@ -112,7 +112,10 @@
             </div>
             <div class="campo">
                 <label for="numero_inventario" class="campo__etiqueta">NÚMERO INVENTARIO</label>
-                <input type="text" class="campo__control" id="numero_inventario" name="numero_inventario" >
+                <div class="search-container" data-param-name="inventario">
+                    <input type="text" class="campo__control" id="numero_inventario" name="numero_inventario" enterkeyhint="search" inputmode="numeric">
+                    <button type="button" class="search-button" data-url="/buscar_equipo" style="display: none;">BUSCAR</button>
+                </div>
                 <span id="mensajeError7" class="campo_vacio"></span>
             </div>
             <div class="campo">
