@@ -1,9 +1,13 @@
 
-  document.getElementById('select-reset').addEventListener('click', function() {
-    // Obtener una referencia al elemento select
-    const selectElement = document.getElementById('select-mantenimient');
-    // Verificar si el elemento select existe en este HTML
+  // Función para resetear el select a "FORMATO MANTENIMIENTO" dsde en menu.html
+function resetearSelectMantenimiento() {
+    const selectElement = document.getElementById('select-mantenimiento');
     if (selectElement) {
-        selectElement.selectedIndex = 0; // Establecer la selección al primer elemento
+        selectElement.selectedIndex = 0; 
     }
-  });
+}
+
+document.addEventListener('DOMContentLoaded', resetearSelectMantenimiento);
+
+// Resetear cuando la página se muestra, obligando a ejecutar incluso cuando se carga desde el caché
+window.addEventListener('pageshow', resetearSelectMantenimiento);
