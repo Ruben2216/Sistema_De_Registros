@@ -100,7 +100,7 @@
                     left: 50%;
                     transform: translate(-50%, -50%);
                     background: white;
-                    padding: 30px;
+                    padding: 3rem;
                     border-radius: 10px;
                     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
                     max-width: 400px;
@@ -117,6 +117,7 @@
                         margin: 0 0 15px 0;
                         font-size: 22px;
                     ">Advertencia de Sesión</h2>
+                    <div style="width:17rem; height:8rem;">
                     
                     <p style="
                         color: #666;
@@ -125,8 +126,10 @@
                         font-size: 16px;
                     ">Su sesión se cerrará automáticamente en 5 minutos. 
                     Cualquier trabajo no guardado se perderá.</p>
+                    </div>
                     
                     <button id="btn-entendido-sesion" style="
+                        margin: 15px;
                         background-color: #00724e;
                         color: white;
                         border: none;

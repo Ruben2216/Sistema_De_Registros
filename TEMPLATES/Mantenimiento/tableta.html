@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
     <title>Mantenimiento Preventivo de Tabletas</title>
@@ -96,7 +95,8 @@
             <div class="campo">
                 <label for="Numero_Serie" class="campo__etiqueta">NÚMERO DE SERIE</label>
                 <div class="search-container" data-param-name="serie">
-                    <input type="text" class="campo__control" id="serie" name="serie" autocomplete="off" > 
+                    <input type="text" class="campo__control" id="serie" name="serie" autocomplete="off" enterkeyhint="search" data-url="/buscar_equipo"> 
+                    <button type="button" class="search-button" data-url="/buscar_equipo">BUSCAR</button>
                     <div id="serie-sugerencias" class="sugerencias-container"></div>
                 </div>
                 <span class="campo_vacio" id="mensajeError6"></span>
@@ -108,7 +108,10 @@
             </div>
             <div class="campo">
                 <label for="numero_inventario" class="campo__etiqueta">NÚMERO INVENTARIO</label>
-                <input type="text" class="campo__control" id="numero_inventario" name="numero_inventario">
+                <div class="search-container" data-param-name="inventario">
+                    <input type="text" class="campo__control" id="numero_inventario" name="numero_inventario" inputmode="numeric" enterkeyhint="search">
+                    <button type="button" class="search-button" data-url="/buscar_equipo">BUSCAR</button>
+                </div>
                 <span class="campo_vacio" id="mensajeError8"></span>    
             </div>
             <div class="campo">

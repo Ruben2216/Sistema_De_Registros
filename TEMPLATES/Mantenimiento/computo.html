@@ -95,8 +95,8 @@
             <div class="campo">
                 <label for="inventario" class="campo__etiqueta">NÚMERO INVENTARIO</label>
                 <div class="search-container" data-param-name="inventario">
-                    <input type="text" inputmode="numeric" pattern="[0-9]*" class="campo__control" id="numero_inventario" name="inventario" required> 
-                    <button type="button" id="search-button" class="search-button" data-url="/buscar_equipo">BUSCAR</button> <br>
+                    <input type="text" inputmode="numeric" enterkeyhint="search" class="campo__control" id="numero_inventario" name="inventario" required> 
+                    <button type="button" id="search-button" class="search-button" data-url="/buscar_equipo" style="display: none;">BUSCAR</button> <br>
                 </div>
             </div>
             <div class="campo">
@@ -112,7 +112,7 @@
             <div class="campo">
                 <label for="Numero_Serie" class="campo__etiqueta">NÚMERO DE SERIE</label>
                  <div class="search-container" data-param-name="serie">
-        <input type="text" class="campo__control" id="serie" name="serie" required>
+        <input type="text" class="campo__control" id="serie" name="serie" enterkeyhint="search" required>
 
         <button type="button" class="search-button" data-url="/buscar_equipo">BUSCAR</button>
 

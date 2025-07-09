@@ -116,12 +116,15 @@ searchContainers.forEach(container => {
         };
         
         searchButton.addEventListener('click', fetchDataConBoton);
+        
         inputField.addEventListener('keypress', function(event) {
             if (event.key === 'Enter') {
                 event.preventDefault();
                 fetchDataConBoton();
             }
         });
+        
+        
     }
 
     // --- LÓGICA DE AUTOCOMPLETADO (INDEPENDIENTE DEL BOTÓN) ---
