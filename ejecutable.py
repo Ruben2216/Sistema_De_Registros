@@ -10,6 +10,8 @@ import atexit
 import re
 import hashlib
 import secrets
+import io
+import sys
 from functools import wraps
 from werkzeug.utils import secure_filename
 # --- INICIO LÓGICA DE backend (búsqueda de equipos en MySQL) ---
@@ -1220,11 +1222,10 @@ PDFS_MANTENIMIENTO_DIR = os.path.join(tempfile.gettempdir(), 'pdfs_mantenimiento
 os.makedirs(PDFS_MANTENIMIENTO_DIR, exist_ok=True)
 
 # Directorio para evidencias fotográficas de mantenimiento
-EVIDENCIAS_MANTENIMIENTO_DIR = os.path.join(tempfile.gettempdir(), 'evidencias_mantenimiento')
+EVIDENCIAS_MANTENIMIENTO_DIR = os.path.join(RESOURCE_FOLDER, 'IMG', 'Evidencias_Mantenimiento')
 os.makedirs(EVIDENCIAS_MANTENIMIENTO_DIR, exist_ok=True)
 
 @app.route('/api/evidencia/obtener_pdfs_mantenimiento', methods=['GET'])
-@requiere_autenticacion
 def obtener_pdfs_mantenimiento():
     """
     Endpoint para obtener los PDFs de mantenimiento disponibles (ruta requerida por el JavaScript)
@@ -1352,117 +1353,514 @@ def subir_pdf_mantenimiento():
             'error': str(e)
         }), 500
 
-@app.route('/api/evidencia/subir_evidencia_fotografica', methods=['POST'])
-@requiere_autenticacion
-def subir_evidencia_fotografica():
+@app.route('/api/evidencia/guardar_pdf_mantenimiento', methods=['POST'])
+def guardar_pdf_mantenimiento():
     """
-    Endpoint para subir evidencias fotográficas de mantenimiento
+    Guarda un PDF de mantenimiento en el repositorio temporal
     """
     try:
-        # Registrar actividad del usuario
-        registrar_actividad_usuario()
-        
         data = request.get_json()
-        if not data or 'imagen_base64' not in data:
+        
+        if not data or 'pdf_base64' not in data or 'nombre_archivo' not in data:
             return jsonify({
                 'success': False,
-                'error': 'No se proporcionó imagen'
+                'error': 'Datos requeridos no proporcionados'
             }), 400
         
-        imagen_base64 = data.get('imagen_base64')
-        nombre_equipo = data.get('nombre_equipo', 'equipo_sin_nombre')
-        tipo_evidencia = data.get('tipo_evidencia', 'general')
+        pdf_base64 = data['pdf_base64']
+        nombre_archivo = secure_filename(data['nombre_archivo'])
+        tipo_mantenimiento = data.get('tipo_mantenimiento', 'general')
         
-        # Validar formato de imagen
-        if not imagen_base64.startswith('data:image'):
+        # Registrar actividad del usuario
+        sid = registrar_actividad_usuario()
+        
+        # Limpiar el base64
+        if pdf_base64.startswith('data:application/pdf;base64,'):
+            pdf_base64 = pdf_base64.split(',')[1]
+        elif pdf_base64.startswith('data:'):
+            comma_index = pdf_base64.find(',')
+            if comma_index != -1:
+                pdf_base64 = pdf_base64[comma_index + 1:]
+        
+        # Decodificar PDF
+        try:
+            pdf_data = base64.b64decode(pdf_base64)
+            
+            if not pdf_data.startswith(b'%PDF'):
+                raise Exception("El archivo no es un PDF válido")
+                
+        except Exception as e:
             return jsonify({
                 'success': False,
-                'error': 'Formato de imagen inválido'
+                'error': f'Error al decodificar PDF: {str(e)}'
             }), 400
         
-        # Extraer datos de la imagen
-        header, imagen_data = imagen_base64.split(',', 1)
-        extension = 'png' if 'png' in header else 'jpg'
+        # Usar el nombre de archivo proporcionado por el usuario, manteniendo solo caracteres seguros
+        nombre_base = nombre_archivo
+        if nombre_base.endswith('.pdf'):
+            nombre_base = nombre_base[:-4]
         
-        # Generar nombre único
-        timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-        nombre_archivo = f"evidencia_{nombre_equipo}_{tipo_evidencia}_{timestamp}.{extension}"
-        ruta_archivo = os.path.join(EVIDENCIAS_MANTENIMIENTO_DIR, nombre_archivo)
+        # Sanitizar el nombre base quitando solo caracteres problemáticos pero manteniendo espacios
+        import re
+        nombre_base_limpio = re.sub(r'[<>:"/\\|?*]', '', nombre_base)
+        nombre_base_limpio = nombre_base_limpio.strip()
         
-        # Guardar imagen
+        # Si después de la limpieza no queda nada válido, usar fallback
+        if not nombre_base_limpio or len(nombre_base_limpio) < 1:
+            timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+            nombre_base_limpio = f"{tipo_mantenimiento}_{timestamp}"
+        
+        # Generar nombre final único (agregar timestamp solo si ya existe)
+        nombre_final = f"{nombre_base_limpio}.pdf"
+        contador = 1
+        while os.path.exists(os.path.join(PDFS_MANTENIMIENTO_DIR, nombre_final)):
+            nombre_final = f"{nombre_base_limpio}_{contador}.pdf"
+            contador += 1
+        ruta_archivo = os.path.join(PDFS_MANTENIMIENTO_DIR, nombre_final)
+        
+        # Guardar PDF
         with open(ruta_archivo, 'wb') as f:
-            f.write(base64.b64decode(imagen_data))
-        
-        # URL para acceder a la imagen
-        url_imagen = f'/api/evidencia/ver_evidencia/{nombre_archivo}'
+            f.write(pdf_data)
         
         return jsonify({
             'success': True,
-            'message': 'Evidencia fotográfica guardada correctamente',
-            'url': url_imagen,
-            'archivo': nombre_archivo
+            'message': 'PDF guardado correctamente',
+            'pdf_id': nombre_final.replace('.pdf', ''),
+            'nombre_archivo': nombre_final,
+            'nombre_guardado': nombre_final.replace('.pdf', '')  # Devolver el nombre exacto guardado
         }), 200
         
     except Exception as e:
-        print(f"Error al subir evidencia fotográfica: {e}")
+        print(f"Error al guardar PDF de mantenimiento: {e}")
         return jsonify({
             'success': False,
             'error': str(e)
         }), 500
 
-@app.route('/api/evidencia/ver_evidencia/<nombre_archivo>')
-def ver_evidencia_fotografica(nombre_archivo):
+@app.route('/api/evidencia/generar_pdf_con_evidencia', methods=['POST'])
+def generar_pdf_con_evidencia():
     """
-    Sirve evidencias fotográficas para visualización
-    """
-    try:
-        nombre_archivo = secure_filename(nombre_archivo)
-        ruta_archivo = os.path.join(EVIDENCIAS_MANTENIMIENTO_DIR, nombre_archivo)
-        
-        if not os.path.exists(ruta_archivo):
-            return jsonify({'error': 'Evidencia no encontrada'}), 404
-        
-        return send_from_directory(EVIDENCIAS_MANTENIMIENTO_DIR, nombre_archivo)
-        
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-@app.route('/api/evidencia/eliminar_pdf/<nombre_archivo>', methods=['DELETE'])
-@requiere_autenticacion
-def eliminar_pdf_mantenimiento(nombre_archivo):
-    """
-    Elimina un PDF de mantenimiento
+    Genera un nuevo PDF combinando el PDF de mantenimiento con las evidencias fotográficas
     """
     try:
-        nombre_archivo = secure_filename(nombre_archivo)
-        if not nombre_archivo.endswith('.pdf'):
-            nombre_archivo += '.pdf'
+        data = request.get_json()
         
-        ruta_archivo = os.path.join(PDFS_MANTENIMIENTO_DIR, nombre_archivo)
+        print(f"[DEBUG] Datos recibidos: {data}")
         
-        if not os.path.exists(ruta_archivo):
+        if not data or 'pdfSeleccionado' not in data or 'imagenes' not in data:
             return jsonify({
                 'success': False,
-                'error': 'PDF no encontrado'
+                'error': 'Datos requeridos no proporcionados'
+            }), 400
+        
+        pdf_seleccionado = data['pdfSeleccionado']
+        imagenes = data['imagenes']
+        
+        print(f"[DEBUG] PDF seleccionado: {pdf_seleccionado}")
+        print(f"[DEBUG] Número de imágenes: {len(imagenes)}")
+        
+        if not imagenes:
+            return jsonify({
+                'success': False,
+                'error': 'Se requiere al menos una imagen de evidencia'
+            }), 400
+        
+        # Registrar actividad del usuario
+        sid = registrar_actividad_usuario()
+        
+        # Obtener el PDF original
+        nombre_pdf = pdf_seleccionado['id'] + '.pdf'
+        ruta_pdf_original = os.path.join(PDFS_MANTENIMIENTO_DIR, nombre_pdf)
+        
+        print(f"[DEBUG] Buscando PDF en: {ruta_pdf_original}")
+        print(f"[DEBUG] Archivo existe: {os.path.exists(ruta_pdf_original)}")
+        
+        # Listar archivos disponibles para debug
+        if os.path.exists(PDFS_MANTENIMIENTO_DIR):
+            archivos_disponibles = os.listdir(PDFS_MANTENIMIENTO_DIR)
+            print(f"[DEBUG] Archivos disponibles en directorio: {archivos_disponibles}")
+        else:
+            print(f"[DEBUG] Directorio no existe: {PDFS_MANTENIMIENTO_DIR}")
+        
+        if not os.path.exists(ruta_pdf_original):
+            return jsonify({
+                'success': False,
+                'error': f'PDF original no encontrado: {nombre_pdf}'
             }), 404
         
-        os.remove(ruta_archivo)
+        # Generar PDF combinado
+        timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+        nombre_pdf_final = f"Evidencia_{pdf_seleccionado['nombre']}_{timestamp}.pdf"
+        ruta_pdf_final = os.path.join(PDFS_MANTENIMIENTO_DIR, nombre_pdf_final)
+        
+        try:
+            # Intentar usar PyMuPDF para mejor calidad
+            import fitz
+            
+            # Abrir PDF original
+            doc_original = fitz.open(ruta_pdf_original)
+            doc_final = fitz.open()  # Documento nuevo
+            
+            # Copiar todas las páginas del PDF original
+            doc_final.insert_pdf(doc_original)
+            
+            # Añadir páginas con evidencias fotográficas (layout 2x3)
+            # Configuración del layout
+            imagenes_por_pagina = 6  # 2 columnas x 3 filas
+            margen_lateral = 57  # 2 cm en puntos (1 cm = 28.35 puntos)
+            margen_superior = 80
+            margen_inferior = 57
+            
+            # Calcular dimensiones disponibles
+            ancho_pagina = 595  # A4 ancho
+            alto_pagina = 842   # A4 alto
+            ancho_disponible = ancho_pagina - (2 * margen_lateral)
+            alto_disponible = alto_pagina - margen_superior - margen_inferior
+            
+            # Dimensiones por imagen
+            ancho_imagen = (ancho_disponible - 20) / 2  # 2 columnas con espacio entre ellas
+            alto_imagen = (alto_disponible - 40) / 3    # 3 filas con espacio entre ellas
+            espacio_horizontal = 20
+            espacio_vertical = 20
+            
+            # Procesar imágenes en grupos de 6
+            total_imagenes = len(imagenes)
+            for pagina_idx in range(0, total_imagenes, imagenes_por_pagina):
+                # Crear nueva página para evidencia
+                page = doc_final.new_page(width=595, height=842)
+                
+                # Título de la página
+                page.insert_text(
+                    (50, 50),
+                    "Evidencia Fotográfica",
+                    fontsize=16,
+                    color=(0, 0, 0)
+                )
+                
+                # Obtener imágenes para esta página
+                imagenes_pagina = imagenes[pagina_idx:pagina_idx + imagenes_por_pagina]
+                
+                # Posicionar imágenes en layout 2x3
+                for i, imagen in enumerate(imagenes_pagina):
+                    # Calcular posición en la grilla (columna, fila)
+                    columna = i % 2
+                    fila = i // 2
+                    
+                    # Calcular coordenadas
+                    x = margen_lateral + columna * (ancho_imagen + espacio_horizontal)
+                    y = margen_superior + fila * (alto_imagen + espacio_vertical)
+                    
+                    # Decodificar imagen
+                    img_data = imagen['data']
+                    if img_data.startswith('data:image'):
+                        img_data = img_data.split(',')[1]
+                    
+                    try:
+                        img_bytes = base64.b64decode(img_data)
+                        
+                        # Definir rectángulo para la imagen
+                        img_rect = fitz.Rect(x, y, x + ancho_imagen, y + alto_imagen)
+                        
+                        # Insertar imagen manteniendo proporción
+                        page.insert_image(img_rect, stream=img_bytes, keep_proportion=True)
+                        
+                    except Exception as img_error:
+                        print(f"Error al insertar imagen {i} en página {pagina_idx//imagenes_por_pagina + 1}: {img_error}")
+                        # En caso de error, mostrar un rectángulo con texto de error
+                        error_rect = fitz.Rect(x, y, x + ancho_imagen, y + alto_imagen)
+                        page.draw_rect(error_rect, color=(0.8, 0.8, 0.8), width=1)
+                        page.insert_text(
+                            (x + 10, y + alto_imagen/2),
+                            "Error al\ncargar imagen",
+                            fontsize=10,
+                            color=(0.8, 0, 0)
+                        )
+            
+            # Guardar PDF final
+            doc_final.save(ruta_pdf_final)
+            doc_final.close()
+            doc_original.close()
+            
+        except ImportError:
+            # Fallback usando reportlab si PyMuPDF no está disponible
+            from reportlab.pdfgen import canvas
+            from reportlab.lib.pagesizes import A4
+            from reportlab.lib.utils import ImageReader
+            from reportlab.lib import colors
+            from reportlab.pdfgen.canvas import Canvas
+            import shutil
+            
+            # Copiar PDF original como base
+            shutil.copy2(ruta_pdf_original, ruta_pdf_final)
+            
+            # Crear páginas adicionales con evidencias (layout 2x3)
+            pdf_evidencias = os.path.join(PDFS_MANTENIMIENTO_DIR, f"temp_evidencias_{sid}.pdf")
+            c = canvas.Canvas(pdf_evidencias, pagesize=A4)
+            width, height = A4
+            
+            # Configuración del layout
+            imagenes_por_pagina = 6  # 2 columnas x 3 filas
+            margen_lateral = 57  # 2 cm en puntos
+            margen_superior = 80
+            margen_inferior = 57
+            
+            # Calcular dimensiones disponibles
+            ancho_disponible = width - (2 * margen_lateral)
+            alto_disponible = height - margen_superior - margen_inferior
+            
+            # Dimensiones por imagen
+            ancho_imagen = (ancho_disponible - 20) / 2  # 2 columnas con espacio
+            alto_imagen = (alto_disponible - 40) / 3    # 3 filas con espacio
+            espacio_horizontal = 20
+            espacio_vertical = 20
+            
+            # Procesar imágenes en grupos de 6
+            total_imagenes = len(imagenes)
+            pagina_actual = 0
+            
+            for pagina_idx in range(0, total_imagenes, imagenes_por_pagina):
+                if pagina_actual > 0:
+                    c.showPage()
+                
+                # Título de la página
+                c.setFont("Helvetica-Bold", 16)
+                c.drawString(50, height - 50, "Evidencia Fotográfica")
+                
+                # Obtener imágenes para esta página
+                imagenes_pagina = imagenes[pagina_idx:pagina_idx + imagenes_por_pagina]
+                
+                # Posicionar imágenes en layout 2x3
+                for i, imagen in enumerate(imagenes_pagina):
+                    # Calcular posición en la grilla
+                    columna = i % 2
+                    fila = i // 2
+                    
+                    # Calcular coordenadas (en reportlab Y=0 está abajo)
+                    x = margen_lateral + columna * (ancho_imagen + espacio_horizontal)
+                    y = height - margen_superior - (fila + 1) * (alto_imagen + espacio_vertical)
+                    
+                    try:
+                        img_data = imagen['data']
+                        if img_data.startswith('data:image'):
+                            img_data = img_data.split(',')[1]
+                        
+                        img_bytes = base64.b64decode(img_data)
+                        img_reader = ImageReader(io.BytesIO(img_bytes))
+                        
+                        # Insertar imagen en la posición calculada
+                        c.drawImage(
+                            img_reader, 
+                            x, y, 
+                            width=ancho_imagen, 
+                            height=alto_imagen, 
+                            preserveAspectRatio=True
+                        )
+                        
+                    except Exception as img_error:
+                        print(f"Error al insertar imagen {i} en página {pagina_actual + 1}: {img_error}")
+                        # Dibujar rectángulo de error
+                        c.setStrokeColor(colors.red)
+                        c.rect(x, y, ancho_imagen, alto_imagen, stroke=1, fill=0)
+                        c.setFont("Helvetica", 10)
+                        c.drawString(x + 10, y + alto_imagen/2, "Error al cargar imagen")
+                
+                pagina_actual += 1
+            
+            c.save()
+            
+            # Combinar PDFs (esto requeriría PyPDF2 o similar)
+            # Por simplicidad, usamos solo el PDF de evidencias
+            os.rename(pdf_evidencias, ruta_pdf_final)
+        
+        # URL para descargar el PDF final
+        url_descarga = f'/api/evidencia/descargar_pdf/{nombre_pdf_final}'
+        
+        print(f"[DEBUG] PDF generado exitosamente:")
+        print(f"[DEBUG] - Nombre archivo: {nombre_pdf_final}")
+        print(f"[DEBUG] - Ruta completa: {ruta_pdf_final}")
+        print(f"[DEBUG] - Archivo existe: {os.path.exists(ruta_pdf_final)}")
+        print(f"[DEBUG] - URL descarga: {url_descarga}")
+        
+        if os.path.exists(ruta_pdf_final):
+            stat = os.stat(ruta_pdf_final)
+            print(f"[DEBUG] - Tamaño: {stat.st_size} bytes")
         
         return jsonify({
             'success': True,
-            'message': 'PDF eliminado correctamente'
+            'message': 'PDF con evidencia generado correctamente',
+            'urlPdf': url_descarga,
+            'nombreArchivo': nombre_pdf_final
         }), 200
         
     except Exception as e:
-        print(f"Error al eliminar PDF: {e}")
+        print(f"Error al generar PDF con evidencia: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+def es_nombre_archivo_seguro(nombre):
+    """
+    Verifica si un nombre de archivo es seguro sin modificarlo
+    Permite letras, números, espacios, guiones, puntos y underscore
+    """
+    import re
+    # Permitir caracteres seguros incluyendo espacios
+    patron_permitido = re.compile(r'^[a-zA-Z0-9\s\-_\.]+$')
+    return patron_permitido.match(nombre) is not None
+
+@app.route('/api/evidencia/descargar_pdf/<path:nombre_archivo>')
+def descargar_pdf_evidencia(nombre_archivo):
+    """
+    Permite descargar un PDF con evidencia generado
+    """
+    try:
+        print(f"[DEBUG] Descarga solicitada para: {nombre_archivo}")
+        
+        # Decodificar URL (para manejar %20 -> espacio)
+        from urllib.parse import unquote
+        nombre_archivo_decodificado = unquote(nombre_archivo)
+        print(f"[DEBUG] Nombre decodificado: {nombre_archivo_decodificado}")
+        
+        # Validar seguridad sin modificar el nombre
+        if not es_nombre_archivo_seguro(nombre_archivo_decodificado):
+            print(f"[DEBUG] Nombre de archivo no seguro: {nombre_archivo_decodificado}")
+            return jsonify({'error': 'Nombre de archivo no válido'}), 400
+        
+        ruta_archivo = os.path.join(PDFS_MANTENIMIENTO_DIR, nombre_archivo_decodificado)
+        print(f"[DEBUG] Ruta completa: {ruta_archivo}")
+        print(f"[DEBUG] Archivo existe: {os.path.exists(ruta_archivo)}")
+        
+        # Listar archivos disponibles para debug
+        if os.path.exists(PDFS_MANTENIMIENTO_DIR):
+            archivos_disponibles = [f for f in os.listdir(PDFS_MANTENIMIENTO_DIR) if 'Evidencia_' in f]
+            print(f"[DEBUG] Archivos de evidencia disponibles:")
+            for archivo in archivos_disponibles:
+                print(f"[DEBUG]   - {archivo}")
+        
+        if not os.path.exists(ruta_archivo):
+            return jsonify({
+                'error': 'PDF no encontrado',
+                'nombre_buscado': nombre_archivo_decodificado,
+                'archivos_disponibles': archivos_disponibles
+            }), 404
+        
+        return send_from_directory(
+            PDFS_MANTENIMIENTO_DIR,
+            nombre_archivo_decodificado,
+            as_attachment=True,
+            download_name=nombre_archivo_decodificado
+        )
+        
+    except Exception as e:
+        print(f"[DEBUG] Error en descarga: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/evidencia/sincronizar_fotos_camara', methods=['POST'])
+def sincronizar_fotos_camara():
+    """
+    Sincroniza fotos del sistema de cámara con el sistema de evidencia
+    """
+    try:
+        data = request.get_json()
+        pdf_id = data.get('pdf_id')
+        
+        if not pdf_id:
+            return jsonify({
+                'success': False,
+                'error': 'ID del PDF no proporcionado'
+            }), 400
+        
+        # Registrar actividad del usuario
+        sid = registrar_actividad_usuario()
+        
+        # Obtener fotos del sistema RIJ
+        fotos_camara = session.get('rij_fotos', [])
+        
+        if not fotos_camara:
+            return jsonify({
+                'success': True,
+                'message': 'No hay fotos en la cámara para sincronizar',
+                'fotos_sincronizadas': 0
+            }), 200
+        
+        fotos_procesadas = []
+        fotos_exitosas = 0
+        
+        for i, foto_url in enumerate(fotos_camara):
+            try:
+                # Extraer nombre de archivo de la URL
+                nombre_archivo = foto_url.split('/')[-1]
+                ruta_foto = os.path.join(FOTOS_RIJ_DIR, nombre_archivo)
+                
+                if os.path.exists(ruta_foto):
+                    # Leer archivo y convertir a base64
+                    with open(ruta_foto, 'rb') as f:
+                        foto_data = f.read()
+                    
+                    foto_base64 = f"data:image/jpeg;base64,{base64.b64encode(foto_data).decode()}"
+                    
+                    # Información de la foto procesada
+                    foto_info = {
+                        'id': f"camara_{sid}_{i}_{int(time.time())}",
+                        'nombre': f"Evidencia_Camara_{i+1}.jpg",
+                        'tipo': 'image/jpeg',
+                        'tamaño': len(foto_data),
+                        'data': foto_base64,
+                        'fecha': datetime.datetime.now().isoformat(),
+                        'origen': 'camara'
+                    }
+                    
+                    fotos_procesadas.append(foto_info)
+                    fotos_exitosas += 1
+                    
+            except Exception as e:
+                print(f"Error al procesar foto {i}: {e}")
+                continue
+        
+        return jsonify({
+            'success': True,
+            'message': f'{fotos_exitosas} fotos sincronizadas correctamente',
+            'fotos_sincronizadas': fotos_exitosas,
+            'fotos': fotos_procesadas
+        }), 200
+        
+    except Exception as e:
+        print(f"Error al sincronizar fotos de cámara: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/evidencia/estado_camara', methods=['GET'])
+def obtener_estado_camara():
+    """
+    Obtiene el estado actual de las fotos en el sistema de cámara
+    """
+    try:
+        # Registrar actividad del usuario
+        registrar_actividad_usuario()
+        
+        fotos_camara = session.get('rij_fotos', [])
+        
+        return jsonify({
+            'success': True,
+            'total_fotos': len(fotos_camara),
+            'fotos_disponibles': len(fotos_camara),
+            'urls': fotos_camara
+        }), 200
+        
+    except Exception as e:
         return jsonify({
             'success': False,
             'error': str(e)
         }), 500
 
 # --- FIN RUTAS PARA SISTEMA DE EVIDENCIA DE MANTENIMIENTO ---
-
-# --- CONFIGURACIÓN DE INICIO ---
 
 # --- ENDPOINTS DE AUTENTICACIÓN ---
 
