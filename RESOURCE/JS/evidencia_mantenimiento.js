@@ -293,7 +293,6 @@ async function generarPDFConEvidencia() {
     }
 
     try {
-        mostrarNotificacion('Generando PDF con evidencia...', 'info');
         // Cargar lógica de compresión y configuración de PDF
         await cargarConfiguracionPDF();
         const sizeController = new PDFSizeController();
@@ -407,7 +406,7 @@ function mostrarNotificacion(mensaje, tipo = 'info') {
     
     setTimeout(() => {
         notificacion.classList.add('oculto');
-    }, 5000);
+    }, 9000);
 }
 
 // Función para formatear fecha

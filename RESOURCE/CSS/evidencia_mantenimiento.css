@@ -58,16 +58,14 @@ body {
     border-radius: 8px;
     cursor: pointer;
     font-size: 14px;
-    transition: all 0.3s ease;
 }
 
-.btn-volver:hover {
-    background: #005f3e;
-    transform: translateY(-2px);
-}
+
 
 /* Notificaciones */
 .notificacion {
+    background-color: #00724e;
+    color:white;
     padding: 12px 20px;
     border-radius: 8px;
     margin-bottom: 20px;
@@ -87,11 +85,7 @@ body {
     border: 1px solid #f5c6cb;
 }
 
-.notificacion.info {
-    background: #cce7ff;
-    color: #004085;
-    border: 1px solid #b8daff;
-}
+
 
 .notificacion.camara {
     background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
