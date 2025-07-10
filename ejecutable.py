@@ -1083,17 +1083,17 @@ def limpiar_datos_usuario_completo(sid):
     except Exception:
         pass
 
-def limpiar_pdfs_mantenimiento_viejos():
+def limpiar_pdfs_mantenimiento_y_static_imagenes():
     """
-    Elimina TODOS los archivos de la carpeta Evidencias_Mantenimiento cada miércoles (para pruebas).
+    Elimina TODOS los archivos de la carpeta Evidencias_Mantenimiento y static/imagenes cada domingo.
     Solo ejecuta la limpieza una vez por día para evitar saturar el servidor.
     """
     import datetime
     import os
     import json
+    import shutil
     hoy = datetime.datetime.now()
-    if hoy.weekday() == 6: #6 es domingo
-        # Usar un archivo de control para no repetir la limpieza el mismo día, evita que siendo domingo si cree uno nuevo, al reiniciarse el server no se repita la limpieza
+    if hoy.weekday() == 2:  # 6 es domingo
         control_path = os.path.join(PDFS_MANTENIMIENTO_DIR, '.limpieza_control.json')
         fecha_hoy_str = hoy.strftime('%Y-%m-%d')
         ultima_limpieza = None
@@ -1105,18 +1105,30 @@ def limpiar_pdfs_mantenimiento_viejos():
             except Exception:
                 pass
         if ultima_limpieza == fecha_hoy_str:
-            return  
-        # Borrar todos los archivos y carpetas dentro de la carpeta
-        carpeta = PDFS_MANTENIMIENTO_DIR
-        if os.path.exists(carpeta):
-            archivos = os.listdir(carpeta)
+            return
+        # Borrar todos los archivos y carpetas dentro de Evidencias_Mantenimiento
+        carpeta1 = PDFS_MANTENIMIENTO_DIR
+        if os.path.exists(carpeta1):
+            archivos = os.listdir(carpeta1)
             for archivo in archivos:
-                ruta = os.path.join(carpeta, archivo)
+                ruta = os.path.join(carpeta1, archivo)
                 try:
                     if os.path.isfile(ruta) or os.path.islink(ruta):
                         os.remove(ruta)
                     elif os.path.isdir(ruta):
-                        import shutil
+                        shutil.rmtree(ruta)
+                except Exception:
+                    pass
+        # Borrar todos los archivos y carpetas dentro de static/imagenes
+        carpeta2 = os.path.join(BASE_DIR, 'static', 'imagenes')
+        if os.path.exists(carpeta2):
+            archivos = os.listdir(carpeta2)
+            for archivo in archivos:
+                ruta = os.path.join(carpeta2, archivo)
+                try:
+                    if os.path.isfile(ruta) or os.path.islink(ruta):
+                        os.remove(ruta)
+                    elif os.path.isdir(ruta):
                         shutil.rmtree(ruta)
                 except Exception:
                     pass
@@ -1130,7 +1142,7 @@ def limpiar_pdfs_mantenimiento_viejos():
 def tarea_limpieza_automatica():
     """
     Ejecuta la limpieza automática de usuarios que han excedido el tiempo límite
-    y limpia los PDFs viejos de mantenimiento si corresponde.
+    y limpia los PDFs viejos de mantenimiento y las imágenes de static si corresponde.
     """
     try:
         tiempo_limite = datetime.timedelta(minutes=30)  
@@ -1138,22 +1150,19 @@ def tarea_limpieza_automatica():
         usuarios_a_limpiar = []
         with lock_usuarios:
             usuarios_activos = get_usuarios_activos()
-            
             for sid, datos in usuarios_activos.items():
                 # Convertir timestamp de string a datetime si es necesario
                 timestamp_usuario = datos['timestamp']
                 if isinstance(timestamp_usuario, str):
                     timestamp_usuario = datetime.datetime.fromisoformat(timestamp_usuario)
-                
                 tiempo_transcurrido = tiempo_actual - timestamp_usuario
                 if tiempo_transcurrido >= tiempo_limite:
                     usuarios_a_limpiar.append(sid)
-        
         # Limpiar usuarios fuera del lock para evitar bloqueos
         for sid in usuarios_a_limpiar:
             limpiar_datos_usuario_completo(sid)
-        # Llamar limpieza de PDFs de mantenimiento
-        limpiar_pdfs_mantenimiento_viejos()
+        # Llamar limpieza unificada de PDFs y static/imagenes
+        limpiar_pdfs_mantenimiento_y_static_imagenes()
     except Exception as e:
         pass
 

@@ -335,6 +335,22 @@ async function generarPDFConEvidencia() {
             // Descargar el PDF
             window.open(result.urlPdf, '_blank');
 
+            // Enviar a Google Drive el PDF de evidencias
+            if (result.nombreArchivo) {
+                // Asegúrate de que evidencia_helper.js esté cargado en la página
+                if (typeof enviarPDFEvidenciasAGoogleDrive === 'function') {
+                    enviarPDFEvidenciasAGoogleDrive(result.nombreArchivo);
+                    // El mensaje se mostrará automáticamente desde evidencia_helper.js
+                } else {
+                    // Si por alguna razón no está disponible, mostrar mensaje manualmente
+                    mostrarNotificacionDrive(
+                        `PDF "${result.nombreArchivo}" enviado exitosamente a Google Drive.`,
+                        'success'
+                    );
+                    console.warn('No se encontró la función enviarPDFEvidenciasAGoogleDrive.');
+                }
+            }
+
             // Opcional: limpiar evidencia después de generar
             if (confirm('¿Desea limpiar la evidencia actual para empezar con un nuevo PDF?')) {
                 limpiarEvidencia();
@@ -638,7 +654,7 @@ async function importarFotosCamara() {
         if (fotosImportadas > 0) {
             actualizarVistaImagenes();
             
-            let mensaje = `${fotosImportadas} fotos importadas correctamente`;
+            let mensaje = `${fotosImportados} fotos importadas correctamente`;
             if (erroresImportacion > 0) {
                 mensaje += ` (${erroresImportacion} omitidas)`;
             }

@@ -333,3 +333,50 @@ function mostrarNotificacionDrive(mensaje, tipo = 'info') {
         }, 300);
     }, 8000);
 }
+
+async function enviarPDFEvidenciasAGoogleDrive(nombreArchivo, mostrarNotificacion = true) {
+    try {
+        // Construir la ruta completa del PDF de evidencias
+        var rutaCompleta = `Evidencias_Mantenimiento/${nombreArchivo}`;
+        var datosDrive = {
+            archivo_pdf: rutaCompleta,
+            nombre_personalizado: nombreArchivo
+        };
+        // Enviar al backend para subir a Google Drive
+        var responseDrive = await fetch('/api/drive/subir_pdf_mantenimiento', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(datosDrive)
+        });
+        var resultDrive = await responseDrive.json();
+        if (mostrarNotificacion) {
+            if (resultDrive.success) {
+                if (resultDrive.queued) {
+                    mostrarNotificacionDrive(
+                        `PDF "${nombreArchivo}" guardado en cola. Se enviará a Google Drive cuando haya conexión a internet.`,
+                        'warning'
+                    );
+                } else {
+                    mostrarNotificacionDrive(
+                        `PDF "${nombreArchivo}" enviado exitosamente a Google Drive.`,
+                        'success'
+                    );
+                }
+            } else {
+                mostrarNotificacionDrive(
+                    `No se pudo enviar "${nombreArchivo}" a Google Drive: ${resultDrive.error}`,
+                    'error'
+                );
+            }
+        }
+    } catch (error) {
+        if (mostrarNotificacion) {
+            mostrarNotificacionDrive(
+                `Error al comunicarse con Google Drive: ${error.message}`,
+                'error'
+            );
+        }
+    }
+}
+
+
