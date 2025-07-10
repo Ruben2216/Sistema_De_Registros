@@ -23,7 +23,7 @@ body {
     background: white;
     border-radius: 12px;
     padding: 20px 20px 10px 20px;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
@@ -370,10 +370,12 @@ body {
     animation: spin 1s linear infinite;
 }
 h5{
-    display: inline-block;
-    align-items: center;
-    place-content: center;
-    color:rgba(255, 0, 0, 0.462);
+    width: 100%; 
+    text-align: center; 
+    display: inline; 
+     align-items: center;
+     place-content: center; 
+     color: rgba(255, 0, 0, 0.462);
 
 }
 
@@ -603,7 +605,6 @@ h5{
     background: #c82333;
 }
 
-/* Estilos personalizados para botones de carga y acción */
 .botones-carga button,
 .botones-accion button {
     display: block;
@@ -635,7 +636,6 @@ h5{
     background-color: #d4f0df;
 }
 
-/* Estilos para botones en acciones-pdf */
 .acciones-pdf {
     display: flex;
     gap: 8px;
@@ -716,12 +716,21 @@ h5{
         margin-left: 0;
         align-self: center;
     }
-}
-
-@media (max-width: 600px) {
-    .botones-carga button,
-    .botones-accion button {
-        font-size: 0.95rem;
-        padding: 14px 18px;
+    .btn-volver {
+        position: relative;
+    left: 40vw;
+    background: #00724e;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+       
+    }
+    .logo{
+        position: relative;
+        top:1.3rem;
     }
 }
+
