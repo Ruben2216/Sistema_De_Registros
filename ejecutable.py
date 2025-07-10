@@ -1083,15 +1083,59 @@ def limpiar_datos_usuario_completo(sid):
     except Exception:
         pass
 
+def limpiar_pdfs_mantenimiento_viejos():
+    """
+    Elimina TODOS los archivos de la carpeta Evidencias_Mantenimiento cada miércoles (para pruebas).
+    Solo ejecuta la limpieza una vez por día para evitar saturar el servidor.
+    """
+    import datetime
+    import os
+    import json
+    hoy = datetime.datetime.now()
+    if hoy.weekday() == 6: #6 es domingo
+        # Usar un archivo de control para no repetir la limpieza el mismo día, evita que siendo domingo si cree uno nuevo, al reiniciarse el server no se repita la limpieza
+        control_path = os.path.join(PDFS_MANTENIMIENTO_DIR, '.limpieza_control.json')
+        fecha_hoy_str = hoy.strftime('%Y-%m-%d')
+        ultima_limpieza = None
+        if os.path.exists(control_path):
+            try:
+                with open(control_path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    ultima_limpieza = data.get('fecha')
+            except Exception:
+                pass
+        if ultima_limpieza == fecha_hoy_str:
+            return  
+        # Borrar todos los archivos y carpetas dentro de la carpeta
+        carpeta = PDFS_MANTENIMIENTO_DIR
+        if os.path.exists(carpeta):
+            archivos = os.listdir(carpeta)
+            for archivo in archivos:
+                ruta = os.path.join(carpeta, archivo)
+                try:
+                    if os.path.isfile(ruta) or os.path.islink(ruta):
+                        os.remove(ruta)
+                    elif os.path.isdir(ruta):
+                        import shutil
+                        shutil.rmtree(ruta)
+                except Exception:
+                    pass
+        # Guardar la fecha de la última limpieza
+        try:
+            with open(control_path, 'w', encoding='utf-8') as f:
+                json.dump({'fecha': fecha_hoy_str}, f)
+        except Exception:
+            pass
+
 def tarea_limpieza_automatica():
     """
     Ejecuta la limpieza automática de usuarios que han excedido el tiempo límite
+    y limpia los PDFs viejos de mantenimiento si corresponde.
     """
     try:
         tiempo_limite = datetime.timedelta(minutes=30)  
         tiempo_actual = datetime.datetime.now()
         usuarios_a_limpiar = []
-        
         with lock_usuarios:
             usuarios_activos = get_usuarios_activos()
             
@@ -1108,7 +1152,8 @@ def tarea_limpieza_automatica():
         # Limpiar usuarios fuera del lock para evitar bloqueos
         for sid in usuarios_a_limpiar:
             limpiar_datos_usuario_completo(sid)
-    
+        # Llamar limpieza de PDFs de mantenimiento
+        limpiar_pdfs_mantenimiento_viejos()
     except Exception as e:
         pass
 
@@ -1997,6 +2042,7 @@ try:
                     'file_id': resultado.get('id_drive'),
                     'file_name': resultado.get('nombre_final'),
                     'file_link': resultado.get('enlace_drive'),
+                   
                     'folder_id': resultado.get('carpeta_id')
                 })
             else:
