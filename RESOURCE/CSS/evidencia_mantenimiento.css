@@ -58,6 +58,11 @@ body {
     border-radius: 8px;
     cursor: pointer;
     font-size: 14px;
+    -webkit-tap-highlight-color: transparent;
+    transition: all 0.3s ease;
+}
+.btn-volver:hover{
+    scale: 0.9;
 }
 
 
