@@ -64,7 +64,7 @@ if (inputObservaciones) {
                 this.value = this.value.substring(0, 120);
                 longitud = 120;
             }
-            contador.textContent = longitud + "/80 caracteres";
+            contador.textContent = longitud + "/120 caracteres";
         }
     });
 }

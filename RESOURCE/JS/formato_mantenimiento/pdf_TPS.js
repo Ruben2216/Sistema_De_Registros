@@ -414,6 +414,7 @@ async function generarPDF() {
     doc.line(15,y+2, w, y+2 );
 
     y+=6;
+    doc.setFontSize(10);
     doc.text(`Limpieza y sopleteado extremo del equipo`, 16, y);
     doc.line(15,y+2, w, y+2 );
 
@@ -435,6 +436,7 @@ async function generarPDF() {
         }
     }
     y+=6;
+    doc.setFontSize(10);
     doc.text(`Validar touch pantalla`, 16, y);
     doc.line(15,y+2, w, y+2 );
 
@@ -457,6 +459,7 @@ async function generarPDF() {
     }
 
     y+=6;
+    doc.setFontSize(10);
     doc.text(`Revisión de batería`, 16, y);
     doc.line(15,y+2, w, y+2 );
 
@@ -479,6 +482,7 @@ async function generarPDF() {
     }
 
     y+=6;
+    doc.setFontSize(10);
     doc.text(`Verificar Sw institucional actualizado`, 16, y);
     doc.line(15,y+2, w, y+2 );
 
@@ -501,6 +505,7 @@ async function generarPDF() {
     }
 
     y+=6;
+    doc.setFontSize(10);
     doc.text(`Verificar estado del conector de datos`, 16, y);
     doc.line(15,y+2, w, y+2 );
 
@@ -523,6 +528,7 @@ async function generarPDF() {
     }
 
     y+=6;
+    doc.setFontSize(10);
     doc.text(`Validar estado del teclado`, 16, y);
     doc.line(15,y+2, w, y+2 );
 
@@ -545,7 +551,7 @@ async function generarPDF() {
     }
 
     y+=6;
-    doc.setFontSize(10);
+    doc.setFontSize(10);    
     doc.text(`Verificar funcionamiento del equipo después del servicio`, 16, y);
 
     if (verificar === "si") {
@@ -565,6 +571,14 @@ async function generarPDF() {
             doc.setFontSize(10); // regresar a tamaño normal
         }
     }
+    doc.setFontSize(10);
+const observaciones = document.querySelector('input[id="input_Observaciones"]').value;
+if (observaciones) {
+    // Dividir el texto de observaciones para evitar desbordamiento
+    const maxWidth = 180; 
+    const lineasObservaciones = doc.splitTextToSize(`Observaciones: ${observaciones}`, maxWidth );
+    doc.text(lineasObservaciones, 15, y + 8);
+}
 
     // FIRMAS
     y+=55;

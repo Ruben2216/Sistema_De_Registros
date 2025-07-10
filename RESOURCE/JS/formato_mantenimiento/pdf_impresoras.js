@@ -650,6 +650,14 @@ async function generarPDF() {
                 doc.setFontSize(10);
             }
     }
+    doc.setFontSize(10);
+const observaciones = document.querySelector('input[id="input_Observaciones"]').value;
+if (observaciones) {
+    // Dividir el texto de observaciones para evitar desbordamiento
+    const maxWidth = 180; 
+    const lineasObservaciones = doc.splitTextToSize(`Observaciones: ${observaciones}`, maxWidth );
+    doc.text(lineasObservaciones, 15, y + 8);
+}
 
     y += 5;
 
@@ -660,7 +668,7 @@ async function generarPDF() {
     if(firma3Base64) await addCompressedImage(doc, firma3Base64, 150, y, 40, 20, compConfig.calidad_webp, 'firma3');
     
     y += 8;
-    doc.text(`Realizó servicio:`, 15, y-10);
+    doc.text(`Realizó servicio:`, 24, y-10);
     doc.setFontSize(7);
     
     const centerRealizoServicio = 37.5;
@@ -696,7 +704,7 @@ async function generarPDF() {
     }
     
     doc.setFontSize(10);
-    doc.text(`Visto Bueno:`, 145, y-10);
+    doc.text(`Visto Bueno:`, 158, y-10);
     doc.setFontSize(7);
     
     const centerVistoBueno = 172.5;
@@ -718,7 +726,7 @@ async function generarPDF() {
     doc.line(lineStartX3, y, lineEndX3, y);
     y += 5;
     doc.setFontSize(10);
-    doc.text("Nombre y firma", 20, y);
+    doc.text("Nombre y firma", 25, y);
     doc.text("Nombre y firma", 95, y);
     doc.text("Nombre y firma", 165, y);
 

@@ -360,7 +360,7 @@ async function generarPDF() {
     doc.rect(15, y-4, anchoTotal + 7, 6);
 
     // TABLA DE ACTIVIDADES
-    y += 20;
+    y += 15;
     doc.setFont("helvetica", "bold");
     doc.text("ACTIVIDADES", 16, y);
     doc.text("SI", 110, y);
@@ -690,8 +690,16 @@ doc.setFont("zapfdingbats");
             doc.setFontSize(9);
         }
     }
+    doc.setFontSize(10);
+const observaciones = document.querySelector('input[id="input_Observaciones"]').value;
+if (observaciones) {
+    // Dividir el texto de observaciones para evitar desbordamiento
+    const maxWidth = 180; 
+    const lineasObservaciones = doc.splitTextToSize(`Observaciones: ${observaciones}`, maxWidth );
+    doc.text(lineasObservaciones, 15, y + 8);
+}
 
-    y+=5;
+    y+=9;
     // FIRMAS
         y+=20;
     doc.setFontSize(10);
