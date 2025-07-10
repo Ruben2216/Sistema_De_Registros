@@ -70,6 +70,7 @@ def crear_sesion_usuario(password, ip_cliente, user_agent):
     Crea una nueva sesión autenticada en la base de datos
     Retorna el token de sesión si es exitoso, None si falla
     """
+    eliminar_sesiones_expiradas()  # Elimina sesiones expiradas antes de crear una nueva
     try:
         conn = get_db_connection()
         if conn is None:
@@ -115,6 +116,7 @@ def verificar_sesion_activa(token_sesion):
     Verifica si una sesión es válida y activa
     Retorna True si es válida, False si no
     """
+    eliminar_sesiones_expiradas()  # Elimina sesiones expiradas antes de verificar
     try:
         conn = get_db_connection()
         if conn is None:
@@ -157,6 +159,7 @@ def obtener_tiempo_restante_sesion(token_sesion):
     Obtiene el tiempo restante de una sesión en minutos
     Retorna None si la sesión no existe o ha expirado
     """
+    eliminar_sesiones_expiradas()  # Elimina sesiones expiradas antes de consultar
     try:
         conn = get_db_connection()
         if conn is None:
@@ -191,6 +194,7 @@ def obtener_tiempo_restante_sesion(token_sesion):
 
 def cerrar_sesion(token_sesion):
     """Cierra una sesión específica"""
+    eliminar_sesiones_expiradas()  # Elimina sesiones expiradas antes de cerrar
     try:
         conn = get_db_connection()
         if conn is None:
@@ -230,6 +234,27 @@ def limpiar_sesiones_expiradas():
         cursor.execute(query)
         conn.commit()
         
+    except Error as e:
+        pass
+    finally:
+        if conn and conn.is_connected():
+            cursor.close()
+            conn.close()
+    # Además, eliminar físicamente las sesiones expiradas
+    eliminar_sesiones_expiradas()
+
+def eliminar_sesiones_expiradas():
+    """
+    Elimina físicamente las sesiones expiradas de la base de datos.
+    """
+    try:
+        conn = get_db_connection()
+        if conn is None:
+            return
+        cursor = conn.cursor()
+        query = "DELETE FROM sesiones_usuario WHERE fecha_expiracion < NOW()"
+        cursor.execute(query)
+        conn.commit()
     except Error as e:
         pass
     finally:

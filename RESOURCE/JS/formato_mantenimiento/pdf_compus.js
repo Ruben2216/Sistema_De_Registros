@@ -481,6 +481,7 @@ async function generarPDF() {
     doc.line(15,y+2, w, y+2 );
 
     y+=6;
+    doc.setFontSize(10);
     doc.text(`Limpieza externa del equipo`, 16, y);
     doc.line(15,y+2, w, y+2 );
 
@@ -522,6 +523,7 @@ doc.setFont("zapfdingbats");
             }
 
     y+=6;
+    doc.setFontSize(10); 
     doc.text(`Limpieza externa de teclado`, 16, y);
     doc.line(15,y+2, w, y+2 );
             if (teclado === "si") {
@@ -537,11 +539,12 @@ doc.setFont("zapfdingbats");
                 if (motivo) {
                     doc.setFontSize(8); // tamaño más pequeño para caber
                     doc.text(motivo, 129, y); // dentro del cuadro OBSERVACIONES
-                    doc.setFontSize(10); // regresar a tamaño normal
+                    doc.setFontSize(10);// regresar a tamaño normal
                 }
             }
 
     y+=6;
+    doc.setFontSize(10);
     doc.text(`Verificar conexiones eléctricas en buen estado`, 16, y);
     doc.line(15,y+2, w, y+2 );
     if (conexiones === "si") {
@@ -562,6 +565,7 @@ doc.setFont("zapfdingbats");
         }
 
     y+=6;
+    doc.setFontSize(9);
     doc.text(`Verificar que funcione correctamente después del servicio`, 16, y);
     doc.line(15,y+2, w, y+2 );
             if (despues_servicio === "si") {
@@ -582,6 +586,7 @@ doc.setFont("zapfdingbats");
             }
 
     y+=6;
+    doc.setFontSize(10);    
     doc.text(`Antivirus institucional actualizado`, 16, y);
     doc.line(15,y+2, w, y+2 );
             if(antivirus === "si"){
@@ -602,6 +607,7 @@ doc.setFont("zapfdingbats");
             }
 
     y+=6;
+    doc.setFontSize(10);
     doc.text(`Ejecución de Defrag`, 16, y);
     doc.line(15,y+2, w, y+2 );
             if(defrag === "si"){
@@ -622,6 +628,7 @@ doc.setFont("zapfdingbats");
             }
 
     y+=6;
+    doc.setFontSize(10);
     doc.text(`Equipo dentro del dominio`, 16, y);
     doc.line(15,y+2, w, y+2 );
             if(dominio === "si"){
@@ -641,6 +648,7 @@ doc.setFont("zapfdingbats");
                 }
             }
     y+=6;
+    doc.setFontSize(10);
     doc.text(`Sistema operativo actualizado (Windows update)`, 16, y);
             if(Windows_update === "si"){
                 doc.setFont("zapfdingbats");
@@ -658,8 +666,15 @@ doc.setFont("zapfdingbats");
                     doc.text(motivo, 129, y);
                     doc.setFontSize(10);
                 }
-            }
-
+}
+doc.setFontSize(10);
+const observaciones = document.querySelector('input[id="input_Observaciones"]').value;
+if (observaciones) {
+    // Dividir el texto de observaciones para evitar desbordamiento
+    const maxWidth = 180; 
+    const lineasObservaciones = doc.splitTextToSize(`Observaciones: ${observaciones}`, maxWidth );
+    doc.text(lineasObservaciones, 15, y + 8);
+}
      y += 55;
 
     // FIRMAS

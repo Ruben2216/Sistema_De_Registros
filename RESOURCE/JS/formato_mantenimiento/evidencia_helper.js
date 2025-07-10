@@ -61,8 +61,9 @@ function mostrarNotificacionRepositorio(mensaje, tipo = 'info') {
             color: white;
             font-family: Arial, sans-serif;
             font-size: 14px;
-            max-width: 300px;
-            z-index: 10000;
+            border-left: 4px solid #28a745;
+            max-width: 90vw !important;
+            z-index: 10001;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             transform: translateX(100%);
             transition: transform 0.3s ease;
@@ -94,7 +95,7 @@ function mostrarNotificacionRepositorio(mensaje, tipo = 'info') {
                 notificacion.parentNode.removeChild(notificacion);
             }
         }, 300);
-    }, 5000);
+    }, 10000);
 }
 
 // Función para mostrar modal de confirmación con enlace a evidencia
@@ -115,7 +116,7 @@ function mostrarModalEvidencia(nombreArchivo) {
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 10000;
+            z-index: 10000 ;
         `;
         
         modal.innerHTML = `
@@ -147,7 +148,7 @@ function mostrarModalEvidencia(nombreArchivo) {
                         📄 Añadir Evidencia
                     </button>
                     <button id="btn-cerrar-modal-evidencia" style="
-                        background: #6c757d;
+                        background: #dc3545;
                         color: white;
                         border: none;
                         padding: 12px 25px;
@@ -188,7 +189,7 @@ function mostrarModalEvidencia(nombreArchivo) {
         if (modal.style.display === 'flex') {
             modal.style.display = 'none';
         }
-    }, 10000);
+    }, 15000); 
 }
 
 // Función principal para procesar y guardar PDF de mantenimiento
@@ -280,19 +281,19 @@ function mostrarNotificacionDrive(mensaje, tipo = 'info') {
         notificacion.id = 'notificacion-drive';
         notificacion.style.cssText = `
             position: fixed;
-            top: 80px;
+            top: 100px;
             right: 20px;
             padding: 15px 20px;
             border-radius: 8px;
             color: white;
             font-family: Arial, sans-serif;
             font-size: 13px;
-            max-width: 320px;
+            max-width: 90vw !important;
             z-index: 10001;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             transform: translateX(100%);
             transition: transform 0.3s ease;
-            border-left: 4px solid #007bff;
+            border-left: 4px solid;
         `;
         document.body.appendChild(notificacion);
     }
@@ -330,5 +331,5 @@ function mostrarNotificacionDrive(mensaje, tipo = 'info') {
                 notificacion.parentNode.removeChild(notificacion);
             }
         }, 300);
-    }, 6000);
+    }, 8000);
 }
