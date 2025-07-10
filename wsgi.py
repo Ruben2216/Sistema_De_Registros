@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Archivo WSGI principal para PythonAnywhere
-Este archivo es el punto de entrada para tu aplicación web en producción
+Este archivo es el punto de entrada para la aplicación web en producción
 """
 
 import sys

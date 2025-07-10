@@ -34,16 +34,27 @@ TEMPLATES_FOLDER = os.path.join(BASE_DIR, 'TEMPLATES')
 MANTENIMIENTO_FOLDER = os.path.join(TEMPLATES_FOLDER, 'Mantenimiento')
 RESOURCE_FOLDER = os.path.join(BASE_DIR, 'RESOURCE')
 
+# Cargar variables de entorno según el entorno
+if os.path.exists('.env.production'):
+    load_dotenv('.env.production')  # Producción
+else:
+    load_dotenv()  # Desarrollo local
+
 app = Flask(__name__, static_url_path='', static_folder=TEMPLATES_FOLDER)
-app.secret_key = 'supersecretkey'  # Necesario para usar session
+app.secret_key = os.getenv('FLASK_SECRET_KEY', 'supersecretkey')  # Usar variable de entorno para mayor seguridad
+
+# Configuración adicional para producción en PythonAnywhere
+app.config['SESSION_COOKIE_SECURE'] = False  # PythonAnywhere maneja HTTPS
+app.config['SESSION_COOKIE_HTTPONLY'] = True  # Prevenir XSS
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # Protección CSRF
 
 # --- CONFIGURACIÓN DE CORREO ---
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'sistemaregistrocfe@gmail.com'
-app.config['MAIL_PASSWORD'] = 'ytji fwik rftf njxw'  
-app.config['MAIL_DEFAULT_SENDER'] = 'sistemaregistrocfe@gmail.com'
+app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
+app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
+app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'True').lower() == 'true'
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME', 'sistemaregistrocfe@gmail.com')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD', 'ytji fwik rftf njxw')
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER', 'sistemaregistrocfe@gmail.com')
 
 mail = Mail(app)
 
@@ -2167,32 +2178,16 @@ except ImportError as e:
 
 # --- FIN ENDPOINTS PARA GOOGLE DRIVE ---
 
+# --- INICIO DE MODIFICACIONES PARA PRODUCCIÓN EN PYTHONANYWHERE ---
+# Inicializar sistema de limpieza automática original
+iniciar_sistema_limpieza()
+
+# Inicializar sistema de limpieza de sesiones autenticadas
+iniciar_limpieza_sesiones()
+
+# En producción (PythonAnywhere) NO se usan certificados SSL ni contexto HTTPS
+# Simplemente ejecuta la app Flask normalmente
 if __name__ == '__main__':
-    # --- INICIO DE MODIFICACIONES PARA HTTPS ---
-    # Configuración para habilitar HTTPS en el servidor Flask.
-
-    # Inicializar sistema de limpieza automática original
-    iniciar_sistema_limpieza()
-    
-    # Inicializar sistema de limpieza de sesiones autenticadas
-    iniciar_limpieza_sesiones()
-
-    # Rutas a tus archivos de certificado y clave privada
-    cert_path = os.path.join(BASE_DIR, 'cert.pem')
-    key_path = os.path.join(BASE_DIR, 'key.pem')
-
-    # Verificar si los archivos existen antes de intentar usarlos 
-    if not os.path.exists(cert_path):
-        exit(1)
-    if not os.path.exists(key_path):
-        exit(1)
-
-    # Crea el contexto SSL/TLS usando los archivos
-    ssl_context_tuple = (cert_path, key_path)
-    
-    # Define la IP donde Flask escuchará (0.0.0.0 para acceso desde otras IPs en tu red)
-    HOST_IP = '0.0.0.0'
-    PORT = 8000
-
-    # Ejecuta la aplicación Flask con el contexto SSL/TLS
-    app.run(host=HOST_IP, port=PORT, ssl_context=ssl_context_tuple, debug=False)
+    # Puedes dejar el puerto por defecto o cambiarlo si lo deseas
+    app.run(host='0.0.0.0', port=8000, debug=False)
+# --- FIN DE MODIFICACIONES PARA PRODUCCIÓN ---
