@@ -4,9 +4,6 @@
     var API_URL = window.API_CONFIG ? window.API_CONFIG.AUTOGUARDADO : '/api/rij/autoguardado';
     var backendDisponible = true;
 
-    console.log('📝 Autoguardado RIJ iniciado con URL:', API_URL);
-
-
     function obtenerDatosFormulario() {
         var form = document.querySelector('.formulario-verificacion__formulario');
         var datos = {};
