@@ -344,24 +344,3 @@ def subir_formato_mantenimiento_drive(archivo_pdf, nombre_personalizado=None):
         dict: Resultado de la subida
     """
     return subir_pdf_mantenimiento(archivo_pdf, nombre_personalizado)
-
-if __name__ == "__main__":
-    # Código de prueba
-    print("=== PRUEBA DE SISTEMA DE SUBIDA OAUTH ===")
-    
-    # Verificar configuración
-    print("1. Verificando configuración OAuth...")
-    config_result = verificar_configuracion_oauth()
-    print(f"Resultado: {config_result}")
-    
-    # Verificar conexión a internet
-    print("2. Verificando conexión a internet...")
-    conexion = verificar_conexion_internet()
-    print(f"Conexión: {'Disponible' if conexion else 'No disponible'}")
-    
-    # Estado de cola
-    print("3. Estado de cola...")
-    estado = obtener_estado_cola()
-    print(f"Estado: {estado}")
-    
-    print("=== FIN DE PRUEBA ===")

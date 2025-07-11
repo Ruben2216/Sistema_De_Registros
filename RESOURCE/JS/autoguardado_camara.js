@@ -3,7 +3,7 @@
     // URL del backend Flask para autoguardado de fotos - DINÁMICO
     var API_URL = window.API_CONFIG ? window.API_CONFIG.FOTOS : '/api/rij/fotos';
     
-    console.log('📸 Autoguardado cámara iniciado con URL:', API_URL);
+    // Eliminar logs de consola innecesarios
     
     // Función para obtener todas las imágenes actualmente mostradas y su versión
     function obtenerFotos() {

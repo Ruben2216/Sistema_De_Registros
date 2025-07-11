@@ -1096,7 +1096,7 @@ def limpiar_datos_usuario_completo(sid):
 
 def limpiar_pdfs_mantenimiento_y_static_imagenes():
     """
-    Elimina TODOS los archivos de la carpeta Evidencias_Mantenimiento y static/imagenes cada domingo.
+    Elimina TODOS los archivos de las carpetas Evidencias_Mantenimiento, static/imagenes y RESOURCE/IMG/img RIJ cada domingo.
     Solo ejecuta la limpieza una vez por día para evitar saturar el servidor.
     """
     import datetime
@@ -1104,7 +1104,7 @@ def limpiar_pdfs_mantenimiento_y_static_imagenes():
     import json
     import shutil
     hoy = datetime.datetime.now()
-    if hoy.weekday() == 2:  # 6 es domingo
+    if hoy.weekday() == 6:  # 6 es domingo
         control_path = os.path.join(PDFS_MANTENIMIENTO_DIR, '.limpieza_control.json')
         fecha_hoy_str = hoy.strftime('%Y-%m-%d')
         ultima_limpieza = None
@@ -1136,6 +1136,19 @@ def limpiar_pdfs_mantenimiento_y_static_imagenes():
             archivos = os.listdir(carpeta2)
             for archivo in archivos:
                 ruta = os.path.join(carpeta2, archivo)
+                try:
+                    if os.path.isfile(ruta) or os.path.islink(ruta):
+                        os.remove(ruta)
+                    elif os.path.isdir(ruta):
+                        shutil.rmtree(ruta)
+                except Exception:
+                    pass
+        # Borrar todos los archivos y carpetas dentro de RESOURCE/IMG/img RIJ
+        carpeta3 = os.path.join(RESOURCE_FOLDER, 'IMG', 'img RIJ')
+        if os.path.exists(carpeta3):
+            archivos = os.listdir(carpeta3)
+            for archivo in archivos:
+                ruta = os.path.join(carpeta3, archivo)
                 try:
                     if os.path.isfile(ruta) or os.path.islink(ruta):
                         os.remove(ruta)
@@ -2185,9 +2198,6 @@ iniciar_sistema_limpieza()
 # Inicializar sistema de limpieza de sesiones autenticadas
 iniciar_limpieza_sesiones()
 
-# En producción (PythonAnywhere) NO se usan certificados SSL ni contexto HTTPS
-# Simplemente ejecuta la app Flask normalmente
 if __name__ == '__main__':
-    # Puedes dejar el puerto por defecto o cambiarlo si lo deseas
     app.run(host='0.0.0.0', port=8000, debug=False)
 # --- FIN DE MODIFICACIONES PARA PRODUCCIÓN ---
