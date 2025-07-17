@@ -231,7 +231,6 @@ function inicializarMejorasAvanzadas() {
     // Solo ejecutar si estamos en la página de evidencia
     if (!document.getElementById('seccion-evidencia')) return;
     
-    console.log('🚀 Inicializando mejoras avanzadas de integración cámara-evidencia');
     
     // Configurar importación automática si hay PDF seleccionado
     if (pdfSeleccionado) {
@@ -281,7 +280,6 @@ function inicializarMejorasAvanzadas() {
         }
     });
     
-    console.log('✅ Mejoras avanzadas inicializadas correctamente');
 }
 
 // Inicializar cuando el DOM esté listo

@@ -31,7 +31,6 @@ async function cargarPDFsDisponibles() {
         const response = await fetch('/api/evidencia/obtener_pdfs_mantenimiento');
         const data = await response.json();
         
-        console.log('PDFs recibidos del servidor:', data.pdfs);
         
         if (data.success && data.pdfs.length > 0) {
             mostrarListaPDFs(data.pdfs);
@@ -50,23 +49,22 @@ function mostrarListaPDFs(pdfs) {
     listaPdfs.innerHTML = '';
     
     pdfs.forEach(pdf => {
-        console.log('Mostrando PDF:', pdf.nombre, 'ID:', pdf.id);
         
         const elementoPdf = document.createElement('div');
         elementoPdf.className = 'item-pdf';
         elementoPdf.innerHTML = `
             <div class="info-pdf" style="width:80vw; max-width: 80vw;">
-                <h3 style="overflow:hidden; text-overflow:ellipsis">${pdf.nombre}</h3>
-                <p>Fecha: ${formatearFecha(pdf.fecha)}</p>
-                <p>Tipo: ${pdf.tipo}</p>
+            <h3 style="overflow:hidden; text-overflow:ellipsis">${pdf.nombre}</h3>
+            <p>Fecha: ${new Date(pdf.fecha).toLocaleString('es-MX', { timeZone: 'America/Mexico_City', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+            <p>Tipo: ${pdf.tipo}</p>
             </div>
             <div class="acciones-pdf">
-                <button class="btn-seleccionar-pdf" onclick="seleccionarPDF('${pdf.id}', '${pdf.nombre}', '${pdf.fecha}')">
-                    📁 Seleccionar
-                </button>
-                <button class="btn-ver-pdf" onclick="verPDF('${pdf.ruta}')">
-                     Ver PDF
-                </button>
+            <button class="btn-seleccionar-pdf" onclick="seleccionarPDF('${pdf.id}', '${pdf.nombre}', '${pdf.fecha}')">
+                📁 Seleccionar
+            </button>
+            <button class="btn-ver-pdf" onclick="verPDF('${pdf.ruta}')">
+                 Ver PDF
+            </button>
             </div>
         `;
         listaPdfs.appendChild(elementoPdf);
@@ -881,7 +879,7 @@ async function cargarConfiguracionPDF() {
         return new Promise(function(resolve, reject) {
             var script = document.createElement('script');
             script.src = '/RESOURCE/JS/configuracion_pdf.js';
-            script.onload = function() { console.log('configuracion_pdf.js cargado para evidencia'); resolve(); };
+            script.onload = resolve;
             script.onerror = function() { console.error('Error cargando configuracion_pdf.js'); reject(new Error('No se pudo cargar configuracion_pdf.js')); };
             document.head.appendChild(script);
         });

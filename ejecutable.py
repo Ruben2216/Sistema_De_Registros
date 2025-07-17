@@ -10,6 +10,12 @@ import atexit
 import re
 import hashlib
 import secrets
+try:
+    # Para Python 3.9+ (estándar en PythonAnywhere)
+    from zoneinfo import ZoneInfo
+except ImportError:
+    # Fallback para entornos locales con Python < 3.9
+    from pytz import timezone as ZoneInfo
 import io
 import sys
 from functools import wraps
@@ -40,7 +46,10 @@ if os.path.exists('.env.production'):
 else:
     load_dotenv()  # Desarrollo local
 
-app = Flask(__name__, static_url_path='', static_folder=TEMPLATES_FOLDER)
+app = Flask(__name__, 
+            static_url_path='', 
+            static_folder=TEMPLATES_FOLDER,
+            template_folder=TEMPLATES_FOLDER)
 app.secret_key = os.getenv('FLASK_SECRET_KEY', 'supersecretkey')  # Usar variable de entorno para mayor seguridad
 
 # Configuración adicional para producción en PythonAnywhere
@@ -351,6 +360,18 @@ def mantenimiento(filename):
     token_sesion = session.get('session_token')
     if not token_sesion or not verificar_sesion_activa(token_sesion):
         return redirect('/TEMPLATES/login.html')
+
+    # Procesar la cola de pendientes de Drive solo una vez por sesión
+    if not session.get('cola_drive_procesada'):
+        try:
+            from SubirFormatos_Mantenimiento_Drive import procesar_cola_pendientes
+            resultado_cola = procesar_cola_pendientes()
+            # Puedes registrar logs o manejar el resultado si lo deseas
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+        session['cola_drive_procesada'] = True
+
     return send_from_directory(MANTENIMIENTO_FOLDER, filename)
 
 # Archivos dentro de /RESOURCE/ para obtener los archivos js, css o imágenes
@@ -1310,7 +1331,11 @@ def obtener_pdfs_mantenimiento():
                 if archivo.endswith('.pdf'):
                     ruta_archivo = os.path.join(PDFS_MANTENIMIENTO_DIR, archivo)
                     stat = os.stat(ruta_archivo)
-                    fecha_creacion = datetime.datetime.fromtimestamp(stat.st_ctime)
+                    
+                    fecha_creacion_utc = datetime.datetime.fromtimestamp(stat.st_ctime, tz=datetime.timezone.utc)
+                    
+                    tz_mexico = ZoneInfo("America/Mexico_City")
+                    fecha_creacion_local = fecha_creacion_utc.astimezone(tz_mexico)
                     
                     # Determinar tipo de mantenimiento según el nombre
                     tipo_mantenimiento = "Mantenimiento General"
@@ -1330,7 +1355,7 @@ def obtener_pdfs_mantenimiento():
                     pdfs_disponibles.append({
                         'id': archivo.replace('.pdf', ''),
                         'nombre': archivo.replace('.pdf', ''),  # Mantener el nombre exacto sin modificaciones
-                        'fecha': fecha_creacion.isoformat(),
+                        'fecha': fecha_creacion_local.isoformat(), # Enviar fecha con zona horaria correcta
                         'tipo': tipo_mantenimiento,
                         'ruta': f'/api/evidencia/ver_pdf/{archivo}'
                     })

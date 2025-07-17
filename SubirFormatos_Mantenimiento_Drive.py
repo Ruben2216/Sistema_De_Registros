@@ -14,7 +14,7 @@ para acceso a cuenta personal de Google Drive sin limitaciones de cuota.
 import os
 import json
 import datetime
-import socket
+import requests
 import threading
 import time
 import logging
@@ -40,14 +40,14 @@ lock_cola = threading.Lock()
 
 def verificar_conexion_internet():
     """
-    Verifica si hay conexión a internet intentando conectar con Google DNS
-    Retorna True si hay conexión, False si no la hay
+    Verifica si hay conexión a internet haciendo una petición a un sitio confiable.
+    Esto es más compatible con PythonAnywhere que una conexión de socket directa.
     """
     try:
-        # Intentar conectar con Google DNS
-        socket.create_connection(("8.8.8.8", 53), timeout=3)
+        # Esta es una forma más fiable de comprobar la conectividad en ese entorno.
+        requests.get("https://www.google.com", timeout=5)
         return True
-    except OSError:
+    except (requests.ConnectionError, requests.Timeout):
         return False
 
 def obtener_nombre_mes(numero_mes):
