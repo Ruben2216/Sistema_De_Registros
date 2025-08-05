@@ -1,41 +1,347 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Inicio de Sesión CFE</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FORMATOS</title>
+    <link rel="stylesheet" href="/RESOURCE/CSS/globalPageLoadStyles.css">
+    <link rel="stylesheet" href="/RESOURCE/CSS/menu.css">
+    <link rel="stylesheet" href="/RESOURCE/CSS/visor_pdf.css">
     <link rel="icon" href="/RESOURCE/IMG/logo.png" type="image/x-icon">   
 
-    <link rel="stylesheet" href="/RESOURCE/CSS/login.css" />
+    <style>
+    </style>
 </head>
-
 <body>
-    <div class="login">
-        <div class="login__logo">
-            <img class="login__logo-img"
-                src="https://upload.wikimedia.org/wikipedia/commons/8/8c/Logo_neutral_de_la_Comisi%C3%B3n_Federal_de_Electricidad.svg"
-                alt="Logo CFE" />
-        </div>
-        <h1 class="login__titulo-sistema">
-            Sistema CFE de registro de evidencias y formatos de mantenimiento
-        </h1>
-        <h2 class="login__titulo">Iniciar Sesión</h2>
+    <div class="img-encabezado">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/8/8c/Logo_neutral_de_la_Comisi%C3%B3n_Federal_de_Electricidad.svg" alt="Logo de comision federal de electricidad" class="img-encabezado__logo">
 
-        <form id="formulario-login" class="login__formulario">
-            <div class="login__campo">
-                <label class="login__label" for="contrasena">Contraseña:</label>
-                <input class="login__input" type="password" id="contrasena" name="contrasena" required />
-            </div>
-            <div class="login__campo">
-                <input type="checkbox" id="mostrar-contrasena" name="mostrar-contrasena" />
-                <label class="login__label-checkbox" for="mostrar-contrasena">Mostrar contraseña</label>
-            </div>
-            <button class="login__boton" type="submit">Ingresar</button>
-        </form>
-        <div id="mensaje-error" class="login__mensaje-error" style="display: none; color: red; margin-top: 10px; text-align: center;"></div>
+
     </div>
-    <script src="/RESOURCE/JS/login.js"></script>
-</body>
+    <div class="contenedor">
 
+        <a href="formato_RIJ.html" class="contenedor__item contenedor__item--rij">
+            <img src="/RESOURCE/IMG/equipo-arcus-global-7.jpg" alt="Formato rij" class="contenedor__item--img " >
+            <p class="contenedor__item__text">FORMATO RIJ</p>
+        </a>
+
+
+        <a href="camara.html" class="contenedor__item contenedor__item--rim">
+            <img src="/RESOURCE/IMG/equipo-arcus-global-7.jpg" alt="Formato rim" class="contenedor__item--img">
+            <p class="contenedor__item__text">FORMATO RIM</p>
+        </a>
+
+
+        <div class="contenedor__item">
+            <img src="/RESOURCE/IMG/equipo-arcus-global-7.jpg" alt="Formato rm" class="contenedor__item--img">
+            <select id="select-mantenimiento" class="contenedor__item contenedor__item--equipos" onchange="redirigir(this.value)">
+                <option value="#">FORMATO MANTENIMIENTO</option>
+                <option value="\TEMPLATES\Mantenimiento\computo.html">Equipo de cómputo</option>
+                <option value="\TEMPLATES\Mantenimiento\tableta.html">Tabletas</option>
+                <option value="/TEMPLATES/Mantenimiento/telecomunicaciones.html">Inspección de salas de Telecomunicación</option>
+                <option value="/TEMPLATES/Mantenimiento/impresoras.html">Impresoras</option>
+                <option value="/TEMPLATES/Mantenimiento/TPS_Honeywell.html">TPS Honeywell</option>
+            </select>
+        </div>
+    </div>
+    <button id="btn-capitulo-100" class="btn-flotante" onclick="abrirCapitulo100()">
+    <img src="/RESOURCE/IMG/pdf-icono.png" alt="Icono codigo 100">
+    <div>
+        <span>Capítulo 100 </span>
+    </div>
+   
+</button>
+    
+
+    <!-- Modal del Visor PDF -->
+    <div id="modal-pdf-viewer" class="visor-pdf">
+        <div class="visor-pdf__contenedor">
+            
+            <button id="cerrar-pdf-viewer" class="visor-pdf__boton-cerrar">&times;</button>
+            
+            <div id="pdf-controls-menu" class="visor-pdf__controles">
+                <button id="prev-page-menu" disabled class="visor-pdf__boton visor-pdf__boton--anterior">
+                    <img src="/RESOURCE/IMG/flecha-izquierda.png" alt="Página anterior" />
+                </button>
+                
+                <span id="page-info-menu" class="visor-pdf__info-pagina">
+                    Página <span id="page-num-menu" class="visor-pdf__numero-pagina">0</span> de <span id="page-count-menu" class="visor-pdf__total-paginas">0</span>
+                </span>
+                
+                <button id="next-page-menu" disabled class="visor-pdf__boton visor-pdf__boton--siguiente">
+                    <img src="/RESOURCE/IMG/flecha-derecha.png" alt="Página siguiente" />
+                </button>
+                
+                <div class="visor-pdf__control-grupo">
+                    <label for="date-input-menu" class="visor-pdf__etiqueta">Ir a fecha:</label>
+                    <input type="date" id="date-input-menu" class="visor-pdf__entrada visor-pdf__entrada--fecha">
+                </div>
+            </div>
+
+            <div id="pdf-viewer-menu" class="visor-pdf__contenido">
+                <div class="visor-pdf__documento">
+                    <canvas id="pdf-canvas-menu" class="visor-pdf__lienzo"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--Redireccionar en el select-->
+    <script>
+    function redirigir(ruta) {
+        if (ruta) {
+            window.location.href = ruta;
+        }
+    }
+    </script>
+    <script src="/RESOURCE/JS/forzarCargaCSS.js" defer></script>
+    <script src="/RESOURCE/JS/regresar_Select.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        if (typeof pdfjsLib !== 'undefined') {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
+
+        (function() {
+            'use strict';
+            
+            const pdfUrl = '/RESOURCE/RIJ ENE A DIC 2025.pdf';
+            let indiceFechasPaginas = {};
+            let pdfDoc = null;
+            let currentPageNum = 1;
+            let pageRendering = false;
+            let pageNumPending = null;
+            
+            let modal, canvas, ctx, pageNumDisplay, pageCountDisplay, prevButton, nextButton;
+            let dateInput;
+            
+            function initializeElements() {
+                modal = document.getElementById('modal-pdf-viewer');
+                canvas = document.getElementById('pdf-canvas-menu');
+                ctx = canvas ? canvas.getContext('2d') : null;
+                pageNumDisplay = document.getElementById('page-num-menu');
+                pageCountDisplay = document.getElementById('page-count-menu');
+                prevButton = document.getElementById('prev-page-menu');
+                nextButton = document.getElementById('next-page-menu');
+                dateInput = document.getElementById('date-input-menu');
+            }
+            
+            function cargarIndiceFechas() {
+                return fetch('/RESOURCE/JS/indice_fechas_paginas.json')
+                    .then(function(response) {
+                        if (!response.ok) {
+                            throw new Error('Error al cargar índice de fechas: ' + response.status + ' ' + response.statusText);
+                        }
+                        return response.json();
+                    })
+                    .then(function(datos) {
+                        indiceFechasPaginas = datos;
+                        return indiceFechasPaginas;
+                    })
+                    .catch(function(error) {
+                        console.error('Error al cargar índice de fechas:', error);
+                        return {};
+                    });
+            }
+            
+            function obtenerFechaActual() {
+                const fecha = new Date();
+                const dia = fecha.getDate().toString().padStart(2, '0');
+                const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
+                const anio = fecha.getFullYear();
+                return dia + '/' + mes + '/' + anio;
+            }
+            
+            function formatearFechaParaIndice(fechaInput) {
+                if (!fechaInput) return null;
+                const partes = fechaInput.split('-');
+                if (partes.length !== 3) return null;
+                return partes[2] + '/' + partes[1] + '/' + partes[0];
+            }
+            
+            function renderPage(num) {
+                if (pageRendering) {
+                    pageNumPending = num;
+                    return;
+                }
+                
+                pageRendering = true;
+                
+                pdfDoc.getPage(num).then(function(page) {
+                    const viewport = page.getViewport({ scale: 1.0 });
+                    
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+                    
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.save();
+
+                    const renderContext = {
+                        canvasContext: ctx,
+                        viewport: viewport
+                    };
+
+                    if (window.currentRenderTaskMenu) {
+                        window.currentRenderTaskMenu.cancel();
+                    }
+
+                    window.currentRenderTaskMenu = page.render(renderContext);
+
+                    window.currentRenderTaskMenu.promise.then(function() {
+                        pageRendering = false;
+                        window.currentRenderTaskMenu = null;
+                        
+                        pageNumDisplay.textContent = num;
+                        updateButtons();
+                        
+                        if (pageNumPending !== null) {
+                            const pendingNum = pageNumPending;
+                            pageNumPending = null;
+                            renderPage(pendingNum);
+                        }
+                    }).catch(function(error) {
+                        pageRendering = false;
+                        window.currentRenderTaskMenu = null;
+                        
+                        if (error.name !== 'RenderingCancelledException') {
+                            console.error('Error al renderizar página:', error);
+                        }
+                        
+                        if (pageNumPending !== null) {
+                            const pendingNum = pageNumPending;
+                            pageNumPending = null;
+                            renderPage(pendingNum);
+                        }
+                    });
+                    
+                    ctx.restore();
+                }).catch(function(error) {
+                    pageRendering = false;
+                    console.error('Error al obtener página:', error);
+                });
+            }
+            
+            function updateButtons() {
+                if (!pdfDoc) return;
+                
+                prevButton.disabled = (currentPageNum <= 1);
+                nextButton.disabled = (currentPageNum >= pdfDoc.numPages);
+            }
+            
+            function irPaginaAnterior() {
+                if (currentPageNum <= 1) return;
+                currentPageNum--;
+                renderPage(currentPageNum);
+            }
+            
+            function irPaginaSiguiente() {
+                if (!pdfDoc || currentPageNum >= pdfDoc.numPages) return;
+                currentPageNum++;
+                renderPage(currentPageNum);
+            }
+            
+            function irAFecha() {
+                const fechaSeleccionada = dateInput.value;
+                if (!fechaSeleccionada) return;
+                
+                const fechaFormateada = formatearFechaParaIndice(fechaSeleccionada);
+                if (!fechaFormateada) return;
+                
+                const pagina = indiceFechasPaginas[fechaFormateada];
+                if (pagina && pagina >= 1 && pagina <= pdfDoc.numPages) {
+                    currentPageNum = pagina;
+                    renderPage(currentPageNum);
+                }
+            }
+            
+            function cerrarModal() {
+                modal.style.display = 'none';
+                if (window.currentRenderTaskMenu) {
+                    window.currentRenderTaskMenu.cancel();
+                    window.currentRenderTaskMenu = null;
+                }
+            }
+            
+            window.abrirCapitulo100 = function() {
+                initializeElements();
+                
+                cargarIndiceFechas().then(function() {
+                    modal.style.display = 'block';
+                    
+                    if (!pdfDoc) {
+                        pdfjsLib.getDocument(pdfUrl).promise.then(function(pdfDoc_) {
+                            pdfDoc = pdfDoc_;
+                            pageCountDisplay.textContent = pdfDoc.numPages;
+                            
+                            const fechaActual = obtenerFechaActual();
+                            const paginaFecha = indiceFechasPaginas[fechaActual];
+                            
+                            let paginaInicial = 1;
+                            if (paginaFecha) {
+                                paginaInicial = paginaFecha;
+                            }
+                            
+                            currentPageNum = paginaInicial;
+                            
+                            renderPage(currentPageNum);
+                            
+                            const hoy = new Date();
+                            const fechaInput = hoy.getFullYear() + '-' + 
+                                             (hoy.getMonth() + 1).toString().padStart(2, '0') + '-' + 
+                                             hoy.getDate().toString().padStart(2, '0');
+                            dateInput.value = fechaInput;
+                            
+                            setupEventListeners();
+                            
+                        }).catch(function(err) {
+                            console.error("Error al cargar el PDF:", err);
+                            const viewer = document.getElementById('pdf-viewer-menu');
+                            if (viewer) {
+                                viewer.innerHTML = '<div style="color: red; text-align: center; padding: 20px;"><h3>Error al cargar el PDF</h3><p>No se pudo cargar el archivo</p></div>';
+                            }
+                        });
+                    } else {
+                        const fechaActual = obtenerFechaActual();
+                        const paginaFecha = indiceFechasPaginas[fechaActual];
+                        
+                        if (paginaFecha) {
+                            currentPageNum = paginaFecha;
+                            renderPage(currentPageNum);
+                        }
+                        
+                        setupEventListeners();
+                    }
+                });
+            };
+            
+            function setupEventListeners() {
+                const cerrarBtn = document.getElementById('cerrar-pdf-viewer');
+                if (cerrarBtn) {
+                    cerrarBtn.onclick = cerrarModal;
+                }
+                
+                if (prevButton) {
+                    prevButton.onclick = irPaginaAnterior;
+                }
+                
+                if (nextButton) {
+                    nextButton.onclick = irPaginaSiguiente;
+                }
+                
+                if (dateInput) {
+                    dateInput.onchange = irAFecha;
+                }
+                
+                modal.onclick = function(e) {
+                    if (e.target === modal) {
+                        cerrarModal();
+                    }
+                };
+            }
+        })();
+    </script>
+    
+    <!-- Sistema de Control de Sesión -->
+    <script src="/RESOURCE/JS/control_sesion.js"></script>
+</body>
 </html>

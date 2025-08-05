@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8"> 
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verificación Reunión Inicio Jornada</title> 
-    <link rel="icon" href="/RESOURCE/IMG/logo.png" type="image/x-icon">   
+    <title>Verificación Reunión Inicio Jornada</title>
+    <link rel="icon" href="/RESOURCE/IMG/logo.png" type="image/x-icon">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -27,7 +27,7 @@
     <div class="formulario-verificacion">
         <div class="fecha-reloj">
             <div>
-                <span id="reloj" class="reloj">00:00:00</span> 
+                <span id="reloj" class="reloj">00:00:00</span>
             </div>
             <div>
                 <span id="aviso"></span>
@@ -38,41 +38,11 @@
             <h1 class="formulario-verificacion__titulo-principal">LISTA DE VERIFICACIÓN DE LA REUNIÓN DE INICIO DE JORNADA</h1>
             <p id="fecha_p" id="fecha" class="fecha_p"></p>
 
-            <!--<div class="campo">
-                <label class="campo__etiqueta">División</label>            
-                <select  class="campo__control" id="division">
-                <option value="">Selecciona una división</option>
-                <option value="Baja_California">División Bajacalifornia</option>
-                <option value="Noroeste">División Noroeste</option>
-                <option value="Norte">División Norte</option>
-                <option value="Golfo_Norte">División Golfo norte</option>
-                <option value="Golfo_Centro">División Golfo Centro</option>
-                <option value="Bajio">División Bajio</option>
-                <option value="Jalisco">División Jalisco</option>
-                <option value="Centro_Occidente">División Centro Occidente</option>
-                <option value="Centro_Sur">División Centro Sur</option>
-                <option value="Centro_Oriente">Division Centro Oriente</option>
-                <option value="Oriente">División Oriente</option>
-                <option value="Sureste" selected>División Sureste</option>
-                <option value="Peninsular">División Peninsular</option>
-                <option value="Valle_Norte">División Valle de México Norte</option>
-                <option value="Valle_Centro">División Valle de México Centro</option>
-                <option value="Valle_Sur">División Valle de México Sur</option>
-            </select>
-            </div>
-            <div class="seccion">
-                <div class="campo">
-                <label class="campo__etiqueta">Zonas</label>
-                <select class="campo__control" id="zona">
-                    <option value="Seleccionar_Zona" >Selecciona una zona</option>
-                </select>
-                </div>
-            </div>-->
             <div class="seccion">
                 <div class="campo">
                     <label class="campo__etiqueta">DEPARTAMENTO Y/O COMPAÑÍA:</label>
                     <select class="campo__control" id="departamento">
-                        <option value="seleccion_categoria">Seleccione una opción</option> 
+                        <option value="seleccion_categoria">Seleccione una opción</option>
                         <option value="ADMINISTRACION-Administración">ADMINISTRACIÓN-Administración</option>
                         <option value="AGENCIA BENITO JUÁREZ-Comercial">AGENCIA BENITO JUÁREZ-Comercial</option>
                         <option value="AGENCIA CHIAPA DE CORZO-Comercial">AGENCIA CHIAPA DE CORZO-Comercial</option>
@@ -115,7 +85,7 @@
                         <option value="TI SIG Y JURÍDICO-TRABAJO-Trabajo">TI SIG Y JURÍDICO-TRABAJO-Trabajo</option>
                     </select>
                 </div>
-                <div class="seccion"> 
+                <div class="seccion">
                     <div class="campo">
                         <label class="campo__etiqueta">CATEGORÍA MÁXIMA PRESENTE EN LA REUNIÓN:</label>
                         <select class="campo__control" id="categoria_max">
@@ -136,7 +106,7 @@
                             <option value="Liniero">Liniero</option>
                             <option value="Liniero Encargado">Liniero Encargado</option>
                             <option value="Liniero LV">Liniero LV</option>
-                            <option value="Maniobrista">Maniobrista</option>   
+                            <option value="Maniobrista">Maniobrista</option>
                             <option value="Oficinista">Oficinista</option>
                             <option value="Oficinista Comercial">Oficinista Comercial</option>
                             <option value="Operador de Distribución">Operador de Distribución</option>
@@ -272,16 +242,12 @@
                 </div>
                 <div class="campo">
                     <p class="campo__etiqueta">5.5. Otra información</p>
-                    <div class="grupo-opciones">
-                        <label class="grupo-opciones__opcion"><input name="informacion_extra" class="grupo-opciones__control" type="radio" value="si"> Sí</label>
-                        <label class="grupo-opciones__opcion"><input name="informacion_extra" class="grupo-opciones__control" type="radio" value="no"> No</label>
-                    </div>
                 </div>
                 <div class="campo">
                     <label class="campo__etiqueta">Información (Especificar el nombre de los temas del cual se dio información):</label>
-                    <textarea maxlength="100" id= "extra_info" class="campo__control campo__control--area-texto"></textarea>
+                    <textarea maxlength="200" id= "extra_info" class="campo__control campo__control--area-texto"></textarea>
                     <span class="campo_vacio" id="mensajeError8"></span><br>
-                    
+
                 </div>
             </div>
             <div class="seccion seccion--desplegable">
@@ -362,14 +328,14 @@
                     <span class="campo_vacio" id="mensajeError9"></span><br>
                 </div>
             </div>
-            <div class="seccion"> 
+            <div class="seccion">
                 <div class="campo">
                     <label class="campo__etiqueta">7. Meta o propósito de la jornada: (Anotar el compromiso de seguridad que los miembros del grupo se proponen cumplir ese día)</label>
                     <textarea id="meta" class="campo__control campo__control--area-texto" readonly>{{ meta_para_mostrar }}</textarea>
                 </div>
             </div>
             <div class="seccion">
-                <div class="campo"> 
+                <div class="campo">
                     <label class="campo__etiqueta">OBSERVACIONES: (Anotar las preguntas, inquietudes, sugerencias y/o acciones tomadas en caso de que las condiciones de salud del personal no sean adecuadas)</label>
                     <textarea id="observaciones" maxlength="125" class="campo__control campo__control--area-texto"></textarea>
                     <span class="campo_vacio" id="mensajeError10"></span><br>
@@ -396,7 +362,7 @@
                 </div>
             </div>
             <div class="contenedor-botones">
-            <button type="button" class="boton boton--PDF" onclick="validarFormulario()">Generar PDF</button>
+            <button type="button" class="boton boton--PDF">Generar PDF</button>
             <div class="boton boton--secundario boton--cancelar">
                 <a href="/TEMPLATES/menu.html" class="boton--cancelar" id="btn-cancelar-formulario">Cancelar</a>
             </div>
@@ -432,9 +398,9 @@
 {% endif %}
 <!-- Botón menú hamburguesa flotante -->
 <div class="menu-hamburguesa-flotante" id="menu-hamburguesa-flotante">
-   
+
     <div class="menu-hamburguesa-opciones" id="menu-hamburguesa-opciones">
-       
+
         <a href="#" class="opcion-menu-hamburguesa" id="opcion-ver-imagen-dia">
             <img src="/RESOURCE/IMG/seguridad-ico.png" alt="Imagen del día" />
             <span>Kilómetro de vida</span>
@@ -447,7 +413,7 @@
             <img src="/RESOURCE/IMG/pdf-icono.png" alt="Capítulo 100" />
             <span>Capítulo 100</span>
         </a>
-        
+
     </div>
      <button class="btn-hamburguesa" id="btn-hamburguesa" aria-label="Abrir menú">
         <img src="https://images.icon-icons.com/1875/PNG/512/hamburgermenu_120234.png" alt="Menú" />
@@ -457,23 +423,23 @@
 <!-- Modal del Visor PDF -->
 <div id="modal-pdf-viewer" class="visor-pdf">
     <div class="visor-pdf__contenedor">
-        
+
         <!-- Botón para cerrar el modal -->
         <button id="cerrar-pdf-viewer" class="visor-pdf__boton-cerrar">&times;</button>
-        
+
         <div id="pdf-controls-rij" class="visor-pdf__controles">
             <button id="prev-page-rij" disabled class="visor-pdf__boton visor-pdf__boton--anterior">
                 <img src="/RESOURCE/IMG/flecha-izquierda.png" alt="Página anterior" />
             </button>
-            
+
             <span id="page-info-rij" class="visor-pdf__info-pagina">
                 Página <span id="page-num-rij" class="visor-pdf__numero-pagina">0</span> de <span id="page-count-rij" class="visor-pdf__total-paginas">0</span>
             </span>
-            
+
             <button id="next-page-rij" disabled class="visor-pdf__boton visor-pdf__boton--siguiente">
                 <img src="/RESOURCE/IMG/flecha-derecha.png" alt="Página siguiente" />
             </button>
-            
+
             <div class="visor-pdf__control-grupo">
                 <label for="date-input-rij" class="visor-pdf__etiqueta">Ir a fecha:</label>
                 <input type="date" id="date-input-rij" class="visor-pdf__entrada visor-pdf__entrada--fecha">
