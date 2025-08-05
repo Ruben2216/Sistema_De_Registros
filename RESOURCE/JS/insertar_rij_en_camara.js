@@ -63,7 +63,6 @@
             imagenContainer.innerHTML = `
                 <img src="${url}" alt="Formulario RIJ" style="
                     max-width: 100%;
-                    max-height: 400px;
                     border: 1px solid #ddd;
                     border-radius: 4px;
                     box-shadow: 0 2px 8px rgba(0,0,0,0.1);

@@ -1,14 +1,17 @@
 (function() {
     const BORRADOR_KEY = 'borrador_RIJ';
-    const EXPIRATION_TIME = 3 * 60 * 1000; 
+    const EXPIRATION_TIME = 30 * 60 * 1000;
     var API_URL = window.API_CONFIG ? window.API_CONFIG.AUTOGUARDADO : '/api/rij/autoguardado';
     var backendDisponible = true;
+
+    console.log('📝 Autoguardado RIJ iniciado con URL:', API_URL);
+
 
     function obtenerDatosFormulario() {
         var form = document.querySelector('.formulario-verificacion__formulario');
         var datos = {};
         var elementos = form.querySelectorAll('input, select, textarea');
-        
+
         elementos.forEach(function(el) {
             var key = el.name || el.id;
             if (!key) return;
@@ -133,7 +136,7 @@
         guardarEnLocalStorage(datos);
 
         if (!backendDisponible) return;
-        
+
         var datosSinFirmas = Object.assign({}, datos);
         delete datosSinFirmas['firma-input-1'];
         delete datosSinFirmas['firma-input-2'];
@@ -153,7 +156,7 @@
     //se ejecuta al cargar la página para recuperar el trabajo no guardado
     function restaurar() {
         var borradorJSON = localStorage.getItem(BORRADOR_KEY);
-        
+
         if (!borradorJSON) {
             establecerValoresPorDefecto();
             return;
@@ -161,7 +164,7 @@
 
         try {
             var wrapper = JSON.parse(borradorJSON);
-            
+
             if (Date.now() - wrapper.timestamp > EXPIRATION_TIME) {
                 limpiarBorradorExpirado();
             } else {
@@ -174,7 +177,7 @@
         }
     }
 
-    //configuración de los eventos 
+    //configuración de los eventos
     var autoguardadoTimeout = null;
     function autoguardarDebounced() {
         if (autoguardadoTimeout) clearTimeout(autoguardadoTimeout);
@@ -187,7 +190,7 @@
             form.addEventListener('input', autoguardarDebounced);
             form.addEventListener('change', autoguardarDebounced);
         }
-        
+
         restaurar();
     });
 

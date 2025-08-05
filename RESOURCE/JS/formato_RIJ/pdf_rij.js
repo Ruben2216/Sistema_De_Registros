@@ -52,7 +52,7 @@ function validarFormulario() {
 
     // Validar radios obligatorios
     const radios = ['inicio_jornada', '#personal', 'salud', 'ejercicio', 'anomalias', 'mantenimiento', 'operacion', 'riesgo', 'incidentes',
-        'informacion_extra', 'espejo', 'prediccion_peligro', 'articulo', 'experiencia', 'actividades_relevantes', 'reglas_vida', 'politicas', 'colaborador', 
+        'informacion_extra', 'espejo', 'prediccion_peligro', 'articulo', 'experiencia', 'actividades_relevantes', 'reglas_vida', 'politicas', 'colaborador',
     ];
 
     radios.forEach(nombre => {
@@ -163,7 +163,7 @@ async function generarPDF() {
     /*doc.setFont("helvetica", "bold");
     doc.setFontSize(7);
     const fech = "FECHA: ";
-    
+
     // Obtener la fecha actual en formato dd/mm/yyyy usando la función global
     var fechaActual;
     if (typeof obtenerFecha === 'function') {
@@ -176,13 +176,13 @@ async function generarPDF() {
         var anio = fecha.getFullYear();
         fechaActual = dia + '/' + mes + '/' + anio;
     }*/
-    
+
     /*const fechWidth = doc.getTextWidth(fech);
     doc.text(fech, 157, y);
-    
+
     doc.setFont("helvetica", "normal");
     doc.text(fechaCorta, 157 + fechWidth, y);
-    
+
     const fechaCompletaWidth = fechWidth + doc.getTextWidth(fechaActual);
     doc.line(fechWidth + 157, y + 1, 157 + fechaCompletaWidth + 2, y + 1);
 
@@ -243,7 +243,7 @@ async function generarPDF() {
     doc.setFontSize(7);
     const inicio = "HR. INICIO: ";
     doc.text(inicio, 15, y);
-    
+
     doc.setFontSize(7);
     doc.setFont("helvetica", "normal");
     const inicioWidth = doc.getTextWidth(inicio);
@@ -277,7 +277,7 @@ async function generarPDF() {
             doc.setTextColor(255, 0, 0); // Rojo
             doc.text("x", 125.5, y);
 
-            doc.setTextColor(0, 0, 0); 
+            doc.setTextColor(0, 0, 0);
             const motivo = document.querySelector('input[id="input_inicio_jornada"]').value;
             if (motivo) {
                 doc.setFontSize(8); // tamaño más pequeño para caber
@@ -321,12 +321,12 @@ async function generarPDF() {
             doc.setTextColor(255, 0, 0); // Rojo
             doc.text("x", 125.5, y);
 
-            doc.setTextColor(0, 0, 0); 
+            doc.setTextColor(0, 0, 0);
             const motivo = document.querySelector('input[id="input_salud"]').value;
             if (motivo) {
-                doc.setFontSize(8); 
-                doc.text(motivo, 135, y); 
-                doc.setFontSize(10); 
+                doc.setFontSize(8);
+                doc.text(motivo, 135, y);
+                doc.setFontSize(10);
             }
     }
     y+=6;
@@ -345,12 +345,12 @@ async function generarPDF() {
             doc.setTextColor(255, 0, 0); // Rojo
             doc.text("x", 125.5, y);
 
-            doc.setTextColor(0, 0, 0); 
+            doc.setTextColor(0, 0, 0);
             const motivo = document.querySelector('input[id="input_ejercicio"]').value;
             if (motivo) {
-                doc.setFontSize(8); 
-                doc.text(motivo, 135, y); 
-                doc.setFontSize(10); 
+                doc.setFontSize(8);
+                doc.text(motivo, 135, y);
+                doc.setFontSize(10);
             }
     }
     y+=6;
@@ -369,12 +369,12 @@ async function generarPDF() {
             doc.setTextColor(255, 0, 0); // Rojo
             doc.text("x", 125.5, y);
 
-            doc.setTextColor(0, 0, 0); 
+            doc.setTextColor(0, 0, 0);
             const motivo = document.querySelector('input[id="input_anomalias"]').value;
             if (motivo) {
-                doc.setFontSize(8); 
-                doc.text(motivo, 135, y); 
-                doc.setFontSize(10); 
+                doc.setFontSize(8);
+                doc.text(motivo, 135, y);
+                doc.setFontSize(10);
             }
     }
 
@@ -508,31 +508,31 @@ async function generarPDF() {
         doc.line(15, y + 0.5, 195, y + 0.5);
 
     doc.setFont("helvetica","normal")
-    
+
     // Manejar el texto largo del campo extra_info con salto de línea
-    const anchoMaximo = 180; 
+    const anchoMaximo = 180;
     let lineasTextArea1 = doc.splitTextToSize(textArea1, anchoMaximo);
-    
+
     // Si el texto requiere más de 2 líneas, reducir el tamaño de fuente a 7 para que no se rompa tanto por exceso de lienas
     if (lineasTextArea1.length > 2) {
         doc.setFontSize(7);
         lineasTextArea1 = doc.splitTextToSize(textArea1, anchoMaximo);
     } else {
-        doc.setFontSize(9); 
+        doc.setFontSize(9);
     }
-    
-    // Escribir cada línea incrementando 
+
+    // Escribir cada línea incrementando
     for (var i = 0; i < lineasTextArea1.length; i++) {
         doc.text(lineasTextArea1[i], 15, y);
         if (i < lineasTextArea1.length - 1) { // No incrementar y en la última línea
-            y += 4; 
+            y += 4;
             doc.line(15, y + 0.5, 195, y + 0.5);
         }
     }
-    
+
     // Restaurar tamaño
     doc.setFontSize(9);
-    
+
 
     y+=5.5;
     doc.setFont("helvetica", "bold");
@@ -604,7 +604,7 @@ async function generarPDF() {
     const anchoMax  = 96;
     const textoDividido = doc.splitTextToSize(texto, anchoMax);
     doc.text(textoDividido, 15, y);
-    
+
     if (articulo === "si") {
         doc.setFontSize(13)
         doc.setTextColor(255, 0, 0); // Rojo
@@ -684,7 +684,7 @@ async function generarPDF() {
     doc.text("No", 125, y);
     doc.setFontSize(9)
     doc.setFont("helvetica", "normal");
-    doc.text(`6.6. Lectura de las Reglas de Vida)`, 15, y);
+    doc.text(`6.6. Lectura de las Reglas de Vida`, 15, y);
     if (reglas_vida === "si") {
         doc.setFontSize(13)
         doc.setTextColor(255, 0, 0); // Rojo
@@ -709,7 +709,7 @@ async function generarPDF() {
     doc.text("No", 125, y);
     doc.setFontSize(9)
     doc.setFont("helvetica", "normal");
-    doc.text(`6.7. Lectura de politicas)`, 15, y);
+    doc.text(`6.7. Lectura de politicas`, 15, y);
     if (politicas === "si") {
         doc.setFontSize(13)
         doc.setTextColor(255, 0, 0); // Rojo
@@ -778,7 +778,7 @@ async function generarPDF() {
     doc.setTextColor(0, 0, 0); // Negro
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
-    
+
     doc.text(`Meta o proposito de la jornada: `, 15, y);
 
     const meta = "(Anotar el compromiso de seguridad que los miembros del grupo se proponen a cumplir ese día)"
@@ -794,9 +794,9 @@ async function generarPDF() {
     doc.setTextColor(0, 0, 0); // Negro
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
-    
+
     doc.text(`OBSERVACIONES: `, 15, y);
-    
+
     doc.setFont("helvetica", "bold");
     const obser = "(Anotar las preguntas, inquietudes, sugerencias y/o acciones tomadas en caso de que las condiciones de salud del personal no sean las adecuadas)"
     const maxAncho = 136;
@@ -814,7 +814,7 @@ async function generarPDF() {
     y+=5;
     doc.line(15, y, 195, y);
 
-    
+
 //-----------------------------------------------------------------
     y+=8;
     doc.setTextColor(0,0,0)
@@ -850,19 +850,19 @@ async function generarPDF() {
     try {
         // Obtener el PDF como base64
         const pdfBase64 = doc.output('datauristring');
-        
+
         // Obtener identificador único del usuario
         const identificador = window.rijPDFManager ? window.rijPDFManager.obtenerIdentificadorUsuario() : 'RIJ_' + Date.now() + '_' + Math.random().toString(36).substring(7);
-        
+
         // Guardar identificador si no existe
         if (!localStorage.getItem('usuario_identificador_rij')) {
             localStorage.setItem('usuario_identificador_rij', identificador);
         }
-        
+
         // Guardar PDF en localStorage como respaldo
         localStorage.setItem('ultimo_pdf_rij', pdfBase64);
         localStorage.setItem('rij_pdf_procesado', 'true');
-        
+
         // Intentar convertir a imagen en el backend (sin bloquear si falla)
         fetch('/api/rij/convertir_pdf_imagen', {
             method: 'POST',
@@ -890,7 +890,7 @@ async function generarPDF() {
         .catch(error => {
             // Error silencioso - el sistema seguirá funcionando con las imágenes existentes
         });
-        
+
     } catch (error) {
         // Error silencioso
     }
