@@ -1,4 +1,4 @@
-from flask import Flask, send_from_directory, request, jsonify, session, url_for, render_template, redirect
+from flask import Flask, send_from_directory, request, jsonify, session, url_for, render_template, redirect # pyright: ignore[reportMissingImports]
 import os
 import tempfile
 import json
@@ -15,19 +15,19 @@ try:
     from zoneinfo import ZoneInfo
 except ImportError:
     # Fallback para entornos locales con Python < 3.9
-    from pytz import timezone as ZoneInfo
+    from pytz import timezone as ZoneInfo # pyright: ignore[reportMissingModuleSource]
 import io
 import sys
 from functools import wraps
-from werkzeug.utils import secure_filename #esto es para asegurar nombres de archivos seguros, se usa en la subida de archivos a Google Drive
+from werkzeug.utils import secure_filename # pyright: ignore[reportMissingImports] #esto es para asegurar nombres de archivos seguros, se usa en la subida de archivos a Google Drive
 # --- INICIO LÓGICA DE backend (búsqueda de equipos en MySQL) ---
 from flask_cors import CORS 
-import mysql.connector 
-from mysql.connector import Error
-from dotenv import load_dotenv
+import mysql.connector  # pyright: ignore[reportMissingImports]
+from mysql.connector import Error # pyright: ignore[reportMissingImports]
+from dotenv import load_dotenv # pyright: ignore[reportMissingImports]
 from kilometro_vida import bp_imgdia
 # --- IMPORTACIONES PARA CORREO ---
-from flask_mail import Mail, Message
+from flask_mail import Mail, Message # pyright: ignore[reportMissingImports]
 import io
 
 # --- CONFIGURACIÓN DE AUTENTICACIÓN ---
@@ -747,7 +747,7 @@ def convertir_pdf_a_imagen():
             imagen_path = os.path.join(directorio_imagenes, f"{identificador}.png")
             
             try:
-                import fitz  # PyMuPDF
+                import fitz  # pyright: ignore[reportMissingImports] # PyMuPDF
                 
                 # Abrir PDF con PyMuPDF
                 doc = fitz.open(temp_pdf_path)
@@ -1576,7 +1576,7 @@ def generar_pdf_con_evidencia():
         
         try:
             # Intentar usar PyMuPDF para mejor calidad
-            import fitz
+            import fitz # pyright: ignore[reportMissingImports]
             
             # Abrir PDF original
             doc_original = fitz.open(ruta_pdf_original)
@@ -1663,11 +1663,11 @@ def generar_pdf_con_evidencia():
             
         except ImportError:
             # Fallback usando reportlab si PyMuPDF no está disponible
-            from reportlab.pdfgen import canvas
-            from reportlab.lib.pagesizes import A4
-            from reportlab.lib.utils import ImageReader
-            from reportlab.lib import colors
-            from reportlab.pdfgen.canvas import Canvas
+            from reportlab.pdfgen import canvas # pyright: ignore[reportMissingModuleSource]
+            from reportlab.lib.pagesizes import A4 # pyright: ignore[reportMissingModuleSource]
+            from reportlab.lib.utils import ImageReader # pyright: ignore[reportMissingModuleSource]
+            from reportlab.lib import colors # pyright: ignore[reportMissingModuleSource]
+            from reportlab.pdfgen.canvas import Canvas # pyright: ignore[reportMissingModuleSource]
             import shutil
             
             # Copiar PDF original como base
@@ -2216,6 +2216,11 @@ except ImportError as e:
 
 # --- FIN ENDPOINTS PARA GOOGLE DRIVE ---
 
+cert_path = os.path.join(BASE_DIR, 'cert.pem')
+key_path = os.path.join(BASE_DIR, 'key.pem')
+
+ssl_context_tuple = (cert_path, key_path)
+
 # --- INICIO DE MODIFICACIONES PARA PRODUCCIÓN EN PYTHONANYWHERE ---
 # Inicializar sistema de limpieza automática original
 iniciar_sistema_limpieza()
@@ -2224,5 +2229,5 @@ iniciar_sistema_limpieza()
 iniciar_limpieza_sesiones()
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8000, debug=False)
+    app.run(host='0.0.0.0', port=8000,ssl_context=ssl_context_tuple, debug=False)
 # --- FIN DE MODIFICACIONES PARA PRODUCCIÓN ---

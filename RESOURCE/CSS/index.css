@@ -1,14 +1,28 @@
+/* FONDO GENERAL (ya no blanco) */
 body {
-    font-family: Arial, sans-serif;
-    margin: 0; 
-    padding: 10px;
-    background-color: #f4f4f4;
-    color: #333;
+  font-family: "Segoe UI", Roboto, sans-serif;
+  background: #c5d3d6; /*fondo suave */
+  color: #222;
+  
+  margin: 0;
+  padding: 0;
+  line-height: 1.5;
 }
+
+/*CONTENEDORES PRINCIPALES */
+.formulario-verificacion {
+  max-width: 900px;
+  margin: 50px auto;
+  padding: 30px;
+  background: #fff; 
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+
 .contenedor-barra{  
     background-color: white;
     height: 1.5rem;
-    width: 97.5vw;
+    width: 98.9vw;
     border-radius: 5px;
     position: fixed !important;
     top: 0;
@@ -72,7 +86,7 @@ h1{
     font-size: 1.5em;
     text-align: center;
     margin-bottom: 20px;
-    color: #333;
+    color: #0e6655;
 }
 .seccion { 
     margin-bottom: 20px;
@@ -98,7 +112,7 @@ h1{
     display: block;
     margin-bottom: 5px;
     font-weight: bold; 
-    color: #333;
+    color: #145a32;
 }
 .campo__control {
     width: 100%;
@@ -174,6 +188,7 @@ h1{
     font-weight: bold;
     
 }
+
 .boton--primario{
     background-color: #00724e;
     color: white;
@@ -185,6 +200,12 @@ h1{
 .boton--secundario {
     background-color: #ffc107;
     color: #333;
+    text-decoration: none;
+}
+/*ESTILO PARA EL BOTON*/
+.boton--secundarioC {
+    background-color: #dc3545; /* rojo típico de eliminar */
+    color: #fff;
     text-decoration: none;
 }
 .boton--cancelar{
@@ -266,10 +287,13 @@ h1{
     margin-bottom: 10px;
 }
 .firma-modal__botones {
-    margin-top: 10px;
     display: flex;
-    gap: 10px;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 20px;
+    flex-wrap: wrap; /* Para que en pantallas pequeñas se acomoden */
 }
+
 .firma-imagen {
     display: none;
     max-width: 100%;
@@ -297,7 +321,6 @@ h1{
     /* width:400px;
     height:300px; */
     /* CHECAR SI NO ROMPE FUNCIONALIDADES DE CAMARA.HTML */
-
 
 .btn-flotante {
     position: fixed;
@@ -632,5 +655,3 @@ h1{
     color: red;
     font-size: 12px;
 }
-
-
